@@ -1,4 +1,4 @@
-package com.timmitof.keyboardfonts.ui.theme
+package com.timmitof.common.ui.theme
 
 import android.app.Activity
 import android.os.Build

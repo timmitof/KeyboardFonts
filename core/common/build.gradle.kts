@@ -1,24 +1,17 @@
 plugins {
-    alias(libs.plugins.android.application)
+    alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
-    alias(libs.plugins.devtools.ksp)
 }
 
 android {
-    namespace = "com.timmitof.keyboardfonts"
+    namespace = "com.timmitof.common"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.timmitof.keyboardfonts"
         minSdk = 24
-        targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        vectorDrawables {
-            useSupportLibrary = true
-        }
+        consumerProguardFiles("consumer-rules.pro")
     }
 
     buildTypes {
@@ -46,10 +39,8 @@ android {
 }
 
 dependencies {
-    implementation(project(":core:common"))
 
     implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
@@ -62,15 +53,4 @@ dependencies {
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
-
-    // Hilt
-    implementation (libs.hilt.android)
-    ksp (libs.hilt.compiler)
-
-    // Navigation
-    implementation(libs.androidx.navigation.compose)
-
-    // Window Width Size Class
-    implementation(libs.androidx.window.size)
 }
