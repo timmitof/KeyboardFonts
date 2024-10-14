@@ -1,4 +1,4 @@
-package com.timmitof.keyboardfonts.ui.theme
+package com.timmitof.common.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
