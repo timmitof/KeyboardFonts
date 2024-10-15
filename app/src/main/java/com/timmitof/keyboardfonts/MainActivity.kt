@@ -15,7 +15,6 @@ import dagger.hilt.android.AndroidEntryPoint
 /**
  * Главная активность приложения
  */
-@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)

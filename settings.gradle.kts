@@ -22,3 +22,4 @@ dependencyResolutionManagement {
 rootProject.name = "KeyboardFonts"
 include(":app")
 include(":core:common")
+include(":feature:home")
