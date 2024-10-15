@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.devtools.ksp)
+    alias(libs.plugins.jetbrains.kotlin.serialization)
 }
 
 android {
@@ -47,6 +48,7 @@ android {
 
 dependencies {
     implementation(project(":core:common"))
+    implementation(project(":feature:home"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -73,4 +75,7 @@ dependencies {
 
     // Window Width Size Class
     implementation(libs.androidx.window.size)
+
+    // Serialization
+    implementation(libs.serialization.json)
 }

@@ -13,6 +13,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.timmitof.common.navigation.NavigationLinks
 import com.timmitof.common.toolbar.ToolbarState
+import com.timmitof.home.HomeScreenHost
 
 /**
  * Навигация проекта
@@ -31,7 +32,11 @@ internal fun MainNavHost(
         startDestination = NavigationLinks.Home
     ) {
         composable<NavigationLinks.Home> {
-
+            HomeScreenHost(
+                navController = navHostController,
+                toolbarState = toolbarState,
+                contentPadding = contentPadding
+            )
         }
     }
 }
