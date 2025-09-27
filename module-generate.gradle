@@ -1,0 +1,213 @@
+static def capitalize(str) {
+    str.length() > 0 ? str[0].toUpperCase() + str.substring(1) : str
+}
+
+def writeFileIfNotExists(File file, String content) {
+    if (!file.exists()) {
+        file.parentFile.mkdirs()
+        file.text = content
+        println "✅ Created file: ${file}"
+    }
+}
+
+tasks.register('generateFeatureModules') {
+    group = 'scaffolding'
+    description = 'Generates a feature module with layered architecture (data, di, domain, presentation)'
+
+    doLast {
+        def basePackage = "kg.timmitof"
+
+        def featureName = project.hasProperty("name") ? project.getProperty("name") : null
+        if (!featureName) throw new GradleException("Please provide -Pname=yourFeature")
+
+        def featureDir = new File(rootDir, "feature_${featureName}")
+        def featureCap = capitalize(featureName)
+
+        def modules = ['data', 'di', 'domain', "presentation"]
+
+        modules.each { module ->
+            def modulePath = new File(featureDir, module)
+            def namespace = "${basePackage}.feature_${featureName}.${module}"
+            def javaDir = new File(modulePath, "src/main/java")
+
+            javaDir.mkdir()
+
+            writeFileIfNotExists(new File(modulePath, ".gitignore"), "*.iml\n.gradle\n/local.properties\n/.idea\n/build")
+
+            writeFileIfNotExists(
+                new File(modulePath, "build.gradle.kts"),
+                """plugins { id("timmitof.plugins.${module}") }"""
+            )
+
+            if (module == 'di') {
+                def packagePath = new File(javaDir, namespace.replace('.', '/'))
+
+                writeFileIfNotExists(
+                    new File(packagePath, "RepositoryModule.kt"),
+                    """package ${namespace}
+
+import dagger.Binds
+import dagger.Module
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class RepositoryModule {}""".stripIndent()
+                )
+
+                writeFileIfNotExists(
+                    new File(packagePath, "UseCaseModule.kt"),
+                    """package ${namespace}
+
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ViewModelComponent
+
+@Module
+@InstallIn(ViewModelComponent::class)
+object UseCaseModule {}""".stripIndent()
+                )
+            }
+
+            if (module == 'presentation') {
+                def packagePath = new File(javaDir, namespace.replace('.', '/'))
+                def screens = new File(packagePath, "screens")
+                def navigation = new File(packagePath, "navigation")
+
+                writeFileIfNotExists(
+                    new File(screens, "${featureCap}Screen.kt"),
+                    """package ${namespace}.screens
+
+import androidx.compose.runtime.Composable
+
+@Composable
+fun ${featureCap}Screen() {
+    // TODO: Implement screen UI
+}""".stripIndent()
+                )
+
+                writeFileIfNotExists(
+                    new File(screens, "${featureCap}ViewModel.kt"),
+                    """package ${namespace}.screens
+
+class ${featureCap}ViewModel {
+    // TODO: Add ViewModel logic
+}""".stripIndent()
+                )
+
+                writeFileIfNotExists(
+                    new File(screens, "${featureCap}State.kt"),
+                    """package ${namespace}.screens
+
+data class ${featureCap}State(val example: String = "")""".stripIndent()
+                )
+
+                writeFileIfNotExists(
+                    new File(navigation, "${featureCap}NavGraph.kt"),
+                    """package ${namespace}.navigation
+
+import androidx.navigation.NavController
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.compose.composable
+import androidx.navigation.navigation
+import kg.timmitof.core.navigation.graphs.${featureCap}Graph
+import ${namespace}.screens.${featureCap}Screen
+
+fun NavGraphBuilder.${feature}Graph(navController: NavController) {
+   navigation<${featureCap}Graph>(startDestination = ${featureCap}Graph.${featureCap}Screen) {
+       composable<${featureCap}Graph.${featureCap}Screen> {
+           val args = it.toRoute<${featureCap}Route.${featureCap}Screen>()
+           ${featureCap}Screen()
+       }
+   }
+}""".stripIndent()
+                )
+            }
+        }
+
+        def settingsGradleFile = new File(rootDir, "settings.gradle.kts")
+        if (!settingsGradleFile.exists()) settingsGradleFile = new File(rootDir, "settings.gradle")
+
+        def includeLine = "includeFeature(\"${featureName}\")"
+        if (!settingsGradleFile.text.contains(includeLine)) {
+            settingsGradleFile.append("\n${includeLine}")
+            println "Added ${includeLine} to settings.gradle"
+        }
+
+        println "\nFeature '${featureName}' generated successfully!"
+
+        def routeFile = new File(rootDir, "core/navigation/src/main/java/kg/timmitof/core/navigation/routes/${featureCap}Route.kt")
+        if (!routeFile.exists()) {
+            writeFileIfNotExists(
+                routeFile,
+                """package kg.timmitof.core.navigation.graphs
+                   
+import kotlinx.serialization.Serializable
+
+@Serializable data object ${featureCap}Graph {
+    //TODO: Add Your Screen
+}""".stripIndent()
+            )
+
+            println "Created navigation route: ${routeFile.name}"
+        } else {
+            println "Navigation route ${featureCap}Route.kt already exists (skipped)."
+        }
+
+        def appNavHostFile = new File(rootDir, "app/src/main/java/kg/timmitof/keyboardfonts/ui/navigation/AppNavHost.kt")
+
+        if (appNavHostFile.exists()) {
+            def navGraphName = "${feature}Graph"
+            def screenType = "${featureCap}Route.${featureCap}Screen"
+
+            def fileText = appNavHostFile.text
+
+            def importLine = "import kg.timmitof.feature_${feature}.presentation.navigation.${navGraphName}"
+            if (!fileText.contains(importLine)) {
+                fileText = fileText.replaceFirst(/(?m)^import .*$/, "\$0\n$importLine")
+                println "Inserted import for ${screenType}"
+            }
+
+            if (!fileText.contains("${navGraphName}(navController)")) {
+                fileText = fileText.replaceFirst(
+                    /(?s)(@Composable\s+fun\s+AppNavHost\s*\(.*?\)\s*\{\s*NavHost\(.*?\)\s*\{)/,
+                    "\$1\n        ${navGraphName}(navController)"
+                )
+                println "Added call to ${navGraphName}(navController)"
+            }
+
+            appNavHostFile.text = fileText
+            println "Updated AppNavHost.kt"
+        } else {
+            println "AppNavHost.kt not found, skipping navigation update"
+        }
+
+        def appBuildGradle = new File(rootDir, "app/build.gradle.kts")
+        def dependencyLine = "implementation(project(\":feature_${feature}:feature_${feature}_presentation\"))"
+
+        if (appBuildGradle.exists()) {
+            def gradleText = appBuildGradle.text
+
+            if (!gradleText.contains(dependencyLine)) {
+                def dependencyPattern = ~/dependencies\s*\{\s*/
+                def matcher = dependencyPattern.matcher(gradleText)
+                if (matcher.find()) {
+                    def insertionPoint = matcher.end()
+                    gradleText = gradleText.substring(0, insertionPoint) +
+                            "${dependencyLine}\n    " +
+                            gradleText.substring(insertionPoint)
+                    appBuildGradle.text = gradleText
+                    println "Added presentation module to app/build.gradle.kts"
+                } else {
+                    println "Could not find dependencies block in app/build.gradle.kts"
+                }
+            } else {
+                println "Presentation dependency already exists in app/build.gradle.kts"
+            }
+        } else {
+            println "app/build.gradle.kts not found"
+        }
+    }
+}
