@@ -1,4 +1,5 @@
 pluginManagement {
+    includeBuild("build-logic")
     repositories {
         google {
             content {
@@ -19,16 +20,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "KeyboardFonts"
-
-include(":app")
-
-//Include Core
-include(
-    ":core:ui",
-    ":core:navigation"
-)
-
 fun includeFeature(name: String) {
     val featurePrefix = "feature_$name"
     include(
@@ -42,3 +33,13 @@ fun includeFeature(name: String) {
     project(":$featurePrefix:${featurePrefix}_di").projectDir = file("$featurePrefix/di")
     project(":$featurePrefix:${featurePrefix}_presentation").projectDir = file("$featurePrefix/presentation")
 }
+
+rootProject.name = "KeyboardFonts"
+
+include(":app")
+
+//Include Core
+include(
+    ":core:ui",
+    ":core:navigation"
+)
