@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "kg.timmitof.navigation"
+    namespace = "kg.timmitof.core.navigation"
 
     buildFeatures {
         compose = true

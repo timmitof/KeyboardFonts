@@ -17,8 +17,8 @@ tasks.register('generateFeatureModules') {
     doLast {
         def basePackage = "kg.timmitof"
 
-        def featureName = project.hasProperty("name") ? project.getProperty("name") : null
-        if (!featureName) throw new GradleException("Please provide -Pname=yourFeature")
+        def featureName = project.hasProperty("mname") ? project.getProperty("mname") : null
+        if (!featureName) throw new GradleException("Please provide -Pmname=yourFeature")
 
         def featureDir = new File(rootDir, "feature_${featureName}")
         def featureCap = capitalize(featureName)
@@ -138,7 +138,7 @@ fun NavGraphBuilder.${feature}Graph(navController: NavController) {
 
         println "\nFeature '${featureName}' generated successfully!"
 
-        def routeFile = new File(rootDir, "core/navigation/src/main/java/kg/timmitof/core/navigation/routes/${featureCap}Route.kt")
+        def routeFile = new File(rootDir, "core/navigation/src/main/java/kg/timmitof/core/navigation/graphs/${featureCap}Route.kt")
         if (!routeFile.exists()) {
             writeFileIfNotExists(
                 routeFile,

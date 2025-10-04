@@ -43,3 +43,5 @@ include(
     ":core:ui",
     ":core:navigation"
 )
+includeFeature("KeyboardFonts")
+includeFeature("home")

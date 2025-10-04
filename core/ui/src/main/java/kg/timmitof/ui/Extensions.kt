@@ -1,2 +1,0 @@
-package kg.timmitof.ui
-

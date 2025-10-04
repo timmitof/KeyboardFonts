@@ -1,4 +1,4 @@
-package kg.timmitof.navigation
+package kg.timmitof.core.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider

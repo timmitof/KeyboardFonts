@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "kg.timmitof.ui"
+    namespace = "kg.timmitof.core.ui"
 
     buildFeatures {
         compose = true

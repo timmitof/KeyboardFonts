@@ -1,4 +1,4 @@
-package kg.timmitof.keyboardfonts.ui
+package kg.timmitof.keyboardfonts.ui.navigation
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
