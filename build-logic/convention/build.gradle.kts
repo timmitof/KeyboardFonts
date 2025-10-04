@@ -21,5 +21,10 @@ gradlePlugin {
             id = "keyboardfonts.application"
             implementationClass = "kg.timmitof.build_logic.convention.plugins.AndroidApplicationPlugin"
         }
+
+        register("keyboardfontsLibrary") {
+            id = "keyboardfonts.library"
+            implementationClass = "kg.timmitof.build_logic.convention.plugins.AndroidLibraryPlugin"
+        }
     }
 }
