@@ -17,8 +17,8 @@ tasks {
 
 gradlePlugin {
     plugins {
-        register("applicationPlugin") {
-            id = "timmitof.application"
+        register("keyboardfontsApplication") {
+            id = "keyboardfonts.application"
             implementationClass = "kg.timmitof.build_logic.convention.plugins.AndroidApplicationPlugin"
         }
     }

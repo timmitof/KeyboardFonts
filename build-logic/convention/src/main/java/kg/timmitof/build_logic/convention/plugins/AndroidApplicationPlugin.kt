@@ -1,89 +1,81 @@
 package kg.timmitof.build_logic.convention.plugins
 
-import com.android.build.gradle.internal.dsl.BaseAppModuleExtension
-import kg.timmitof.build_logic.convention.AndroidConfig
-import kg.timmitof.build_logic.convention.androidTestImplementation
-import kg.timmitof.build_logic.convention.debugImplementation
-import kg.timmitof.build_logic.convention.implementation
-import kg.timmitof.build_logic.convention.libs
-import kg.timmitof.build_logic.convention.testImplementation
+import com.android.build.api.dsl.ApplicationExtension
+import kg.timmitof.build_logic.convention.ProjectConfig
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.kotlin.dsl.configure
-import org.gradle.kotlin.dsl.dependencies
 import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
 
+/**
+ * # `AndroidApplicationPlugin`
+ *
+ * `AndroidApplicationPlugin` is a Gradle plugin for Android projects that centralizes and simplifies the configuration of application modules.
+ *
+ * ## Purpose
+ *
+ * * **Simplified configuration**: a single point for core project settings.
+ * * **Flexibility**: easy to extend and add new common settings and tasks.
+ *
+ * The plugin serves as a platform for further expansion and automation of tasks related to Android applications, keeping information accurate and up-to-date as it evolves.
+ *
+ * ## Usage
+ *
+ * Apply the plugin in your module's `build.gradle.kts`:
+ *
+ * `plugins {
+ *      alias(libs.plugins.keyboardfonts.application)
+ *  }`
+*/
 class AndroidApplicationPlugin : Plugin<Project> {
     override fun apply(target: Project) = with(target) {
-        pluginManager.withPlugin("com.android.application") {
-            configureApplication()
+        applyPlugins(target)
+        applyProjectConfig(target)
+    }
+
+    private fun applyPlugins(project: Project) {
+        project.apply {
+            plugin("com.android.application")
+            plugin("org.jetbrains.kotlin.android")
+            plugin("org.jetbrains.kotlin.plugin.compose")
         }
     }
 
-    private fun Project.configureApplication() {
-        pluginManager.apply("org.jetbrains.kotlin.android")
-        pluginManager.apply("org.jetbrains.kotlin.plugin.compose")
-
-        extensions.configure<BaseAppModuleExtension> {
+    private fun applyProjectConfig(project: Project) {
+        project.application().apply {
             namespace = "kg.timmitof.keyboardfonts"
-            compileSdkVersion(AndroidConfig.COMPILE_SDK)
+
+            compileSdk = ProjectConfig.COMPILE_SDK
 
             defaultConfig {
                 applicationId = "kg.timmitof.keyboardfonts"
-                minSdk = AndroidConfig.MIN_SDK
-                targetSdk = AndroidConfig.TARGET_SDK
-                versionCode = AndroidConfig.VERSION_CODE
-                versionName = AndroidConfig.VERSION_NAME
-                testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-            }
 
-            buildTypes {
-                getByName("release") {
-                    isMinifyEnabled = false
-                    proguardFiles(
-                        getDefaultProguardFile("proguard-android-optimize.txt"),
-                        "proguard-rules.pro"
-                    )
-                }
+                minSdk = ProjectConfig.MIN_SDK
+                targetSdk = ProjectConfig.TARGET_SDK
+                versionCode = ProjectConfig.VERSION_CODE
+                versionName = ProjectConfig.VERSION_NAME
             }
 
             compileOptions {
-                sourceCompatibility = AndroidConfig.JAVA_VERSION
-                targetCompatibility = AndroidConfig.JAVA_VERSION
+                sourceCompatibility = ProjectConfig.JAVA_VERSION
+                targetCompatibility = ProjectConfig.JAVA_VERSION
             }
 
             buildFeatures {
                 compose = true
+                buildConfig = true
             }
+        }
 
-            extensions.configure<KotlinAndroidProjectExtension> {
-                compilerOptions {
-                    jvmTarget.set(AndroidConfig.JVM_TARGET)
-                }
-            }
-
-            dependencies {
-                implementation(project(":core:ui"))
-                implementation(project(":core:navigation"))
-
-                implementation(libs.findLibrary("androidx-core-ktx").get())
-                implementation(libs.findLibrary("androidx-activity-compose").get())
-                implementation(libs.findLibrary("androidx-lifecycle-runtime-ktx").get())
-                implementation(libs.findLibrary("androidx-activity-compose").get())
-                implementation(platform(libs.findLibrary("androidx-compose-bom").get()))
-                implementation(libs.findLibrary("androidx-ui").get())
-                implementation(libs.findLibrary("androidx-ui-graphics").get())
-                implementation(libs.findLibrary("androidx-ui-tooling-preview").get())
-                implementation(libs.findLibrary("androidx-material3").get())
-
-                testImplementation(libs.findLibrary("junit").get())
-                androidTestImplementation(libs.findLibrary("androidx-junit").get())
-                androidTestImplementation(libs.findLibrary("androidx-espresso-core").get())
-                androidTestImplementation(platform(libs.findLibrary("androidx-compose-bom").get()))
-                androidTestImplementation(libs.findLibrary("androidx-ui-test-junit4").get())
-                debugImplementation(libs.findLibrary("androidx-ui-tooling").get())
-                debugImplementation(libs.findLibrary("androidx-ui-test-manifest").get())
+        project.androidProject().apply {
+            compilerOptions {
+                jvmTarget.set(ProjectConfig.JVM_TARGET)
             }
         }
     }
+
+    private fun Project.application(): ApplicationExtension =
+        extensions.getByType(ApplicationExtension::class.java)
+
+    private fun Project.androidProject(): KotlinAndroidProjectExtension =
+        extensions.getByType(KotlinAndroidProjectExtension::class.java)
 }

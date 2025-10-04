@@ -3,7 +3,7 @@ package kg.timmitof.build_logic.convention
 import org.gradle.api.JavaVersion
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
-object AndroidConfig {
+object ProjectConfig {
     const val COMPILE_SDK = 36
     const val MIN_SDK = 24
     const val TARGET_SDK = 36
