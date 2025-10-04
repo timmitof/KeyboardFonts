@@ -15,7 +15,12 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
 
 class AndroidApplicationPlugin : Plugin<Project> {
     override fun apply(target: Project) = with(target) {
-        pluginManager.apply("com.android.application")
+        pluginManager.withPlugin("com.android.application") {
+            configureApplication()
+        }
+    }
+
+    private fun Project.configureApplication() {
         pluginManager.apply("org.jetbrains.kotlin.android")
         pluginManager.apply("org.jetbrains.kotlin.plugin.compose")
 

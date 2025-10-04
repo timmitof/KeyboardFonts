@@ -1,3 +1,3 @@
 plugins {
-    id("timmitof.application")
+    alias(libs.plugins.android.application)
 }
