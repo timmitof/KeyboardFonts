@@ -5,6 +5,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import kg.timmitof.keyboardfonts.ui.AppNavHost
+import kg.timmitof.navigation.LocalNavController
+import kg.timmitof.navigation.NavControllerProvider
 import kg.timmitof.ui.theme.KeyboardFontsTheme
 
 class MainActivity : ComponentActivity() {
@@ -13,7 +15,10 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             KeyboardFontsTheme {
-                AppNavHost()
+                NavControllerProvider {
+                    val navController = LocalNavController.current
+                    AppNavHost(navController = navController)
+                }
             }
         }
     }
