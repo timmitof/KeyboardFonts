@@ -115,10 +115,9 @@ import androidx.navigation.navigation
 import kg.timmitof.core.navigation.graphs.${featureCap}Graph
 import ${namespace}.screens.${featureCap}Screen
 
-fun NavGraphBuilder.${feature}Graph(navController: NavController) {
+fun NavGraphBuilder.${featureName}Graph(navController: NavController) {
    navigation<${featureCap}Graph>(startDestination = ${featureCap}Graph.${featureCap}Screen) {
        composable<${featureCap}Graph.${featureCap}Screen> {
-           val args = it.toRoute<${featureCap}Route.${featureCap}Screen>()
            ${featureCap}Screen()
        }
    }
@@ -138,7 +137,7 @@ fun NavGraphBuilder.${feature}Graph(navController: NavController) {
 
         println "\nFeature '${featureName}' generated successfully!"
 
-        def routeFile = new File(rootDir, "core/navigation/src/main/java/kg/timmitof/core/navigation/graphs/${featureCap}Route.kt")
+        def routeFile = new File(rootDir, "core/navigation/src/main/java/kg/timmitof/core/navigation/graphs/${featureCap}Graph.kt")
         if (!routeFile.exists()) {
             writeFileIfNotExists(
                 routeFile,
@@ -146,8 +145,9 @@ fun NavGraphBuilder.${feature}Graph(navController: NavController) {
                    
 import kotlinx.serialization.Serializable
 
-@Serializable data object ${featureCap}Graph {
-    //TODO: Add Your Screen
+@Serializable 
+sealed class ${featureCap}Graph {
+    data object ${featureCap}Screen : ${featureCap}Graph()
 }""".stripIndent()
             )
 
@@ -159,12 +159,12 @@ import kotlinx.serialization.Serializable
         def appNavHostFile = new File(rootDir, "app/src/main/java/kg/timmitof/keyboardfonts/ui/navigation/AppNavHost.kt")
 
         if (appNavHostFile.exists()) {
-            def navGraphName = "${feature}Graph"
+            def navGraphName = "${featureName}Graph"
             def screenType = "${featureCap}Route.${featureCap}Screen"
 
             def fileText = appNavHostFile.text
 
-            def importLine = "import kg.timmitof.feature_${feature}.presentation.navigation.${navGraphName}"
+            def importLine = "import kg.timmitof.feature_${featureName}.presentation.navigation.${navGraphName}"
             if (!fileText.contains(importLine)) {
                 fileText = fileText.replaceFirst(/(?m)^import .*$/, "\$0\n$importLine")
                 println "Inserted import for ${screenType}"
@@ -185,7 +185,7 @@ import kotlinx.serialization.Serializable
         }
 
         def appBuildGradle = new File(rootDir, "app/build.gradle.kts")
-        def dependencyLine = "implementation(project(\":feature_${feature}:feature_${feature}_presentation\"))"
+        def dependencyLine = "implementation(project(\":feature_${featureName}:feature_${featureName}_presentation\"))"
 
         if (appBuildGradle.exists()) {
             def gradleText = appBuildGradle.text

@@ -13,7 +13,7 @@ import org.gradle.kotlin.dsl.dependencies
 
 class DiPlugin : Plugin<Project> {
     override fun apply(target: Project) = with(target) {
-        pluginManager.apply("com.android.library")
+        pluginManager.apply("keyboardfonts.library")
         pluginManager.apply("org.jetbrains.kotlin.android")
         pluginManager.apply("dagger.hilt.android.plugin")
         pluginManager.apply("com.google.devtools.ksp")
