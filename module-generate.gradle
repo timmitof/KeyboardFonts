@@ -36,7 +36,7 @@ tasks.register('generateFeatureModules') {
 
             writeFileIfNotExists(
                 new File(modulePath, "build.gradle.kts"),
-                """plugins { id("timmitof.plugins.${module}") }"""
+                """plugins { id("keyboardfonts.${module}") }"""
             )
 
             if (module == 'di') {

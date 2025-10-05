@@ -41,7 +41,6 @@ include(":app")
 //Include Core
 include(
     ":core:ui",
-    ":core:navigation"
+    ":core:navigation",
+    ":core:common"
 )
-includeFeature("KeyboardFonts")
-includeFeature("home")
