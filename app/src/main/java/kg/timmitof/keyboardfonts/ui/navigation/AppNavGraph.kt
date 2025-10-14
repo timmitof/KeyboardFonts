@@ -1,12 +1,14 @@
 package kg.timmitof.keyboardfonts.ui.navigation
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import kg.timmitof.core.navigation.graphs.HomeGraph
+import kg.timmitof.feature_home.presentation.navigation.homeGraph
 
 @Composable
-internal fun AppNavHost(navController: NavController) {
-    Box(Modifier.fillMaxSize())
+internal fun AppNavHost(navController: NavHostController) {
+    NavHost(navController = navController, startDestination = HomeGraph) {
+        homeGraph(navController)
+    }
 }

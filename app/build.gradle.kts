@@ -1,8 +1,13 @@
 plugins {
     alias(libs.plugins.keyboardfonts.application)
+    alias(libs.plugins.hilt.android)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 dependencies {
+    implementation(project(":feature_home:feature_home_presentation"))
+
     implementation(project(":core:ui"))
     implementation(project(":core:navigation"))
 
@@ -16,4 +21,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.kotlin.kotlinx.serialization.json)
+
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
 }

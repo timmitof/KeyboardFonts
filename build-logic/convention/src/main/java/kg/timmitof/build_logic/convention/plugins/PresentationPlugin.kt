@@ -43,8 +43,13 @@ class PresentationPlugin : Plugin<Project> {
 
             implementation(project(":core:ui"))
             implementation(project(":core:navigation"))
-            implementation(project(featureModulePath("di")))
-            implementation(project(featureModulePath("domain")))
+            featureModuleIfExists("di")?.let { implementation(project(it)) }
+            featureModuleIfExists("domain")?.let { implementation(project(it)) }
         }
+    }
+
+    private fun Project.featureModuleIfExists(name: String): String? {
+        val path = featureModulePath(name)
+        return if (findProject(path) != null) path else null
     }
 }

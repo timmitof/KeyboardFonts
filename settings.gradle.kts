@@ -22,16 +22,22 @@ dependencyResolutionManagement {
 
 fun includeFeature(name: String) {
     val featurePrefix = "feature_$name"
-    include(
-        "$featurePrefix:${featurePrefix}_data",
-        "$featurePrefix:${featurePrefix}_domain",
-        "$featurePrefix:${featurePrefix}_di",
-        "$featurePrefix:${featurePrefix}_presentation"
-    )
-    project(":$featurePrefix:${featurePrefix}_data").projectDir = file("$featurePrefix/data")
-    project(":$featurePrefix:${featurePrefix}_domain").projectDir = file("$featurePrefix/domain")
-    project(":$featurePrefix:${featurePrefix}_di").projectDir = file("$featurePrefix/di")
-    project(":$featurePrefix:${featurePrefix}_presentation").projectDir = file("$featurePrefix/presentation")
+    val featureDir = file(featurePrefix)
+
+    // Слои feature-модуля
+    val layers = listOf("data", "domain", "di", "presentation")
+
+    layers.forEach { layer ->
+        val layerDir = File(featureDir, layer)
+        if (layerDir.exists()) {
+            val modulePath = ":$featurePrefix:${featurePrefix}_$layer"
+            include(modulePath)
+            project(modulePath).projectDir = layerDir
+            println("Included $modulePath")
+        } else {
+            println("Skip $featurePrefix/$layer (not found)")
+        }
+    }
 }
 
 rootProject.name = "KeyboardFonts"
@@ -44,3 +50,4 @@ include(
     ":core:navigation",
     ":core:common"
 )
+includeFeature("home")
