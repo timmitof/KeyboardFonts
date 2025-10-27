@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="content_description_keyboard_off">Открыть панель для включения клавиатуры</string>
+    <string name="your_works">Ваши работы</string>
+    <string name="backgrounds">Шаблоны</string>
+    <string name="create_background">+\nСоздать</string>
+</resources>

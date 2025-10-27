@@ -1,8 +1,9 @@
 package kg.timmitof.core.ui.base
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -66,7 +67,7 @@ fun <STATE: BaseState, SIDE_EFFECT: BaseSideEffect.UiSideEffect, EVENT: BaseEven
     topBar: @Composable () -> Unit = {},
     bottomBar: @Composable () -> Unit = {},
     floatingActionButton: @Composable () -> Unit = {},
-    content: @Composable ContainerDSLBuilder<SIDE_EFFECT, EVENT>.(state: STATE) -> Unit,
+    content: @Composable ContainerDSLBuilder<SIDE_EFFECT, EVENT>.(state: STATE, innerPadding: PaddingValues) -> Unit,
 ) {
     val navController = LocalNavController.current
     val context = LocalContext.current
@@ -89,19 +90,18 @@ fun <STATE: BaseState, SIDE_EFFECT: BaseSideEffect.UiSideEffect, EVENT: BaseEven
 
     BackHandler(
         onBack = {
-            containerDsl.notifyBackPress() ?: viewModel.onEvent(BaseEvent.OnBack)
+            containerDsl.notifyBackPress() ?: viewModel.onBaseEvent(BaseEvent.OnBack)
         }
     )
 
     Scaffold(
         modifier = modifier,
+        contentWindowInsets = WindowInsets.safeDrawing,
         topBar = topBar,
         bottomBar = bottomBar,
         floatingActionButton = floatingActionButton,
-        content = { contentPadding ->
-            Box(Modifier.padding(contentPadding)) {
-                containerDsl.content(state)
-            }
+        content = { innerPadding ->
+            containerDsl.content(state, innerPadding)
         }
     )
 }
