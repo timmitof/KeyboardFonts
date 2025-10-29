@@ -38,6 +38,7 @@ internal fun SectionDivider(
         Text(
             text = title,
             style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.padding(
                 start = contentPadding.calculateStartPadding(LayoutDirection.Ltr),
                 bottom = 8.dp
@@ -54,10 +55,7 @@ internal fun AnimatedSection(
     content: @Composable () -> Unit
 ) {
     var visible by remember { mutableStateOf(false) }
-
-    LaunchedEffect(Unit) {
-        visible = true
-    }
+    LaunchedEffect(Unit) { visible = true }
 
     Column {
         SectionDivider(

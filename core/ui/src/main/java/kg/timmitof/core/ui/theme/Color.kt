@@ -22,7 +22,7 @@ object AppColor {
     val backgroundLight = Color(0xFFFFF7FB)
     val onBackgroundLight = Color(0xFF1E1A1F)
     val surfaceLight = Color(0xFFFFF7FB)
-    val onSurfaceLight = Color(0xFF1E1A1F)
+    val onSurfaceLight = Color(0xFF343A4B)
     val surfaceVariantLight = Color(0xFFEBDFEA)
     val onSurfaceVariantLight = Color(0xFF4C444D)
     val outlineLight = Color(0xFF7D747E)
