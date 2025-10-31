@@ -1,6 +1,5 @@
 package kg.timmitof.feature_home.presentation.components
 
-import KeyboardFonts.feature_home.home.presentation.R
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -10,19 +9,19 @@ import androidx.compose.material3.carousel.HorizontalMultiBrowseCarousel
 import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import kg.timmitof.core.domain.model.BackgroundModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun YourWorksCarousel(
     modifier: Modifier = Modifier,
-    carouselList: List<Int>,
+    carouselList: List<BackgroundModel>,
     onAddClick: () -> Unit = {},
-    onBackgroundSelected: (Int) -> Unit = {}
+    onBackgroundSelected: (BackgroundModel) -> Unit = {}
 ) {
-    val carouselItems = listOf<Int?>(null) + carouselList
+    val carouselItems = listOf<BackgroundModel?>(null) + carouselList
 
     HorizontalMultiBrowseCarousel(
         modifier = modifier
@@ -45,7 +44,7 @@ fun YourWorksCarousel(
         } else {
             BackgroundSurface(
                 modifier = Modifier.maskClip(MaterialTheme.shapes.extraLarge),
-                painter = painterResource(R.drawable.geometry_background),
+                backgroundFilePath = item.filePath,
                 shape = shape,
                 onClick = { onBackgroundSelected(item) }
             )
@@ -57,6 +56,6 @@ fun YourWorksCarousel(
 @Composable
 private fun Preview() {
     YourWorksCarousel(
-        carouselList = listOf(1, 2, 3)
+        carouselList = emptyList()
     )
 }

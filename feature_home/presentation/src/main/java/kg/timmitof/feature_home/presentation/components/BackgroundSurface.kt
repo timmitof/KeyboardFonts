@@ -22,12 +22,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil3.compose.rememberAsyncImagePainter
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 
 private const val A4_ASPECT_RATIO = 210f / 297f
 
@@ -67,10 +70,17 @@ private fun ScalableSurface(
 @Composable
 internal fun BackgroundSurface(
     modifier: Modifier = Modifier,
-    painter: Painter,
+    backgroundFilePath: String,
     shape: Shape = MaterialTheme.shapes.extraLarge,
     onClick: () -> Unit = {}
 ) {
+    val painter = rememberAsyncImagePainter(
+        model = ImageRequest.Builder(LocalContext.current)
+            .data(backgroundFilePath)
+            .crossfade(true)
+            .build()
+    )
+
     ScalableSurface(
         modifier = modifier,
         shape = shape,
@@ -95,7 +105,7 @@ internal fun AddImageCard(
     ScalableSurface(
         modifier = modifier,
         shape = shape,
-        backgroundColor = MaterialTheme.colorScheme.surfaceContainerLow,
+        backgroundColor = MaterialTheme.colorScheme.surfaceDim,
         onClick = onClick
     ) {
         Icon(

@@ -8,8 +8,11 @@ plugins {
 dependencies {
     implementation(project(":feature_home:feature_home_presentation"))
 
-    implementation(project(":core:ui"))
+    implementation(project(":core:common"))
+    implementation(project(":core:data"))
+    implementation(project(":core:domain"))
     implementation(project(":core:navigation"))
+    implementation(project(":core:ui"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

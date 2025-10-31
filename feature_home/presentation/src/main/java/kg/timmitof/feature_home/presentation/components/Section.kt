@@ -4,8 +4,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -18,7 +16,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 
 /**
@@ -27,8 +24,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 internal fun SectionDivider(
     title: String,
-    modifier: Modifier = Modifier,
-    contentPadding: PaddingValues = PaddingValues(),
+    modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier
@@ -39,10 +35,7 @@ internal fun SectionDivider(
             text = title,
             style = MaterialTheme.typography.headlineSmall,
             color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.padding(
-                start = contentPadding.calculateStartPadding(LayoutDirection.Ltr),
-                bottom = 8.dp
-            )
+            modifier = Modifier.padding(bottom = 8.dp)
         )
     }
 }
@@ -58,10 +51,7 @@ internal fun AnimatedSection(
     LaunchedEffect(Unit) { visible = true }
 
     Column {
-        SectionDivider(
-            title = title,
-            contentPadding = PaddingValues(horizontal = horizontalPadding)
-        )
+        SectionDivider(modifier = Modifier.padding(horizontal = horizontalPadding), title = title)
         AnimatedVisibility(
             visible = visible,
             enter = enterAnimation + fadeIn()

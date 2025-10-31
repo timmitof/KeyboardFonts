@@ -46,8 +46,10 @@ include(":app")
 
 //Include Core
 include(
-    ":core:ui",
+    ":core:common",
+    ":core:data",
+    ":core:domain",
     ":core:navigation",
-    ":core:common"
+    ":core:ui",
 )
 includeFeature("home")
