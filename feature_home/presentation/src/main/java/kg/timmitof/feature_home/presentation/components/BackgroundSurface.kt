@@ -49,7 +49,7 @@ private fun ScalableSurface(
     val interactionSource = remember { MutableInteractionSource() }
     val pressed by interactionSource.collectIsPressedAsState()
     val scale by animateFloatAsState(
-        targetValue = if (pressed) 0.96f else 1f,
+        targetValue = if (pressed) 0.93f else 1f,
         animationSpec = MaterialTheme.motionScheme.fastSpatialSpec(),
         label = "PressAnimation"
     )
