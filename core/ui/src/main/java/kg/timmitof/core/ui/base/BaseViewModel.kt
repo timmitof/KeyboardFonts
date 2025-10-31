@@ -61,7 +61,7 @@ abstract class BaseViewModel<STATE: BaseState, SIDE_EFFECT: BaseSideEffect.UiSid
         }
     }
 
-    abstract fun onEvent(event: BaseEvent)
+    abstract fun onEvent(event: EVENT)
 
     protected open suspend fun Syntax<STATE, BaseSideEffect>.onBootstrap() {  }
 

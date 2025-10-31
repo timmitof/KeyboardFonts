@@ -146,8 +146,9 @@ fun NavGraphBuilder.${featureName}Graph(navController: NavController) {
 import kotlinx.serialization.Serializable
 
 @Serializable 
-sealed class ${featureCap}Graph {
-    data object ${featureCap}Screen : ${featureCap}Graph()
+data object ${featureCap}Graph {
+    @Serializable
+    data object ${featureCap}Screen
 }""".stripIndent()
             )
 

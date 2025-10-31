@@ -71,6 +71,10 @@ class ContainerDSLBuilder<SIDE_EFFECT: BaseSideEffect.UiSideEffect, EVENT: BaseE
     fun sendEvent(event: EVENT) {
         sendEventCallback(event)
     }
+
+    fun sendEvent(block: () -> EVENT) {
+        sendEventCallback(block())
+    }
 }
 
 /**
