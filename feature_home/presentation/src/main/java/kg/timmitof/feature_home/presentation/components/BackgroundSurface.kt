@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 private const val A4_ASPECT_RATIO = 210f / 297f
@@ -38,7 +39,7 @@ private const val A4_ASPECT_RATIO = 210f / 297f
 private fun ScalableSurface(
     modifier: Modifier = Modifier,
     shape: Shape = MaterialTheme.shapes.extraLarge,
-    backgroundColor: Color,
+    backgroundColor: Color = MaterialTheme.colorScheme.surface,
     onClick: () -> Unit = {},
     content: @Composable BoxScope.() -> Unit
 ) {
@@ -56,8 +57,6 @@ private fun ScalableSurface(
             .aspectRatio(A4_ASPECT_RATIO),
         shape = shape,
         color = backgroundColor,
-        shadowElevation = 6.dp,
-        tonalElevation = 6.dp,
         interactionSource = interactionSource,
         onClick = onClick
     ) {
@@ -108,4 +107,10 @@ internal fun AddImageCard(
             tint = MaterialTheme.colorScheme.onSurface
         )
     }
+}
+
+@Preview
+@Composable
+private fun Preview() {
+    ScalableSurface {  }
 }

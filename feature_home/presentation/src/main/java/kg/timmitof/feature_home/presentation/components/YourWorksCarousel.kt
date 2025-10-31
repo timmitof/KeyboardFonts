@@ -10,8 +10,8 @@ import androidx.compose.material3.carousel.HorizontalMultiBrowseCarousel
 import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -27,8 +27,7 @@ fun YourWorksCarousel(
     HorizontalMultiBrowseCarousel(
         modifier = modifier
             .fillMaxWidth()
-            .wrapContentHeight()
-            .graphicsLayer(clip = false),
+            .wrapContentHeight(),
         state = rememberCarouselState { carouselItems.size },
         preferredItemWidth = 190.dp,
         itemSpacing = 10.dp,
@@ -39,18 +38,25 @@ fun YourWorksCarousel(
 
         if (item == null) {
             AddImageCard(
-                modifier = Modifier
-                    .maskClip(MaterialTheme.shapes.extraLarge),
+                modifier = Modifier.maskClip(MaterialTheme.shapes.extraLarge),
+                shape = shape,
                 onClick = onAddClick
             )
         } else {
             BackgroundSurface(
-                modifier = Modifier
-                    .maskClip(MaterialTheme.shapes.extraLarge),
+                modifier = Modifier.maskClip(MaterialTheme.shapes.extraLarge),
                 painter = painterResource(R.drawable.geometry_background),
                 shape = shape,
                 onClick = { onBackgroundSelected(item) }
             )
         }
     }
+}
+
+@Preview
+@Composable
+private fun Preview() {
+    YourWorksCarousel(
+        carouselList = listOf(1, 2, 3)
+    )
 }
