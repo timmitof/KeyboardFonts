@@ -32,6 +32,11 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kg.timmitof.core.common.R
 import kotlinx.coroutines.delay
@@ -52,7 +57,7 @@ internal fun DumpingSplash() {
 
     LaunchedEffect(Unit) {
         imageOffsetY.animateTo(
-            targetValue = 10f,
+            targetValue = 20f,
             animationSpec = spring(dampingRatio = 0.6f, stiffness = Spring.StiffnessLow)
         )
 
@@ -95,10 +100,12 @@ internal fun DumpingSplash() {
                 ) + fadeIn(animationSpec = tween(400))
             ) {
                 Text(
-                    modifier = Modifier.padding(end = 4.dp),
-                    text = "KeyboardFonts",
-                    style = MaterialTheme.typography.headlineMedium,
+                    modifier = Modifier.padding(end = 8.dp),
+                    text = stringResource(KeyboardFonts.feature_splash.splash.presentation.R.string.app_name),
+                    style = MaterialTheme.typography.displaySmall,
                     color = MaterialTheme.colorScheme.onBackground,
+                    fontFamily = FontFamily(Font(R.font.sf_pro_rounded_black)),
+                    fontWeight = FontWeight.Bold
                 )
             }
 
@@ -117,4 +124,10 @@ internal fun DumpingSplash() {
             )
         }
     }
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+private fun Preview() {
+    DumpingSplash()
 }
