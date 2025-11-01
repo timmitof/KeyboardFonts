@@ -2,7 +2,7 @@ package kg.timmitof.core.data.manager
 
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kg.timmitof.core.domain.model.BackgroundModel
+import kg.timmitof.core.domain.model.TemplateModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.IOException
@@ -16,12 +16,12 @@ class AssetManager @Inject constructor(
 ) {
     private val assetManager = context.assets
 
-    suspend fun getBackgrounds(): List<BackgroundModel> = withContext(Dispatchers.IO) {
+    suspend fun getAllTemplates(): List<TemplateModel> = withContext(Dispatchers.IO) {
         try {
-            val imageNames = assetManager.list(BACKGROUNDS_FOLDER).orEmpty()
+            val imageNames = assetManager.list(TEMPLATE_FOLDER).orEmpty()
             imageNames.mapNotNull { imageName ->
-                val filePath = "file:///android_asset/$BACKGROUNDS_FOLDER/$imageName"
-                BackgroundModel(filePath = filePath)
+                val filePath = "file:///android_asset/$TEMPLATE_FOLDER/$imageName"
+                TemplateModel(filePath = filePath)
             }
         } catch (e: IOException) {
             e.printStackTrace()
@@ -30,6 +30,6 @@ class AssetManager @Inject constructor(
     }
 
     companion object {
-        private const val BACKGROUNDS_FOLDER = "backgrounds"
+        private const val TEMPLATE_FOLDER = "templates"
     }
 }

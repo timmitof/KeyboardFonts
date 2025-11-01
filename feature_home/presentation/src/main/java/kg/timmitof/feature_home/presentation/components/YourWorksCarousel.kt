@@ -11,17 +11,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import kg.timmitof.core.domain.model.BackgroundModel
+import kg.timmitof.core.domain.model.TemplateModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun YourWorksCarousel(
     modifier: Modifier = Modifier,
-    carouselList: List<BackgroundModel>,
+    carouselList: List<TemplateModel>,
     onAddClick: () -> Unit = {},
-    onBackgroundSelected: (BackgroundModel) -> Unit = {}
+    onBackgroundSelected: (TemplateModel) -> Unit = {}
 ) {
-    val carouselItems = listOf<BackgroundModel?>(null) + carouselList
+    val carouselItems = listOf<TemplateModel?>(null) + carouselList
 
     HorizontalMultiBrowseCarousel(
         modifier = modifier

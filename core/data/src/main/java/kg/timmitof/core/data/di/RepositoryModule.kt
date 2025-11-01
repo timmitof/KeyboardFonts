@@ -4,8 +4,8 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import kg.timmitof.core.data.repository.BackgroundRepositoryImpl
-import kg.timmitof.core.domain.repository.BackgroundRepository
+import kg.timmitof.core.data.repository.ProjectRepositoryImpl
+import kg.timmitof.core.domain.repository.ProjectRepository
 import javax.inject.Singleton
 
 @Module
@@ -14,5 +14,5 @@ abstract class RepositoryModule {
 
     @Singleton
     @Binds
-    abstract fun bindBackgroundRepository(impl: BackgroundRepositoryImpl): BackgroundRepository
+    abstract fun bindProjectRepository(impl: ProjectRepositoryImpl): ProjectRepository
 }

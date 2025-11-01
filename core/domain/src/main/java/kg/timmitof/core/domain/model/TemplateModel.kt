@@ -1,5 +1,5 @@
 package kg.timmitof.core.domain.model
 
-data class BackgroundModel(
+data class TemplateModel(
     val filePath: String
 )

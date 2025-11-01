@@ -77,7 +77,7 @@ internal fun ContainerDSLBuilder<HomeSideEffect, HomeEvent>.HomeContent(
             horizontalPadding = horizontalPadding
         ) {
             YourWorksCarousel(
-                carouselList = state.backgroundList
+                carouselList = state.templateList
             )
         }
 
@@ -93,7 +93,7 @@ internal fun ContainerDSLBuilder<HomeSideEffect, HomeEvent>.HomeContent(
         ) {
             TwoColumnGrid(
                 modifier = Modifier.padding(horizontal = horizontalPadding),
-                items = state.backgroundList
+                items = state.templateList
             ) {
                 BackgroundSurface(
                     backgroundFilePath = it.filePath,
