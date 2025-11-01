@@ -6,6 +6,7 @@ plugins {
 }
 
 dependencies {
+    implementation(project(":feature_splash:feature_splash_presentation"))
     implementation(project(":feature_home:feature_home_presentation"))
 
     implementation(project(":core:common"))

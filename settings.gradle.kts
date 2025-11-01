@@ -53,3 +53,4 @@ include(
     ":core:ui",
 )
 includeFeature("home")
+includeFeature("splash")
