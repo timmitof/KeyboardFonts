@@ -48,7 +48,6 @@ include(":app")
 include(
     ":core:common",
     ":core:data",
-    ":core:domain",
     ":core:navigation",
     ":core:ui",
 )

@@ -1,9 +1,9 @@
 package kg.timmitof.feature_home.presentation.screens
 
-import kg.timmitof.core.domain.model.TemplateModel
 import kg.timmitof.core.ui.base.BaseEvent
 import kg.timmitof.core.ui.base.BaseSideEffect
 import kg.timmitof.core.ui.base.BaseState
+import kg.timmitof.feature_home.domain.model.TemplateModel
 
 /**
  * `HomeState` represents the current UI state of the **Home** screen.

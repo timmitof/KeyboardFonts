@@ -96,8 +96,8 @@ internal fun ContainerDSLBuilder<HomeSideEffect, HomeEvent>.HomeContent(
                 items = state.templateList
             ) {
                 BackgroundSurface(
-                    backgroundFilePath = it.filePath,
-                    onClick = { sendEvent(HomeEvent.BackgroundSelected(it.filePath)) }
+                    backgroundFilePath = it.bitmapFilePath,
+                    onClick = { sendEvent(HomeEvent.BackgroundSelected(it.bitmapFilePath)) }
                 )
             }
         }

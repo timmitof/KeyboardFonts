@@ -1,10 +1,20 @@
 package kg.timmitof.feature_splash.presentation.screens
 
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kg.timmitof.core.ui.base.BaseSideEffect
 import kg.timmitof.core.ui.base.BaseViewModel
+import kg.timmitof.feature_splash.domain.interactor.LoadTemplatesInteractor
+import org.orbitmvi.orbit.syntax.Syntax
 import javax.inject.Inject
 
 @HiltViewModel
-class SplashViewModel @Inject constructor(): BaseViewModel<SplashState, SplashSideEffect, SplashEvent>(SplashState()) {
+class SplashViewModel @Inject constructor(
+    private val loadTemplatesInteractor: LoadTemplatesInteractor
+): BaseViewModel<SplashState, SplashSideEffect, SplashEvent>(SplashState()) {
     override fun onEvent(event: SplashEvent) {}
+
+    override suspend fun Syntax<SplashState, BaseSideEffect>.onBootstrap() {
+        loadTemplatesInteractor.invoke()
+        reduce { state.copy(isLoading = false) }
+    }
 }

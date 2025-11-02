@@ -11,7 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import kg.timmitof.core.domain.model.TemplateModel
+import kg.timmitof.feature_home.domain.model.TemplateModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,7 +44,7 @@ fun YourWorksCarousel(
         } else {
             BackgroundSurface(
                 modifier = Modifier.maskClip(MaterialTheme.shapes.extraLarge),
-                backgroundFilePath = item.filePath,
+                backgroundFilePath = item.bitmapFilePath,
                 shape = shape,
                 onClick = { onBackgroundSelected(item) }
             )
