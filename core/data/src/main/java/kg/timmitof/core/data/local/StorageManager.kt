@@ -13,7 +13,7 @@ class StorageManager @Inject constructor(
 
     fun saveToLocalFiles(fileName: String, inputStream: InputStream): String {
         val destinationFolder = File(context.filesDir, TEMPLATES).apply { mkdir() }
-        val destinationFile = File(destinationFolder, "$fileName.webp").apply { createNewFile() }
+        val destinationFile = File(destinationFolder, fileName).apply { createNewFile() }
 
         inputStream.use { input ->
             FileOutputStream(destinationFile).use { output ->

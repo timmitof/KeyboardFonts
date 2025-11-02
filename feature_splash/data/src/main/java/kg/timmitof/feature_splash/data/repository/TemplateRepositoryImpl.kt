@@ -26,13 +26,13 @@ class TemplateRepositoryImpl @Inject constructor(
 
     private suspend fun initializeTemplates(): List<TemplateEntity> = withContext(Dispatchers.IO) {
         val imageNames = assetManager.listTemplateFiles()
-        imageNames.mapNotNull { name ->
+        imageNames.mapNotNull { fileName ->
             try {
-                val inputStream = assetManager.openTemplateStream(name)
-                val savedPath = storageManager.saveToLocalFiles(name, inputStream)
+                val inputStream = assetManager.openTemplateStream(fileName)
+                val savedPath = storageManager.saveToLocalFiles(fileName, inputStream)
 
                 TemplateEntity(
-                    name = name.substringBeforeLast('.'),
+                    name = fileName,
                     bitmapFilePath = savedPath
                 )
             } catch (e: IOException) {
