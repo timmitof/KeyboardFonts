@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -67,12 +68,12 @@ fun <STATE: BaseState, SIDE_EFFECT: BaseSideEffect.UiSideEffect, EVENT: BaseEven
     topBar: @Composable () -> Unit = {},
     bottomBar: @Composable () -> Unit = {},
     floatingActionButton: @Composable () -> Unit = {},
-    content: @Composable ContainerDSLBuilder<SIDE_EFFECT, EVENT>.(state: STATE, innerPadding: PaddingValues) -> Unit,
+    content: @Composable ContainerDSLBuilder<SIDE_EFFECT, EVENT>.(state: State<STATE>, innerPadding: PaddingValues) -> Unit,
 ) {
     val navController = LocalNavController.current
     val context = LocalContext.current
 
-    val state by viewModel.collectAsState()
+    val state = viewModel.collectAsState()
     val containerDsl = rememberContainerDSL<SIDE_EFFECT, EVENT>(sendEvent = viewModel::onEvent)
 
     viewModel.collectSideEffect { sideEffect ->

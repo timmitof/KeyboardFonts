@@ -17,6 +17,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
@@ -57,16 +60,19 @@ fun HomeScreen(
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 internal fun ContainerDSLBuilder<HomeSideEffect, HomeEvent>.HomeContent(
-    state: HomeState,
+    state: State<HomeState>,
     innerPadding: PaddingValues = PaddingValues()
 ) {
     val horizontalPadding = 16.dp
+    val scrollState = rememberScrollState()
+
+    val templateList = remember(state.value.templateList) { state.value.templateList }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(top = innerPadding.calculateTopPadding())
-            .verticalScroll(rememberScrollState())
+            .verticalScroll(scrollState)
     ) {
         AnimatedSection(
             title = stringResource(R.string.your_works),
@@ -77,7 +83,7 @@ internal fun ContainerDSLBuilder<HomeSideEffect, HomeEvent>.HomeContent(
             horizontalPadding = horizontalPadding
         ) {
             YourWorksCarousel(
-                carouselList = state.templateList
+                carouselList = templateList
             )
         }
 
@@ -93,7 +99,7 @@ internal fun ContainerDSLBuilder<HomeSideEffect, HomeEvent>.HomeContent(
         ) {
             TwoColumnGrid(
                 modifier = Modifier.padding(horizontal = horizontalPadding),
-                items = state.templateList
+                items = templateList
             ) {
                 BackgroundSurface(
                     backgroundFilePath = it.bitmapFilePath,
@@ -110,7 +116,7 @@ private fun Preview() {
     KeyboardFontsTheme {
         Surface {
             ContainerDSLBuilder<HomeSideEffect, HomeEvent>({}).HomeContent(
-                state = HomeState()
+                state = remember { mutableStateOf(HomeState()) }
             )
         }
     }
