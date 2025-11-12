@@ -53,3 +53,6 @@ include(
 )
 includeFeature("home")
 includeFeature("splash")
+include(":keyboard:integration")
+include(":keyboard:engine")
+include(":keyboard:presentation")
