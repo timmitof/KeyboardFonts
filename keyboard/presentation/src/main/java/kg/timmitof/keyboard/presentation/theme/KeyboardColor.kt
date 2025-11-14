@@ -3,9 +3,13 @@ package kg.timmitof.keyboard.presentation.theme
 import androidx.compose.ui.graphics.Color
 
 data class KeyboardLightColor(
-    override val backgroundKeyboard: Color = Color(0xFFFFFFFF)
+    override val keyboardBackground: Color = Color(0xFFE8E8E8),
+    override val keyButtonBackground: Color = Color(0xFFFFFFFF),
+    override val keyTextColor: Color = Color(0xFF000000),
 ) : KeyboardColorScheme
 
 data class KeyboardDarkColor(
-    override val backgroundKeyboard: Color = Color(0xFF000000)
+    override val keyboardBackground: Color = Color(0xFF1A1A1A),
+    override val keyButtonBackground: Color = Color(0xFF2A2A2A),
+    override val keyTextColor: Color = Color(0xFFFFFFFF),
 ) : KeyboardColorScheme

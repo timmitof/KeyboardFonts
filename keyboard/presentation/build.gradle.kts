@@ -1,6 +1,9 @@
 plugins {
     alias(libs.plugins.keyboardfonts.library)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.hilt.android)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -21,4 +24,13 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+
+    implementation(libs.kotlin.kotlinx.serialization.json)
+
+    implementation(libs.hilt.navigation)
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
+
+    implementation(libs.room.android)
+    ksp(libs.room.compiler)
 }

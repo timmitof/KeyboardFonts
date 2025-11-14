@@ -1,0 +1,47 @@
+{
+  "name": "en_us",
+  "rows": [
+    [
+      { "type": "CHARACTER", "weight": "1f", "labelLower": "q", "labelUpper": "Q", "longPress": { "type": "SYMBOLS", "symbols": ["1"] } },
+      { "type": "CHARACTER", "weight": "1f", "labelLower": "w", "labelUpper": "W", "longPress": { "type": "SYMBOLS", "symbols": ["2"] } },
+      { "type": "CHARACTER", "weight": "1f", "labelLower": "e", "labelUpper": "E", "longPress": { "type": "SYMBOLS", "symbols": ["3"] } },
+      { "type": "CHARACTER", "weight": "1f", "labelLower": "r", "labelUpper": "R", "longPress": { "type": "SYMBOLS", "symbols": ["4"] } },
+      { "type": "CHARACTER", "weight": "1f", "labelLower": "t", "labelUpper": "T", "longPress": { "type": "SYMBOLS", "symbols": ["5"] } },
+      { "type": "CHARACTER", "weight": "1f", "labelLower": "y", "labelUpper": "Y", "longPress": { "type": "SYMBOLS", "symbols": ["6"] } },
+      { "type": "CHARACTER", "weight": "1f", "labelLower": "u", "labelUpper": "U", "longPress": { "type": "SYMBOLS", "symbols": ["7"] } },
+      { "type": "CHARACTER", "weight": "1f", "labelLower": "i", "labelUpper": "I", "longPress": { "type": "SYMBOLS", "symbols": ["8"] } },
+      { "type": "CHARACTER", "weight": "1f", "labelLower": "o", "labelUpper": "O", "longPress": { "type": "SYMBOLS", "symbols": ["9"] } },
+      { "type": "CHARACTER", "weight": "1f", "labelLower": "p", "labelUpper": "P", "longPress": { "type": "SYMBOLS", "symbols": ["0"] } }
+    ],
+    [
+      { "type": "CHARACTER", "weight": "1f", "labelLower": "a", "labelUpper": "A", "longPress": { "type": "SYMBOLS", "symbols": ["@", "á","à","ä","â","æ","ã","å"] } },
+      { "type": "CHARACTER", "weight": "1f", "labelLower": "s", "labelUpper": "S", "longPress": { "type": "SYMBOLS", "symbols": ["#", "ß"] } },
+      { "type": "CHARACTER", "weight": "1f", "labelLower": "d", "labelUpper": "D", "longPress": { "type": "SYMBOLS", "symbols": ["&"] } },
+      { "type": "CHARACTER", "weight": "1f", "labelLower": "f", "labelUpper": "F", "longPress": { "type": "SYMBOLS", "symbols": ["*"] } },
+      { "type": "CHARACTER", "weight": "1f", "labelLower": "g", "labelUpper": "G", "longPress": { "type": "SYMBOLS", "symbols": ["-"] } },
+      { "type": "CHARACTER", "weight": "1f", "labelLower": "h", "labelUpper": "H", "longPress": { "type": "SYMBOLS", "symbols": ["+"] } },
+      { "type": "CHARACTER", "weight": "1f", "labelLower": "j", "labelUpper": "J", "longPress": { "type": "SYMBOLS", "symbols": ["="] } },
+      { "type": "CHARACTER", "weight": "1f", "labelLower": "k", "labelUpper": "K", "longPress": { "type": "SYMBOLS", "symbols": ["("] } },
+      { "type": "CHARACTER", "weight": "1f", "labelLower": "l", "labelUpper": "L", "longPress": { "type": "SYMBOLS", "symbols": [")"] } }
+    ],
+    [
+      { "type": "SHIFT", "weight": "1.4f" },
+      { "type": "CHARACTER", "weight": "1f", "labelLower": "z", "labelUpper": "Z" },
+      { "type": "CHARACTER", "weight": "1f", "labelLower": "x", "labelUpper": "X" },
+      { "type": "CHARACTER", "weight": "1f", "labelLower": "c", "labelUpper": "C" },
+      { "type": "CHARACTER", "weight": "1f", "labelLower": "v", "labelUpper": "V" },
+      { "type": "CHARACTER", "weight": "1f", "labelLower": "b", "labelUpper": "B" },
+      { "type": "CHARACTER", "weight": "1f", "labelLower": "n", "labelUpper": "N" },
+      { "type": "CHARACTER", "weight": "1f", "labelLower": "m", "labelUpper": "M" },
+      { "type": "BACKSPACE", "weight": "1.4f" }
+    ],
+    [
+      { "type": "SYMBOLS_SWITCH", "weight": "1.2f" },
+      { "type": "EMOJI_SWITCH", "weight": "1.2f" },
+      { "type": "CHARACTER", "weight": "1f", "labelLower": ",", "labelUpper": ",", "longPress": { "type": "MICROPHONE" } },
+      { "type": "SPACE", "weight": "8f", "labelLower": " ", "labelUpper": " " },
+      { "type": "CHARACTER", "weight": "1f", "labelLower": ".", "labelUpper": ".", "longPress": { "type": "SYMBOLS", "symbols": [",", "!", "?"] } },
+      { "type": "ENTER", "weight": "1.6f" }
+    ]
+  ]
+}

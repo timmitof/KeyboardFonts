@@ -15,7 +15,8 @@ import androidx.compose.ui.platform.LocalContext
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun KeyboardFontsTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+//    darkTheme: Boolean = isSystemInDarkTheme(),
+    darkTheme: Boolean = false,
     dynamicTheme: Boolean = true,
     content: @Composable () -> Unit
 ) {

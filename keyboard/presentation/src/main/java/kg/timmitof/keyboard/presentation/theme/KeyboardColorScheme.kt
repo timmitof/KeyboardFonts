@@ -6,5 +6,7 @@ import androidx.compose.ui.graphics.Color
 val LocalKeyboardColorScheme = compositionLocalOf<KeyboardColorScheme> { KeyboardLightColor() }
 
 interface KeyboardColorScheme {
-    val backgroundKeyboard: Color
+    val keyboardBackground: Color
+    val keyButtonBackground: Color
+    val keyTextColor: Color
 }

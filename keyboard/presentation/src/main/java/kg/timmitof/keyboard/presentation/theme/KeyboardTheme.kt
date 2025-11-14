@@ -6,6 +6,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MotionScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.ReadOnlyComposable
 
 private val keyboardDefaultLightColorScheme = KeyboardLightColor()
 private val keyboardDefaultDarkColorScheme = KeyboardDarkColor()
@@ -29,4 +30,12 @@ fun KeyboardTheme(
             content = content
         )
     }
+}
+
+object KFTheme {
+
+    val color: KeyboardColorScheme
+        @Composable
+        @ReadOnlyComposable
+        get() = LocalKeyboardColorScheme.current
 }
