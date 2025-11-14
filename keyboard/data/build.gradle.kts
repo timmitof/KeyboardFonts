@@ -10,9 +10,12 @@ android {
 }
 
 dependencies {
+    implementation(project(":keyboard:domain"))
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.kotlin.kotlinx.serialization.json)
+    implementation(libs.gson)
 
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)

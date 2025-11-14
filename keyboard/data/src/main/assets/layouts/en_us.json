@@ -1,5 +1,5 @@
 {
-  "name": "en_us",
+  "name": "English (US)",
   "rows": [
     [
       { "type": "CHARACTER", "weight": "1f", "labelLower": "q", "labelUpper": "Q", "longPress": { "type": "SYMBOLS", "symbols": ["1"] } },
