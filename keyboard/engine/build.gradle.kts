@@ -1,5 +1,7 @@
 plugins {
     alias(libs.plugins.keyboardfonts.library)
+    alias(libs.plugins.hilt.android)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -7,6 +9,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":keyboard:domain"))
     implementation(project(":keyboard:presentation"))
 
     implementation(libs.androidx.appcompat)
@@ -18,4 +21,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
 }

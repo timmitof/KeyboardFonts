@@ -51,10 +51,16 @@ include(
     ":core:navigation",
     ":core:ui",
 )
+
+//Include Keyboard
+include(
+    ":keyboard:integration",
+    ":keyboard:engine",
+    ":keyboard:presentation",
+    ":keyboard:data",
+    ":keyboard:domain",
+    ":keyboard:di",
+)
+
 includeFeature("home")
 includeFeature("splash")
-include(":keyboard:integration")
-include(":keyboard:engine")
-include(":keyboard:presentation")
-include(":keyboard:data")
-include(":keyboard:domain")

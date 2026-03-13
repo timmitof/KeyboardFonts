@@ -33,9 +33,11 @@ fun Project.featureNamespacePrefix(): String {
 }
 
 fun Project.featureModulePath(moduleName: String): String {
-    val parts = project.path.split(":")
-    val featureName: String = parts.getOrNull(1)?.split("_")?.get(1) ?: "featureN"
-    return ":feature_${featureName}:feature_${featureName}_$moduleName"
+    val parts = path.split(":").filter { it.isNotBlank() }
+    val rootModule = parts.getOrNull(0) ?: error("Invalid project path: $path")
+
+    return if (rootModule.contains("feature")) ":$rootModule:${rootModule}_$moduleName"
+        else ":$rootModule:$moduleName"
 }
 
 val Project.libs

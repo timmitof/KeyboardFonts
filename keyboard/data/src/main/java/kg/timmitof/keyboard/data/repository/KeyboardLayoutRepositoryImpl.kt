@@ -7,9 +7,10 @@ import kg.timmitof.keyboard.domain.repository.KeyboardLayoutRepository
 import javax.inject.Inject
 
 class KeyboardLayoutRepositoryImpl @Inject constructor(
-    private val loader: JsonKeyboardLayoutLoader,
-    private val gson: Gson = Gson()
+    private val loader: JsonKeyboardLayoutLoader
 ) : KeyboardLayoutRepository {
+
+    private val gson = Gson()
 
     // memory cache
     private val cache = mutableMapOf<String, KeyboardLayout>()

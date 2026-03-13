@@ -1,9 +1,9 @@
 package kg.timmitof.keyboard.domain.model
 
 data class KeyboardKey(
-    val labelLower: String,
-    val labelUpper: String,
-    val keyLongPress: KeyLongPress,
     val type: String,
-    val weight: Float
+    val weight: Float,
+    val labelLower: String? = null,
+    val labelUpper: String? = null,
+    val longPress: KeyLongPress,
 )

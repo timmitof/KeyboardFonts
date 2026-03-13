@@ -6,16 +6,27 @@ import android.view.inputmethod.EditorInfo
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.setViewTreeLifecycleOwner
+import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
+import dagger.hilt.android.AndroidEntryPoint
+import kg.timmitof.keyboard.domain.repository.KeyboardLayoutRepository
 import kg.timmitof.keyboard.presentation.KeyboardFontsView
+import kg.timmitof.keyboard.presentation.screens.keyboard.KeyboardViewModelFactory
+import javax.inject.Inject
 
-class KeyboardFontsService : InputMethodService(), LifecycleOwner, SavedStateRegistryOwner {
+@AndroidEntryPoint
+class KeyboardFontsService : InputMethodService(), LifecycleOwner, SavedStateRegistryOwner, ViewModelStoreOwner {
 
-    private var lifecycleRegistry: LifecycleRegistry = LifecycleRegistry(this)
+    @Inject
+    lateinit var keyboardLayoutRepository: KeyboardLayoutRepository
+
+    private val lifecycleRegistry = LifecycleRegistry(this)
     override val lifecycle: Lifecycle
         get() = lifecycleRegistry
 
@@ -23,18 +34,30 @@ class KeyboardFontsService : InputMethodService(), LifecycleOwner, SavedStateReg
     override val savedStateRegistry: SavedStateRegistry
         get() = savedStateRegistryController.savedStateRegistry
 
-    override fun onCreateInputView(): View {
-        window?.window?.decorView?.let { decorView ->
-            decorView.setViewTreeLifecycleOwner(this)
-            decorView.setViewTreeSavedStateRegistryOwner(this)
-        }
-        return KeyboardFontsView(this)
-    }
+    override val viewModelStore: ViewModelStore = ViewModelStore()
 
     override fun onCreate() {
         super.onCreate()
         savedStateRegistryController.performRestore(null)
         handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
+    }
+
+    override fun onCreateInputView(): View {
+        window?.window?.decorView?.let { decorView ->
+            decorView.setViewTreeLifecycleOwner(this)
+            decorView.setViewTreeSavedStateRegistryOwner(this)
+            decorView.setViewTreeViewModelStoreOwner(this)
+        }
+
+        val factory = KeyboardViewModelFactory(
+            keyboardLayoutRepository = keyboardLayoutRepository
+        )
+
+        return KeyboardFontsView(
+            context = this,
+            viewModelStoreOwner = this,
+            viewModelFactory = factory,
+        )
     }
 
     override fun onStartInputView(editorInfo: EditorInfo?, restarting: Boolean) {
@@ -49,9 +72,11 @@ class KeyboardFontsService : InputMethodService(), LifecycleOwner, SavedStateReg
 
     override fun onDestroy() {
         super.onDestroy()
+        viewModelStore.clear()
         handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     }
 
-    private fun handleLifecycleEvent(event: Lifecycle.Event) =
+    private fun handleLifecycleEvent(event: Lifecycle.Event) {
         lifecycleRegistry.handleLifecycleEvent(event)
+    }
 }

@@ -1,4 +1,4 @@
-package kg.timmitof.keyboard.data.di
+package kg.timmitof.keyboard.di
 
 import dagger.Binds
 import dagger.Module
