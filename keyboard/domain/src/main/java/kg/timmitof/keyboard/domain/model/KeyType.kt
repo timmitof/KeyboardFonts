@@ -7,5 +7,20 @@ enum class KeyType {
     SYMBOLS_SWITCH,
     EMOJI_SWITCH,
     SPACE,
-    ENTER,
+    ENTER;
+
+    companion object {
+        fun fromString(value: String): KeyType? =
+            entries.firstOrNull { it.name == value }
+    }
+}
+
+enum class KeyLongPressType {
+    SYMBOLS,
+    MICROPHONE;
+
+    companion object {
+        fun fromString(value: String): KeyLongPressType? =
+            entries.firstOrNull { it.name == value }
+    }
 }

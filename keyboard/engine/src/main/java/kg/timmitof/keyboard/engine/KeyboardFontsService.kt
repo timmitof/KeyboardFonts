@@ -2,6 +2,7 @@ package kg.timmitof.keyboard.engine
 
 import android.inputmethodservice.InputMethodService
 import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
@@ -21,7 +22,7 @@ import kg.timmitof.keyboard.presentation.screens.keyboard.KeyboardViewModelFacto
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class KeyboardFontsService : InputMethodService(), LifecycleOwner, SavedStateRegistryOwner, ViewModelStoreOwner {
+internal class KeyboardFontsService : InputMethodService(), LifecycleOwner, SavedStateRegistryOwner, ViewModelStoreOwner {
 
     @Inject
     lateinit var keyboardLayoutRepository: KeyboardLayoutRepository

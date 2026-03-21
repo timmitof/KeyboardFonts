@@ -1,6 +1,6 @@
 package kg.timmitof.keyboard.domain.model
 
-data class KeyLongPress(
-    val type: String,
-    val symbols: List<String>,
-)
+sealed class LongPressAction {
+    data class Symbols(val symbols: List<String>) : LongPressAction()
+    data object Microphone : LongPressAction()
+}

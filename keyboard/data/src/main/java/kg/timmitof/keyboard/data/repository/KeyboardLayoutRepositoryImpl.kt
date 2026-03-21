@@ -2,6 +2,8 @@ package kg.timmitof.keyboard.data.repository
 
 import com.google.gson.Gson
 import kg.timmitof.keyboard.data.JsonKeyboardLayoutLoader
+import kg.timmitof.keyboard.data.mapper.KeyboardMapper
+import kg.timmitof.keyboard.data.models.KeyboardLayoutDto
 import kg.timmitof.keyboard.domain.model.KeyboardLayout
 import kg.timmitof.keyboard.domain.repository.KeyboardLayoutRepository
 import javax.inject.Inject
@@ -11,8 +13,6 @@ class KeyboardLayoutRepositoryImpl @Inject constructor(
 ) : KeyboardLayoutRepository {
 
     private val gson = Gson()
-
-    // memory cache
     private val cache = mutableMapOf<String, KeyboardLayout>()
 
     override suspend fun getLayout(language: String): KeyboardLayout {
@@ -23,7 +23,9 @@ class KeyboardLayoutRepositoryImpl @Inject constructor(
         val jsonText = loader.loadKeyboardLayout(filename)
             ?: throw IllegalStateException("Keyboard layout not found: $filename")
 
-        val layout = gson.fromJson(jsonText, KeyboardLayout::class.java)
+        val dto = gson.fromJson(jsonText, KeyboardLayoutDto::class.java)
+
+        val layout = with(KeyboardMapper) { dto.toDomain() }
 
         cache[language] = layout
 

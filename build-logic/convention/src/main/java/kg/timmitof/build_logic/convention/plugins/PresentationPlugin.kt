@@ -33,6 +33,7 @@ class PresentationPlugin : Plugin<Project> {
             implementation(libs.findLibrary("androidx-ui-tooling").get())
             implementation(libs.findLibrary("androidx-ui-graphics").get())
             implementation(libs.findLibrary("androidx-material3").get())
+            implementation(libs.findLibrary("androidx-compose-material-icons").get())
             implementation(libs.findLibrary("coil-compose").get())
             implementation(libs.findLibrary("orbit-core").get())
             implementation(libs.findLibrary("orbit-viewmodel").get())
