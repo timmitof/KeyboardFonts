@@ -8,9 +8,10 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kg.timmitof.keyboard.presentation.screens.keyboard.KeyboardFontsScreen
+import kg.timmitof.keyboard.presentation.screens.keyboard.KeyboardSideEffect
 import kg.timmitof.keyboard.presentation.screens.keyboard.KeyboardViewModel
 import kg.timmitof.keyboard.presentation.theme.KeyboardTheme
-import org.orbitmvi.orbit.compose.collectAsState
+import org.orbitmvi.orbit.compose.collectSideEffect
 
 class KeyboardFontsView(
     context: Context,
@@ -18,6 +19,7 @@ class KeyboardFontsView(
     defStyleAttr: Int = 0,
     private val viewModelStoreOwner: ViewModelStoreOwner,
     private val viewModelFactory: ViewModelProvider.Factory,
+    private val onKeyboardAction: (KeyboardSideEffect) -> Unit = {},
 ) : AbstractComposeView(context, attrs = attrs, defStyleAttr = defStyleAttr) {
 
     @Composable
@@ -27,13 +29,14 @@ class KeyboardFontsView(
             viewModelStoreOwner = viewModelStoreOwner
         )
 
-        val state = viewModel.collectAsState()
+        viewModel.collectSideEffect { sideEffect ->
+            if (sideEffect is KeyboardSideEffect) {
+                onKeyboardAction(sideEffect)
+            }
+        }
 
         KeyboardTheme {
-            KeyboardFontsScreen(
-                state = state,
-                onEvent = { }
-            )
+            KeyboardFontsScreen(viewModel = viewModel)
         }
     }
 }

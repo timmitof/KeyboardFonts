@@ -6,6 +6,7 @@ import kg.timmitof.keyboard.data.mapper.KeyboardMapper
 import kg.timmitof.keyboard.data.models.KeyboardLayoutDto
 import kg.timmitof.keyboard.domain.model.KeyboardLayout
 import kg.timmitof.keyboard.domain.repository.KeyboardLayoutRepository
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 
 class KeyboardLayoutRepositoryImpl @Inject constructor(
@@ -13,7 +14,7 @@ class KeyboardLayoutRepositoryImpl @Inject constructor(
 ) : KeyboardLayoutRepository {
 
     private val gson = Gson()
-    private val cache = mutableMapOf<String, KeyboardLayout>()
+    private val cache = ConcurrentHashMap<String, KeyboardLayout>()
 
     override suspend fun getLayout(language: String): KeyboardLayout {
         cache[language]?.let { return it }

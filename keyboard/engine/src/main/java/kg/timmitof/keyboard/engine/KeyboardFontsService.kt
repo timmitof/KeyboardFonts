@@ -2,7 +2,6 @@ package kg.timmitof.keyboard.engine
 
 import android.inputmethodservice.InputMethodService
 import android.view.View
-import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
@@ -18,6 +17,7 @@ import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import dagger.hilt.android.AndroidEntryPoint
 import kg.timmitof.keyboard.domain.repository.KeyboardLayoutRepository
 import kg.timmitof.keyboard.presentation.KeyboardFontsView
+import kg.timmitof.keyboard.presentation.screens.keyboard.KeyboardSideEffect
 import kg.timmitof.keyboard.presentation.screens.keyboard.KeyboardViewModelFactory
 import javax.inject.Inject
 
@@ -58,7 +58,26 @@ internal class KeyboardFontsService : InputMethodService(), LifecycleOwner, Save
             context = this,
             viewModelStoreOwner = this,
             viewModelFactory = factory,
+            onKeyboardAction = ::handleKeyboardAction,
         )
+    }
+
+    private fun handleKeyboardAction(action: KeyboardSideEffect) {
+        val inputConnection = currentInputConnection ?: return
+        when (action) {
+            is KeyboardSideEffect.CommitText -> {
+                inputConnection.commitText(action.char, 1)
+            }
+            is KeyboardSideEffect.DeleteBackward -> {
+                inputConnection.deleteSurroundingText(1, 0)
+            }
+            is KeyboardSideEffect.PerformEditorAction -> {
+                val editorAction = currentInputEditorInfo?.imeOptions
+                    ?.and(EditorInfo.IME_MASK_ACTION)
+                    ?: EditorInfo.IME_ACTION_UNSPECIFIED
+                inputConnection.performEditorAction(editorAction)
+            }
+        }
     }
 
     override fun onStartInputView(editorInfo: EditorInfo?, restarting: Boolean) {

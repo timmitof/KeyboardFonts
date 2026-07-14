@@ -18,6 +18,7 @@ class PresentationPlugin : Plugin<Project> {
         pluginManager.apply("com.google.devtools.ksp")
         pluginManager.apply("dagger.hilt.android.plugin")
         pluginManager.apply("org.jetbrains.kotlin.plugin.compose")
+        pluginManager.apply("org.jetbrains.kotlin.plugin.serialization")
 
         extensions.configure<LibraryExtension> {
             namespace = "${featureNamespacePrefix()}.presentation"
@@ -42,6 +43,7 @@ class PresentationPlugin : Plugin<Project> {
             implementation(libs.findLibrary("hilt-android").get())
             ksp(libs.findLibrary("hilt-compiler").get())
             implementation(libs.findLibrary("hilt-navigation").get())
+            implementation(libs.findLibrary("kotlin-kotlinx-serialization-json").get())
 
             implementation(project(":core:ui"))
             implementation(project(":core:navigation"))

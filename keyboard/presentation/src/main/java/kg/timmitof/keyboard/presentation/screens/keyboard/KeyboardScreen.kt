@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -14,7 +13,6 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import kg.timmitof.keyboard.domain.model.KeyboardKey
 import kg.timmitof.keyboard.presentation.components.BackspaceKeyButton
@@ -24,10 +22,20 @@ import kg.timmitof.keyboard.presentation.components.ShiftKeyButton
 import kg.timmitof.keyboard.presentation.components.SpaceKeyButton
 import kg.timmitof.keyboard.presentation.components.SpecialKeyButton
 import kg.timmitof.keyboard.presentation.theme.KFTheme
-import kotlin.collections.orEmpty
+import org.orbitmvi.orbit.compose.collectAsState
 
 @Composable
-internal fun KeyboardFontsScreen(
+internal fun KeyboardFontsScreen(viewModel: KeyboardViewModel) {
+    val state = viewModel.collectAsState()
+
+    KeyboardContent(
+        state = state,
+        onEvent = viewModel::onEvent
+    )
+}
+
+@Composable
+private fun KeyboardContent(
     state: State<KeyboardState>,
     onEvent: (KeyboardEvent) -> Unit
 ) {
@@ -91,7 +99,7 @@ internal fun KeyboardFontsScreen(
                             )
 
                             is KeyboardKey.EmojiSwitch -> SpecialKeyButton(
-                                label = "😊",
+                                label = "☺",
                                 weight = key.weight,
                                 onClick = { onEvent(KeyboardEvent.OnEmojiSwitch) }
                             )

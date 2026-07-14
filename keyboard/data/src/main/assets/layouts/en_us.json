@@ -36,12 +36,12 @@
       { "type": "BACKSPACE", "weight": 1.4 }
     ],
     [
-      { "type": "SYMBOLS_SWITCH", "weight": 1.2 },
-      { "type": "EMOJI_SWITCH", "weight": 1.2 },
+      { "type": "SYMBOLS_SWITCH", "weight": 1.4 },
+      { "type": "EMOJI_SWITCH", "weight": 1.0 },
       { "type": "CHARACTER", "weight": 1.0, "labelLower": ",", "labelUpper": ",", "longPress": { "type": "MICROPHONE" } },
-      { "type": "SPACE", "weight": 8.0, "labelLower": " ", "labelUpper": " " },
+      { "type": "SPACE", "weight": 4, "labelLower": " ", "labelUpper": " " },
       { "type": "CHARACTER", "weight": 1.0, "labelLower": ".", "labelUpper": ".", "longPress": { "type": "SYMBOLS", "symbols": [",", "!", "?"] } },
-      { "type": "ENTER", "weight": 1.6 }
+      { "type": "ENTER", "weight": 1.4 }
     ]
   ]
 }

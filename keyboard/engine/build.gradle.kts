@@ -11,6 +11,7 @@ android {
 dependencies {
     implementation(project(":keyboard:domain"))
     implementation(project(":keyboard:presentation"))
+    implementation(project(":core:ui"))
 
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.ktx)

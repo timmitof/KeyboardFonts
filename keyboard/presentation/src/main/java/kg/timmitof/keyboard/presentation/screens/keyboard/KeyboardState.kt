@@ -14,12 +14,10 @@ internal data class KeyboardState(
     val isCapsLock: Boolean = false,
 ): BaseState()
 
-internal sealed class KeyboardSideEffect : BaseSideEffect.UiSideEffect() {
-    data class CommitText(val text: String) : KeyboardSideEffect()
+sealed class KeyboardSideEffect : BaseSideEffect.UiSideEffect() {
+    data class CommitText(val char: CharSequence) : KeyboardSideEffect()
     data object DeleteBackward : KeyboardSideEffect()
     data object PerformEditorAction : KeyboardSideEffect()
-    data object SwitchToSymbols : KeyboardSideEffect()
-    data object SwitchToEmoji : KeyboardSideEffect()
 }
 
 internal sealed class KeyboardEvent : BaseEvent.UiEvent() {

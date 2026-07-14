@@ -2,7 +2,6 @@ package kg.timmitof.keyboard.presentation.screens.keyboard
 
 import kg.timmitof.core.ui.base.BaseSideEffect
 import kg.timmitof.core.ui.base.BaseViewModel
-import kg.timmitof.keyboard.domain.model.KeyboardKey
 import kg.timmitof.keyboard.domain.repository.KeyboardLayoutRepository
 import org.orbitmvi.orbit.syntax.Syntax
 
@@ -46,22 +45,20 @@ internal class KeyboardViewModel(
     }
 
     private fun handleBackspace() = intent {
-        // postSideEffect(KeyboardSideEffect.DeleteBackward)
+        postSideEffect(KeyboardSideEffect.DeleteBackward)
     }
 
     private fun handleSpace() = intent {
-        // postSideEffect(KeyboardSideEffect.CommitText(" "))
+        postSideEffect(KeyboardSideEffect.CommitText(" "))
     }
 
     private fun handleEnter() = intent {
-        // postSideEffect(KeyboardSideEffect.PerformEditorAction)
+        postSideEffect(KeyboardSideEffect.PerformEditorAction)
     }
 
     private fun handleSymbolsSwitch() = intent {
-        // postSideEffect(KeyboardSideEffect.SwitchToSymbols)
     }
 
     private fun handleEmojiSwitch() = intent {
-        // postSideEffect(KeyboardSideEffect.SwitchToEmoji)
     }
 }
