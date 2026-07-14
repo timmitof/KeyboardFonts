@@ -15,6 +15,7 @@ import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import dagger.hilt.android.AndroidEntryPoint
+import kg.timmitof.keyboard.domain.repository.EmojiRepository
 import kg.timmitof.keyboard.domain.repository.KeyboardLayoutRepository
 import kg.timmitof.keyboard.presentation.KeyboardFontsView
 import kg.timmitof.keyboard.presentation.screens.keyboard.KeyboardSideEffect
@@ -26,6 +27,9 @@ internal class KeyboardFontsService : InputMethodService(), LifecycleOwner, Save
 
     @Inject
     lateinit var keyboardLayoutRepository: KeyboardLayoutRepository
+
+    @Inject
+    lateinit var emojiRepository: EmojiRepository
 
     private val lifecycleRegistry = LifecycleRegistry(this)
     override val lifecycle: Lifecycle
@@ -51,7 +55,8 @@ internal class KeyboardFontsService : InputMethodService(), LifecycleOwner, Save
         }
 
         val factory = KeyboardViewModelFactory(
-            keyboardLayoutRepository = keyboardLayoutRepository
+            keyboardLayoutRepository = keyboardLayoutRepository,
+            emojiRepository = emojiRepository
         )
 
         return KeyboardFontsView(

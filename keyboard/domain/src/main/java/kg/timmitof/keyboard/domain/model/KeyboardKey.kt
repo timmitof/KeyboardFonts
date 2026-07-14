@@ -30,6 +30,15 @@ sealed class KeyboardKey {
         override val weight: Float
     ) : KeyboardKey()
 
+    data class SymbolsAltSwitch(
+        override val weight: Float,
+        val label: String
+    ) : KeyboardKey()
+
+    data class AbcSwitch(
+        override val weight: Float
+    ) : KeyboardKey()
+
     data class EmojiSwitch(
         override val weight: Float
     ) : KeyboardKey()

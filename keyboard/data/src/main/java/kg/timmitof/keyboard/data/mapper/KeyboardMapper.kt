@@ -26,12 +26,14 @@ object KeyboardMapper {
                 labelUpper = labelUpper.orEmpty(),
                 longPress = longPress?.toDomain()
             )
-            KeyType.SPACE          -> KeyboardKey.Space(weight)
-            KeyType.ENTER          -> KeyboardKey.Enter(weight)
-            KeyType.SHIFT          -> KeyboardKey.Shift(weight)
-            KeyType.BACKSPACE      -> KeyboardKey.Backspace(weight)
-            KeyType.SYMBOLS_SWITCH -> KeyboardKey.SymbolsSwitch(weight)
-            KeyType.EMOJI_SWITCH   -> KeyboardKey.EmojiSwitch(weight)
+            KeyType.SPACE              -> KeyboardKey.Space(weight)
+            KeyType.ENTER              -> KeyboardKey.Enter(weight)
+            KeyType.SHIFT              -> KeyboardKey.Shift(weight)
+            KeyType.BACKSPACE          -> KeyboardKey.Backspace(weight)
+            KeyType.SYMBOLS_SWITCH     -> KeyboardKey.SymbolsSwitch(weight)
+            KeyType.SYMBOLS_ALT_SWITCH -> KeyboardKey.SymbolsAltSwitch(weight, label = labelLower.orEmpty())
+            KeyType.ABC_SWITCH         -> KeyboardKey.AbcSwitch(weight)
+            KeyType.EMOJI_SWITCH       -> KeyboardKey.EmojiSwitch(weight)
         }
     }
 

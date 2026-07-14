@@ -5,6 +5,8 @@ enum class KeyType {
     SHIFT,
     BACKSPACE,
     SYMBOLS_SWITCH,
+    SYMBOLS_ALT_SWITCH,
+    ABC_SWITCH,
     EMOJI_SWITCH,
     SPACE,
     ENTER;

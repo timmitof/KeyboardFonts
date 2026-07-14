@@ -1,0 +1,191 @@
+package kg.timmitof.keyboard.presentation.components.emoji
+
+import KeyboardFonts.keyboard.keyboard.presentation.R
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import kg.timmitof.keyboard.presentation.components.KeyBase
+import kg.timmitof.keyboard.presentation.theme.KFTheme
+
+/**
+ * Строка поиска эмодзи
+ *
+ * @param query текущий поисковый запрос.
+ * @param results найденные эмодзи.
+ * @param onQueryChange изменение запроса напрямую в поле (вставка, аппаратная клавиатура).
+ * @param onEmojiSelect выбор эмодзи из результатов (коммит в поле ввода).
+ * @param onClose закрытие поиска, возврат к панели эмодзи.
+ */
+@Composable
+internal fun EmojiSearchBar(
+    modifier: Modifier = Modifier,
+    query: String,
+    results: List<String>,
+    onQueryChange: (String) -> Unit,
+    onEmojiSelect: (String) -> Unit,
+    onClose: () -> Unit,
+) {
+    Column(modifier = modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(42.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            SearchQueryField(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight(),
+                query = query,
+                onQueryChange = onQueryChange,
+            )
+
+            KeyBase(
+                modifier = Modifier
+                    .width(42.dp)
+                    .fillMaxHeight(),
+                background = KFTheme.color.keySpecialButtonBackground,
+                shadowColor = KFTheme.color.keyButtonShadow,
+                onClick = onClose
+            ) {
+                Text(
+                    text = "✕",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = KFTheme.color.keySpecialTextColor
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(6.dp))
+
+        SearchResultsRow(
+            query = query,
+            results = results,
+            onEmojiSelect = onEmojiSelect,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(44.dp)
+        )
+    }
+}
+
+@Composable
+private fun SearchQueryField(
+    query: String,
+    onQueryChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val focusRequester = remember { FocusRequester() }
+
+    val textFieldValue = remember(query) {
+        TextFieldValue(text = query, selection = TextRange(query.length))
+    }
+
+    Row(
+        modifier = modifier
+            .background(KFTheme.color.keyButtonBackground, RoundedCornerShape(10.dp))
+            .padding(horizontal = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(text = "🔍", fontSize = 14.sp)
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        BasicTextField(
+            value = textFieldValue,
+            onValueChange = { onQueryChange(it.text) },
+            modifier = Modifier
+                .weight(1f)
+                .focusRequester(focusRequester),
+            textStyle = TextStyle(
+                fontSize = 14.sp,
+                color = KFTheme.color.keyTextColor
+            ),
+            cursorBrush = SolidColor(KFTheme.color.keyTextColor),
+            singleLine = true,
+            decorationBox = { innerTextField ->
+                Box(contentAlignment = Alignment.CenterStart) {
+                    if (query.isEmpty()) {
+                        Text(
+                            text = stringResource(R.string.emoji_search_hint),
+                            fontSize = 14.sp,
+                            color = KFTheme.color.keySpecialTextColor
+                        )
+                    }
+                    innerTextField()
+                }
+            }
+        )
+    }
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
+}
+
+@Composable
+private fun SearchResultsRow(
+    query: String,
+    results: List<String>,
+    onEmojiSelect: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    when {
+        results.isNotEmpty() -> LazyRow(
+            modifier = modifier,
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            items(items = results) { emoji ->
+                EmojiCell(
+                    emoji = emoji,
+                    onClick = { onEmojiSelect(emoji) }
+                )
+            }
+        }
+
+        else -> Box(
+            modifier = modifier,
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = if (query.isEmpty()) {
+                    stringResource(R.string.emoji_search_start_typing)
+                } else {
+                    stringResource(R.string.emoji_search_no_results)
+                },
+                fontSize = 13.sp,
+                color = KFTheme.color.keySpecialTextColor
+            )
+        }
+    }
+}

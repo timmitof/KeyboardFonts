@@ -4,12 +4,25 @@ import androidx.compose.runtime.Stable
 import kg.timmitof.core.ui.base.BaseEvent
 import kg.timmitof.core.ui.base.BaseSideEffect
 import kg.timmitof.core.ui.base.BaseState
-import kg.timmitof.keyboard.domain.model.KeyboardKey
+import kg.timmitof.keyboard.domain.model.EmojiCategory
 import kg.timmitof.keyboard.domain.model.KeyboardLayout
+
+internal enum class KeyboardLayer {
+    LETTERS,
+    SYMBOLS,
+    SYMBOLS_ALT,
+    EMOJI,
+    EMOJI_SEARCH,
+}
 
 @Stable
 internal data class KeyboardState(
+    val layer: KeyboardLayer = KeyboardLayer.LETTERS,
     val keyboardLayout: KeyboardLayout = KeyboardLayout("", emptyList()),
+    val emojiCategories: List<EmojiCategory> = emptyList(),
+    val recentEmojis: List<String> = emptyList(),
+    val emojiSearchQuery: String = "",
+    val emojiSearchResults: List<String> = emptyList(),
     val isUpperCase: Boolean = false,
     val isCapsLock: Boolean = false,
 ): BaseState()
@@ -22,10 +35,16 @@ sealed class KeyboardSideEffect : BaseSideEffect.UiSideEffect() {
 
 internal sealed class KeyboardEvent : BaseEvent.UiEvent() {
     data class OnKeySelect(val char: String) : KeyboardEvent()
+    data class OnEmojiSelect(val emoji: String) : KeyboardEvent()
     data object OnShift : KeyboardEvent()
     data object OnBackspace : KeyboardEvent()
     data object OnSpace : KeyboardEvent()
     data object OnEnter : KeyboardEvent()
     data object OnSymbolsSwitch : KeyboardEvent()
+    data object OnSymbolsAltSwitch : KeyboardEvent()
+    data object OnAbcSwitch : KeyboardEvent()
     data object OnEmojiSwitch : KeyboardEvent()
+    data object OnEmojiSearchOpen : KeyboardEvent()
+    data object OnEmojiSearchClose : KeyboardEvent()
+    data class OnEmojiSearchQueryChange(val query: String) : KeyboardEvent()
 }
