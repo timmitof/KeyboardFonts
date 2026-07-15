@@ -25,6 +25,7 @@ internal fun KeyBase(
     modifier: Modifier = Modifier,
     background: Color,
     shadowColor: Color,
+    customGestures: ((MutableInteractionSource) -> Modifier)? = null,
     onClick: () -> Unit,
     content: @Composable BoxScope.() -> Unit
 ) {
@@ -40,12 +41,22 @@ internal fun KeyBase(
         animationSpec = tween(80), label = "elevation"
     )
 
+    val clickModifier = when {
+        customGestures != null -> customGestures(interactionSource)
+
+        else -> Modifier.clickable(
+            interactionSource = interactionSource,
+            indication = null,
+            onClick = onClick
+        )
+    }
+
     Box(
         modifier = modifier
             .graphicsLayer { scaleX = scale; scaleY = scale }
             .shadow(elevation, RoundedCornerShape(10.dp), spotColor = shadowColor)
             .background(background, RoundedCornerShape(10.dp))
-            .clickable(interactionSource = interactionSource, indication = null, onClick = onClick),
+            .then(clickModifier),
         contentAlignment = Alignment.Center,
         content = content
     )

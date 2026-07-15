@@ -85,6 +85,7 @@ private fun KeyboardContent(
                     EmojiSearchBar(
                         query = state.value.emojiSearchQuery,
                         results = state.value.emojiSearchResults,
+                        selectionChars = state.value.emojiSearchSelection,
                         onQueryChange = { onEvent(KeyboardEvent.OnEmojiSearchQueryChange(it)) },
                         onEmojiSelect = { onEvent(KeyboardEvent.OnEmojiSelect(it)) },
                         onClose = { onEvent(KeyboardEvent.OnEmojiSearchClose) },
@@ -147,6 +148,9 @@ private fun KeyboardRows(
 
                         is KeyboardKey.Backspace -> BackspaceKeyButton(
                             weight = key.weight,
+                            onDeleteWord = { onEvent(KeyboardEvent.OnBackspaceDeleteWord) },
+                            onSelectChange = { onEvent(KeyboardEvent.OnBackspaceSelectChange(it)) },
+                            onSelectCommit = { onEvent(KeyboardEvent.OnBackspaceSelectCommit(it)) },
                             onClick = { onEvent(KeyboardEvent.OnBackspace) }
                         )
 

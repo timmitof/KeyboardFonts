@@ -23,14 +23,18 @@ internal data class KeyboardState(
     val recentEmojis: List<String> = emptyList(),
     val emojiSearchQuery: String = "",
     val emojiSearchResults: List<String> = emptyList(),
+    val emojiSearchSelection: Int = 0,
     val isUpperCase: Boolean = false,
     val isCapsLock: Boolean = false,
 ): BaseState()
 
 sealed class KeyboardSideEffect : BaseSideEffect.UiSideEffect() {
     data class CommitText(val char: CharSequence) : KeyboardSideEffect()
+    data class SelectBeforeCursor(val chars: Int) : KeyboardSideEffect()
     data object DeleteBackward : KeyboardSideEffect()
     data object PerformEditorAction : KeyboardSideEffect()
+    data object DeleteWordBackward : KeyboardSideEffect()
+    data object DeleteSelection : KeyboardSideEffect()
 }
 
 internal sealed class KeyboardEvent : BaseEvent.UiEvent() {
@@ -38,6 +42,9 @@ internal sealed class KeyboardEvent : BaseEvent.UiEvent() {
     data class OnEmojiSelect(val emoji: String) : KeyboardEvent()
     data object OnShift : KeyboardEvent()
     data object OnBackspace : KeyboardEvent()
+    data object OnBackspaceDeleteWord : KeyboardEvent()
+    data class OnBackspaceSelectChange(val chars: Int) : KeyboardEvent()
+    data class OnBackspaceSelectCommit(val chars: Int) : KeyboardEvent()
     data object OnSpace : KeyboardEvent()
     data object OnEnter : KeyboardEvent()
     data object OnSymbolsSwitch : KeyboardEvent()

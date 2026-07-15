@@ -17,6 +17,9 @@ internal class KeyboardViewModel(
             is KeyboardEvent.OnEmojiSelect -> handleEmojiSelect(event.emoji)
             is KeyboardEvent.OnShift -> handleShift()
             is KeyboardEvent.OnBackspace -> handleBackspace()
+            is KeyboardEvent.OnBackspaceDeleteWord -> handleBackspaceDeleteWord()
+            is KeyboardEvent.OnBackspaceSelectChange -> handleBackspaceSelectChange(event.chars)
+            is KeyboardEvent.OnBackspaceSelectCommit -> handleBackspaceSelectCommit(event.chars)
             is KeyboardEvent.OnSpace -> handleSpace()
             is KeyboardEvent.OnEnter -> handleEnter()
             is KeyboardEvent.OnSymbolsSwitch -> switchLayer(KeyboardLayer.SYMBOLS)
@@ -77,6 +80,42 @@ internal class KeyboardViewModel(
         }
     }
 
+    private fun handleBackspaceDeleteWord() = intent {
+        if (state.layer == KeyboardLayer.EMOJI_SEARCH) {
+            if (state.emojiSearchQuery.isNotEmpty()) {
+                updateSearchQuery(state.emojiSearchQuery.dropLastWord())
+            }
+        } else {
+            postSideEffect(KeyboardSideEffect.DeleteWordBackward)
+        }
+    }
+
+    private fun String.dropLastWord(): String =
+        trimEnd().dropLastWhile { !it.isWhitespace() }
+
+    private fun handleBackspaceSelectChange(chars: Int) = intent {
+        if (state.layer == KeyboardLayer.EMOJI_SEARCH) {
+            reduce {
+                state.copy(emojiSearchSelection = chars.coerceAtMost(state.emojiSearchQuery.length))
+            }
+        } else {
+            postSideEffect(KeyboardSideEffect.SelectBeforeCursor(chars))
+        }
+    }
+
+    private fun handleBackspaceSelectCommit(chars: Int) = intent {
+        if (state.layer == KeyboardLayer.EMOJI_SEARCH) {
+            val selected = chars.coerceAtMost(state.emojiSearchQuery.length)
+            if (selected > 0) {
+                updateSearchQuery(state.emojiSearchQuery.dropLast(selected))
+            } else {
+                reduce { state.copy(emojiSearchSelection = 0) }
+            }
+        } else {
+            postSideEffect(KeyboardSideEffect.DeleteSelection)
+        }
+    }
+
     private fun handleSpace() = intent {
         if (state.layer == KeyboardLayer.EMOJI_SEARCH) {
             updateSearchQuery(state.emojiSearchQuery + " ")
@@ -128,7 +167,13 @@ internal class KeyboardViewModel(
 
     private suspend fun Syntax<KeyboardState, BaseSideEffect>.updateSearchQuery(query: String) {
         val results = emojiRepository.searchEmojis(query)
-        reduce { state.copy(emojiSearchQuery = query, emojiSearchResults = results) }
+        reduce {
+            state.copy(
+                emojiSearchQuery = query,
+                emojiSearchResults = results,
+                emojiSearchSelection = 0
+            )
+        }
     }
 
     private suspend fun Syntax<KeyboardState, BaseSideEffect>.applyLayer(layer: KeyboardLayer) {

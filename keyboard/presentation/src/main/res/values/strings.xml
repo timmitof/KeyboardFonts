@@ -3,6 +3,6 @@
 
     <string name="emoji_recent_empty">Пока нет недавних эмодзи</string>
     <string name="emoji_search_hint">Поиск эмодзи</string>
-    <string name="emoji_search_start_typing">Начни печатать, чтобы найти эмодзи</string>
+    <string name="emoji_search_start_typing">Начните печатать, чтобы найти эмодзи</string>
     <string name="emoji_search_no_results">Ничего не найдено</string>
 </resources>

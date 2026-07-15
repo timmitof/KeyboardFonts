@@ -40,6 +40,7 @@ import kg.timmitof.keyboard.presentation.theme.KFTheme
  *
  * @param query текущий поисковый запрос.
  * @param results найденные эмодзи.
+ * @param selectionChars сколько символов запроса выделено с конца (слайд по backspace).
  * @param onQueryChange изменение запроса напрямую в поле (вставка, аппаратная клавиатура).
  * @param onEmojiSelect выбор эмодзи из результатов (коммит в поле ввода).
  * @param onClose закрытие поиска, возврат к панели эмодзи.
@@ -49,6 +50,7 @@ internal fun EmojiSearchBar(
     modifier: Modifier = Modifier,
     query: String,
     results: List<String>,
+    selectionChars: Int = 0,
     onQueryChange: (String) -> Unit,
     onEmojiSelect: (String) -> Unit,
     onClose: () -> Unit,
@@ -66,6 +68,7 @@ internal fun EmojiSearchBar(
                     .weight(1f)
                     .fillMaxHeight(),
                 query = query,
+                selectionChars = selectionChars,
                 onQueryChange = onQueryChange,
             )
 
@@ -104,11 +107,19 @@ private fun SearchQueryField(
     query: String,
     onQueryChange: (String) -> Unit,
     modifier: Modifier = Modifier,
+    selectionChars: Int = 0,
 ) {
     val focusRequester = remember { FocusRequester() }
 
-    val textFieldValue = remember(query) {
-        TextFieldValue(text = query, selection = TextRange(query.length))
+    val textFieldValue = remember(query, selectionChars) {
+        TextFieldValue(
+            text = query,
+            selection = if (selectionChars > 0) {
+                TextRange((query.length - selectionChars).coerceAtLeast(0), query.length)
+            } else {
+                TextRange(query.length)
+            }
+        )
     }
 
     Row(
