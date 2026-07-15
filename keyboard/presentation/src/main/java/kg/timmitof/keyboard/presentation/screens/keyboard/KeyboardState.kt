@@ -7,12 +7,18 @@ import kg.timmitof.core.ui.base.BaseState
 import kg.timmitof.keyboard.domain.model.EmojiCategory
 import kg.timmitof.keyboard.domain.model.KeyboardLayout
 
-internal enum class KeyboardLayer {
-    LETTERS,
-    SYMBOLS,
-    SYMBOLS_ALT,
-    EMOJI,
-    EMOJI_SEARCH,
+/**
+ * Слои клавиатуры.
+ *
+ * @param layoutName имя JSON-раскладки слоя в ассетах;
+ * null — слой без раскладки (сохраняет текущую).
+ */
+internal enum class KeyboardLayer(val layoutName: String?) {
+    LETTERS("en_us"),
+    SYMBOLS("symbols"),
+    SYMBOLS_ALT("symbols_alt"),
+    EMOJI(null),
+    EMOJI_SEARCH("en_us"),
 }
 
 @Stable

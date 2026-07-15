@@ -14,18 +14,18 @@ internal class KeyboardViewModel(
     override fun onEvent(event: KeyboardEvent) {
         when (event) {
             is KeyboardEvent.OnKeySelect -> handleKeySelect(event.char)
-            is KeyboardEvent.OnEmojiSelect -> handleEmojiSelect(event.emoji)
+            is KeyboardEvent.OnSpace -> handleSpace()
+            is KeyboardEvent.OnEnter -> handleEnter()
             is KeyboardEvent.OnShift -> handleShift()
             is KeyboardEvent.OnBackspace -> handleBackspace()
             is KeyboardEvent.OnBackspaceDeleteWord -> handleBackspaceDeleteWord()
             is KeyboardEvent.OnBackspaceSelectChange -> handleBackspaceSelectChange(event.chars)
             is KeyboardEvent.OnBackspaceSelectCommit -> handleBackspaceSelectCommit(event.chars)
-            is KeyboardEvent.OnSpace -> handleSpace()
-            is KeyboardEvent.OnEnter -> handleEnter()
             is KeyboardEvent.OnSymbolsSwitch -> switchLayer(KeyboardLayer.SYMBOLS)
             is KeyboardEvent.OnSymbolsAltSwitch -> handleSymbolsAltSwitch()
             is KeyboardEvent.OnAbcSwitch -> switchLayer(KeyboardLayer.LETTERS)
             is KeyboardEvent.OnEmojiSwitch -> handleEmojiSwitch()
+            is KeyboardEvent.OnEmojiSelect -> handleEmojiSelect(event.emoji)
             is KeyboardEvent.OnEmojiSearchOpen -> handleEmojiSearchOpen()
             is KeyboardEvent.OnEmojiSearchClose -> switchLayer(KeyboardLayer.EMOJI)
             is KeyboardEvent.OnEmojiSearchQueryChange -> handleSearchQueryChange(event.query)
@@ -33,33 +33,34 @@ internal class KeyboardViewModel(
     }
 
     override suspend fun Syntax<KeyboardState, BaseSideEffect>.onBootstrap() {
-        val keyboardLayout = keyboardLayoutRepository.getLayout(LAYOUT_LETTERS)
-        reduce { state.copy(keyboardLayout = keyboardLayout) }
+        applyLayer(KeyboardLayer.LETTERS)
 
-        // Прогреваем кэш остальных слоёв, чтобы переключение было мгновенным
-        keyboardLayoutRepository.getLayout(LAYOUT_SYMBOLS)
-        keyboardLayoutRepository.getLayout(LAYOUT_SYMBOLS_ALT)
+        // Прогреваем кэш остальных раскладок, чтобы переключение слоёв было мгновенным
+        KeyboardLayer.entries
+            .mapNotNull { it.layoutName }
+            .distinct()
+            .forEach { keyboardLayoutRepository.getLayout(it) }
     }
 
-    private fun handleKeySelect(char: String) = intent {
+    // region Input Text
+    private fun handleKeySelect(char: String) {
+        editText(KeyboardSideEffect.CommitText(char)) { query -> query + char }
+        releaseOneShotShift()
+    }
+
+    private fun handleSpace() =
+        editText(KeyboardSideEffect.CommitText(" ")) { query -> "$query " }
+
+    private fun handleEnter() = intent {
         if (state.layer == KeyboardLayer.EMOJI_SEARCH) {
-            updateSearchQuery(state.emojiSearchQuery + char)
+            applyLayer(KeyboardLayer.EMOJI)
         } else {
-            postSideEffect(KeyboardSideEffect.CommitText(char))
-        }
-
-        if (state.isUpperCase && !state.isCapsLock) {
-            reduce { state.copy(isUpperCase = false) }
+            postSideEffect(KeyboardSideEffect.PerformEditorAction)
         }
     }
+    // endregion
 
-    private fun handleEmojiSelect(emoji: String) = intent {
-        postSideEffect(KeyboardSideEffect.CommitText(emoji))
-
-        val updatedRecent = emojiRepository.addRecentEmoji(emoji)
-        reduce { state.copy(recentEmojis = updatedRecent) }
-    }
-
+    // region Shift
     private fun handleShift() = intent {
         reduce {
             when {
@@ -70,28 +71,24 @@ internal class KeyboardViewModel(
         }
     }
 
-    private fun handleBackspace() = intent {
-        if (state.layer == KeyboardLayer.EMOJI_SEARCH) {
-            if (state.emojiSearchQuery.isNotEmpty()) {
-                updateSearchQuery(state.emojiSearchQuery.dropLast(1))
-            }
-        } else {
-            postSideEffect(KeyboardSideEffect.DeleteBackward)
+    /** Сбрасывает одноразовый shift после ввода символа (caps lock не трогаем). */
+    private fun releaseOneShotShift() = intent {
+        if (state.isUpperCase && !state.isCapsLock) {
+            reduce { state.copy(isUpperCase = false) }
         }
     }
+    // endregion
 
-    private fun handleBackspaceDeleteWord() = intent {
-        if (state.layer == KeyboardLayer.EMOJI_SEARCH) {
-            if (state.emojiSearchQuery.isNotEmpty()) {
-                updateSearchQuery(state.emojiSearchQuery.dropLastWord())
-            }
-        } else {
-            postSideEffect(KeyboardSideEffect.DeleteWordBackward)
+    // region Backspace
+    private fun handleBackspace() =
+        editText(KeyboardSideEffect.DeleteBackward) { query ->
+            query.ifEmpty { null }?.dropLast(1)
         }
-    }
 
-    private fun String.dropLastWord(): String =
-        trimEnd().dropLastWhile { !it.isWhitespace() }
+    private fun handleBackspaceDeleteWord() =
+        editText(KeyboardSideEffect.DeleteWordBackward) { query ->
+            query.ifEmpty { null }?.dropLastWord()
+        }
 
     private fun handleBackspaceSelectChange(chars: Int) = intent {
         if (state.layer == KeyboardLayer.EMOJI_SEARCH) {
@@ -115,21 +112,11 @@ internal class KeyboardViewModel(
             postSideEffect(KeyboardSideEffect.DeleteSelection)
         }
     }
+    // endregion
 
-    private fun handleSpace() = intent {
-        if (state.layer == KeyboardLayer.EMOJI_SEARCH) {
-            updateSearchQuery(state.emojiSearchQuery + " ")
-        } else {
-            postSideEffect(KeyboardSideEffect.CommitText(" "))
-        }
-    }
-
-    private fun handleEnter() = intent {
-        if (state.layer == KeyboardLayer.EMOJI_SEARCH) {
-            applyLayer(KeyboardLayer.EMOJI)
-        } else {
-            postSideEffect(KeyboardSideEffect.PerformEditorAction)
-        }
+    // region Layers
+    private fun switchLayer(layer: KeyboardLayer) = intent {
+        applyLayer(layer)
     }
 
     private fun handleSymbolsAltSwitch() = intent {
@@ -141,8 +128,22 @@ internal class KeyboardViewModel(
         applyLayer(next)
     }
 
-    private fun switchLayer(layer: KeyboardLayer) = intent {
-        applyLayer(layer)
+    /** Переключает слой, подгружая его раскладку */
+    private suspend fun Syntax<KeyboardState, BaseSideEffect>.applyLayer(layer: KeyboardLayer) {
+        val layout = layer.layoutName
+            ?.let { keyboardLayoutRepository.getLayout(it) }
+            ?: state.keyboardLayout
+
+        reduce { state.copy(layer = layer, keyboardLayout = layout) }
+    }
+    // endregion
+
+    // region Emoji
+    private fun handleEmojiSelect(emoji: String) = intent {
+        postSideEffect(KeyboardSideEffect.CommitText(emoji))
+
+        val updatedRecent = emojiRepository.addRecentEmoji(emoji)
+        reduce { state.copy(recentEmojis = updatedRecent) }
     }
 
     private fun handleEmojiSwitch() = intent {
@@ -175,26 +176,21 @@ internal class KeyboardViewModel(
             )
         }
     }
+    // endregion
 
-    private suspend fun Syntax<KeyboardState, BaseSideEffect>.applyLayer(layer: KeyboardLayer) {
-        val layout = layer.layoutName()
-            ?.let { keyboardLayoutRepository.getLayout(it) }
-            ?: state.keyboardLayout
-
-        reduce { state.copy(layer = layer, keyboardLayout = layout) }
+    // region common
+    private fun editText(
+        fieldEffect: KeyboardSideEffect,
+        editQuery: (String) -> String?,
+    ) = intent {
+        if (state.layer == KeyboardLayer.EMOJI_SEARCH) {
+            editQuery(state.emojiSearchQuery)?.let { updateSearchQuery(it) }
+        } else {
+            postSideEffect(fieldEffect)
+        }
     }
 
-    private fun KeyboardLayer.layoutName(): String? = when (this) {
-        KeyboardLayer.LETTERS -> LAYOUT_LETTERS
-        KeyboardLayer.SYMBOLS -> LAYOUT_SYMBOLS
-        KeyboardLayer.SYMBOLS_ALT -> LAYOUT_SYMBOLS_ALT
-        KeyboardLayer.EMOJI_SEARCH -> LAYOUT_LETTERS
-        KeyboardLayer.EMOJI -> null
-    }
-
-    companion object {
-        private const val LAYOUT_LETTERS = "en_us"
-        private const val LAYOUT_SYMBOLS = "symbols"
-        private const val LAYOUT_SYMBOLS_ALT = "symbols_alt"
-    }
+    private fun String.dropLastWord(): String =
+        trimEnd().dropLastWhile { !it.isWhitespace() }
+    // endregion
 }
