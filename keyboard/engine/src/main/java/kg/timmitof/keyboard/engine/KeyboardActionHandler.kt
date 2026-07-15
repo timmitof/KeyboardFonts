@@ -1,5 +1,6 @@
 package kg.timmitof.keyboard.engine
 
+import android.icu.text.BreakIterator
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.ExtractedTextRequest
 import android.view.inputmethod.InputConnection
@@ -23,7 +24,7 @@ internal class KeyboardActionHandler(
         val connection = inputConnectionProvider() ?: return
         when (action) {
             is KeyboardSideEffect.CommitText -> connection.commitText(action.char, 1)
-            is KeyboardSideEffect.DeleteBackward -> connection.deleteSurroundingText(1, 0)
+            is KeyboardSideEffect.DeleteBackward -> connection.deleteLastGrapheme()
             is KeyboardSideEffect.DeleteWordBackward -> connection.deleteWordBeforeCursor()
             is KeyboardSideEffect.SelectBeforeCursor -> connection.selectBeforeCursor(action.chars)
             is KeyboardSideEffect.PerformEditorAction -> connection.performEditorAction(editorAction())
@@ -35,6 +36,21 @@ internal class KeyboardActionHandler(
     private fun editorAction(): Int = editorInfoProvider()?.imeOptions
         ?.and(EditorInfo.IME_MASK_ACTION)
         ?: EditorInfo.IME_ACTION_UNSPECIFIED
+
+    /**
+     * Удаляет последний графемный кластер перед курсором.
+     */
+    private fun InputConnection.deleteLastGrapheme() {
+        val before = getTextBeforeCursor(GRAPHEME_LOOKUP_LENGTH, 0)
+        if (before.isNullOrEmpty()) return
+
+        val iterator = BreakIterator.getCharacterInstance()
+        iterator.setText(before.toString())
+        val end = iterator.last()
+        val start = iterator.previous().takeIf { it != BreakIterator.DONE } ?: 0
+
+        deleteSurroundingText(end - start, 0)
+    }
 
     /** Удаляет слово перед курсором: хвостовые пробелы + текст до предыдущего пробела. */
     private fun InputConnection.deleteWordBeforeCursor() {
@@ -54,14 +70,27 @@ internal class KeyboardActionHandler(
     /** Выделяет [chars] символов назад от курсора, не двигая его конец. */
     private fun InputConnection.selectBeforeCursor(chars: Int) {
         val extracted = getExtractedText(ExtractedTextRequest(), 0) ?: return
-        // Якорь выделения — позиция курсора; конец не двигаем, начало уводим назад
-        val anchor = extracted.startOffset + extracted.selectionEnd
-        val start = (anchor - chars).coerceAtLeast(0)
-        setSelection(start, anchor)
+        val text = extracted.text?.toString() ?: return
+
+        // Якорь выделения - позиция курсора
+        val anchor = extracted.selectionEnd
+        var start = (anchor - chars).coerceAtLeast(0)
+
+        // Начало не должно попадать внутрь эмодзи - сдвигаем к границе графемы
+        val iterator = BreakIterator.getCharacterInstance()
+        iterator.setText(text)
+        if (start in 1 until text.length && !iterator.isBoundary(start)) {
+            start = iterator.preceding(start).takeIf { it != BreakIterator.DONE } ?: 0
+        }
+
+        setSelection(extracted.startOffset + start, extracted.startOffset + anchor)
     }
 
     private companion object {
         /** Сколько символов перед курсором запрашивать для поиска границы слова. */
         const val WORD_LOOKUP_LENGTH = 64
+
+        /** Сколько символов хватает для поиска границы графемы. */
+        const val GRAPHEME_LOOKUP_LENGTH = 32
     }
 }

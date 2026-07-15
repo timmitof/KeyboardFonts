@@ -51,7 +51,6 @@ private fun ScalableSurface(
     val scale by animateFloatAsState(
         targetValue = if (pressed) 0.93f else 1f,
         animationSpec = MaterialTheme.motionScheme.fastSpatialSpec(),
-        label = "PressAnimation"
     )
 
     Surface(
