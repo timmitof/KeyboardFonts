@@ -33,6 +33,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kg.timmitof.keyboard.presentation.components.KeyBase
+import kg.timmitof.keyboard.presentation.screens.keyboard.KeyboardEvent
 import kg.timmitof.keyboard.presentation.theme.KFTheme
 
 /**
@@ -41,9 +42,7 @@ import kg.timmitof.keyboard.presentation.theme.KFTheme
  * @param query текущий поисковый запрос.
  * @param results найденные эмодзи.
  * @param selectionChars сколько символов запроса выделено с конца (слайд по backspace).
- * @param onQueryChange изменение запроса напрямую в поле (вставка, аппаратная клавиатура).
- * @param onEmojiSelect выбор эмодзи из результатов (коммит в поле ввода).
- * @param onClose закрытие поиска, возврат к панели эмодзи.
+ * @param onEvent проброс событий клавиатуры (запрос, выбор эмодзи, закрытие поиска).
  */
 @Composable
 internal fun EmojiSearchBar(
@@ -51,9 +50,7 @@ internal fun EmojiSearchBar(
     query: String,
     results: List<String>,
     selectionChars: Int = 0,
-    onQueryChange: (String) -> Unit,
-    onEmojiSelect: (String) -> Unit,
-    onClose: () -> Unit,
+    onEvent: (KeyboardEvent) -> Unit,
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
         Row(
@@ -69,7 +66,7 @@ internal fun EmojiSearchBar(
                     .fillMaxHeight(),
                 query = query,
                 selectionChars = selectionChars,
-                onQueryChange = onQueryChange,
+                onQueryChange = { onEvent(KeyboardEvent.OnEmojiSearchQueryChange(it)) },
             )
 
             KeyBase(
@@ -78,7 +75,7 @@ internal fun EmojiSearchBar(
                     .fillMaxHeight(),
                 background = KFTheme.color.keySpecialButtonBackground,
                 shadowColor = KFTheme.color.keyButtonShadow,
-                onClick = onClose
+                onClick = { onEvent(KeyboardEvent.OnEmojiSearchClose) }
             ) {
                 Text(
                     text = "✕",
@@ -94,7 +91,7 @@ internal fun EmojiSearchBar(
         SearchResultsRow(
             query = query,
             results = results,
-            onEmojiSelect = onEmojiSelect,
+            onEmojiSelect = { onEvent(KeyboardEvent.OnEmojiSelect(it)) },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(44.dp)

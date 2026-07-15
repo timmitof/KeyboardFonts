@@ -53,6 +53,7 @@ import kg.timmitof.core.ui.carouselItemEffect
 import kg.timmitof.keyboard.domain.model.EmojiCategory
 import kg.timmitof.keyboard.presentation.components.BackspaceKeyButton
 import kg.timmitof.keyboard.presentation.components.SpecialKeyButton
+import kg.timmitof.keyboard.presentation.screens.keyboard.KeyboardEvent
 import kg.timmitof.keyboard.presentation.theme.KFTheme
 import kg.timmitof.keyboard.presentation.theme.KeyboardTheme
 
@@ -65,19 +66,13 @@ private const val CATEGORY_OFFSET = 2
  *
  * @param categories список категорий эмодзи.
  * @param recentEmojis недавно использованные эмодзи (свежие в начале).
- * @param onEmojiSelect выбор эмодзи (коммит в поле ввода).
- * @param onSearchClick открытие поиска эмодзи.
- * @param onAbcClick возврат на буквенную раскладку.
- * @param onBackspaceClick удаление символа.
+ * @param onEvent проброс событий клавиатуры (выбор эмодзи, поиск, ABC, backspace).
  */
 @Composable
 internal fun EmojiPanel(
     categories: List<EmojiCategory>,
     recentEmojis: List<String>,
-    onEmojiSelect: (String) -> Unit,
-    onSearchClick: () -> Unit,
-    onAbcClick: () -> Unit,
-    onBackspaceClick: () -> Unit,
+    onEvent: (KeyboardEvent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var selectedIndex by remember {
@@ -107,7 +102,7 @@ internal fun EmojiPanel(
             } else {
                 EmojiGrid(
                     emojis = emojis,
-                    onEmojiSelect = onEmojiSelect
+                    onEmojiSelect = { onEvent(KeyboardEvent.OnEmojiSelect(it)) }
                 )
             }
         }
@@ -124,14 +119,18 @@ internal fun EmojiPanel(
             SpecialKeyButton(
                 label = "ABC",
                 weight = 1.4f,
-                onClick = onAbcClick
+                onClick = { onEvent(KeyboardEvent.OnAbcSwitch) }
             )
 
             EmojiTabsCarousel(
                 categories = categories,
                 selectedIndex = selectedIndex,
                 onTabClick = { index ->
-                    if (index == SEARCH_TAB) onSearchClick() else selectedIndex = index
+                    if (index == SEARCH_TAB) {
+                        onEvent(KeyboardEvent.OnEmojiSearchOpen)
+                    } else {
+                        selectedIndex = index
+                    }
                 },
                 modifier = Modifier
                     .weight(6f)
@@ -140,7 +139,10 @@ internal fun EmojiPanel(
 
             BackspaceKeyButton(
                 weight = 1.4f,
-                onClick = onBackspaceClick
+                onClick = { onEvent(KeyboardEvent.OnBackspace) },
+                onDeleteWord = { onEvent(KeyboardEvent.OnBackspaceDeleteWord) },
+                onSelectChange = { onEvent(KeyboardEvent.OnBackspaceSelectChange(it)) },
+                onSelectCommit = { onEvent(KeyboardEvent.OnBackspaceSelectCommit(it)) },
             )
         }
     }
@@ -313,10 +315,7 @@ private fun EmojiPanelPreview() {
             EmojiPanel(
                 categories = previewCategories,
                 recentEmojis = listOf("😂", "🔥", "❤️", "👍", "🎉"),
-                onEmojiSelect = {},
-                onSearchClick = {},
-                onAbcClick = {},
-                onBackspaceClick = {},
+                onEvent = {},
                 modifier = Modifier.height(216.dp)
             )
         }
@@ -331,10 +330,7 @@ private fun EmojiPanelEmptyRecentPreview() {
             EmojiPanel(
                 categories = previewCategories,
                 recentEmojis = emptyList(),
-                onEmojiSelect = {},
-                onSearchClick = {},
-                onAbcClick = {},
-                onBackspaceClick = {},
+                onEvent = {},
                 modifier = Modifier.height(216.dp)
             )
         }
