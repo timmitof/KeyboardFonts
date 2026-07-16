@@ -4,6 +4,8 @@ import android.content.Context
 import android.util.AttributeSet
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.platform.AbstractComposeView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -11,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kg.timmitof.keyboard.presentation.screens.keyboard.states.EnterAction
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardEvent
 import kg.timmitof.keyboard.presentation.screens.keyboard.KeyboardFontsScreen
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardSideEffect
@@ -27,6 +30,12 @@ class KeyboardFontsView(
     private val onKeyboardAction: (KeyboardSideEffect) -> Unit = {},
 ) : AbstractComposeView(context, attrs = attrs, defStyleAttr = defStyleAttr) {
 
+    private val enterAction = mutableStateOf(EnterAction.RETURN)
+
+    fun updateEnterAction(action: EnterAction) {
+        enterAction.value = action
+    }
+
     @Composable
     override fun Content() {
         val viewModel: KeyboardViewModel = viewModel(
@@ -41,6 +50,10 @@ class KeyboardFontsView(
         }
 
         InputSessionResetEffect(viewModel)
+
+        LaunchedEffect(enterAction.value) {
+            viewModel.onEvent(KeyboardEvent.OnEnterActionChange(enterAction.value))
+        }
 
         KeyboardTheme {
             KeyboardFontsScreen(viewModel = viewModel)

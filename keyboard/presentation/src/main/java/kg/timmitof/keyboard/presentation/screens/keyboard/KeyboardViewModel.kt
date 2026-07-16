@@ -49,6 +49,7 @@ internal class KeyboardViewModel(
             is KeyboardEvent.OnEmojiSearchClose -> intent { with(layerDelegate) { applyLayer(KeyboardLayer.EMOJI) } }
             is KeyboardEvent.OnEmojiSearchQueryChange -> intent { with(emojiDelegate) { updateSearchQuery(event.query) } }
             is KeyboardEvent.OnInputSessionChange -> resetInputSession()
+            is KeyboardEvent.OnEnterActionChange -> intent { with(textInputDelegate) { changeEnterAction(event.action) } }
         }
     }
 

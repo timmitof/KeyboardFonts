@@ -22,6 +22,7 @@ internal data class KeyboardState(
     val emojiSearchResults: List<String> = emptyList(),
     val emojiSearchSelection: Int = 0,
     val shiftState: ShiftState = ShiftState.DISABLED,
+    val enterAction: EnterAction = EnterAction.RETURN,
 ): BaseState()
 
 sealed class KeyboardSideEffect : BaseSideEffect.UiSideEffect() {
@@ -38,6 +39,7 @@ internal sealed class KeyboardEvent : BaseEvent.UiEvent() {
     data class OnEmojiSelect(val emoji: String) : KeyboardEvent()
     data class OnEmojiVariantSelect(val base: String, val variant: String) : KeyboardEvent()
     data object OnInputSessionChange : KeyboardEvent()
+    data class OnEnterActionChange(val action: EnterAction) : KeyboardEvent()
     data object OnShift : KeyboardEvent()
     data object OnBackspace : KeyboardEvent()
     data object OnBackspaceDeleteWord : KeyboardEvent()

@@ -1,6 +1,7 @@
 package kg.timmitof.keyboard.presentation.screens.keyboard.delegates
 
 import kg.timmitof.keyboard.presentation.screens.keyboard.KeyboardSyntax
+import kg.timmitof.keyboard.presentation.screens.keyboard.states.EnterAction
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardLayer
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardSideEffect
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.ShiftState
@@ -23,6 +24,12 @@ internal class TextInputDelegate(
             with(layerDelegate) { applyLayer(KeyboardLayer.EMOJI) }
         } else {
             postSideEffect(KeyboardSideEffect.PerformEditorAction)
+        }
+    }
+
+    suspend fun KeyboardSyntax.changeEnterAction(action: EnterAction) {
+        if (state.enterAction != action) {
+            reduce { state.copy(enterAction = action) }
         }
     }
 

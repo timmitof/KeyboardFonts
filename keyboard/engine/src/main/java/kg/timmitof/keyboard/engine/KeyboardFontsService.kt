@@ -1,6 +1,7 @@
 package kg.timmitof.keyboard.engine
 
 import android.view.View
+import android.view.inputmethod.EditorInfo
 import dagger.hilt.android.AndroidEntryPoint
 import kg.timmitof.keyboard.domain.repository.EmojiRepository
 import kg.timmitof.keyboard.domain.repository.KeyboardLayoutRepository
@@ -26,6 +27,8 @@ internal class KeyboardFontsService : ComposeInputMethodService() {
         editorInfoProvider = { currentInputEditorInfo },
     )
 
+    private var keyboardView: KeyboardFontsView? = null
+
     override fun onCreateComposeView(): View = KeyboardFontsView(
         context = this,
         viewModelStoreOwner = this,
@@ -35,5 +38,15 @@ internal class KeyboardFontsService : ComposeInputMethodService() {
             languageRepository = languageRepository
         ),
         onKeyboardAction = actionHandler::handle,
-    )
+    ).also { keyboardView = it }
+
+    override fun onStartInput(attribute: EditorInfo?, restarting: Boolean) {
+        super.onStartInput(attribute, restarting)
+        keyboardView?.updateEnterAction(attribute.toEnterAction())
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        keyboardView = null
+    }
 }

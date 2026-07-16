@@ -1,9 +1,12 @@
 package kg.timmitof.keyboard.engine
 
 import android.icu.text.BreakIterator
+import android.os.SystemClock
+import android.view.KeyEvent
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.ExtractedTextRequest
 import android.view.inputmethod.InputConnection
+import kg.timmitof.keyboard.presentation.screens.keyboard.states.EnterAction
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardSideEffect
 
 /**
@@ -27,7 +30,7 @@ internal class KeyboardActionHandler(
             is KeyboardSideEffect.DeleteBackward -> connection.deleteLastGrapheme()
             is KeyboardSideEffect.DeleteWordBackward -> connection.deleteWordBeforeCursor()
             is KeyboardSideEffect.SelectBeforeCursor -> connection.selectBeforeCursor(action.chars)
-            is KeyboardSideEffect.PerformEditorAction -> connection.performEditorAction(editorAction())
+            is KeyboardSideEffect.PerformEditorAction -> connection.performEnter()
             is KeyboardSideEffect.DeleteSelection -> connection.commitText("", 1)
         }
     }
@@ -36,6 +39,20 @@ internal class KeyboardActionHandler(
     private fun editorAction(): Int = editorInfoProvider()?.imeOptions
         ?.and(EditorInfo.IME_MASK_ACTION)
         ?: EditorInfo.IME_ACTION_UNSPECIFIED
+
+    private fun InputConnection.performEnter() {
+        if (editorInfoProvider().toEnterAction() == EnterAction.RETURN) {
+            sendEnterKey()
+        } else {
+            performEditorAction(editorAction())
+        }
+    }
+
+    private fun InputConnection.sendEnterKey() {
+        val now = SystemClock.uptimeMillis()
+        sendKeyEvent(KeyEvent(now, now, KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER, 0))
+        sendKeyEvent(KeyEvent(now, now, KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER, 0))
+    }
 
     /**
      * Удаляет последний графемный кластер перед курсором.
