@@ -25,12 +25,13 @@ internal fun KeyBase(
     modifier: Modifier = Modifier,
     background: Color,
     shadowColor: Color,
+    interactionSource: MutableInteractionSource? = null,
     customGestures: ((MutableInteractionSource) -> Modifier)? = null,
     onClick: () -> Unit,
     content: @Composable BoxScope.() -> Unit
 ) {
-    val interactionSource = remember { MutableInteractionSource() }
-    val isPressed by interactionSource.collectIsPressedAsState()
+    val source = remember(interactionSource) { interactionSource ?: MutableInteractionSource() }
+    val isPressed by source.collectIsPressedAsState()
 
     val scale by animateFloatAsState(
         targetValue = if (isPressed) 0.92f else 1f,
@@ -42,10 +43,10 @@ internal fun KeyBase(
     )
 
     val clickModifier = when {
-        customGestures != null -> customGestures(interactionSource)
+        customGestures != null -> customGestures(source)
 
         else -> Modifier.clickable(
-            interactionSource = interactionSource,
+            interactionSource = source,
             indication = null,
             onClick = onClick
         )

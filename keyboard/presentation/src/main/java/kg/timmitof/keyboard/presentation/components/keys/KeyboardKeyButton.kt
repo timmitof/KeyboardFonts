@@ -1,5 +1,7 @@
 package kg.timmitof.keyboard.presentation.components.keys
 
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
@@ -40,6 +42,9 @@ internal fun RowScope.KeyboardKeyButton(
     var isPickerVisible by remember { mutableStateOf(false) }
     var pickOffsetPx by remember { mutableFloatStateOf(0f) }
 
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+
     val selectedIndexFor: (Float) -> Int = { offsetPx ->
         (offsetPx / cellWidthPx).roundToInt().coerceIn(0, symbols.lastIndex)
     }
@@ -48,9 +53,10 @@ internal fun RowScope.KeyboardKeyButton(
         modifier = modifier.weight(weight).fillMaxHeight(),
         background = KFTheme.color.keyButtonBackground,
         shadowColor = KFTheme.color.keyButtonShadow,
-        customGestures = if (symbols.isEmpty()) null else { interactionSource ->
+        interactionSource = interactionSource,
+        customGestures = if (symbols.isEmpty()) null else { source ->
             Modifier.holdPickerClickable(
-                interactionSource = interactionSource,
+                interactionSource = source,
                 onTap = { onClick(label) },
                 onHoldStart = {
                     pickOffsetPx = 0f
@@ -84,11 +90,17 @@ internal fun RowScope.KeyboardKeyButton(
             letterSpacing = 0.5.sp
         )
 
-        if (isPickerVisible) {
-            LongPressSymbolsPicker(
+        when {
+            isPickerVisible -> LongPressSymbolsPicker(
                 symbols = symbols,
                 selectedIndex = { selectedIndexFor(pickOffsetPx) },
                 onDismiss = { isPickerVisible = false }
+            )
+
+            isPressed -> LongPressSymbolsPicker(
+                symbols = listOf(label),
+                selectedIndex = { 0 },
+                onDismiss = {}
             )
         }
     }
