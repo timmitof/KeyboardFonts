@@ -91,7 +91,7 @@ fun Modifier.carouselItemEffect(
 }
 
 /**
- * Жест «тап / удержание / горизонтальный слайд» для клавиши (backspace-стайл).
+ * Жест клавиши backspace: «тап / удержание / горизонтальный слайд-выделение».
  *
  * Поведение:
  * - **Тап** — одиночное срабатывание [onTap] при отпускании.
@@ -116,7 +116,7 @@ fun Modifier.carouselItemEffect(
  * @param onSlideChange изменение количества шагов выделения во время слайда.
  * @param onSlideFinish палец отпущен после слайда — зафиксировать результат.
  */
-fun Modifier.holdSlideClickable(
+fun Modifier.backspaceHoldSlideClickable(
     interactionSource: MutableInteractionSource,
     slideStep: Dp = 12.dp,
     holdDelayMillis: Long = 500L,
@@ -190,6 +190,72 @@ fun Modifier.holdSlideClickable(
                     isSliding -> currentOnSlideFinish(slideSteps)
                     !holdFired -> currentOnTap()
                 }
+
+                launch { interactionSource.emit(PressInteraction.Release(press)) }
+            }
+        }
+    }
+}
+
+/**
+ * Жест «тап / горизонтальный слайд-выбор» для клавиши с попап-пикером (space-стайл).
+ *
+ * Поведение:
+ * - **Тап** — одиночное срабатывание [onTap] при отпускании без движения.
+ * - **Слайд** по горизонтали дальше touchSlop — режим выбора: один раз вызывается
+ *   [onSlideStart], затем на каждое движение пальца — [onSlideChange] с накопленным
+ *   смещением в px (вправо — положительное); при отпускании — [onSlideFinish]
+ *   с финальным смещением, чтобы зафиксировать выбор.
+ *
+ * Пресс-состояние эмитится в [interactionSource] для визуального отклика клавиши.
+ *
+ * @param interactionSource источник взаимодействий для визуального отклика.
+ * @param onTap обычное нажатие.
+ * @param onSlideStart палец начал горизонтальный слайд — показать пикер.
+ * @param onSlideChange изменение накопленного смещения во время слайда.
+ * @param onSlideFinish палец отпущен после слайда — зафиксировать выбор.
+ */
+fun Modifier.slidePickerClickable(
+    interactionSource: MutableInteractionSource,
+    onTap: () -> Unit,
+    onSlideStart: () -> Unit,
+    onSlideChange: (offsetPx: Float) -> Unit,
+    onSlideFinish: (offsetPx: Float) -> Unit,
+): Modifier = composed {
+    val currentOnTap by rememberUpdatedState(onTap)
+    val currentOnSlideStart by rememberUpdatedState(onSlideStart)
+    val currentOnSlideChange by rememberUpdatedState(onSlideChange)
+    val currentOnSlideFinish by rememberUpdatedState(onSlideFinish)
+
+    pointerInput(interactionSource) {
+        coroutineScope {
+            awaitEachGesture {
+                val down = awaitFirstDown(requireUnconsumed = false)
+                val press = PressInteraction.Press(down.position)
+                launch { interactionSource.emit(press) }
+
+                var totalDx = 0f
+                var isSliding = false
+
+                while (true) {
+                    val event = awaitPointerEvent()
+                    val change = event.changes.firstOrNull { it.id == down.id } ?: break
+                    if (!change.pressed) break
+
+                    totalDx += change.positionChange().x
+
+                    if (!isSliding && abs(totalDx) > viewConfiguration.touchSlop) {
+                        isSliding = true
+                        currentOnSlideStart()
+                    }
+
+                    if (isSliding) {
+                        change.consume()
+                        currentOnSlideChange(totalDx)
+                    }
+                }
+
+                if (isSliding) currentOnSlideFinish(totalDx) else currentOnTap()
 
                 launch { interactionSource.emit(PressInteraction.Release(press)) }
             }

@@ -95,6 +95,9 @@ private fun RowScope.KeyboardKeySlot(
 
         is KeyboardKey.Space -> SpaceKeyButton(
             weight = key.weight,
+            languages = state.value.languages,
+            selectedLanguage = state.value.selectedLanguage,
+            onLanguageSelect = { onEvent(KeyboardEvent.OnLanguageSelect(it)) },
             onClick = { onEvent(KeyboardEvent.OnSpace) }
         )
 
