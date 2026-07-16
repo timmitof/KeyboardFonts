@@ -1,4 +1,4 @@
-package kg.timmitof.keyboard.presentation.screens.keyboard
+package kg.timmitof.keyboard.presentation.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -13,12 +13,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kg.timmitof.keyboard.domain.model.KeyboardKey
 import kg.timmitof.keyboard.domain.model.KeyboardLayout
-import kg.timmitof.keyboard.presentation.components.BackspaceKeyButton
-import kg.timmitof.keyboard.presentation.components.EnterKeyButton
-import kg.timmitof.keyboard.presentation.components.KeyboardKeyButton
-import kg.timmitof.keyboard.presentation.components.ShiftKeyButton
-import kg.timmitof.keyboard.presentation.components.SpaceKeyButton
-import kg.timmitof.keyboard.presentation.components.SpecialKeyButton
+import kg.timmitof.keyboard.presentation.components.keys.BackspaceKeyButton
+import kg.timmitof.keyboard.presentation.components.keys.EnterKeyButton
+import kg.timmitof.keyboard.presentation.components.keys.KeyboardKeyButton
+import kg.timmitof.keyboard.presentation.components.keys.ShiftKeyButton
+import kg.timmitof.keyboard.presentation.components.keys.SpaceKeyButton
+import kg.timmitof.keyboard.presentation.components.keys.SpecialKeyButton
+import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardEvent
+import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardState
+import kg.timmitof.keyboard.presentation.screens.keyboard.states.isUpperCase
 
 /** Высота одного ряда клавиш. */
 internal val KeyRowHeight = 48.dp
@@ -69,7 +72,7 @@ private fun RowScope.KeyboardKeySlot(
 ) {
     when (key) {
         is KeyboardKey.Character -> KeyboardKeyButton(
-            label = if (state.value.isUpperCase) key.labelUpper else key.labelLower,
+            label = if (state.value.shiftState.isUpperCase()) key.labelUpper else key.labelLower,
             weight = key.weight,
             longPress = key.longPress,
             onClick = { onEvent(KeyboardEvent.OnKeySelect(it)) }
@@ -77,8 +80,7 @@ private fun RowScope.KeyboardKeySlot(
 
         is KeyboardKey.Shift -> ShiftKeyButton(
             weight = key.weight,
-            isActive = state.value.isUpperCase,
-            isCapsLock = state.value.isCapsLock,
+            shiftState = state.value.shiftState,
             onClick = { onEvent(KeyboardEvent.OnShift) }
         )
 

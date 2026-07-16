@@ -4,7 +4,7 @@ import android.icu.text.BreakIterator
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.ExtractedTextRequest
 import android.view.inputmethod.InputConnection
-import kg.timmitof.keyboard.presentation.screens.keyboard.KeyboardSideEffect
+import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardSideEffect
 
 /**
  * Применяет side effects клавиатуры к полю ввода

@@ -1,4 +1,4 @@
-package kg.timmitof.keyboard.presentation.components
+package kg.timmitof.keyboard.presentation.components.keys
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState

@@ -1,14 +1,13 @@
-package kg.timmitof.keyboard.presentation.components
+package kg.timmitof.keyboard.presentation.components.keys
 
+import KeyboardFonts.keyboard.keyboard.presentation.R
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.vectorResource
 import kg.timmitof.core.ui.holdSlideClickable
 import kg.timmitof.keyboard.presentation.theme.KFTheme
 
@@ -37,10 +36,9 @@ internal fun RowScope.BackspaceKeyButton(
         onClick = onClick
     ) {
         Icon(
-            imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
+            imageVector = ImageVector.vectorResource(R.drawable.ic_backspace_key),
             contentDescription = "Backspace",
             tint = KFTheme.color.keySpecialTextColor,
-            modifier = Modifier.size(20.dp)
         )
     }
 }

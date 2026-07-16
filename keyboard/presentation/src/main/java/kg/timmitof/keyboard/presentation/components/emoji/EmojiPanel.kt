@@ -34,26 +34,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kg.timmitof.keyboard.domain.model.EmojiCategory
-import kg.timmitof.keyboard.presentation.components.BackspaceKeyButton
-import kg.timmitof.keyboard.presentation.components.SpecialKeyButton
-import kg.timmitof.keyboard.presentation.screens.keyboard.KeyboardEvent
+import kg.timmitof.keyboard.presentation.components.keys.BackspaceKeyButton
+import kg.timmitof.keyboard.presentation.components.keys.SpecialKeyButton
+import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardEvent
 import kg.timmitof.keyboard.presentation.theme.KFTheme
 import kg.timmitof.keyboard.presentation.theme.KeyboardTheme
-
-/** Высота нижней панели навигации. */
-private val BottomBarHeight = 42.dp
-
-/** Отступ между контентом, нижней панелью и её кнопками. */
-private val PanelSpacing = 6.dp
-
-/** Минимальный размер ячейки эмодзи в сетке. */
-private val EmojiCellMinSize = 42.dp
-
-/** Вес боковых кнопок нижней панели (ABC, backspace). */
-private const val SideKeyWeight = 1.4f
-
-/** Вес карусели табов в нижней панели. */
-private const val CarouselWeight = 6f
 
 /**
  * Панель эмодзи.
@@ -64,6 +49,8 @@ internal fun EmojiPanel(
     recentEmojis: List<String>,
     onEvent: (KeyboardEvent) -> Unit,
     modifier: Modifier = Modifier,
+    emojiVariants: Map<String, List<String>> = emptyMap(),
+    preferredVariants: Map<String, String> = emptyMap(),
 ) {
     val tabs = remember(categories) {
         listOf(EmojiTab.Search, EmojiTab.Recent) + categories.map { EmojiTab.Category(it) }
@@ -80,16 +67,18 @@ internal fun EmojiPanel(
 
     Column(modifier = modifier.fillMaxWidth()) {
         EmojiTabContent(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth(),
             tabs = tabs,
             selectedIndex = selectedIndex,
             recentEmojis = recentEmojis,
+            emojiVariants = emojiVariants,
+            preferredVariants = preferredVariants,
             onEvent = onEvent,
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
         )
 
-        Spacer(modifier = Modifier.height(PanelSpacing))
+        Spacer(modifier = Modifier.height(6.dp))
 
         EmojiBottomBar(
             tabs = tabs,
@@ -102,11 +91,13 @@ internal fun EmojiPanel(
 
 @Composable
 private fun EmojiTabContent(
+    modifier: Modifier = Modifier,
     tabs: List<EmojiTab>,
     selectedIndex: Int,
     recentEmojis: List<String>,
+    emojiVariants: Map<String, List<String>>,
+    preferredVariants: Map<String, String>,
     onEvent: (KeyboardEvent) -> Unit,
-    modifier: Modifier = Modifier,
 ) {
     AnimatedContent(
         targetState = selectedIndex,
@@ -121,7 +112,9 @@ private fun EmojiTabContent(
         when (val tab = tabs.getOrNull(index)) {
             is EmojiTab.Category -> EmojiGrid(
                 emojis = tab.category.emojis,
-                onEmojiSelect = { onEvent(KeyboardEvent.OnEmojiSelect(it)) }
+                emojiVariants = emojiVariants,
+                preferredVariants = preferredVariants,
+                onEvent = onEvent
             )
 
             EmojiTab.Recent -> if (recentEmojis.isEmpty()) {
@@ -129,7 +122,7 @@ private fun EmojiTabContent(
             } else {
                 EmojiGrid(
                     emojis = recentEmojis,
-                    onEmojiSelect = { onEvent(KeyboardEvent.OnEmojiSelect(it)) }
+                    onEvent = onEvent
                 )
             }
             else -> Unit
@@ -148,13 +141,13 @@ private fun EmojiBottomBar(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .height(BottomBarHeight),
-        horizontalArrangement = Arrangement.spacedBy(PanelSpacing),
+            .height(42.dp),
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         SpecialKeyButton(
             label = "ABC",
-            weight = SideKeyWeight,
+            weight = 1.4f,
             onClick = { onEvent(KeyboardEvent.OnAbcSwitch) }
         )
 
@@ -169,12 +162,12 @@ private fun EmojiBottomBar(
                 }
             },
             modifier = Modifier
-                .weight(CarouselWeight)
+                .weight(6f)
                 .fillMaxHeight()
         )
 
         BackspaceKeyButton(
-            weight = SideKeyWeight,
+            weight = 1.4f,
             onClick = { onEvent(KeyboardEvent.OnBackspace) },
             onDeleteWord = { onEvent(KeyboardEvent.OnBackspaceDeleteWord) },
             onSelectChange = { onEvent(KeyboardEvent.OnBackspaceSelectChange(it)) },
@@ -186,16 +179,23 @@ private fun EmojiBottomBar(
 @Composable
 private fun EmojiGrid(
     emojis: List<String>,
-    onEmojiSelect: (String) -> Unit,
+    onEvent: (KeyboardEvent) -> Unit,
+    emojiVariants: Map<String, List<String>> = emptyMap(),
+    preferredVariants: Map<String, String> = emptyMap(),
 ) {
     LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize = EmojiCellMinSize),
+        columns = GridCells.Adaptive(minSize = 42.dp),
         modifier = Modifier.fillMaxSize()
     ) {
-        items(items = emojis) { emoji ->
+        items(items = emojis, key = { it }) { base ->
+            val displayed = preferredVariants[base] ?: base
             EmojiCell(
-                emoji = emoji,
-                onClick = { onEmojiSelect(emoji) }
+                emoji = displayed,
+                variants = emojiVariants[base].orEmpty(),
+                onClick = { onEvent(KeyboardEvent.OnEmojiSelect(displayed)) },
+                onVariantSelect = { variant ->
+                    onEvent(KeyboardEvent.OnEmojiVariantSelect(base, variant))
+                }
             )
         }
     }
@@ -244,7 +244,12 @@ private fun EmojiPanelPreview() {
                 categories = previewCategories,
                 recentEmojis = listOf("😂", "🔥", "❤️", "👍", "🎉"),
                 onEvent = {},
-                modifier = Modifier.height(216.dp)
+                modifier = Modifier.height(216.dp),
+                emojiVariants = mapOf(
+                    "👋" to listOf("👋", "👋🏻", "👋🏼", "👋🏽", "👋🏾", "👋🏿"),
+                    "🤚" to listOf("🤚", "🤚🏻", "🤚🏼", "🤚🏽", "🤚🏾", "🤚🏿"),
+                ),
+                preferredVariants = mapOf("🤚" to "🤚🏿")
             )
         }
     }

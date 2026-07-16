@@ -1,4 +1,4 @@
-package kg.timmitof.keyboard.presentation.screens.keyboard
+package kg.timmitof.keyboard.presentation.screens.keyboard.states
 
 import androidx.compose.runtime.Stable
 import kg.timmitof.core.ui.base.BaseEvent
@@ -7,31 +7,18 @@ import kg.timmitof.core.ui.base.BaseState
 import kg.timmitof.keyboard.domain.model.EmojiCategory
 import kg.timmitof.keyboard.domain.model.KeyboardLayout
 
-/**
- * Слои клавиатуры.
- *
- * @param layoutName имя JSON-раскладки слоя в ассетах;
- * null — слой без раскладки (сохраняет текущую).
- */
-internal enum class KeyboardLayer(val layoutName: String?) {
-    LETTERS("en_us"),
-    SYMBOLS("symbols"),
-    SYMBOLS_ALT("symbols_alt"),
-    EMOJI(null),
-    EMOJI_SEARCH("en_us"),
-}
-
 @Stable
 internal data class KeyboardState(
     val layer: KeyboardLayer = KeyboardLayer.LETTERS,
     val keyboardLayout: KeyboardLayout = KeyboardLayout("", emptyList()),
     val emojiCategories: List<EmojiCategory> = emptyList(),
+    val emojiVariants: Map<String, List<String>> = emptyMap(),
+    val preferredEmojiVariants: Map<String, String> = emptyMap(),
     val recentEmojis: List<String> = emptyList(),
     val emojiSearchQuery: String = "",
     val emojiSearchResults: List<String> = emptyList(),
     val emojiSearchSelection: Int = 0,
-    val isUpperCase: Boolean = false,
-    val isCapsLock: Boolean = false,
+    val shiftState: ShiftState = ShiftState.DISABLED,
 ): BaseState()
 
 sealed class KeyboardSideEffect : BaseSideEffect.UiSideEffect() {
@@ -46,6 +33,8 @@ sealed class KeyboardSideEffect : BaseSideEffect.UiSideEffect() {
 internal sealed class KeyboardEvent : BaseEvent.UiEvent() {
     data class OnKeySelect(val char: String) : KeyboardEvent()
     data class OnEmojiSelect(val emoji: String) : KeyboardEvent()
+    data class OnEmojiVariantSelect(val base: String, val variant: String) : KeyboardEvent()
+    data object OnInputSessionChange : KeyboardEvent()
     data object OnShift : KeyboardEvent()
     data object OnBackspace : KeyboardEvent()
     data object OnBackspaceDeleteWord : KeyboardEvent()

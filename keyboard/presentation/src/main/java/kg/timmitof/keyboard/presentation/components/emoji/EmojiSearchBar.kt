@@ -32,8 +32,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kg.timmitof.keyboard.presentation.components.KeyBase
-import kg.timmitof.keyboard.presentation.screens.keyboard.KeyboardEvent
+import kg.timmitof.keyboard.presentation.components.keys.KeyBase
+import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardEvent
 import kg.timmitof.keyboard.presentation.theme.KFTheme
 
 /**
@@ -43,6 +43,8 @@ import kg.timmitof.keyboard.presentation.theme.KFTheme
  * @param results найденные эмодзи.
  * @param selectionChars сколько символов запроса выделено с конца (слайд по backspace).
  * @param onEvent проброс событий клавиатуры (запрос, выбор эмодзи, закрытие поиска).
+ * @param emojiVariants варианты тона кожи по базовому эмодзи.
+ * @param preferredVariants выбранные пользователем варианты (база → вариант).
  */
 @Composable
 internal fun EmojiSearchBar(
@@ -51,6 +53,8 @@ internal fun EmojiSearchBar(
     results: List<String>,
     selectionChars: Int = 0,
     onEvent: (KeyboardEvent) -> Unit,
+    emojiVariants: Map<String, List<String>> = emptyMap(),
+    preferredVariants: Map<String, String> = emptyMap(),
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
         Row(
@@ -91,7 +95,9 @@ internal fun EmojiSearchBar(
         SearchResultsRow(
             query = query,
             results = results,
-            onEmojiSelect = { onEvent(KeyboardEvent.OnEmojiSelect(it)) },
+            emojiVariants = emojiVariants,
+            preferredVariants = preferredVariants,
+            onEvent = onEvent,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(44.dp)
@@ -165,7 +171,9 @@ private fun SearchQueryField(
 private fun SearchResultsRow(
     query: String,
     results: List<String>,
-    onEmojiSelect: (String) -> Unit,
+    emojiVariants: Map<String, List<String>>,
+    preferredVariants: Map<String, String>,
+    onEvent: (KeyboardEvent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     when {
@@ -173,10 +181,15 @@ private fun SearchResultsRow(
             modifier = modifier,
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            items(items = results) { emoji ->
+            items(items = results, key = { it }) { base ->
+                val displayed = preferredVariants[base] ?: base
                 EmojiCell(
-                    emoji = emoji,
-                    onClick = { onEmojiSelect(emoji) }
+                    emoji = displayed,
+                    variants = emojiVariants[base].orEmpty(),
+                    onClick = { onEvent(KeyboardEvent.OnEmojiSelect(displayed)) },
+                    onVariantSelect = { variant ->
+                        onEvent(KeyboardEvent.OnEmojiVariantSelect(base, variant))
+                    }
                 )
             }
         }

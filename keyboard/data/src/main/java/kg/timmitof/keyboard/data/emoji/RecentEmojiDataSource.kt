@@ -3,13 +3,10 @@ package kg.timmitof.keyboard.data.emoji
 import android.content.Context
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Singleton
-
-private val Context.emojiPreferences by preferencesDataStore(name = "emoji_preferences")
 
 /**
  * Хранилище недавно использованных эмодзи поверх DataStore Preferences.
@@ -40,7 +37,7 @@ class RecentEmojiDataSource @Inject constructor(
 
     companion object {
         private val RECENT_KEY = stringPreferencesKey("recent_emojis")
-        private const val SEPARATOR = ""
+        private const val SEPARATOR = "\u0001"
         private const val MAX_RECENT = 40
     }
 }

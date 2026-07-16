@@ -12,8 +12,14 @@ import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kg.timmitof.keyboard.domain.model.KeyboardLayout
+import kg.timmitof.keyboard.presentation.components.KeyRowHeight
+import kg.timmitof.keyboard.presentation.components.KeyRowSpacing
+import kg.timmitof.keyboard.presentation.components.KeyboardRows
 import kg.timmitof.keyboard.presentation.components.emoji.EmojiPanel
 import kg.timmitof.keyboard.presentation.components.emoji.EmojiSearchBar
+import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardEvent
+import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardLayer
+import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardState
 import kg.timmitof.keyboard.presentation.theme.KFTheme
 import org.orbitmvi.orbit.compose.collectAsState
 
@@ -73,7 +79,9 @@ private fun EmojiLayer(
         categories = state.value.emojiCategories,
         recentEmojis = state.value.recentEmojis,
         onEvent = onEvent,
-        modifier = Modifier.height(KeyboardBodyHeight)
+        modifier = Modifier.height(KeyboardBodyHeight),
+        emojiVariants = state.value.emojiVariants,
+        preferredVariants = state.value.preferredEmojiVariants
     )
 }
 
@@ -90,6 +98,8 @@ private fun EmojiSearchLayer(
             results = state.value.emojiSearchResults,
             selectionChars = state.value.emojiSearchSelection,
             onEvent = onEvent,
+            emojiVariants = state.value.emojiVariants,
+            preferredVariants = state.value.preferredEmojiVariants
         )
 
         Spacer(modifier = Modifier.height(KeyRowSpacing))

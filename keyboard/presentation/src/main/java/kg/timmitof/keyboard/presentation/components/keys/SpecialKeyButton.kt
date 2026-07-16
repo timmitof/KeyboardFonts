@@ -1,4 +1,4 @@
-package kg.timmitof.keyboard.presentation.components
+package kg.timmitof.keyboard.presentation.components.keys
 
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxHeight
