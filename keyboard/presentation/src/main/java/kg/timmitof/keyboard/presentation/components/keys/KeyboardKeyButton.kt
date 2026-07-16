@@ -17,6 +17,7 @@ import kg.timmitof.keyboard.presentation.theme.KFTheme
 internal fun RowScope.KeyboardKeyButton(
     modifier: Modifier = Modifier,
     label: String,
+    isUpperCase: Boolean = false,
     weight: Float,
     longPress: LongPressAction? = null,
     onClick: (char: String) -> Unit
@@ -28,8 +29,9 @@ internal fun RowScope.KeyboardKeyButton(
         onClick = { onClick(label) }
     ) {
         if (longPress is LongPressAction.Symbols) {
+            val hint = longPress.symbols.first()
             Text(
-                text = longPress.symbols.first(),
+                text = if (isUpperCase) hint.labelUpper else hint.labelLower,
                 fontSize = 9.sp,
                 color = KFTheme.color.keySpecialTextColor,
                 modifier = Modifier

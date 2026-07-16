@@ -1,0 +1,52 @@
+{
+  "name": "Русский",
+  "rows": [
+    [
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "й", "labelUpper": "Й", "longPress": { "type": "SYMBOLS", "symbols": ["1"] } },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "ц", "labelUpper": "Ц", "longPress": { "type": "SYMBOLS", "symbols": ["2"] } },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "у", "labelUpper": "У", "longPress": { "type": "SYMBOLS", "symbols": ["3"] } },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "к", "labelUpper": "К", "longPress": { "type": "SYMBOLS", "symbols": ["4"] } },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "е", "labelUpper": "Е", "longPress": { "type": "SYMBOLS", "symbols": ["5"], "characters": [ { "labelLower": "ё", "labelUpper": "Ё" } ] } },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "н", "labelUpper": "Н", "longPress": { "type": "SYMBOLS", "symbols": ["6"] } },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "г", "labelUpper": "Г", "longPress": { "type": "SYMBOLS", "symbols": ["7"] } },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "ш", "labelUpper": "Ш", "longPress": { "type": "SYMBOLS", "symbols": ["8"] } },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "щ", "labelUpper": "Щ", "longPress": { "type": "SYMBOLS", "symbols": ["9"] } },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "з", "labelUpper": "З", "longPress": { "type": "SYMBOLS", "symbols": ["0"] } },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "х", "labelUpper": "Х" }
+    ],
+    [
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "ф", "labelUpper": "Ф" },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "ы", "labelUpper": "Ы" },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "в", "labelUpper": "В" },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "а", "labelUpper": "А", "longPress": { "type": "SYMBOLS", "symbols": ["@"] } },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "п", "labelUpper": "П" },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "р", "labelUpper": "Р" },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "о", "labelUpper": "О" },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "л", "labelUpper": "Л" },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "д", "labelUpper": "Д" },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "ж", "labelUpper": "Ж" },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "э", "labelUpper": "Э" }
+    ],
+    [
+      { "type": "SHIFT", "weight": 1.4 },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "я", "labelUpper": "Я" },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "ч", "labelUpper": "Ч" },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "с", "labelUpper": "С" },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "м", "labelUpper": "М" },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "и", "labelUpper": "И" },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "т", "labelUpper": "Т" },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "ь", "labelUpper": "Ь", "longPress": { "type": "SYMBOLS", "characters": [ { "labelLower": "ъ", "labelUpper": "Ъ" } ] } },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "б", "labelUpper": "Б" },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "ю", "labelUpper": "Ю" },
+      { "type": "BACKSPACE", "weight": 1.4 }
+    ],
+    [
+      { "type": "SYMBOLS_SWITCH", "weight": 1.4 },
+      { "type": "EMOJI_SWITCH", "weight": 1.0 },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": ",", "labelUpper": ",", "longPress": { "type": "MICROPHONE" } },
+      { "type": "SPACE", "weight": 4.0, "labelLower": " ", "labelUpper": " " },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": ".", "labelUpper": ".", "longPress": { "type": "SYMBOLS", "symbols": [",", "!", "?", "…"] } },
+      { "type": "ENTER", "weight": 1.4 }
+    ]
+  ]
+}

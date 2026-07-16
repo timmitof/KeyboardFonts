@@ -8,6 +8,7 @@ import kg.timmitof.keyboard.domain.model.KeyType
 import kg.timmitof.keyboard.domain.model.KeyboardKey
 import kg.timmitof.keyboard.domain.model.KeyboardLayout
 import kg.timmitof.keyboard.domain.model.LongPressAction
+import kg.timmitof.keyboard.domain.model.LongPressCharacter
 
 object KeyboardMapper {
 
@@ -41,8 +42,15 @@ object KeyboardMapper {
         val longPressType = KeyLongPressType.fromString(type) ?: return null
 
         return when (longPressType) {
-            KeyLongPressType.SYMBOLS    -> symbols?.let { LongPressAction.Symbols(it) }
+            KeyLongPressType.SYMBOLS    -> toSymbols()
             KeyLongPressType.MICROPHONE -> LongPressAction.Microphone
         }
+    }
+
+    private fun KeyLongPressDto.toSymbols(): LongPressAction.Symbols? {
+        val options = symbols.orEmpty().map { LongPressCharacter(it) } +
+            characters.orEmpty().map { LongPressCharacter(it.labelLower, it.labelUpper ?: it.labelLower) }
+
+        return options.takeIf { it.isNotEmpty() }?.let { LongPressAction.Symbols(it) }
     }
 }

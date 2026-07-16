@@ -73,6 +73,7 @@ private fun RowScope.KeyboardKeySlot(
     when (key) {
         is KeyboardKey.Character -> KeyboardKeyButton(
             label = if (state.value.shiftState.isUpperCase()) key.labelUpper else key.labelLower,
+            isUpperCase = state.value.shiftState.isUpperCase(),
             weight = key.weight,
             longPress = key.longPress,
             onClick = { onEvent(KeyboardEvent.OnKeySelect(it)) }
