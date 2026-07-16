@@ -48,16 +48,6 @@ fun Modifier.debounceClickable(
     }
 }
 
-/**
- * Эффект карусели для элемента LazyRow/LazyColumn: чем ближе центр элемента
- * к краю вьюпорта, тем сильнее он уменьшается и растворяется — до самого
- * минимума в момент выхода за край
- *
- * @param listState состояние ленивого списка, в котором находится элемент.
- * @param index индекс элемента в списке.
- * @param minScale масштаб элемента на краю вьюпорта.
- * @param minAlpha прозрачность элемента на краю вьюпорта.
- */
 fun Modifier.carouselItemEffect(
     listState: LazyListState,
     index: Int,
@@ -90,32 +80,6 @@ fun Modifier.carouselItemEffect(
     scaleY = scaleX
 }
 
-/**
- * Жест клавиши backspace: «тап / удержание / горизонтальный слайд-выделение».
- *
- * Поведение:
- * - **Тап** — одиночное срабатывание [onTap] при отпускании.
- * - **Удержание** дольше [holdDelayMillis] без движения — [onHold] начинает
- *   вызываться повторно (например, «удалить слово»): стартовый интервал
- *   [holdRepeatIntervalMillis] с каждым повтором умножается на
- *   [holdAccelerationFactor] и ускоряется вплоть до [holdMinRepeatIntervalMillis].
- * - **Слайд** по горизонтали — режим выделения: на каждый шаг [slideStep]
- *   влево вызывается [onSlideChange] с количеством шагов (0 — вернулся к началу);
- *   при отпускании — [onSlideFinish] с финальным количеством шагов.
- *
- * Пресс-состояние эмитится в [interactionSource] для визуального отклика клавиши.
- *
- * @param interactionSource источник взаимодействий для визуального отклика.
- * @param slideStep ширина одного шага выделения (чувствительность слайда).
- * @param holdDelayMillis время удержания до первого срабатывания [onHold].
- * @param holdRepeatIntervalMillis стартовый интервал между повторами [onHold].
- * @param holdMinRepeatIntervalMillis минимальный интервал (максимальная скорость повторов).
- * @param holdAccelerationFactor множитель ускорения интервала (1f — без ускорения).
- * @param onTap обычное нажатие.
- * @param onHold повторяющееся срабатывание при удержании без движения.
- * @param onSlideChange изменение количества шагов выделения во время слайда.
- * @param onSlideFinish палец отпущен после слайда — зафиксировать результат.
- */
 fun Modifier.backspaceHoldSlideClickable(
     interactionSource: MutableInteractionSource,
     slideStep: Dp = 12.dp,
@@ -197,24 +161,6 @@ fun Modifier.backspaceHoldSlideClickable(
     }
 }
 
-/**
- * Жест «тап / горизонтальный слайд-выбор» для клавиши с попап-пикером (space-стайл).
- *
- * Поведение:
- * - **Тап** — одиночное срабатывание [onTap] при отпускании без движения.
- * - **Слайд** по горизонтали дальше touchSlop — режим выбора: один раз вызывается
- *   [onSlideStart], затем на каждое движение пальца — [onSlideChange] с накопленным
- *   смещением в px (вправо — положительное); при отпускании — [onSlideFinish]
- *   с финальным смещением, чтобы зафиксировать выбор.
- *
- * Пресс-состояние эмитится в [interactionSource] для визуального отклика клавиши.
- *
- * @param interactionSource источник взаимодействий для визуального отклика.
- * @param onTap обычное нажатие.
- * @param onSlideStart палец начал горизонтальный слайд — показать пикер.
- * @param onSlideChange изменение накопленного смещения во время слайда.
- * @param onSlideFinish палец отпущен после слайда — зафиксировать выбор.
- */
 fun Modifier.slidePickerClickable(
     interactionSource: MutableInteractionSource,
     onTap: () -> Unit,
@@ -256,6 +202,66 @@ fun Modifier.slidePickerClickable(
                 }
 
                 if (isSliding) currentOnSlideFinish(totalDx) else currentOnTap()
+
+                launch { interactionSource.emit(PressInteraction.Release(press)) }
+            }
+        }
+    }
+}
+
+fun Modifier.holdPickerClickable(
+    interactionSource: MutableInteractionSource,
+    holdDelayMillis: Long = 350L,
+    onTap: () -> Unit,
+    onHoldStart: () -> Unit,
+    onPickChange: (offsetPx: Float) -> Unit,
+    onPickFinish: (offsetPx: Float) -> Unit,
+): Modifier = composed {
+    val currentOnTap by rememberUpdatedState(onTap)
+    val currentOnHoldStart by rememberUpdatedState(onHoldStart)
+    val currentOnPickChange by rememberUpdatedState(onPickChange)
+    val currentOnPickFinish by rememberUpdatedState(onPickFinish)
+
+    pointerInput(interactionSource) {
+        coroutineScope {
+            awaitEachGesture {
+                val down = awaitFirstDown(requireUnconsumed = false)
+                val press = PressInteraction.Press(down.position)
+                launch { interactionSource.emit(press) }
+
+                var holdFired = false
+                val holdJob = launch {
+                    delay(holdDelayMillis)
+                    holdFired = true
+                    currentOnHoldStart()
+                }
+
+                var totalDx = 0f
+                var movedBeforeHold = false
+
+                while (true) {
+                    val event = awaitPointerEvent()
+                    val change = event.changes.firstOrNull { it.id == down.id } ?: break
+                    if (!change.pressed) break
+
+                    totalDx += change.positionChange().x
+
+                    when {
+                        holdFired -> {
+                            change.consume()
+                            currentOnPickChange(totalDx)
+                        }
+
+                        !movedBeforeHold && abs(totalDx) > viewConfiguration.touchSlop -> {
+                            movedBeforeHold = true
+                            holdJob.cancel()
+                        }
+                    }
+                }
+
+                holdJob.cancel()
+
+                if (holdFired) currentOnPickFinish(totalDx) else currentOnTap()
 
                 launch { interactionSource.emit(PressInteraction.Release(press)) }
             }

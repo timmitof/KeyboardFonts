@@ -34,7 +34,7 @@ internal fun EmojiVariantPicker(
     Popup(
         popupPositionProvider = positionProvider,
         onDismissRequest = onDismiss,
-        properties = PopupProperties(focusable = false)
+        properties = PopupProperties(focusable = false, clippingEnabled = false)
     ) {
         Row(
             modifier = Modifier

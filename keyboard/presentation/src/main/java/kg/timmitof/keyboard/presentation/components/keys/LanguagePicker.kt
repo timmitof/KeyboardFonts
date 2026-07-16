@@ -48,7 +48,7 @@ internal fun LanguagePicker(
     Popup(
         popupPositionProvider = positionProvider,
         onDismissRequest = onDismiss,
-        properties = PopupProperties(focusable = false)
+        properties = PopupProperties(focusable = false, clippingEnabled = false)
     ) {
         Box(
             modifier = Modifier

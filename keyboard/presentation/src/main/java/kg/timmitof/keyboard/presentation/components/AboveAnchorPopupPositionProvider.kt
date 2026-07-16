@@ -6,7 +6,9 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.window.PopupPositionProvider
 
-/** Позиционирует попап по центру над якорем; при выходе за верх окна — под якорем. */
+/**
+ * Позиционирует попап по центру над якорем.
+ */
 internal class AboveAnchorPopupPositionProvider(
     private val marginPx: Int,
 ) : PopupPositionProvider {
@@ -20,8 +22,7 @@ internal class AboveAnchorPopupPositionProvider(
         val x = (anchorBounds.left + (anchorBounds.width - popupContentSize.width) / 2)
             .coerceIn(0, (windowSize.width - popupContentSize.width).coerceAtLeast(0))
 
-        val above = anchorBounds.top - popupContentSize.height - marginPx
-        val y = if (above >= 0) above else anchorBounds.bottom + marginPx
+        val y = anchorBounds.top - popupContentSize.height - marginPx
 
         return IntOffset(x, y)
     }
