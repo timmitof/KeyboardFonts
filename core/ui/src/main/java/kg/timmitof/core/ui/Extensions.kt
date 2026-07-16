@@ -206,9 +206,9 @@ inline fun debounced(crossinline onClick: () -> Unit, debounceTime: Long = 1000L
     val onClickLambda: () -> Unit = {
         val now = SystemClock.uptimeMillis()
         if (now - lastTimeClicked > debounceTime) {
+            lastTimeClicked = now
             onClick()
         }
-        lastTimeClicked = now
     }
     return onClickLambda
 }

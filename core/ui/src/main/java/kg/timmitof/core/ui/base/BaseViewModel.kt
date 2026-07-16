@@ -1,6 +1,7 @@
 package kg.timmitof.core.ui.base
 
 import androidx.lifecycle.ViewModel
+import kotlinx.coroutines.CoroutineExceptionHandler
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.syntax.Syntax
@@ -42,22 +43,21 @@ abstract class BaseViewModel<STATE: BaseState, SIDE_EFFECT: BaseSideEffect.UiSid
     private val initialState: STATE
 ) : ViewModel(), ContainerHost<STATE, BaseSideEffect> {
 
-    private val onCreate: suspend Syntax<STATE, BaseSideEffect>.() -> Unit = {
-        runCatching {
-            intent { onBootstrap() }
-        }.onFailure(::defaultExceptionHandler)
-    }
-
     override val container: Container<STATE, BaseSideEffect> =
         container(
             initialState = initialState,
-            onCreate = onCreate
+            buildSettings = {
+                exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+                    defaultExceptionHandler(throwable)
+                }
+            },
+            onCreate = { onBootstrap() }
         )
 
     fun onBaseEvent(event: BaseEvent) {
         when (event) {
             BaseEvent.OnBack -> navigateBack()
-            is BaseEvent.UiEvent -> (event as? EVENT)?.let { onEvent(it) }
+            is BaseEvent.UiEvent -> Unit
         }
     }
 

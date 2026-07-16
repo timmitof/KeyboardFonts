@@ -22,14 +22,18 @@ fun DependencyHandler.androidTestImplementation(dependencyNotation: Any): Depend
 fun DependencyHandler.debugImplementation(dependencyNotation: Any): Dependency? =
     add("debugImplementation", dependencyNotation)
 
+/**
+ * Префикс namespace модуля: [ProjectConfig.BASE_NAMESPACE] + корневой модуль пути.
+ *
+ * Примеры: `:keyboard:presentation` → `kg.timmitof.keyboard`,
+ * `:feature_home:feature_home_presentation` → `kg.timmitof.feature_home` —
+ * итоговый namespace слоя совпадает с пакетами исходников.
+ */
 fun Project.featureNamespacePrefix(): String {
-    val featureName = project.path.split(":")
-        .getOrNull(1) // e.g., feature_payment_data
-        ?.removePrefix("feature_") // => payment_data
-        ?.substringBeforeLast("_") // => payment
-        ?: "feature"
+    val rootModule = path.split(":").firstOrNull { it.isNotBlank() }
+        ?: error("Invalid project path: $path")
 
-    return "${project.group}.$featureName"
+    return "${ProjectConfig.BASE_NAMESPACE}.$rootModule"
 }
 
 fun Project.featureModulePath(moduleName: String): String {

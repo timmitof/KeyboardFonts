@@ -1,6 +1,6 @@
 package kg.timmitof.keyboard.presentation.components.keys
 
-import KeyboardFonts.keyboard.keyboard.presentation.R
+import kg.timmitof.keyboard.presentation.R
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.material3.Icon

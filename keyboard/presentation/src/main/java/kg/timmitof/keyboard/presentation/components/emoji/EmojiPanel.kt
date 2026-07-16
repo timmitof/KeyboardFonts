@@ -1,6 +1,6 @@
 package kg.timmitof.keyboard.presentation.components.emoji
 
-import KeyboardFonts.keyboard.keyboard.presentation.R
+import kg.timmitof.keyboard.presentation.R
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn

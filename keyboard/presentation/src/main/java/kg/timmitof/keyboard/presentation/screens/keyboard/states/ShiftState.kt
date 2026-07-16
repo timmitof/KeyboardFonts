@@ -1,6 +1,6 @@
 package kg.timmitof.keyboard.presentation.screens.keyboard.states
 
-import KeyboardFonts.keyboard.keyboard.presentation.R
+import kg.timmitof.keyboard.presentation.R
 import androidx.annotation.DrawableRes
 
 internal enum class ShiftState(@param:DrawableRes val icon: Int) {

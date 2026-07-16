@@ -1,6 +1,6 @@
 package kg.timmitof.feature_home.presentation.screens
 
-import KeyboardFonts.feature_home.home.presentation.R
+import kg.timmitof.feature_home.presentation.R
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.layout.Column

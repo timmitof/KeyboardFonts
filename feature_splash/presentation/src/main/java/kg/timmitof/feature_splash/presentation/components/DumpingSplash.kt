@@ -41,6 +41,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kg.timmitof.core.common.R
+import kg.timmitof.feature_splash.presentation.R as SplashR
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
@@ -104,7 +105,7 @@ internal fun DumpingSplash(
             ) {
                 Text(
                     modifier = Modifier.padding(end = 8.dp),
-                    text = stringResource(KeyboardFonts.feature_splash.splash.presentation.R.string.app_name),
+                    text = stringResource(SplashR.string.app_name),
                     style = MaterialTheme.typography.displaySmall,
                     color = MaterialTheme.colorScheme.onBackground,
                     fontFamily = FontFamily(Font(R.font.sf_pro_rounded_black)),

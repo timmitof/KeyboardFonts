@@ -1,6 +1,6 @@
 package kg.timmitof.feature_home.presentation.components
 
-import KeyboardFonts.feature_home.home.presentation.R
+import kg.timmitof.feature_home.presentation.R
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.interaction.MutableInteractionSource
