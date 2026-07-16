@@ -35,6 +35,7 @@ object KeyboardMapper {
             KeyType.SYMBOLS_ALT_SWITCH -> KeyboardKey.SymbolsAltSwitch(weight, label = labelLower.orEmpty())
             KeyType.ABC_SWITCH         -> KeyboardKey.AbcSwitch(weight)
             KeyType.EMOJI_SWITCH       -> KeyboardKey.EmojiSwitch(weight)
+            KeyType.SPACER             -> KeyboardKey.Spacer(weight)
         }
     }
 

@@ -14,6 +14,7 @@
       { "type": "CHARACTER", "weight": 1.0, "labelLower": "p", "labelUpper": "P", "longPress": { "type": "SYMBOLS", "symbols": ["0"] } }
     ],
     [
+      { "type": "SPACER", "weight": 0.4 },
       { "type": "CHARACTER", "weight": 1.0, "labelLower": "a", "labelUpper": "A", "longPress": { "type": "SYMBOLS", "symbols": ["@", "á","à","ä","â","æ","ã","å"] } },
       { "type": "CHARACTER", "weight": 1.0, "labelLower": "s", "labelUpper": "S", "longPress": { "type": "SYMBOLS", "symbols": ["#", "ß"] } },
       { "type": "CHARACTER", "weight": 1.0, "labelLower": "d", "labelUpper": "D", "longPress": { "type": "SYMBOLS", "symbols": ["&"] } },
@@ -22,10 +23,12 @@
       { "type": "CHARACTER", "weight": 1.0, "labelLower": "h", "labelUpper": "H", "longPress": { "type": "SYMBOLS", "symbols": ["+"] } },
       { "type": "CHARACTER", "weight": 1.0, "labelLower": "j", "labelUpper": "J", "longPress": { "type": "SYMBOLS", "symbols": ["="] } },
       { "type": "CHARACTER", "weight": 1.0, "labelLower": "k", "labelUpper": "K", "longPress": { "type": "SYMBOLS", "symbols": ["("] } },
-      { "type": "CHARACTER", "weight": 1.0, "labelLower": "l", "labelUpper": "L", "longPress": { "type": "SYMBOLS", "symbols": [")"] } }
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "l", "labelUpper": "L", "longPress": { "type": "SYMBOLS", "symbols": [")"] } },
+      { "type": "SPACER", "weight": 0.4 }
     ],
     [
       { "type": "SHIFT", "weight": 1.4 },
+      { "type": "SPACER", "weight": 0.035 },
       { "type": "CHARACTER", "weight": 1.0, "labelLower": "z", "labelUpper": "Z" },
       { "type": "CHARACTER", "weight": 1.0, "labelLower": "x", "labelUpper": "X" },
       { "type": "CHARACTER", "weight": 1.0, "labelLower": "c", "labelUpper": "C" },
@@ -33,6 +36,7 @@
       { "type": "CHARACTER", "weight": 1.0, "labelLower": "b", "labelUpper": "B" },
       { "type": "CHARACTER", "weight": 1.0, "labelLower": "n", "labelUpper": "N" },
       { "type": "CHARACTER", "weight": 1.0, "labelLower": "m", "labelUpper": "M" },
+      { "type": "SPACER", "weight": 0.035 },
       { "type": "BACKSPACE", "weight": 1.4 }
     ],
     [

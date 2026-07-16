@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
@@ -105,6 +106,8 @@ private fun RowScope.KeyboardKeySlot(
             weight = key.weight,
             onClick = { onEvent(KeyboardEvent.OnEnter) }
         )
+
+        is KeyboardKey.Spacer -> Spacer(modifier = Modifier.weight(key.weight))
 
         else -> key.switchAction()?.let { (label, event) ->
             SpecialKeyButton(

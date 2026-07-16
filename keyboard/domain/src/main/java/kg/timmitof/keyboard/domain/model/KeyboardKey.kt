@@ -42,4 +42,8 @@ sealed class KeyboardKey {
     data class EmojiSwitch(
         override val weight: Float
     ) : KeyboardKey()
+
+    data class Spacer(
+        override val weight: Float
+    ) : KeyboardKey()
 }

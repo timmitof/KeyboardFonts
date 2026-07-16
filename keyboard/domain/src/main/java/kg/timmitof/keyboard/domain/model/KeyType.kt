@@ -9,7 +9,8 @@ enum class KeyType {
     ABC_SWITCH,
     EMOJI_SWITCH,
     SPACE,
-    ENTER;
+    ENTER,
+    SPACER;
 
     companion object {
         fun fromString(value: String): KeyType? =
