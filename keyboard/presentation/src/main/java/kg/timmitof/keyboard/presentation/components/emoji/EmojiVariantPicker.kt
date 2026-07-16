@@ -11,14 +11,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntRect
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
-import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
+import kg.timmitof.keyboard.presentation.components.AboveAnchorPopupPositionProvider
 import kg.timmitof.keyboard.presentation.theme.KFTheme
 
 /**
@@ -66,26 +62,5 @@ internal fun EmojiVariantPicker(
                 )
             }
         }
-    }
-}
-
-/** Позиционирует попап по центру над якорем; при выходе за верх окна — под якорем. */
-private class AboveAnchorPopupPositionProvider(
-    private val marginPx: Int,
-) : PopupPositionProvider {
-
-    override fun calculatePosition(
-        anchorBounds: IntRect,
-        windowSize: IntSize,
-        layoutDirection: LayoutDirection,
-        popupContentSize: IntSize,
-    ): IntOffset {
-        val x = (anchorBounds.left + (anchorBounds.width - popupContentSize.width) / 2)
-            .coerceIn(0, (windowSize.width - popupContentSize.width).coerceAtLeast(0))
-
-        val above = anchorBounds.top - popupContentSize.height - marginPx
-        val y = if (above >= 0) above else anchorBounds.bottom + marginPx
-
-        return IntOffset(x, y)
     }
 }

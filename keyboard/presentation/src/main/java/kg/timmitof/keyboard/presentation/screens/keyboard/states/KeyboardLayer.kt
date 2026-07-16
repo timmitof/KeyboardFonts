@@ -3,13 +3,16 @@ package kg.timmitof.keyboard.presentation.screens.keyboard.states
 /**
  * Слои клавиатуры.
  *
- * @param layoutName имя JSON-раскладки слоя в ассетах;
- * null — слой без раскладки (сохраняет текущую).
+ * @property fixedLayoutName фиксированная JSON-раскладка слоя; null — слой раскладку не задаёт.
+ * @property usesLanguageLayout слой использует раскладку выбранного языка (см. [KeyboardState.selectedLanguage]).
  */
-internal enum class KeyboardLayer(val layoutName: String?) {
-    LETTERS("en_us"),
+internal enum class KeyboardLayer(
+    val fixedLayoutName: String? = null,
+    val usesLanguageLayout: Boolean = false,
+) {
+    LETTERS(usesLanguageLayout = true),
     SYMBOLS("symbols"),
     SYMBOLS_ALT("symbols_alt"),
-    EMOJI(null),
-    EMOJI_SEARCH("en_us"),
+    EMOJI,
+    EMOJI_SEARCH(usesLanguageLayout = true),
 }

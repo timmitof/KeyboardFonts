@@ -48,6 +48,12 @@ class AndroidApplicationPlugin : Plugin<Project> {
 
             compileSdk = ProjectConfig.COMPILE_SDK
 
+            buildTypes {
+                debug {
+                    isDebuggable = false
+                }
+            }
+
             defaultConfig {
                 applicationId = "kg.timmitof.keyboardfonts"
 

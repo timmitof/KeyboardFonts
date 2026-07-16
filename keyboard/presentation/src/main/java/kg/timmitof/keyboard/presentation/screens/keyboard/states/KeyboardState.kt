@@ -5,12 +5,15 @@ import kg.timmitof.core.ui.base.BaseEvent
 import kg.timmitof.core.ui.base.BaseSideEffect
 import kg.timmitof.core.ui.base.BaseState
 import kg.timmitof.keyboard.domain.model.EmojiCategory
+import kg.timmitof.keyboard.domain.model.KeyboardLanguage
 import kg.timmitof.keyboard.domain.model.KeyboardLayout
 
 @Stable
 internal data class KeyboardState(
     val layer: KeyboardLayer = KeyboardLayer.LETTERS,
     val keyboardLayout: KeyboardLayout = KeyboardLayout("", emptyList()),
+    val languages: List<KeyboardLanguage> = emptyList(),
+    val selectedLanguage: KeyboardLanguage? = null,
     val emojiCategories: List<EmojiCategory> = emptyList(),
     val emojiVariants: Map<String, List<String>> = emptyMap(),
     val preferredEmojiVariants: Map<String, String> = emptyMap(),
@@ -42,6 +45,7 @@ internal sealed class KeyboardEvent : BaseEvent.UiEvent() {
     data class OnBackspaceSelectCommit(val chars: Int) : KeyboardEvent()
     data object OnSpace : KeyboardEvent()
     data object OnEnter : KeyboardEvent()
+    data class OnLanguageSelect(val language: KeyboardLanguage) : KeyboardEvent()
     data object OnSymbolsSwitch : KeyboardEvent()
     data object OnSymbolsAltSwitch : KeyboardEvent()
     data object OnAbcSwitch : KeyboardEvent()
