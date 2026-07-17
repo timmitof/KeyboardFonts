@@ -15,23 +15,25 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.delay
 import kg.timmitof.keyboard.presentation.components.keys.KeyBase
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardEvent
 import kg.timmitof.keyboard.presentation.theme.KFTheme
@@ -70,7 +72,6 @@ internal fun EmojiSearchBar(
                     .fillMaxHeight(),
                 query = query,
                 selectionChars = selectionChars,
-                onQueryChange = { onEvent(KeyboardEvent.OnEmojiSearchQueryChange(it)) },
             )
 
             KeyBase(
@@ -108,22 +109,11 @@ internal fun EmojiSearchBar(
 @Composable
 private fun SearchQueryField(
     query: String,
-    onQueryChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     selectionChars: Int = 0,
 ) {
-    val focusRequester = remember { FocusRequester() }
-
-    val textFieldValue = remember(query, selectionChars) {
-        TextFieldValue(
-            text = query,
-            selection = if (selectionChars > 0) {
-                TextRange((query.length - selectionChars).coerceAtLeast(0), query.length)
-            } else {
-                TextRange(query.length)
-            }
-        )
-    }
+    val textColor = KFTheme.color.keyTextColor
+    val hasSelection = selectionChars in 1..query.length
 
     Row(
         modifier = modifier
@@ -135,37 +125,71 @@ private fun SearchQueryField(
 
         Spacer(modifier = Modifier.width(8.dp))
 
-        BasicTextField(
-            value = textFieldValue,
-            onValueChange = { onQueryChange(it.text) },
-            modifier = Modifier
-                .weight(1f)
-                .focusRequester(focusRequester),
-            textStyle = TextStyle(
-                fontSize = 14.sp,
-                color = KFTheme.color.keyTextColor
-            ),
-            cursorBrush = SolidColor(KFTheme.color.keyTextColor),
-            singleLine = true,
-            decorationBox = { innerTextField ->
-                Box(contentAlignment = Alignment.CenterStart) {
-                    if (query.isEmpty()) {
-                        Text(
-                            text = stringResource(R.string.emoji_search_hint),
-                            fontSize = 14.sp,
-                            color = KFTheme.color.keySpecialTextColor
-                        )
+        Row(
+            modifier = Modifier.weight(1f),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            when {
+                query.isEmpty() -> {
+                    BlinkingCaret(color = textColor, resetKey = query)
+                    Text(
+                        text = stringResource(R.string.emoji_search_hint),
+                        fontSize = 14.sp,
+                        color = KFTheme.color.keySpecialTextColor
+                    )
+                }
+
+                else -> {
+                    Text(
+                        text = if (hasSelection) {
+                            buildAnnotatedString {
+                                append(query.substring(0, query.length - selectionChars))
+                                withStyle(SpanStyle(background = textColor.copy(alpha = 0.25f))) {
+                                    append(query.substring(query.length - selectionChars))
+                                }
+                            }
+                        } else {
+                            AnnotatedString(query)
+                        },
+                        fontSize = 14.sp,
+                        color = textColor,
+                        maxLines = 1
+                    )
+                    if (!hasSelection) {
+                        BlinkingCaret(color = textColor, resetKey = query)
                     }
-                    innerTextField()
                 }
             }
-        )
-    }
-
-    LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
+        }
     }
 }
+
+@Composable
+private fun BlinkingCaret(
+    color: Color,
+    resetKey: String,
+    modifier: Modifier = Modifier,
+) {
+    var visible by remember { mutableStateOf(true) }
+
+    LaunchedEffect(resetKey) {
+        visible = true
+        while (true) {
+            delay(CaretBlinkMillis)
+            visible = !visible
+        }
+    }
+
+    Box(
+        modifier = modifier
+            .padding(horizontal = 1.dp)
+            .width(2.dp)
+            .height(18.dp)
+            .background(if (visible) color else Color.Transparent)
+    )
+}
+
+private const val CaretBlinkMillis = 500L
 
 @Composable
 private fun SearchResultsRow(
