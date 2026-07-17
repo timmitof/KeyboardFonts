@@ -5,4 +5,5 @@
     <string name="emoji_search_hint">Поиск эмодзи</string>
     <string name="emoji_search_start_typing">Начните печатать, чтобы найти эмодзи</string>
     <string name="emoji_search_no_results">Ничего не найдено</string>
+    <string name="cursor_mode_hint">Перетаскивайте пальцем для управления курсором</string>
 </resources>

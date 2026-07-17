@@ -161,19 +161,31 @@ fun Modifier.backspaceHoldSlideClickable(
     }
 }
 
-fun Modifier.slidePickerClickable(
+fun Modifier.spaceCursorClickable(
     interactionSource: MutableInteractionSource,
+    holdDelayMillis: Long = 280L,
+    cursorStepX: Dp = 8.dp,
+    cursorStepY: Dp = 32.dp,
     onTap: () -> Unit,
     onSlideStart: () -> Unit,
     onSlideChange: (offsetPx: Float) -> Unit,
     onSlideFinish: (offsetPx: Float) -> Unit,
+    onCursorStart: () -> Unit,
+    onCursorMove: (horizontal: Int, vertical: Int) -> Unit,
+    onCursorEnd: () -> Unit,
 ): Modifier = composed {
     val currentOnTap by rememberUpdatedState(onTap)
     val currentOnSlideStart by rememberUpdatedState(onSlideStart)
     val currentOnSlideChange by rememberUpdatedState(onSlideChange)
     val currentOnSlideFinish by rememberUpdatedState(onSlideFinish)
+    val currentOnCursorStart by rememberUpdatedState(onCursorStart)
+    val currentOnCursorMove by rememberUpdatedState(onCursorMove)
+    val currentOnCursorEnd by rememberUpdatedState(onCursorEnd)
 
     pointerInput(interactionSource) {
+        val stepXPx = cursorStepX.toPx()
+        val stepYPx = cursorStepY.toPx()
+
         coroutineScope {
             awaitEachGesture {
                 val down = awaitFirstDown(requireUnconsumed = false)
@@ -181,27 +193,71 @@ fun Modifier.slidePickerClickable(
                 launch { interactionSource.emit(press) }
 
                 var totalDx = 0f
+                var totalDy = 0f
                 var isSliding = false
+                var cursorMode = false
+
+                // Точка отсчёта и последние испущенные шаги для режима курсора.
+                var anchorX = 0f
+                var anchorY = 0f
+                var lastStepX = 0
+                var lastStepY = 0
+
+                // Зажатие сразу включает режим курсора
+                val holdJob = launch {
+                    delay(holdDelayMillis)
+                    if (!isSliding) {
+                        cursorMode = true
+                        anchorX = totalDx
+                        anchorY = totalDy
+                        currentOnCursorStart()
+                    }
+                }
 
                 while (true) {
                     val event = awaitPointerEvent()
                     val change = event.changes.firstOrNull { it.id == down.id } ?: break
                     if (!change.pressed) break
 
-                    totalDx += change.positionChange().x
+                    val delta = change.positionChange()
+                    totalDx += delta.x
+                    totalDy += delta.y
 
-                    if (!isSliding && abs(totalDx) > viewConfiguration.touchSlop) {
+                    // До зажатия горизонтальное движение переводит жест в выбор языка.
+                    if (!cursorMode && !isSliding && abs(totalDx) > viewConfiguration.touchSlop) {
                         isSliding = true
+                        holdJob.cancel()
                         currentOnSlideStart()
                     }
 
-                    if (isSliding) {
-                        change.consume()
-                        currentOnSlideChange(totalDx)
+                    when {
+                        cursorMode -> {
+                            change.consume()
+                            val stepX = ((totalDx - anchorX) / stepXPx).roundToInt()
+                            val stepY = ((totalDy - anchorY) / stepYPx).roundToInt()
+                            val dx = stepX - lastStepX
+                            val dy = stepY - lastStepY
+                            if (dx != 0 || dy != 0) {
+                                lastStepX = stepX
+                                lastStepY = stepY
+                                currentOnCursorMove(dx, dy)
+                            }
+                        }
+
+                        isSliding -> {
+                            change.consume()
+                            currentOnSlideChange(totalDx)
+                        }
                     }
                 }
 
-                if (isSliding) currentOnSlideFinish(totalDx) else currentOnTap()
+                holdJob.cancel()
+
+                when {
+                    cursorMode -> currentOnCursorEnd()
+                    isSliding -> currentOnSlideFinish(totalDx)
+                    else -> currentOnTap()
+                }
 
                 launch { interactionSource.emit(PressInteraction.Release(press)) }
             }

@@ -21,7 +21,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kg.timmitof.core.ui.slidePickerClickable
+import kg.timmitof.core.ui.spaceCursorClickable
 import kg.timmitof.keyboard.domain.model.KeyboardLanguage
 import kg.timmitof.keyboard.presentation.theme.KFTheme
 import kotlin.math.roundToInt
@@ -36,6 +36,8 @@ internal fun RowScope.SpaceKeyButton(
     languages: List<KeyboardLanguage>,
     selectedLanguage: KeyboardLanguage? = null,
     onLanguageSelect: (KeyboardLanguage) -> Unit = {},
+    onCursorMove: (horizontal: Int, vertical: Int) -> Unit = { _, _ -> },
+    onCursorModeChange: (active: Boolean) -> Unit = {},
     onClick: () -> Unit
 ) {
     val slideStepPx = with(LocalDensity.current) { LanguageSlideStep.toPx() }
@@ -63,7 +65,7 @@ internal fun RowScope.SpaceKeyButton(
         background = KFTheme.color.keyButtonBackground,
         shadowColor = KFTheme.color.keyButtonShadow,
         customGestures = { interactionSource ->
-            Modifier.slidePickerClickable(
+            Modifier.spaceCursorClickable(
                 interactionSource = interactionSource,
                 onTap = onClick,
                 onSlideStart = {
@@ -76,7 +78,10 @@ internal fun RowScope.SpaceKeyButton(
                     pickerLanguages.getOrNull(floatIndexFor(offsetPx).roundToInt())
                         ?.takeIf { it != selectedLanguage }
                         ?.let(onLanguageSelect)
-                }
+                },
+                onCursorStart = { onCursorModeChange(true) },
+                onCursorMove = onCursorMove,
+                onCursorEnd = { onCursorModeChange(false) }
             )
         },
         onClick = onClick

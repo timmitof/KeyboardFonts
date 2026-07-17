@@ -100,6 +100,10 @@ private fun RowScope.KeyboardKeySlot(
             languages = state.value.languages,
             selectedLanguage = state.value.selectedLanguage,
             onLanguageSelect = { onEvent(KeyboardEvent.OnLanguageSelect(it)) },
+            onCursorMove = { horizontal, vertical ->
+                onEvent(KeyboardEvent.OnCursorMove(horizontal, vertical))
+            },
+            onCursorModeChange = { onEvent(KeyboardEvent.OnCursorModeChange(it)) },
             onClick = { onEvent(KeyboardEvent.OnSpace) }
         )
 

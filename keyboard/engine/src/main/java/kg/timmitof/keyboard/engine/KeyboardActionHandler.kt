@@ -8,6 +8,7 @@ import android.view.inputmethod.ExtractedTextRequest
 import android.view.inputmethod.InputConnection
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.EnterAction
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardSideEffect
+import kotlin.math.abs
 
 /**
  * Применяет side effects клавиатуры к полю ввода
@@ -27,6 +28,7 @@ internal class KeyboardActionHandler(
         val connection = inputConnectionProvider() ?: return
         when (action) {
             is KeyboardSideEffect.CommitText -> connection.commitText(action.char, 1)
+            is KeyboardSideEffect.MoveCursor -> connection.moveCursor(action.horizontal, action.vertical)
             is KeyboardSideEffect.DeleteBackward -> connection.deleteLastGrapheme()
             is KeyboardSideEffect.DeleteWordBackward -> connection.deleteWordBeforeCursor()
             is KeyboardSideEffect.SelectBeforeCursor -> connection.selectBeforeCursor(action.chars)
@@ -52,6 +54,23 @@ internal class KeyboardActionHandler(
         val now = SystemClock.uptimeMillis()
         sendKeyEvent(KeyEvent(now, now, KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER, 0))
         sendKeyEvent(KeyEvent(now, now, KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER, 0))
+    }
+
+    /**
+     * Двигает курсор: [horizontal] символов (+вправо/−влево) и [vertical] строк (+вниз/−вверх)
+     */
+    private fun InputConnection.moveCursor(horizontal: Int, vertical: Int) {
+        val horizontalKey = if (horizontal >= 0) KeyEvent.KEYCODE_DPAD_RIGHT else KeyEvent.KEYCODE_DPAD_LEFT
+        repeat(abs(horizontal)) { sendKey(horizontalKey) }
+
+        val verticalKey = if (vertical >= 0) KeyEvent.KEYCODE_DPAD_DOWN else KeyEvent.KEYCODE_DPAD_UP
+        repeat(abs(vertical)) { sendKey(verticalKey) }
+    }
+
+    private fun InputConnection.sendKey(keyCode: Int) {
+        val now = SystemClock.uptimeMillis()
+        sendKeyEvent(KeyEvent(now, now, KeyEvent.ACTION_DOWN, keyCode, 0))
+        sendKeyEvent(KeyEvent(now, now, KeyEvent.ACTION_UP, keyCode, 0))
     }
 
     /**

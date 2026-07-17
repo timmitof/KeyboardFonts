@@ -26,11 +26,13 @@ internal data class KeyboardState(
     val emojiSearchSelection: Int = 0,
     val shiftState: ShiftState = ShiftState.DISABLED,
     val enterAction: EnterAction = EnterAction.RETURN,
+    val isCursorMode: Boolean = false,
 ): BaseState()
 
 sealed class KeyboardSideEffect : BaseSideEffect.UiSideEffect() {
     data class CommitText(val char: CharSequence) : KeyboardSideEffect()
     data class SelectBeforeCursor(val chars: Int) : KeyboardSideEffect()
+    data class MoveCursor(val horizontal: Int, val vertical: Int) : KeyboardSideEffect()
     data object DeleteBackward : KeyboardSideEffect()
     data object PerformEditorAction : KeyboardSideEffect()
     data object DeleteWordBackward : KeyboardSideEffect()
@@ -49,6 +51,8 @@ internal sealed class KeyboardEvent : BaseEvent.UiEvent() {
     data class OnBackspaceSelectChange(val chars: Int) : KeyboardEvent()
     data class OnBackspaceSelectCommit(val chars: Int) : KeyboardEvent()
     data object OnSpace : KeyboardEvent()
+    data class OnCursorMove(val horizontal: Int, val vertical: Int) : KeyboardEvent()
+    data class OnCursorModeChange(val active: Boolean) : KeyboardEvent()
     data object OnEnter : KeyboardEvent()
     data class OnLanguageSelect(val language: KeyboardLanguage) : KeyboardEvent()
     data class OnFontSelect(val font: KeyboardFont) : KeyboardEvent()

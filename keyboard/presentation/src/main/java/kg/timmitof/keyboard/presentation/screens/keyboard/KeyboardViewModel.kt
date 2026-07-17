@@ -34,6 +34,8 @@ internal class KeyboardViewModel(
         when (event) {
             is KeyboardEvent.OnKeySelect -> intent { with(textInputDelegate) { typeCharacter(event.char) } }
             is KeyboardEvent.OnSpace -> intent { with(textInputDelegate) { typeSpace() } }
+            is KeyboardEvent.OnCursorMove -> intent { with(textInputDelegate) { moveCursor(event.horizontal, event.vertical) } }
+            is KeyboardEvent.OnCursorModeChange -> intent { with(textInputDelegate) { setCursorMode(event.active) } }
             is KeyboardEvent.OnEnter -> intent { with(textInputDelegate) { pressEnter() } }
             is KeyboardEvent.OnShift -> intent { with(textInputDelegate) { toggleShift() } }
             is KeyboardEvent.OnBackspace -> intent { with(textInputDelegate) { deleteBackward() } }

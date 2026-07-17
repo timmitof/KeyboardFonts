@@ -31,6 +31,9 @@ import androidx.compose.ui.unit.sp
 import kg.timmitof.keyboard.domain.model.KeyboardFont
 import kg.timmitof.keyboard.presentation.theme.KFTheme
 
+/** Высота верхней панели (карусель шрифтов / подсказка режима курсора). */
+internal val TopStripHeight = 40.dp
+
 /**
  * Горизонтальная карусель шрифтов над клавишами
  */
@@ -48,7 +51,7 @@ internal fun FontsCarousel(
 
     LazyRow(
         state = listState,
-        modifier = modifier.height(40.dp),
+        modifier = modifier.height(TopStripHeight),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(horizontal = 4.dp),
         verticalAlignment = Alignment.CenterVertically,

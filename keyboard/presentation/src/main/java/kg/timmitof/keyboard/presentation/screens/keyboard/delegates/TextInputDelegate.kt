@@ -20,6 +20,19 @@ internal class TextInputDelegate(
     suspend fun KeyboardSyntax.typeSpace() =
         editText(KeyboardSideEffect.CommitText(" ")) { query -> "$query " }
 
+    suspend fun KeyboardSyntax.moveCursor(horizontal: Int, vertical: Int) {
+        if (state.layer == KeyboardLayer.EMOJI_SEARCH) return
+        if (horizontal != 0 || vertical != 0) {
+            postSideEffect(KeyboardSideEffect.MoveCursor(horizontal, vertical))
+        }
+    }
+
+    suspend fun KeyboardSyntax.setCursorMode(active: Boolean) {
+        if (state.isCursorMode != active) {
+            reduce { state.copy(isCursorMode = active) }
+        }
+    }
+
     suspend fun KeyboardSyntax.pressEnter() {
         if (state.layer == KeyboardLayer.EMOJI_SEARCH) {
             with(layerDelegate) { applyLayer(KeyboardLayer.EMOJI) }
