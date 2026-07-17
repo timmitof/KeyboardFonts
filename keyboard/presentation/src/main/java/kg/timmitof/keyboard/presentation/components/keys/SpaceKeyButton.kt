@@ -43,11 +43,16 @@ internal fun RowScope.SpaceKeyButton(
     var slideOffsetPx by remember { mutableFloatStateOf(0f) }
     var keyWidthPx by remember { mutableIntStateOf(0) }
 
-    val startIndex = languages.indexOf(selectedLanguage).coerceAtLeast(0)
+    val pickerLanguages = remember(languages, selectedLanguage) {
+        val others = languages.filter { it != selectedLanguage }
+        if (selectedLanguage == null || others.isEmpty()) languages
+        else others + selectedLanguage + others
+    }
+    val centerIndex = pickerLanguages.indexOf(selectedLanguage).coerceAtLeast(0)
 
     val floatIndexFor: (Float) -> Float = { offsetPx ->
-        (startIndex - offsetPx / slideStepPx)
-            .coerceIn(0f, languages.lastIndex.coerceAtLeast(0).toFloat())
+        (centerIndex - offsetPx / slideStepPx)
+            .coerceIn(0f, pickerLanguages.lastIndex.coerceAtLeast(0).toFloat())
     }
 
     KeyBase(
@@ -68,7 +73,7 @@ internal fun RowScope.SpaceKeyButton(
                 onSlideChange = { slideOffsetPx = it },
                 onSlideFinish = { offsetPx ->
                     isPickerVisible = false
-                    languages.getOrNull(floatIndexFor(offsetPx).roundToInt())
+                    pickerLanguages.getOrNull(floatIndexFor(offsetPx).roundToInt())
                         ?.takeIf { it != selectedLanguage }
                         ?.let(onLanguageSelect)
                 }
@@ -80,7 +85,7 @@ internal fun RowScope.SpaceKeyButton(
 
         if (isPickerVisible) {
             LanguagePicker(
-                languages = languages,
+                languages = pickerLanguages,
                 width = with(LocalDensity.current) { keyWidthPx.toDp() },
                 floatIndex = { floatIndexFor(slideOffsetPx) },
                 onDismiss = { isPickerVisible = false }

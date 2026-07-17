@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
@@ -46,6 +47,7 @@ private fun KeyboardContent(
         modifier = Modifier
             .fillMaxWidth()
             .background(KFTheme.color.keyboardBackground)
+            .navigationBarsPadding()
             .padding(horizontal = 6.dp, vertical = 8.dp)
     ) {
         when (state.value.layer) {
