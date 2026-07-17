@@ -7,9 +7,11 @@ import dagger.hilt.components.SingletonComponent
 import kg.timmitof.keyboard.data.AssetJsonKeyboardLayoutLoader
 import kg.timmitof.keyboard.data.JsonKeyboardLayoutLoader
 import kg.timmitof.keyboard.data.repository.EmojiRepositoryImpl
+import kg.timmitof.keyboard.data.repository.FontRepositoryImpl
 import kg.timmitof.keyboard.data.repository.KeyboardLayoutRepositoryImpl
 import kg.timmitof.keyboard.data.repository.LanguageRepositoryImpl
 import kg.timmitof.keyboard.domain.repository.EmojiRepository
+import kg.timmitof.keyboard.domain.repository.FontRepository
 import kg.timmitof.keyboard.domain.repository.KeyboardLayoutRepository
 import kg.timmitof.keyboard.domain.repository.LanguageRepository
 import javax.inject.Singleton
@@ -33,4 +35,8 @@ abstract class KeyboardDataModule {
     @Binds
     @Singleton
     abstract fun bindLanguageRepository(impl: LanguageRepositoryImpl): LanguageRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindFontRepository(impl: FontRepositoryImpl): FontRepository
 }

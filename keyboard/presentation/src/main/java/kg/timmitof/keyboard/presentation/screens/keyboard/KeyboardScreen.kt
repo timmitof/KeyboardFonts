@@ -13,6 +13,7 @@ import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kg.timmitof.keyboard.domain.model.KeyboardLayout
+import kg.timmitof.keyboard.presentation.components.FontsCarousel
 import kg.timmitof.keyboard.presentation.components.KeyRowHeight
 import kg.timmitof.keyboard.presentation.components.KeyRowSpacing
 import kg.timmitof.keyboard.presentation.components.KeyboardRows
@@ -62,12 +63,34 @@ private fun KeyboardContent(
                 onEvent = onEvent
             )
 
-            else -> KeyboardRows(
-                layout = state.value.keyboardLayout,
+            else -> LettersLayer(
                 state = state,
                 onEvent = onEvent
             )
         }
+    }
+}
+
+@Composable
+private fun LettersLayer(
+    state: State<KeyboardState>,
+    onEvent: (KeyboardEvent) -> Unit
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        FontsCarousel(
+            fonts = state.value.fonts,
+            selectedFontId = state.value.selectedFont.id,
+            onFontSelect = { onEvent(KeyboardEvent.OnFontSelect(it)) },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(KeyRowSpacing))
+
+        KeyboardRows(
+            layout = state.value.keyboardLayout,
+            state = state,
+            onEvent = onEvent
+        )
     }
 }
 

@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import kg.timmitof.core.ui.base.BaseSideEffect
 import kg.timmitof.core.ui.base.BaseViewModel
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.EmojiDelegate
+import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.FontDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.LanguageDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.LayerDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.TextInputDelegate
@@ -26,6 +27,7 @@ internal class KeyboardViewModel(
     private val textInputDelegate: TextInputDelegate,
     private val emojiDelegate: EmojiDelegate,
     private val languageDelegate: LanguageDelegate,
+    private val fontDelegate: FontDelegate,
 ) : BaseViewModel<KeyboardState, KeyboardSideEffect, KeyboardEvent>(KeyboardState()) {
 
     override fun onEvent(event: KeyboardEvent) {
@@ -39,6 +41,7 @@ internal class KeyboardViewModel(
             is KeyboardEvent.OnBackspaceSelectChange -> intent { with(textInputDelegate) { changeBackspaceSelection(event.chars) } }
             is KeyboardEvent.OnBackspaceSelectCommit -> intent { with(textInputDelegate) { commitBackspaceSelection(event.chars) } }
             is KeyboardEvent.OnLanguageSelect -> intent { with(languageDelegate) { selectLanguage(event.language) } }
+            is KeyboardEvent.OnFontSelect -> intent { with(fontDelegate) { selectFont(event.font) } }
             is KeyboardEvent.OnSymbolsSwitch -> intent { with(layerDelegate) { applyLayer(KeyboardLayer.SYMBOLS) } }
             is KeyboardEvent.OnSymbolsAltSwitch -> intent { with(layerDelegate) { toggleSymbolsAlt() } }
             is KeyboardEvent.OnAbcSwitch -> intent { with(layerDelegate) { applyLayer(KeyboardLayer.LETTERS) } }
@@ -55,6 +58,7 @@ internal class KeyboardViewModel(
 
     override suspend fun Syntax<KeyboardState, BaseSideEffect>.onBootstrap() {
         with(languageDelegate) { loadLanguages() }
+        with(fontDelegate) { loadFonts() }
         with(layerDelegate) { applyLayer(KeyboardLayer.LETTERS) }
 
         layerDelegate.preloadLayouts(state.languages.map { it.code })

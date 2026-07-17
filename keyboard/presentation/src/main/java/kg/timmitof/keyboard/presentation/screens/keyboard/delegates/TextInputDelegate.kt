@@ -12,7 +12,8 @@ internal class TextInputDelegate(
 ) {
 
     suspend fun KeyboardSyntax.typeCharacter(char: String) {
-        editText(KeyboardSideEffect.CommitText(char)) { query -> query + char }
+        val styled = state.selectedFont.apply(char)
+        editText(KeyboardSideEffect.CommitText(styled)) { query -> query + char }
         releaseOneShotShift()
     }
 

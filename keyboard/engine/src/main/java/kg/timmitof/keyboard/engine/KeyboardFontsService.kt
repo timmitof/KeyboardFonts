@@ -4,6 +4,7 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import dagger.hilt.android.AndroidEntryPoint
 import kg.timmitof.keyboard.domain.repository.EmojiRepository
+import kg.timmitof.keyboard.domain.repository.FontRepository
 import kg.timmitof.keyboard.domain.repository.KeyboardLayoutRepository
 import kg.timmitof.keyboard.domain.repository.LanguageRepository
 import kg.timmitof.keyboard.presentation.KeyboardFontsView
@@ -22,6 +23,9 @@ internal class KeyboardFontsService : ComposeInputMethodService() {
     @Inject
     lateinit var languageRepository: LanguageRepository
 
+    @Inject
+    lateinit var fontRepository: FontRepository
+
     private val actionHandler = KeyboardActionHandler(
         inputConnectionProvider = { currentInputConnection },
         editorInfoProvider = { currentInputEditorInfo },
@@ -35,7 +39,8 @@ internal class KeyboardFontsService : ComposeInputMethodService() {
         viewModelFactory = KeyboardViewModelFactory(
             keyboardLayoutRepository = keyboardLayoutRepository,
             emojiRepository = emojiRepository,
-            languageRepository = languageRepository
+            languageRepository = languageRepository,
+            fontRepository = fontRepository
         ),
         onKeyboardAction = actionHandler::handle,
     ).also { keyboardView = it }

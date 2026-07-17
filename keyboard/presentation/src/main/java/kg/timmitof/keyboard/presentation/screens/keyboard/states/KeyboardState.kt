@@ -5,6 +5,7 @@ import kg.timmitof.core.ui.base.BaseEvent
 import kg.timmitof.core.ui.base.BaseSideEffect
 import kg.timmitof.core.ui.base.BaseState
 import kg.timmitof.keyboard.domain.model.EmojiCategory
+import kg.timmitof.keyboard.domain.model.KeyboardFont
 import kg.timmitof.keyboard.domain.model.KeyboardLanguage
 import kg.timmitof.keyboard.domain.model.KeyboardLayout
 
@@ -14,6 +15,8 @@ internal data class KeyboardState(
     val keyboardLayout: KeyboardLayout = KeyboardLayout("", emptyList()),
     val languages: List<KeyboardLanguage> = emptyList(),
     val selectedLanguage: KeyboardLanguage? = null,
+    val fonts: List<KeyboardFont> = emptyList(),
+    val selectedFont: KeyboardFont = KeyboardFont.Default,
     val emojiCategories: List<EmojiCategory> = emptyList(),
     val emojiVariants: Map<String, List<String>> = emptyMap(),
     val preferredEmojiVariants: Map<String, String> = emptyMap(),
@@ -48,6 +51,7 @@ internal sealed class KeyboardEvent : BaseEvent.UiEvent() {
     data object OnSpace : KeyboardEvent()
     data object OnEnter : KeyboardEvent()
     data class OnLanguageSelect(val language: KeyboardLanguage) : KeyboardEvent()
+    data class OnFontSelect(val font: KeyboardFont) : KeyboardEvent()
     data object OnSymbolsSwitch : KeyboardEvent()
     data object OnSymbolsAltSwitch : KeyboardEvent()
     data object OnAbcSwitch : KeyboardEvent()

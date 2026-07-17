@@ -3,9 +3,11 @@ package kg.timmitof.keyboard.presentation.screens.keyboard
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import kg.timmitof.keyboard.domain.repository.EmojiRepository
+import kg.timmitof.keyboard.domain.repository.FontRepository
 import kg.timmitof.keyboard.domain.repository.KeyboardLayoutRepository
 import kg.timmitof.keyboard.domain.repository.LanguageRepository
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.EmojiDelegate
+import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.FontDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.LanguageDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.LayerDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.TextInputDelegate
@@ -14,6 +16,7 @@ class KeyboardViewModelFactory(
     private val keyboardLayoutRepository: KeyboardLayoutRepository,
     private val emojiRepository: EmojiRepository,
     private val languageRepository: LanguageRepository,
+    private val fontRepository: FontRepository,
 ) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -27,6 +30,7 @@ class KeyboardViewModelFactory(
                 textInputDelegate = TextInputDelegate(layerDelegate, emojiDelegate),
                 emojiDelegate = emojiDelegate,
                 languageDelegate = LanguageDelegate(languageRepository, layerDelegate),
+                fontDelegate = FontDelegate(fontRepository),
             ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
