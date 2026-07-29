@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,6 +26,7 @@ import kg.timmitof.keyboard.presentation.components.KeyboardRows
 import kg.timmitof.keyboard.presentation.components.TopStripHeight
 import kg.timmitof.keyboard.presentation.components.emoji.EmojiPanel
 import kg.timmitof.keyboard.presentation.components.emoji.EmojiSearchBar
+import kg.timmitof.keyboard.presentation.keyboardNavigationBarsPadding
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardEvent
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardLayer
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardState
@@ -56,7 +56,7 @@ private fun KeyboardContent(
         modifier = Modifier
             .fillMaxWidth()
             .background(KFTheme.color.keyboardBackground)
-            .navigationBarsPadding()
+            .padding(keyboardNavigationBarsPadding())
             .padding(horizontal = 6.dp, vertical = 8.dp)
     ) {
         when (state.value.layer) {

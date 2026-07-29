@@ -1,8 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <string name="app_title">Keyboard Fonts</string>
+
     <string name="content_description_keyboard_off">Открыть панель для включения клавиатуры</string>
+    <string name="content_description_keyboard_on">Клавиатура подключена</string>
     <string name="your_works">Ваши работы</string>
     <string name="backgrounds">Шаблоны</string>
     <string name="create_background">Создать картинку</string>
+
+    <!-- Инструкция по подключению клавиатуры -->
+    <string name="setup_title">Подключите клавиатуру</string>
+    <string name="setup_subtitle">Два коротких шага — и красивые шрифты будут доступны в любом приложении</string>
+    <string name="setup_title_ready">Всё готово!</string>
+    <string name="setup_subtitle_ready">Keyboard Fonts подключена и выбрана основной клавиатурой</string>
+
+    <string name="setup_step_enable_title">Включите Keyboard Fonts</string>
+    <string name="setup_step_enable_description">Откроется список клавиатур — найдите «Keyboard Fonts», переведите переключатель и вернитесь назад</string>
+    <string name="setup_step_enable_action">Открыть настройки</string>
+
+    <string name="setup_step_select_title">Сделайте её основной</string>
+    <string name="setup_step_select_description">В появившемся окне выберите «Keyboard Fonts» текущей клавиатурой</string>
+    <string name="setup_step_select_action">Выбрать клавиатуру</string>
+
+    <string name="setup_step_done">Шаг выполнен</string>
+
+    <string name="setup_done_title">Клавиатура готова к работе</string>
+    <string name="setup_done_description">Откройте любое приложение и меняйте шрифт прямо на клавиатуре</string>
+
+    <string name="setup_try_title">Проверьте прямо здесь</string>
+    <string name="setup_try_placeholder">Напишите что-нибудь…</string>
 </resources>

@@ -40,10 +40,15 @@ internal abstract class ComposeInputMethodService : InputMethodService(),
     }
 
     final override fun onCreateInputView(): View {
-        window?.window?.decorView?.let { decorView ->
-            decorView.setViewTreeLifecycleOwner(this)
-            decorView.setViewTreeSavedStateRegistryOwner(this)
-            decorView.setViewTreeViewModelStoreOwner(this)
+        window?.window?.let { window ->
+            // Место под системной IME-панелью (скрыть клавиатуру / сменить клавиатуру) резервирует
+            // сама система — она знает её реальную высоту. Свой отступ клавиатура добавляет только
+            // там, где система этого не делает (см. KeyboardFontsView).
+            window.decorView.apply {
+                setViewTreeLifecycleOwner(this@ComposeInputMethodService)
+                setViewTreeSavedStateRegistryOwner(this@ComposeInputMethodService)
+                setViewTreeViewModelStoreOwner(this@ComposeInputMethodService)
+            }
         }
         return onCreateComposeView()
     }

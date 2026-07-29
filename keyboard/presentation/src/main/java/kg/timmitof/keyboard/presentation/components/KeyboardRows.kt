@@ -28,10 +28,10 @@ import kg.timmitof.keyboard.presentation.screens.keyboard.states.isUpperCase
 internal val KeyRowHeight = 48.dp
 
 /** Вертикальный промежуток между рядами. */
-internal val KeyRowSpacing = 8.dp
+internal val KeyRowSpacing = 6.dp
 
 /** Горизонтальный промежуток между клавишами в ряду. */
-internal val KeySpacing = 6.dp
+internal val KeySpacing = 4.dp
 
 /**
  * Ряды клавиш раскладки: чистая разметка, каждая клавиша

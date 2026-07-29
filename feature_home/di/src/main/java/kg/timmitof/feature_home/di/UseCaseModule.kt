@@ -7,8 +7,11 @@ import dagger.hilt.android.components.ViewModelComponent
 import kg.timmitof.feature_home.domain.interactor.HomeInteractor
 import kg.timmitof.feature_home.domain.repository.ProjectRepository
 import kg.timmitof.feature_home.domain.repository.TemplateRepository
+import kg.timmitof.feature_home.domain.usecase.GetKeyboardSetupUseCase
 import kg.timmitof.feature_home.domain.usecase.GetTemplatesUseCase
 import kg.timmitof.feature_home.domain.usecase.GetUserProjectsUseCase
+import kg.timmitof.feature_home.domain.usecase.OpenKeyboardSetupUseCase
+import kg.timmitof.keyboard.integration.KeyboardContract
 
 @Module
 @InstallIn(ViewModelComponent::class)
@@ -29,13 +32,31 @@ object UseCaseModule {
     }
 
     @Provides
+    fun provideGetKeyboardSetupUseCase(
+        keyboardContract: KeyboardContract
+    ): GetKeyboardSetupUseCase {
+        return GetKeyboardSetupUseCase(keyboardContract)
+    }
+
+    @Provides
+    fun provideOpenKeyboardSetupUseCase(
+        keyboardContract: KeyboardContract
+    ): OpenKeyboardSetupUseCase {
+        return OpenKeyboardSetupUseCase(keyboardContract)
+    }
+
+    @Provides
     fun provideHomeInteractor(
         getTemplatesUseCase: GetTemplatesUseCase,
-        getUserProjectsUseCase: GetUserProjectsUseCase
+        getUserProjectsUseCase: GetUserProjectsUseCase,
+        getKeyboardSetupUseCase: GetKeyboardSetupUseCase,
+        openKeyboardSetupUseCase: OpenKeyboardSetupUseCase
     ): HomeInteractor {
         return HomeInteractor(
             getTemplatesUseCase = getTemplatesUseCase,
-            getUserProjectsUseCase = getUserProjectsUseCase
+            getUserProjectsUseCase = getUserProjectsUseCase,
+            getKeyboardSetupUseCase = getKeyboardSetupUseCase,
+            openKeyboardSetupUseCase = openKeyboardSetupUseCase
         )
     }
 }

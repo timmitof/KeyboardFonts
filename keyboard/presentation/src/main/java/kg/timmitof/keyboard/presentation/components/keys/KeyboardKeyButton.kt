@@ -88,7 +88,7 @@ internal fun RowScope.KeyboardKeyButton(
         }
         Text(
             text = displayLabel,
-            fontSize = 18.sp,
+            fontSize = 22.sp,
             fontWeight = FontWeight.Medium,
             color = KFTheme.color.keyTextColor,
             letterSpacing = 0.5.sp

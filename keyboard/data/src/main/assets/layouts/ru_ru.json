@@ -45,7 +45,7 @@
       { "type": "EMOJI_SWITCH", "weight": 1.0 },
       { "type": "CHARACTER", "weight": 1.0, "labelLower": ",", "labelUpper": ",", "longPress": { "type": "MICROPHONE" } },
       { "type": "SPACE", "weight": 4.0, "labelLower": " ", "labelUpper": " " },
-      { "type": "CHARACTER", "weight": 1.0, "labelLower": ".", "labelUpper": ".", "longPress": { "type": "SYMBOLS", "symbols": [",", "!", "?", "…"] } },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": ".", "labelUpper": ".", "longPress": { "type": "SYMBOLS", "symbols": [",", "!", "?"] } },
       { "type": "ENTER", "weight": 1.4 }
     ]
   ]

@@ -1,39 +1,34 @@
 package kg.timmitof.feature_home.presentation.screens
 
-import kg.timmitof.feature_home.presentation.R
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideInVertically
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import kg.timmitof.core.ui.base.Container
 import kg.timmitof.core.ui.base.ContainerDSLBuilder
 import kg.timmitof.core.ui.theme.KeyboardFontsTheme
-import kg.timmitof.feature_home.presentation.components.AnimatedSection
-import kg.timmitof.feature_home.presentation.components.BackgroundSurface
+import kg.timmitof.feature_home.domain.model.KeyboardSetupStep
 import kg.timmitof.feature_home.presentation.components.HomeTopAppBar
-import kg.timmitof.feature_home.presentation.components.TwoColumnGrid
-import kg.timmitof.feature_home.presentation.components.YourWorksCarousel
+import kg.timmitof.feature_home.presentation.components.KeyboardSetupGuide
+import kg.timmitof.feature_home.presentation.components.TryKeyboardField
+import org.orbitmvi.orbit.compose.collectAsState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,13 +36,21 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+    val screenState by viewModel.collectAsState()
+
     Container(
         modifier = Modifier
             .fillMaxSize()
             .nestedScroll(scrollBehavior.nestedScrollConnection),
         viewModel = viewModel,
         topBar = {
-            HomeTopAppBar(scrollBehavior = scrollBehavior)
+            HomeTopAppBar(
+                scrollBehavior = scrollBehavior,
+                isKeyboardReady = screenState.keyboardSetup.currentStep == KeyboardSetupStep.DONE,
+                onOpenKeyboardSettings = {
+                    viewModel.onEvent(HomeEvent.SetupStepClicked(KeyboardSetupStep.ENABLE))
+                }
+            )
         }
     ) { state, innerPadding ->
         HomeContent(
@@ -57,58 +60,45 @@ fun HomeScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 internal fun ContainerDSLBuilder<HomeSideEffect, HomeEvent>.HomeContent(
     state: State<HomeState>,
     innerPadding: PaddingValues = PaddingValues()
 ) {
-    val horizontalPadding = 16.dp
     val scrollState = rememberScrollState()
+    val setup = state.value.keyboardSetup
 
-    val templateList = remember(state.value.templateList) { state.value.templateList }
+    // Статус клавиатуры меняется в системных настройках — перечитываем его при каждом возврате
+    LifecycleResumeEffect(Unit) {
+        sendEvent(HomeEvent.KeyboardSetupChecked)
+        onPauseOrDispose { }
+    }
+
+    val onStepClick = remember<(KeyboardSetupStep) -> Unit> {
+        { step -> sendEvent(HomeEvent.SetupStepClicked(step)) }
+    }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(top = innerPadding.calculateTopPadding())
             .verticalScroll(scrollState)
-    ) {
-        AnimatedSection(
-            title = stringResource(R.string.your_works),
-            enterAnimation = slideInHorizontally(
-                initialOffsetX = { it },
-                animationSpec = MaterialTheme.motionScheme.slowSpatialSpec()
-            ),
-            horizontalPadding = horizontalPadding
-        ) {
-            YourWorksCarousel(
-                carouselList = templateList
+            .padding(
+                top = innerPadding.calculateTopPadding(),
+                bottom = innerPadding.calculateBottomPadding()
             )
-        }
+            .padding(horizontal = HORIZONTAL_PADDING, vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(20.dp)
+    ) {
+        KeyboardSetupGuide(
+            setup = setup,
+            onStepClick = onStepClick
+        )
 
-        Spacer(modifier = Modifier.height(12.dp))
-
-        AnimatedSection(
-            title = stringResource(R.string.backgrounds),
-            enterAnimation = slideInVertically(
-                initialOffsetY = { it },
-                animationSpec = MaterialTheme.motionScheme.slowSpatialSpec()
-            ),
-            horizontalPadding = horizontalPadding
-        ) {
-            TwoColumnGrid(
-                modifier = Modifier.padding(horizontal = horizontalPadding),
-                items = templateList
-            ) {
-                BackgroundSurface(
-                    backgroundFilePath = it.bitmapFilePath,
-                    onClick = { sendEvent(HomeEvent.BackgroundSelected(it.bitmapFilePath)) }
-                )
-            }
-        }
+        TryKeyboardField()
     }
 }
+
+private val HORIZONTAL_PADDING = 16.dp
 
 @Preview
 @Composable
