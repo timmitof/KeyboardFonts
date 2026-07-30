@@ -27,7 +27,10 @@ internal data class KeyboardState(
     val shiftState: ShiftState = ShiftState.DISABLED,
     val enterAction: EnterAction = EnterAction.RETURN,
     val isCursorMode: Boolean = false,
-): BaseState()
+): BaseState() {
+    val displayedEnterAction: EnterAction
+        get() = if (layer == KeyboardLayer.EMOJI_SEARCH) EnterAction.DONE else enterAction
+}
 
 sealed class KeyboardSideEffect : BaseSideEffect.UiSideEffect() {
     data class CommitText(val char: CharSequence) : KeyboardSideEffect()

@@ -109,7 +109,7 @@ private fun RowScope.KeyboardKeySlot(
 
         is KeyboardKey.Enter -> EnterKeyButton(
             weight = key.weight,
-            enterAction = state.value.enterAction,
+            enterAction = state.value.displayedEnterAction,
             onClick = { onEvent(KeyboardEvent.OnEnter) }
         )
 

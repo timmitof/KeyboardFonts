@@ -6,7 +6,6 @@ import android.view.KeyEvent
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.ExtractedTextRequest
 import android.view.inputmethod.InputConnection
-import kg.timmitof.keyboard.presentation.screens.keyboard.states.EnterAction
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardSideEffect
 import kotlin.math.abs
 
@@ -37,16 +36,12 @@ internal class KeyboardActionHandler(
         }
     }
 
-    /** Действие редактора из imeOptions текущего поля (Done/Next/Search и т. д.). */
-    private fun editorAction(): Int = editorInfoProvider()?.imeOptions
-        ?.and(EditorInfo.IME_MASK_ACTION)
-        ?: EditorInfo.IME_ACTION_UNSPECIFIED
-
     private fun InputConnection.performEnter() {
-        if (editorInfoProvider().toEnterAction() == EnterAction.RETURN) {
-            sendEnterKey()
+        val editorInfo = editorInfoProvider()
+        if (editorInfo.hasEditorAction()) {
+            performEditorAction(editorInfo.editorActionId())
         } else {
-            performEditorAction(editorAction())
+            sendEnterKey()
         }
     }
 
