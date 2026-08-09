@@ -1,21 +1,65 @@
-# Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the
-# proguardFiles setting in build.gradle.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
+# =====================================================================
+# ProGuard/R8 правила для release-сборки Keyboard Fonts
+# Базовые правила берутся из proguard-android-optimize.txt (см. build.gradle.kts)
+# Здесь — только то, что специфично для этого проекта.
+# =====================================================================
 
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
+# --- Сохраняем номера строк для читаемых стектрейсов в Play Console ---
+-keepattributes SourceFile,LineNumberTable
+-renamesourcefileattribute SourceFile
 
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
+# =====================================================================
+# Gson — раскладки клавиатуры парсятся рефлексией из JSON-ассетов
+# (keyboard/data/.../repository/KeyboardLayoutRepositoryImpl.kt).
+# Имена полей DTO берутся из JSON, поэтому их нельзя переименовывать.
+# =====================================================================
+-keepattributes Signature
+-keepattributes *Annotation*
+-keep class com.google.gson.reflect.TypeToken { *; }
+-keep class * extends com.google.gson.reflect.TypeToken
 
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
+# DTO-модели раскладок — сохраняем классы и все поля целиком.
+-keep class kg.timmitof.keyboard.data.models.** { *; }
+
+# Общие правила Gson (на случай сериализации/десериализации через рефлексию).
+-keep,allowobfuscation,allowshrinking class com.google.gson.reflect.TypeToken
+-keep,allowobfuscation,allowshrinking class * extends com.google.gson.reflect.TypeToken
+
+# =====================================================================
+# kotlinx.serialization — type-safe навигация (core:navigation graphs).
+# =====================================================================
+-keepattributes RuntimeVisibleAnnotations,AnnotationDefault
+
+# Сохраняем сгенерированные сериализаторы.
+-if @kotlinx.serialization.Serializable class **
+-keepclassmembers class <1> {
+    static <1>$Companion Companion;
+}
+-if @kotlinx.serialization.Serializable class ** {
+    static **$* *;
+}
+-keepclassmembers class <2>$<3> {
+    kotlinx.serialization.KSerializer serializer(...);
+}
+-keepclasseswithmembers class kg.timmitof.**$$serializer { *; }
+-keepclassmembers class kg.timmitof.** {
+    *** Companion;
+}
+-keepclasseswithmembers @kotlinx.serialization.Serializable class kg.timmitof.** {
+    <init>(...);
+}
+
+# =====================================================================
+# Enum-ы (Gson/сериализация используют values()/valueOf()).
+# =====================================================================
+-keepclassmembers enum * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}
+
+# =====================================================================
+# Parcelable (на случай передачи моделей между компонентами).
+# =====================================================================
+-keepclassmembers class * implements android.os.Parcelable {
+    public static final ** CREATOR;
+}

@@ -15,3 +15,15 @@ build
 .externalNativeBuild
 .cxx
 local.properties
+
+# Данные для подписи release-сборки — НИКОГДА не коммитить
+keystore.properties
+*.jks
+*.keystore
+
+# Артефакты сборки (AAB/APK и папки output)
+*.aab
+*.apk
+/app/release/
+/app/debug/
+.kotlin
