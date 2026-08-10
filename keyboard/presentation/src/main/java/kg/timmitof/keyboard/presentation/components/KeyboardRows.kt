@@ -1,6 +1,5 @@
 package kg.timmitof.keyboard.presentation.components
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -11,7 +10,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import kg.timmitof.keyboard.domain.model.KeyboardKey
 import kg.timmitof.keyboard.domain.model.KeyboardLayout
 import kg.timmitof.keyboard.presentation.components.keys.BackspaceKeyButton
@@ -23,15 +21,6 @@ import kg.timmitof.keyboard.presentation.components.keys.SpecialKeyButton
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardEvent
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardState
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.isUpperCase
-
-/** Высота одного ряда клавиш. */
-internal val KeyRowHeight = 48.dp
-
-/** Вертикальный промежуток между рядами. */
-internal val KeyRowSpacing = 6.dp
-
-/** Горизонтальный промежуток между клавишами в ряду. */
-internal val KeySpacing = 4.dp
 
 /**
  * Ряды клавиш раскладки: чистая разметка, каждая клавиша
@@ -45,7 +34,6 @@ internal fun KeyboardRows(
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(KeyRowSpacing),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         layout.rows.forEach { row ->
@@ -53,7 +41,6 @@ internal fun KeyboardRows(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(KeyRowHeight),
-                horizontalArrangement = Arrangement.spacedBy(KeySpacing),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 row.forEach { key ->

@@ -33,8 +33,8 @@ import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardState
 import kg.timmitof.keyboard.presentation.theme.KFTheme
 import org.orbitmvi.orbit.compose.collectAsState
 
-/** Высота зоны клавиш: 4 ряда + 3 промежутка */
-private val KeyboardBodyHeight = KeyRowHeight * 4 + KeyRowSpacing * 3
+/** Высота зоны клавиш: 4 ряда вплотную — промежутки входят в высоту самих рядов. */
+private val KeyboardBodyHeight = KeyRowHeight * 4
 
 @Composable
 internal fun KeyboardFontsScreen(viewModel: KeyboardViewModel) {
@@ -57,7 +57,8 @@ private fun KeyboardContent(
             .fillMaxWidth()
             .background(KFTheme.color.keyboardBackground)
             .padding(keyboardNavigationBarsPadding())
-            .padding(horizontal = 6.dp, vertical = 8.dp)
+            // Половину зазора клавиши держат в себе, поэтому по краям хватает 3.dp.
+            .padding(horizontal = 3.dp, vertical = 8.dp)
     ) {
         when (state.value.layer) {
             KeyboardLayer.EMOJI -> EmojiLayer(
@@ -97,7 +98,8 @@ private fun LettersLayer(
             )
         }
 
-        Spacer(modifier = Modifier.height(KeyRowSpacing))
+        // Половину зазора добавит верхний ряд клавиш — здесь нужна только вторая половина.
+        Spacer(modifier = Modifier.height(KeyRowSpacing / 2))
 
         KeyboardRows(
             layout = state.value.keyboardLayout,
@@ -157,7 +159,8 @@ private fun EmojiSearchLayer(
             preferredVariants = state.value.preferredEmojiVariants
         )
 
-        Spacer(modifier = Modifier.height(KeyRowSpacing))
+        // Половину зазора добавит верхний ряд клавиш — здесь нужна только вторая половина.
+        Spacer(modifier = Modifier.height(KeyRowSpacing / 2))
 
         KeyboardRows(
             layout = layout,
