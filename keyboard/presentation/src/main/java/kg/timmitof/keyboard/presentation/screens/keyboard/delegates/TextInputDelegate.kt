@@ -64,6 +64,13 @@ internal class TextInputDelegate(
             reduce { state.copy(shiftState = ShiftState.DISABLED) }
         }
     }
+
+    /** Полный сброс shift, включая caps lock. */
+    suspend fun KeyboardSyntax.resetShift() {
+        if (state.shiftState != ShiftState.DISABLED) {
+            reduce { state.copy(shiftState = ShiftState.DISABLED) }
+        }
+    }
     // endregion
 
     // region Backspace

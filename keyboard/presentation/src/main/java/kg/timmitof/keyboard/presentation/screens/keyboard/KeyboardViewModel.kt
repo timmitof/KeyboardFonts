@@ -70,8 +70,9 @@ internal class KeyboardViewModel(
         }
     }
 
-    /** Смена поля ввода: сбрасываем поиск эмодзи и возвращаем буквенный слой. */
     private fun resetInputSession() = intent {
+        with(textInputDelegate) { resetShift() }
+
         if (state.layer == KeyboardLayer.LETTERS) return@intent
 
         reduce {
