@@ -6,6 +6,7 @@ import kg.timmitof.feature_home.domain.usecase.GetKeyboardSetupUseCase
 import kg.timmitof.feature_home.domain.usecase.GetTemplatesUseCase
 import kg.timmitof.feature_home.domain.usecase.GetUserProjectsUseCase
 import kg.timmitof.feature_home.domain.usecase.OpenKeyboardSetupUseCase
+import kotlinx.coroutines.flow.Flow
 
 class HomeInteractor(
     private val getTemplatesUseCase: GetTemplatesUseCase,
@@ -20,6 +21,9 @@ class HomeInteractor(
 
     /** Текущее состояние подключения клавиатуры. */
     fun getKeyboardSetup(): KeyboardSetupModel = getKeyboardSetupUseCase.invoke()
+
+    /** Состояние подключения - обновляется при изменении системных настроек. */
+    fun observeKeyboardSetup(): Flow<KeyboardSetupModel> = getKeyboardSetupUseCase.observe()
 
     /** Открыть системный экран для прохождения шага [step]. */
     fun openKeyboardSetup(step: KeyboardSetupStep) = openKeyboardSetupUseCase.invoke(step)
