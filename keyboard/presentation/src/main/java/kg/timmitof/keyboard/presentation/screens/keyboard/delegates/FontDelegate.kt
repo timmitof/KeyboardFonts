@@ -15,11 +15,19 @@ internal class FontDelegate(
         reduce { state.copy(fonts = fonts, selectedFont = selected) }
     }
 
-    /** Смена шрифта: сохраняет выбор и обновляет состояние. */
+    /**
+     * Смена шрифта: сохраняет выбор и обновляет состояние.
+     * Повторный тап по уже выбранному шрифту сбрасывает стилизацию на дефолтную.
+     */
     suspend fun KeyboardSyntax.selectFont(font: KeyboardFont) {
-        if (font.id == state.selectedFont.id) return
+        val current = state.selectedFont
+        val target = when {
+            font.id != current.id -> font
+            current.isDefault -> return
+            else -> state.fonts.firstOrNull(KeyboardFont::isDefault) ?: KeyboardFont.Default
+        }
 
-        fontRepository.setSelectedFont(font.id)
-        reduce { state.copy(selectedFont = font) }
+        fontRepository.setSelectedFont(target.id)
+        reduce { state.copy(selectedFont = target) }
     }
 }

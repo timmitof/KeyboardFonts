@@ -1,13 +1,20 @@
 package kg.timmitof.keyboard.presentation.components
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
@@ -18,7 +25,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -57,9 +63,11 @@ internal fun FontsCarousel(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         itemsIndexed(fonts, key = { _, font -> font.id }) { index, font ->
+            val isSelected = index == selectedIndex
             FontPill(
                 preview = remember(font) { font.apply("Abc") },
-                isSelected = index == selectedIndex,
+                isSelected = isSelected,
+                isResettable = isSelected && !font.isDefault,
                 onClick = { onFontSelect(font) },
                 modifier = Modifier.fillMaxHeight(),
             )
@@ -71,6 +79,7 @@ internal fun FontsCarousel(
 private fun FontPill(
     preview: String,
     isSelected: Boolean,
+    isResettable: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -84,7 +93,7 @@ private fun FontPill(
         animationSpec = tween(200),
     )
 
-    Box(
+    Row(
         modifier = modifier
             .clip(shape)
             .background(background)
@@ -95,7 +104,8 @@ private fun FontPill(
             )
             .defaultMinSize(minWidth = 52.dp)
             .padding(horizontal = 12.dp),
-        contentAlignment = Alignment.Center,
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
             text = preview,
@@ -103,5 +113,37 @@ private fun FontPill(
             fontWeight = FontWeight.Medium,
             color = textColor,
         )
+
+        AnimatedVisibility(
+            visible = isResettable,
+            enter = ResetEnterTransition,
+            exit = ResetExitTransition,
+        ) {
+            Text(
+                modifier = Modifier.padding(start = 6.dp),
+                text = "✕",
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Medium,
+                color = textColor,
+            )
+        }
     }
 }
+
+private val ResetEnterTransition =
+    fadeIn(tween(180)) + expandHorizontally(
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioNoBouncy,
+            stiffness = Spring.StiffnessMediumLow,
+        ),
+        expandFrom = Alignment.Start,
+    )
+
+private val ResetExitTransition =
+    fadeOut(tween(120)) + shrinkHorizontally(
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioNoBouncy,
+            stiffness = Spring.StiffnessMediumLow,
+        ),
+        shrinkTowards = Alignment.Start,
+    )
