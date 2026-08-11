@@ -26,7 +26,7 @@ import kg.timmitof.keyboard.presentation.components.KeyboardRows
 import kg.timmitof.keyboard.presentation.components.TopStripHeight
 import kg.timmitof.keyboard.presentation.components.emoji.EmojiPanel
 import kg.timmitof.keyboard.presentation.components.emoji.EmojiSearchBar
-import kg.timmitof.keyboard.presentation.keyboardNavigationBarsPadding
+import kg.timmitof.keyboard.presentation.insets.LocalKeyboardInsets
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardEvent
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardLayer
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardState
@@ -52,12 +52,13 @@ private fun KeyboardContent(
     state: State<KeyboardState>,
     onEvent: (KeyboardEvent) -> Unit
 ) {
+    val insets = LocalKeyboardInsets.current
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .background(KFTheme.color.keyboardBackground)
-            .padding(keyboardNavigationBarsPadding())
-            // Половину зазора клавиши держат в себе, поэтому по краям хватает 3.dp.
+            .padding(start = insets.left, end = insets.right, bottom = insets.bottom)
             .padding(horizontal = 3.dp, vertical = 8.dp)
     ) {
         when (state.value.layer) {
