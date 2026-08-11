@@ -68,6 +68,7 @@ internal fun DumpingSplash(
     val logoBg = painterResource(R.drawable.ic_logo_background)
 
     val currentIsLoading = rememberUpdatedState(isLoading)
+    val currentOnFinish = rememberUpdatedState(onFinish)
 
     LaunchedEffect(Unit) {
         offsetY.animateTo(10f, spring(dampingRatio = 0.6f, stiffness = Spring.StiffnessLow))
@@ -88,7 +89,7 @@ internal fun DumpingSplash(
                 .filter { !it }
                 .first()
         }
-        onFinish()
+        currentOnFinish.value()
     }
 
     Box(

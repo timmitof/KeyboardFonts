@@ -78,9 +78,14 @@ fun <STATE: BaseState, SIDE_EFFECT: BaseSideEffect.UiSideEffect, EVENT: BaseEven
 
     viewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
-            is BaseSideEffect.Navigate -> when (sideEffect.navigation) {
+            is BaseSideEffect.Navigate -> when (val navigation = sideEffect.navigation) {
                 is NavigationSideEffect.Back -> navController.popBackStack()
-                is NavigationSideEffect.NavigateTo -> navController.navigate(sideEffect.navigation.route)
+                is NavigationSideEffect.NavigateTo -> navController.navigate(navigation.route) {
+                    navigation.popUpTo?.let { target ->
+                        popUpTo(target) { inclusive = navigation.inclusive }
+                    }
+                    launchSingleTop = navigation.launchSingleTop
+                }
             }
             is BaseSideEffect.ShowToast -> context.showToast(sideEffect.message)
             is BaseSideEffect.UiSideEffect -> {

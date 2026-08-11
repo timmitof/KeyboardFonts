@@ -73,8 +73,22 @@ abstract class BaseViewModel<STATE: BaseState, SIDE_EFFECT: BaseSideEffect.UiSid
         postSideEffect(BaseSideEffect.Navigate(NavigationSideEffect.Back))
     }
 
-    protected fun navigateTo(destination: Any) = intent {
-        postSideEffect(BaseSideEffect.Navigate(NavigationSideEffect.NavigateTo(destination)))
+    protected fun navigateTo(
+        destination: Any,
+        popUpTo: Any? = null,
+        inclusive: Boolean = false,
+        launchSingleTop: Boolean = false,
+    ) = intent {
+        postSideEffect(
+            BaseSideEffect.Navigate(
+                NavigationSideEffect.NavigateTo(
+                    route = destination,
+                    popUpTo = popUpTo,
+                    inclusive = inclusive,
+                    launchSingleTop = launchSingleTop
+                )
+            )
+        )
     }
 
     protected fun showToast(message: String) = intent {

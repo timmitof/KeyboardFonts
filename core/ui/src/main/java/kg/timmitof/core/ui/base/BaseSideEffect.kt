@@ -31,10 +31,17 @@ sealed class BaseSideEffect {
  * Используется внутри [BaseSideEffect.Navigate] для описания направлений перехода.
  *
  * ### Варианты:
- * - [NavigateTo] — перейти по маршруту (route).
+ * - [NavigateTo] — перейти по маршруту.
  * - [Back] — вернуться на предыдущий экран.
  */
 sealed class NavigationSideEffect {
-    data class NavigateTo(val route: Any) : NavigationSideEffect()
+
+    data class NavigateTo(
+        val route: Any,
+        val popUpTo: Any? = null,
+        val inclusive: Boolean = false,
+        val launchSingleTop: Boolean = false,
+    ) : NavigationSideEffect()
+
     data object Back : NavigationSideEffect()
 }

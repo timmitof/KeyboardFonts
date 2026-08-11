@@ -1,21 +1,24 @@
 package kg.timmitof.feature_splash.presentation.screens
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import kg.timmitof.core.navigation.LocalNavController
-import kg.timmitof.core.navigation.graphs.HomeGraph
+import kg.timmitof.core.ui.base.Container
 import kg.timmitof.feature_splash.presentation.components.DumpingSplash
-import org.orbitmvi.orbit.compose.collectAsState
 
 @Composable
 fun SplashScreen(
     viewModel: SplashViewModel = hiltViewModel()
 ) {
-    val navController = LocalNavController.current
-    val state = viewModel.collectAsState()
+    Container(viewModel = viewModel) { state, _ ->
+        // Со сплеша нельзя уйти — ждём окончания загрузки шаблонов
+        onBack { }
 
-    DumpingSplash(
-        isLoading = state.value.isLoading,
-        onFinish = { navController.navigate(HomeGraph) }
-    )
+        val onFinish = remember { { sendEvent(SplashEvent.AnimationFinished) } }
+
+        DumpingSplash(
+            isLoading = state.value.isLoading,
+            onFinish = onFinish
+        )
+    }
 }
