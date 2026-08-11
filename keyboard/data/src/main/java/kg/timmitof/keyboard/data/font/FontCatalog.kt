@@ -12,17 +12,6 @@ internal object FontCatalog {
     private fun buildFonts(): List<KeyboardFont> = listOf(
         KeyboardFont(KeyboardFont.DEFAULT_ID, emptyMap()),
 
-        // Serif
-        KeyboardFont("bold", math(upper = 0x1D400, lower = 0x1D41A, digit = 0x1D7CE)),
-        KeyboardFont("italic", math(upper = 0x1D434, lower = 0x1D44E).override('h' to 0x210E)),
-        KeyboardFont("bold_italic", math(upper = 0x1D468, lower = 0x1D482)),
-
-        // Sans-serif
-        KeyboardFont("sans", math(upper = 0x1D5A0, lower = 0x1D5BA, digit = 0x1D7E2)),
-        KeyboardFont("sans_bold", math(upper = 0x1D5D4, lower = 0x1D5EE, digit = 0x1D7EC)),
-        KeyboardFont("sans_italic", math(upper = 0x1D608, lower = 0x1D622)),
-        KeyboardFont("sans_bold_italic", math(upper = 0x1D63C, lower = 0x1D656)),
-
         // Script
         KeyboardFont(
             "script",
@@ -52,13 +41,25 @@ internal object FontCatalog {
             ),
         ),
 
+        KeyboardFont("circled", circled()),
+        KeyboardFont("squared", squared()),
+        KeyboardFont("small_caps", smallCaps()),
+
+        // Serif
+        KeyboardFont("bold", math(upper = 0x1D400, lower = 0x1D41A, digit = 0x1D7CE)),
+        KeyboardFont("italic", math(upper = 0x1D434, lower = 0x1D44E).override('h' to 0x210E)),
+        KeyboardFont("bold_italic", math(upper = 0x1D468, lower = 0x1D482)),
+
+        // Sans-serif
+        KeyboardFont("sans", math(upper = 0x1D5A0, lower = 0x1D5BA, digit = 0x1D7E2)),
+        KeyboardFont("sans_bold", math(upper = 0x1D5D4, lower = 0x1D5EE, digit = 0x1D7EC)),
+        KeyboardFont("sans_italic", math(upper = 0x1D608, lower = 0x1D622)),
+        KeyboardFont("sans_bold_italic", math(upper = 0x1D63C, lower = 0x1D656)),
+
         // Monospace
         KeyboardFont("monospace", math(upper = 0x1D670, lower = 0x1D68A, digit = 0x1D7F6)),
 
-        // Прочие
-        KeyboardFont("small_caps", smallCaps()),
-        KeyboardFont("circled", circled()),
-        KeyboardFont("squared", squared()),
+        // Декораторы поверх обычных букв
         KeyboardFont("underline", combining(0x0332)),
         KeyboardFont("strikethrough", combining(0x0336)),
     )
