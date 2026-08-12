@@ -16,9 +16,9 @@ internal object EmojiVariantCatalog {
         variantsByBase ?: buildVariants().also { variantsByBase = it }
     }
 
-    private fun buildVariants(): Map<String, List<String>> {
+    private suspend fun buildVariants(): Map<String, List<String>> {
         val paint = Paint()
-        return EmojiCatalog.categories
+        return EmojiCatalog.getCategories()
             .asSequence()
             .flatMap { it.emojis }
             .distinct()

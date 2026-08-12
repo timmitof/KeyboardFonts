@@ -51,7 +51,10 @@ internal class KeyboardViewModel(
             is KeyboardEvent.OnSymbolsSwitch -> intent { with(layerDelegate) { applyLayer(KeyboardLayer.SYMBOLS) } }
             is KeyboardEvent.OnSymbolsAltSwitch -> intent { with(layerDelegate) { toggleSymbolsAlt() } }
             is KeyboardEvent.OnAbcSwitch -> intent { with(layerDelegate) { applyLayer(KeyboardLayer.LETTERS) } }
-            is KeyboardEvent.OnEmojiSwitch -> intent { with(emojiDelegate) { openEmojiPanel() } }
+            is KeyboardEvent.OnEmojiSwitch -> {
+                intent { with(emojiDelegate) { openEmojiPanel() } }
+                prefetchSearchIndex()
+            }
             is KeyboardEvent.OnEmojiSelect -> intent { with(emojiDelegate) { selectEmoji(event.emoji) } }
             is KeyboardEvent.OnEmojiVariantSelect -> intent { with(emojiDelegate) { selectVariant(event.base, event.variant) } }
             is KeyboardEvent.OnEmojiSearchOpen -> intent { with(emojiDelegate) { openSearch() } }
@@ -72,6 +75,10 @@ internal class KeyboardViewModel(
         viewModelScope.launch {
             emojiDelegate.prefetchVariants()
         }
+    }
+
+    private fun prefetchSearchIndex() = viewModelScope.launch {
+        emojiDelegate.prefetchSearchIndex()
     }
 
     private fun resetInputSession() = intent {

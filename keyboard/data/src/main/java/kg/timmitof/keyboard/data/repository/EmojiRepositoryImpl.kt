@@ -1,7 +1,7 @@
 package kg.timmitof.keyboard.data.repository
 
 import kg.timmitof.keyboard.data.emoji.EmojiCatalog
-import kg.timmitof.keyboard.data.emoji.EmojiNameIndex
+import kg.timmitof.keyboard.data.emoji.EmojiSearchIndex
 import kg.timmitof.keyboard.data.emoji.EmojiVariantCatalog
 import kg.timmitof.keyboard.data.emoji.PreferredEmojiVariantDataSource
 import kg.timmitof.keyboard.data.emoji.RecentEmojiDataSource
@@ -12,9 +12,10 @@ import javax.inject.Inject
 class EmojiRepositoryImpl @Inject constructor(
     private val recentEmojiDataSource: RecentEmojiDataSource,
     private val preferredVariantDataSource: PreferredEmojiVariantDataSource,
+    private val emojiSearchIndex: EmojiSearchIndex,
 ) : EmojiRepository {
 
-    override suspend fun getEmojiCategories(): List<EmojiCategory> = EmojiCatalog.categories
+    override suspend fun getEmojiCategories(): List<EmojiCategory> = EmojiCatalog.getCategories()
 
     override suspend fun getEmojiVariants(): Map<String, List<String>> =
         EmojiVariantCatalog.getVariants()
@@ -29,5 +30,7 @@ class EmojiRepositoryImpl @Inject constructor(
 
     override suspend fun addRecentEmoji(emoji: String): List<String> = recentEmojiDataSource.add(emoji)
 
-    override suspend fun searchEmojis(query: String): List<String> = EmojiNameIndex.search(query)
+    override suspend fun searchEmojis(query: String): List<String> = emojiSearchIndex.search(query)
+
+    override suspend fun prefetchSearchIndex() = emojiSearchIndex.prefetch()
 }

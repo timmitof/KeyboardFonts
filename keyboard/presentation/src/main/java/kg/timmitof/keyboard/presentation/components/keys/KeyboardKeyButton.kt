@@ -162,7 +162,7 @@ private fun KeyLabel(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            modifier = Modifier.alignByBaseline(),
+            modifier = Modifier.alignByBaseline().weight(1f),
             text = label,
             fontSize = remember(label) { label.labelFontSize(large = true) },
             fontWeight = FontWeight.Medium,
@@ -172,7 +172,7 @@ private fun KeyLabel(
         )
         Spacer(modifier = Modifier.width(SubLabelSpacing))
         Text(
-            modifier = Modifier.alignByBaseline(),
+            modifier = Modifier.alignByBaseline().weight(1f),
             text = subLabel,
             fontSize = SubLabelSize,
             fontWeight = FontWeight.Medium,

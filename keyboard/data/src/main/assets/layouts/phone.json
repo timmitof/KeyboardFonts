@@ -3,7 +3,7 @@
   "largeLabels": true,
   "rows": [
     [
-      { "type": "CHARACTER", "weight": 1.0, "labelLower": "1", "labelUpper": "1" },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "1", "labelUpper": "1", "subLabel": "   " },
       { "type": "CHARACTER", "weight": 1.0, "labelLower": "2", "labelUpper": "2", "subLabel": "ABC" },
       { "type": "CHARACTER", "weight": 1.0, "labelLower": "3", "labelUpper": "3", "subLabel": "DEF" },
       { "type": "BACKSPACE", "weight": 1.0 }

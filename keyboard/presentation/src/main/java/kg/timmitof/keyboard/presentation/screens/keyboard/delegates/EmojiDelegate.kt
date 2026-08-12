@@ -73,4 +73,15 @@ internal class EmojiDelegate(
     suspend fun prefetchVariants() {
         emojiRepository.getEmojiVariants()
     }
+
+    /**
+     * Фоновый прогрев поискового индекса.
+     *
+     * Зовём при открытии панели: поиск начинается отсюда, и к первой набранной
+     * букве словарь уже разобран. При старте клавиатуры это было бы лишней
+     * работой для тех, кто эмодзи не открывает.
+     */
+    suspend fun prefetchSearchIndex() {
+        emojiRepository.prefetchSearchIndex()
+    }
 }

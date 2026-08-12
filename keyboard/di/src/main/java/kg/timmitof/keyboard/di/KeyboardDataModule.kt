@@ -5,6 +5,8 @@ import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import kg.timmitof.keyboard.data.AssetJsonKeyboardLayoutLoader
+import kg.timmitof.keyboard.data.AssetTextLoader
+import kg.timmitof.keyboard.data.AssetTextLoaderImpl
 import kg.timmitof.keyboard.data.JsonKeyboardLayoutLoader
 import kg.timmitof.keyboard.data.repository.EmojiRepositoryImpl
 import kg.timmitof.keyboard.data.repository.FontRepositoryImpl
@@ -19,6 +21,10 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class KeyboardDataModule {
+
+    @Binds
+    @Singleton
+    abstract fun bindAssetTextLoader(impl: AssetTextLoaderImpl): AssetTextLoader
 
     @Binds
     @Singleton
