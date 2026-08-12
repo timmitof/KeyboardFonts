@@ -7,6 +7,7 @@ import kg.timmitof.keyboard.domain.repository.FontRepository
 import kg.timmitof.keyboard.domain.repository.KeyboardLayoutRepository
 import kg.timmitof.keyboard.domain.repository.LanguageRepository
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.EmojiDelegate
+import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.FieldContextDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.FontDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.LanguageDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.LayerDelegate
@@ -31,6 +32,7 @@ class KeyboardViewModelFactory(
                 emojiDelegate = emojiDelegate,
                 languageDelegate = LanguageDelegate(languageRepository, layerDelegate),
                 fontDelegate = FontDelegate(fontRepository),
+                fieldContextDelegate = FieldContextDelegate(layerDelegate),
             ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")

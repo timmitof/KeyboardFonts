@@ -18,7 +18,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kg.timmitof.keyboard.presentation.insets.KeyboardInsetsTracker
 import kg.timmitof.keyboard.presentation.insets.LocalKeyboardInsets
-import kg.timmitof.keyboard.presentation.screens.keyboard.states.EnterAction
+import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardFieldContext
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardEvent
 import kg.timmitof.keyboard.presentation.screens.keyboard.KeyboardFontsScreen
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardSideEffect
@@ -35,12 +35,13 @@ class KeyboardFontsView(
     private val onKeyboardAction: (KeyboardSideEffect) -> Unit = {},
 ) : AbstractComposeView(context, attrs = attrs, defStyleAttr = defStyleAttr) {
 
-    private val enterAction = mutableStateOf(EnterAction.RETURN)
+    private val fieldContext = mutableStateOf(KeyboardFieldContext())
 
     private val insetsTracker = KeyboardInsetsTracker(this)
 
-    fun updateEnterAction(action: EnterAction) {
-        enterAction.value = action
+    /** Сервис отдаёт сюда разобранный `EditorInfo` при каждой смене поля ввода. */
+    fun updateFieldContext(context: KeyboardFieldContext) {
+        fieldContext.value = context
     }
 
     override fun onAttachedToWindow() {
@@ -73,8 +74,8 @@ class KeyboardFontsView(
 
         InputSessionResetEffect(viewModel)
 
-        LaunchedEffect(enterAction.value) {
-            viewModel.onEvent(KeyboardEvent.OnEnterActionChange(enterAction.value))
+        LaunchedEffect(fieldContext.value) {
+            viewModel.onEvent(KeyboardEvent.OnFieldContextChange(fieldContext.value))
         }
 
         val insets by insetsTracker.insets

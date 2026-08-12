@@ -35,6 +35,7 @@ internal fun RowScope.SpaceKeyButton(
     weight: Float,
     languages: List<KeyboardLanguage>,
     selectedLanguage: KeyboardLanguage? = null,
+    isLanguageSlideEnabled: Boolean = true,
     onLanguageSelect: (KeyboardLanguage) -> Unit = {},
     onCursorMove: (horizontal: Int, vertical: Int) -> Unit = { _, _ -> },
     onCursorModeChange: (active: Boolean) -> Unit = {},
@@ -70,10 +71,11 @@ internal fun RowScope.SpaceKeyButton(
                 onTap = onClick,
                 onSlideStart = {
                     slideOffsetPx = 0f
-                    isPickerVisible = languages.size > 1
+                    isPickerVisible = isLanguageSlideEnabled && languages.size > 1
                 },
                 onSlideChange = { slideOffsetPx = it },
                 onSlideFinish = { offsetPx ->
+                    if (!isPickerVisible) return@spaceCursorClickable
                     isPickerVisible = false
                     pickerLanguages.getOrNull(floatIndexFor(offsetPx).roundToInt())
                         ?.takeIf { it != selectedLanguage }
@@ -86,7 +88,10 @@ internal fun RowScope.SpaceKeyButton(
         },
         onClick = onClick
     ) {
-        LanguageLabel(selectedLanguage = selectedLanguage)
+        LanguageLabel(
+            selectedLanguage = selectedLanguage,
+            showArrows = isLanguageSlideEnabled && languages.size > 1
+        )
 
         if (isPickerVisible) {
             LanguagePicker(
@@ -102,7 +107,8 @@ internal fun RowScope.SpaceKeyButton(
 @Composable
 private fun LanguageLabel(
     modifier: Modifier = Modifier,
-    selectedLanguage: KeyboardLanguage? = null
+    selectedLanguage: KeyboardLanguage? = null,
+    showArrows: Boolean = true
 ) {
     if (selectedLanguage == null) return
 
@@ -110,10 +116,10 @@ private fun LanguageLabel(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 10.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
+        horizontalArrangement = if (showArrows) Arrangement.SpaceBetween else Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        LanguageArrows("‹")
+        if (showArrows) LanguageArrows("‹")
 
         Text(
             text = selectedLanguage.displayName,
@@ -123,7 +129,7 @@ private fun LanguageLabel(
             letterSpacing = 0.5.sp
         )
 
-        LanguageArrows("›")
+        if (showArrows) LanguageArrows("›")
     }
 }
 

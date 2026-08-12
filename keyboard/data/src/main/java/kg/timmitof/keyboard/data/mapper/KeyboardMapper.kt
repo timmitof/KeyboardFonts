@@ -14,6 +14,7 @@ object KeyboardMapper {
 
     fun KeyboardLayoutDto.toDomain(): KeyboardLayout = KeyboardLayout(
         name = name,
+        largeLabels = largeLabels,
         rows = rows.map { row -> row.mapNotNull { it.toDomain() } }
     )
 
@@ -25,6 +26,10 @@ object KeyboardMapper {
                 weight = weight,
                 labelLower = labelLower.orEmpty(),
                 labelUpper = labelUpper.orEmpty(),
+                subLabel = subLabel,
+                hint = hint,
+                output = output,
+                isSpecial = special,
                 longPress = longPress?.toDomain()
             )
             KeyType.SPACE              -> KeyboardKey.Space(weight)

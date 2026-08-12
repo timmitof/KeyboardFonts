@@ -26,7 +26,7 @@
       { "type": "CHARACTER", "weight": 1.0, "labelLower": "/", "labelUpper": "/", "longPress": { "type": "SYMBOLS", "symbols": ["\\"] } }
     ],
     [
-      { "type": "SYMBOLS_ALT_SWITCH", "weight": 1.4, "labelLower": "{&=" },
+      { "type": "SYMBOLS_ALT_SWITCH", "weight": 1.5, "labelLower": "{&=" },
       { "type": "CHARACTER", "weight": 1.0, "labelLower": "*", "labelUpper": "*", "longPress": { "type": "SYMBOLS", "symbols": ["★", "†"] } },
       { "type": "CHARACTER", "weight": 1.0, "labelLower": "\"", "labelUpper": "\"", "longPress": { "type": "SYMBOLS", "symbols": ["«", "»", "„", "“"] } },
       { "type": "CHARACTER", "weight": 1.0, "labelLower": "'", "labelUpper": "'", "longPress": { "type": "SYMBOLS", "symbols": ["‘", "’", "‚"] } },
@@ -34,15 +34,15 @@
       { "type": "CHARACTER", "weight": 1.0, "labelLower": ";", "labelUpper": ";" },
       { "type": "CHARACTER", "weight": 1.0, "labelLower": "!", "labelUpper": "!", "longPress": { "type": "SYMBOLS", "symbols": ["¡"] } },
       { "type": "CHARACTER", "weight": 1.0, "labelLower": "?", "labelUpper": "?", "longPress": { "type": "SYMBOLS", "symbols": ["¿"] } },
-      { "type": "BACKSPACE", "weight": 1.4 }
+      { "type": "BACKSPACE", "weight": 1.5 }
     ],
     [
-      { "type": "ABC_SWITCH", "weight": 1.4 },
+      { "type": "ABC_SWITCH", "weight": 1.25 },
       { "type": "EMOJI_SWITCH", "weight": 1.0 },
-      { "type": "CHARACTER", "weight": 1.0, "labelLower": ",", "labelUpper": "," },
-      { "type": "SPACE", "weight": 4, "labelLower": " ", "labelUpper": " " },
-      { "type": "CHARACTER", "weight": 1.0, "labelLower": ".", "labelUpper": ".", "longPress": { "type": "SYMBOLS", "symbols": ["…"] } },
-      { "type": "ENTER", "weight": 1.4 }
+      { "type": "CHARACTER", "weight": 0.9, "labelLower": ",", "labelUpper": "," },
+      { "type": "SPACE", "weight": 4.2, "labelLower": " ", "labelUpper": " " },
+      { "type": "CHARACTER", "weight": 0.9, "labelLower": ".", "labelUpper": ".", "longPress": { "type": "SYMBOLS", "symbols": ["…"] } },
+      { "type": "ENTER", "weight": 1.75 }
     ]
   ]
 }

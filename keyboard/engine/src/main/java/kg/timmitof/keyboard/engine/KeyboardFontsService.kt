@@ -47,16 +47,16 @@ internal class KeyboardFontsService : ComposeInputMethodService() {
 
     override fun onStartInput(attribute: EditorInfo?, restarting: Boolean) {
         super.onStartInput(attribute, restarting)
-        syncEnterAction()
+        syncFieldContext()
     }
 
     override fun onStartInputView(editorInfo: EditorInfo?, restarting: Boolean) {
         super.onStartInputView(editorInfo, restarting)
-        syncEnterAction()
+        syncFieldContext()
     }
 
-    private fun syncEnterAction() {
-        keyboardView?.updateEnterAction(currentInputEditorInfo.toEnterAction())
+    private fun syncFieldContext() {
+        keyboardView?.updateFieldContext(currentInputEditorInfo.toFieldContext())
     }
 
     override fun onDestroy() {

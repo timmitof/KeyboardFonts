@@ -30,4 +30,14 @@ internal class FontDelegate(
         fontRepository.setSelectedFont(target.id)
         reduce { state.copy(selectedFont = target) }
     }
+
+    /**
+     * Разворачивает карусель шрифтов на всю верхнюю панель или сворачивает её в кнопку «Aa».
+     */
+    suspend fun KeyboardSyntax.setFontsExpanded(expanded: Boolean) {
+        val target = expanded && state.fieldType.allowsFonts
+        if (state.isFontsExpanded != target) {
+            reduce { state.copy(isFontsExpanded = target) }
+        }
+    }
 }

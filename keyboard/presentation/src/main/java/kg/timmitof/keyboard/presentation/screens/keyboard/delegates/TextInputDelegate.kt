@@ -1,7 +1,7 @@
 package kg.timmitof.keyboard.presentation.screens.keyboard.delegates
 
+import kg.timmitof.keyboard.domain.model.WordSuggestion
 import kg.timmitof.keyboard.presentation.screens.keyboard.KeyboardSyntax
-import kg.timmitof.keyboard.presentation.screens.keyboard.states.EnterAction
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardLayer
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardSideEffect
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.ShiftState
@@ -12,9 +12,18 @@ internal class TextInputDelegate(
 ) {
 
     suspend fun KeyboardSyntax.typeCharacter(char: String) {
-        val styled = state.selectedFont.apply(char)
+        val styled = state.activeFont.apply(char)
         editText(KeyboardSideEffect.CommitText(styled)) { query -> query + char }
         releaseOneShotShift()
+    }
+
+    /**
+     * Подставляет подсказку вместо набранного слова.
+     */
+    suspend fun KeyboardSyntax.applySuggestion(suggestion: WordSuggestion) {
+        val styled = state.activeFont.apply(suggestion.text)
+        postSideEffect(KeyboardSideEffect.ReplaceWordBeforeCursor("$styled "))
+        reduce { state.copy(suggestions = emptyList()) }
     }
 
     suspend fun KeyboardSyntax.typeSpace() =
@@ -38,12 +47,6 @@ internal class TextInputDelegate(
             with(layerDelegate) { applyLayer(KeyboardLayer.EMOJI) }
         } else {
             postSideEffect(KeyboardSideEffect.PerformEditorAction)
-        }
-    }
-
-    suspend fun KeyboardSyntax.changeEnterAction(action: EnterAction) {
-        if (state.enterAction != action) {
-            reduce { state.copy(enterAction = action) }
         }
     }
 

@@ -1,44 +1,50 @@
 package kg.timmitof.keyboard.presentation.components.emoji
 
-import kg.timmitof.keyboard.presentation.R
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kg.timmitof.keyboard.domain.model.EmojiCategory
+import kg.timmitof.keyboard.domain.model.KeyboardLanguage
+import kg.timmitof.keyboard.presentation.R
+import kg.timmitof.keyboard.presentation.components.KeyShape
+import kg.timmitof.keyboard.presentation.components.KeyboardContentHeight
 import kg.timmitof.keyboard.presentation.components.keys.BackspaceKeyButton
+import kg.timmitof.keyboard.presentation.components.keys.SpaceKeyButton
 import kg.timmitof.keyboard.presentation.components.keys.SpecialKeyButton
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardEvent
 import kg.timmitof.keyboard.presentation.theme.KFTheme
 import kg.timmitof.keyboard.presentation.theme.KeyboardTheme
+import kotlinx.coroutines.launch
+
+/** Высоты частей панели. */
+private val SearchFieldHeight = 36.dp
+private val TabsBarHeight = 34.dp
+private val BottomRowHeight = 40.dp
 
 /**
  * Панель эмодзи.
@@ -49,125 +55,132 @@ internal fun EmojiPanel(
     recentEmojis: List<String>,
     onEvent: (KeyboardEvent) -> Unit,
     modifier: Modifier = Modifier,
+    selectedLanguage: KeyboardLanguage? = null,
     emojiVariants: Map<String, List<String>> = emptyMap(),
     preferredVariants: Map<String, String> = emptyMap(),
 ) {
-    val tabs = remember(categories) {
-        listOf(EmojiTab.Search, EmojiTab.Recent) + categories.map { EmojiTab.Category(it) }
+    val sections = remember(categories, recentEmojis) {
+        buildEmojiSections(categories, recentEmojis)
     }
-    var selectedIndex by remember {
-        mutableIntStateOf(
-            if (recentEmojis.isNotEmpty()) {
-                tabs.indexOf(EmojiTab.Recent)
-            } else {
-                tabs.indexOfFirst { it is EmojiTab.Category }.coerceAtLeast(0)
-            }
-        )
+    val index = remember(sections) { sections.gridIndex() }
+
+    val gridState = rememberLazyGridState()
+    val scope = rememberCoroutineScope()
+
+    // Подсветка таба следует за прокруткой.
+    val currentSection = remember(index) {
+        derivedStateOf { index.sectionAt(gridState.firstVisibleItemIndex) }
     }
 
     Column(modifier = modifier.fillMaxWidth()) {
-        EmojiTabContent(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth(),
-            tabs = tabs,
-            selectedIndex = selectedIndex,
-            recentEmojis = recentEmojis,
-            emojiVariants = emojiVariants,
-            preferredVariants = preferredVariants,
-            onEvent = onEvent,
+        EmojiSearchField(
+            onClick = { onEvent(KeyboardEvent.OnEmojiSearchOpen) },
+            modifier = Modifier.fillMaxWidth()
         )
 
         Spacer(modifier = Modifier.height(6.dp))
 
-        EmojiBottomBar(
-            tabs = tabs,
-            selectedIndex = selectedIndex,
-            onTabSelect = { selectedIndex = it },
+        if (sections.isEmpty()) {
+            EmptyPlaceholder(modifier = Modifier.weight(1f))
+        } else {
+            EmojiSectionsGrid(
+                sections = sections,
+                gridState = gridState,
+                currentSection = currentSection,
+                emojiVariants = emojiVariants,
+                preferredVariants = preferredVariants,
+                onEvent = onEvent,
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+            )
+        }
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        EmojiTabsBar(
+            sections = sections,
+            selectedIndex = currentSection.value,
+            onTabClick = { section ->
+                scope.launch { gridState.animateScrollToItem(index.itemIndexOf(section)) }
+            },
+            modifier = Modifier.height(TabsBarHeight)
+        )
+
+        EmojiBottomRow(
+            selectedLanguage = selectedLanguage,
             onEvent = onEvent
         )
     }
 }
 
+/**
+ * Поиск — постоянное поле сверху.
+ */
 @Composable
-private fun EmojiTabContent(
+private fun EmojiSearchField(
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    tabs: List<EmojiTab>,
-    selectedIndex: Int,
-    recentEmojis: List<String>,
-    emojiVariants: Map<String, List<String>>,
-    preferredVariants: Map<String, String>,
-    onEvent: (KeyboardEvent) -> Unit,
 ) {
-    AnimatedContent(
-        targetState = selectedIndex,
-        modifier = modifier,
-        transitionSpec = {
-            val towardsEnd = targetState > initialState
-            (fadeIn(tween(150)) + slideInVertically(tween(200)) { it / 12 }) togetherWith
-                    (fadeOut(tween(100)) + slideOutVertically(tween(200)) { if (towardsEnd) -it / 12 else it / 12 })
-        },
-        label = "Emoji category"
-    ) { index ->
-        when (val tab = tabs.getOrNull(index)) {
-            is EmojiTab.Category -> EmojiGrid(
-                emojis = tab.category.emojis,
-                emojiVariants = emojiVariants,
-                preferredVariants = preferredVariants,
-                onEvent = onEvent
+    Row(
+        modifier = modifier
+            .padding(horizontal = 3.dp)
+            .height(SearchFieldHeight)
+            .background(KFTheme.color.keyButtonBackground, KeyShape)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onClick
             )
-
-            EmojiTab.Recent -> if (recentEmojis.isEmpty()) {
-                EmptyRecentPlaceholder()
-            } else {
-                EmojiGrid(
-                    emojis = recentEmojis,
-                    onEvent = onEvent
-                )
-            }
-            else -> Unit
-        }
+            .padding(horizontal = 12.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = ImageVector.vectorResource(R.drawable.ic_search_key),
+            contentDescription = null,
+            tint = KFTheme.color.keySpecialTextColor,
+            modifier = Modifier.size(15.dp)
+        )
+        Text(
+            text = stringResource(R.string.emoji_search_hint),
+            fontSize = 13.sp,
+            color = KFTheme.color.keySpecialTextColor
+        )
     }
 }
 
+/**
+ * Нижний ряд панели: ABC, пробел и ⌫.
+ */
 @Composable
-private fun EmojiBottomBar(
-    tabs: List<EmojiTab>,
-    selectedIndex: Int,
-    onTabSelect: (Int) -> Unit,
+private fun EmojiBottomRow(
+    selectedLanguage: KeyboardLanguage?,
     onEvent: (KeyboardEvent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .height(42.dp),
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
+            .height(BottomRowHeight),
         verticalAlignment = Alignment.CenterVertically
     ) {
         SpecialKeyButton(
             label = "ABC",
-            weight = 1.4f,
+            weight = 1.6f,
             onClick = { onEvent(KeyboardEvent.OnAbcSwitch) }
         )
 
-        EmojiTabsCarousel(
-            tabs = tabs,
-            selectedIndex = selectedIndex,
-            onTabClick = { index ->
-                if (tabs[index] == EmojiTab.Search) {
-                    onEvent(KeyboardEvent.OnEmojiSearchOpen)
-                } else {
-                    onTabSelect(index)
-                }
-            },
-            modifier = Modifier
-                .weight(6f)
-                .fillMaxHeight()
+        SpaceKeyButton(
+            weight = 6.8f,
+            languages = emptyList(),
+            selectedLanguage = selectedLanguage,
+            isLanguageSlideEnabled = false,
+            onClick = { onEvent(KeyboardEvent.OnSpace) }
         )
 
         BackspaceKeyButton(
-            weight = 1.4f,
+            weight = 1.6f,
             onClick = { onEvent(KeyboardEvent.OnBackspace) },
             onDeleteWord = { onEvent(KeyboardEvent.OnBackspaceDeleteWord) },
             onSelectChange = { onEvent(KeyboardEvent.OnBackspaceSelectChange(it)) },
@@ -177,34 +190,9 @@ private fun EmojiBottomBar(
 }
 
 @Composable
-private fun EmojiGrid(
-    emojis: List<String>,
-    onEvent: (KeyboardEvent) -> Unit,
-    emojiVariants: Map<String, List<String>> = emptyMap(),
-    preferredVariants: Map<String, String> = emptyMap(),
-) {
-    LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize = 42.dp),
-        modifier = Modifier.fillMaxSize()
-    ) {
-        items(items = emojis, key = { it }) { base ->
-            val displayed = preferredVariants[base] ?: base
-            EmojiCell(
-                emoji = displayed,
-                variants = emojiVariants[base].orEmpty(),
-                onClick = { onEvent(KeyboardEvent.OnEmojiSelect(displayed)) },
-                onVariantSelect = { variant ->
-                    onEvent(KeyboardEvent.OnEmojiVariantSelect(base, variant))
-                }
-            )
-        }
-    }
-}
-
-@Composable
-private fun EmptyRecentPlaceholder() {
+private fun EmptyPlaceholder(modifier: Modifier = Modifier) {
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         Text(
@@ -244,27 +232,16 @@ private fun EmojiPanelPreview() {
                 categories = previewCategories,
                 recentEmojis = listOf("😂", "🔥", "❤️", "👍", "🎉"),
                 onEvent = {},
-                modifier = Modifier.height(216.dp),
+                modifier = Modifier.height(KeyboardContentHeight),
+                selectedLanguage = KeyboardLanguage(
+                    code = "ru_ru",
+                    displayName = "Русский",
+                    shortName = "RU"
+                ),
                 emojiVariants = mapOf(
                     "👋" to listOf("👋", "👋🏻", "👋🏼", "👋🏽", "👋🏾", "👋🏿"),
-                    "🤚" to listOf("🤚", "🤚🏻", "🤚🏼", "🤚🏽", "🤚🏾", "🤚🏿"),
                 ),
                 preferredVariants = mapOf("🤚" to "🤚🏿")
-            )
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun EmojiPanelEmptyRecentPreview() {
-    KeyboardTheme {
-        Box(modifier = Modifier.background(KFTheme.color.keyboardBackground)) {
-            EmojiPanel(
-                categories = previewCategories,
-                recentEmojis = emptyList(),
-                onEvent = {},
-                modifier = Modifier.height(216.dp)
             )
         }
     }

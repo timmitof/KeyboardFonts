@@ -25,6 +25,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -37,11 +38,11 @@ import androidx.compose.ui.unit.sp
 import kg.timmitof.keyboard.domain.model.KeyboardFont
 import kg.timmitof.keyboard.presentation.theme.KFTheme
 
-/** Высота верхней панели (карусель шрифтов / подсказка режима курсора). */
-internal val TopStripHeight = 40.dp
+/** Высота таблетки шрифта в раскрытой карусели. */
+private val FontPillHeight = 32.dp
 
 /**
- * Горизонтальная карусель шрифтов над клавишами
+ * Горизонтальная карусель шрифтов в верхней панели.
  */
 @Composable
 internal fun FontsCarousel(
@@ -55,11 +56,15 @@ internal fun FontsCarousel(
         fonts.indexOfFirst { it.id == selectedFontId }.coerceAtLeast(0)
     }
 
+    LaunchedEffect(selectedIndex) {
+        listState.animateScrollToItem(selectedIndex)
+    }
+
     LazyRow(
         state = listState,
-        modifier = modifier.height(TopStripHeight),
+        modifier = modifier.height(FontPillHeight),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
-        contentPadding = PaddingValues(horizontal = 4.dp),
+        contentPadding = PaddingValues(horizontal = 2.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         itemsIndexed(fonts, key = { _, font -> font.id }) { index, font ->
@@ -83,7 +88,7 @@ private fun FontPill(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val shape = RoundedCornerShape(10.dp)
+    val shape = RoundedCornerShape(FontPillHeight / 2)
     val background by animateColorAsState(
         targetValue = if (isSelected) KFTheme.color.keyButtonPressedBackground else Color.Transparent,
         animationSpec = tween(200),

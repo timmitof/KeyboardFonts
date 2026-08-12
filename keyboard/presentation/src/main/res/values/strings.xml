@@ -6,4 +6,23 @@
     <string name="emoji_search_start_typing">Начните печатать, чтобы найти эмодзи</string>
     <string name="emoji_search_no_results">Ничего не найдено</string>
     <string name="cursor_mode_hint">Перетаскивайте пальцем для управления курсором</string>
+
+    <string name="field_notice_password">Ввод не сохраняется</string>
+    <string name="field_notice_multiline">Enter — новая строка</string>
+
+    <string name="fonts_not_available">Шрифты недоступны</string>
+    <string name="fonts_expand">Шрифты</string>
+    <string name="fonts_collapse">Свернуть шрифты</string>
+    <string name="keyboard_hide">Свернуть клавиатуру</string>
+
+    <string name="emoji_category_recent">Недавние</string>
+    <string name="emoji_category_smileys">Смайлы и эмоции</string>
+    <string name="emoji_category_people">Люди и тело</string>
+    <string name="emoji_category_animals">Животные и природа</string>
+    <string name="emoji_category_food">Еда и напитки</string>
+    <string name="emoji_category_activities">Активности</string>
+    <string name="emoji_category_travel">Путешествия и места</string>
+    <string name="emoji_category_objects">Предметы</string>
+    <string name="emoji_category_symbols">Символы</string>
+    <string name="emoji_category_flags">Флаги</string>
 </resources>

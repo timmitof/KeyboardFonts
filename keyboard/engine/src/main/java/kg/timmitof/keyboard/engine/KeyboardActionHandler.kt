@@ -27,6 +27,7 @@ internal class KeyboardActionHandler(
         val connection = inputConnectionProvider() ?: return
         when (action) {
             is KeyboardSideEffect.CommitText -> connection.commitText(action.char, 1)
+            is KeyboardSideEffect.ReplaceWordBeforeCursor -> connection.replaceWordBeforeCursor(action.text)
             is KeyboardSideEffect.MoveCursor -> connection.moveCursor(action.horizontal, action.vertical)
             is KeyboardSideEffect.DeleteBackward -> connection.deleteLastGrapheme()
             is KeyboardSideEffect.DeleteWordBackward -> connection.deleteWordBeforeCursor()
@@ -34,6 +35,20 @@ internal class KeyboardActionHandler(
             is KeyboardSideEffect.PerformEditorAction -> connection.performEnter()
             is KeyboardSideEffect.DeleteSelection -> connection.commitText("", 1)
         }
+    }
+
+    /**
+     * Заменяет незаконченное слово перед курсором на [text].
+     */
+    private fun InputConnection.replaceWordBeforeCursor(text: CharSequence) {
+        beginBatchEdit()
+        val before = getTextBeforeCursor(WORD_LOOKUP_LENGTH, 0)?.toString().orEmpty()
+        val typed = before.takeLastWhile { !it.isWhitespace() }
+        if (typed.isNotEmpty()) {
+            deleteSurroundingText(typed.length, 0)
+        }
+        commitText(text, 1)
+        endBatchEdit()
     }
 
     private fun InputConnection.performEnter() {

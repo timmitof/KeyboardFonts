@@ -1,0 +1,33 @@
+{
+  "email": [
+    { "type": "SYMBOLS_SWITCH", "weight": 1.25 },
+    { "type": "CHARACTER", "weight": 1.0, "labelLower": "@", "labelUpper": "@" },
+    { "type": "CHARACTER", "weight": 0.9, "labelLower": ".", "labelUpper": "." },
+    { "type": "SPACE", "weight": 3.4, "labelLower": " ", "labelUpper": " " },
+    { "type": "CHARACTER", "weight": 1.7, "labelLower": ".com", "labelUpper": ".com", "longPress": { "type": "SYMBOLS", "symbols": [".ru", ".org", ".net", ".io"] } },
+    { "type": "ENTER", "weight": 1.75 }
+  ],
+  "password": [
+    { "type": "SYMBOLS_SWITCH", "weight": 1.25 },
+    { "type": "CHARACTER", "weight": 1.0, "labelLower": "-", "labelUpper": "-", "longPress": { "type": "SYMBOLS", "symbols": ["_"] } },
+    { "type": "SPACE", "weight": 5.1, "labelLower": " ", "labelUpper": " " },
+    { "type": "CHARACTER", "weight": 0.9, "labelLower": ".", "labelUpper": "." },
+    { "type": "ENTER", "weight": 1.75 }
+  ],
+  "search": [
+    { "type": "SYMBOLS_SWITCH", "weight": 1.25 },
+    { "type": "EMOJI_SWITCH", "weight": 1.0 },
+    { "type": "CHARACTER", "weight": 0.9, "labelLower": "/", "labelUpper": "/" },
+    { "type": "SPACE", "weight": 4.2, "labelLower": " ", "labelUpper": " " },
+    { "type": "CHARACTER", "weight": 0.9, "labelLower": ".", "labelUpper": "." },
+    { "type": "ENTER", "weight": 1.75 }
+  ],
+  "message": [
+    { "type": "SYMBOLS_SWITCH", "weight": 1.25 },
+    { "type": "EMOJI_SWITCH", "weight": 1.0 },
+    { "type": "CHARACTER", "weight": 0.9, "labelLower": ",", "labelUpper": "," },
+    { "type": "SPACE", "weight": 4.2, "labelLower": " ", "labelUpper": " " },
+    { "type": "CHARACTER", "weight": 0.9, "labelLower": ".", "labelUpper": ".", "longPress": { "type": "SYMBOLS", "symbols": ["!", "?", "…"] } },
+    { "type": "ENTER", "weight": 1.75 }
+  ]
+}

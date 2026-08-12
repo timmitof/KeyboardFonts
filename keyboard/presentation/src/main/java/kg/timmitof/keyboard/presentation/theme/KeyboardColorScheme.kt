@@ -13,4 +13,8 @@ interface KeyboardColorScheme {
     val keyButtonShadow: Color
     val keySpecialButtonBackground: Color
     val keySpecialTextColor: Color
+    val keyAccentBackground: Color
+    val keyAccentTextColor: Color
+    val noticeBackground: Color
+    val noticeTextColor: Color
 }

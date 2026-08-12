@@ -30,4 +30,14 @@
 
     <string name="setup_try_title">Проверьте прямо здесь</string>
     <string name="setup_try_placeholder">Напишите что-нибудь…</string>
+
+    <!-- Тестовые поля: разные типы клавиатуры и действия Enter -->
+    <string name="try_field_text">Текст · Enter = Готово</string>
+    <string name="try_field_email">Email · Enter = Далее</string>
+    <string name="try_field_password">Пароль · Enter = Перейти</string>
+    <string name="try_field_number">Число · Enter = Готово</string>
+    <string name="try_field_phone">Телефон · Enter = Назад</string>
+    <string name="try_field_search">Поиск · Enter = Найти</string>
+    <string name="try_field_message">Сообщение · Enter = Отправить</string>
+    <string name="try_field_multiline">Многострочное · Enter = перенос</string>
 </resources>

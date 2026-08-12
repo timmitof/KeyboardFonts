@@ -12,11 +12,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import kg.timmitof.keyboard.domain.model.KeyboardKey
 import kg.timmitof.keyboard.domain.model.KeyboardLayout
+import kg.timmitof.keyboard.presentation.R
 import kg.timmitof.keyboard.presentation.components.keys.BackspaceKeyButton
 import kg.timmitof.keyboard.presentation.components.keys.EnterKeyButton
 import kg.timmitof.keyboard.presentation.components.keys.KeyboardKeyButton
 import kg.timmitof.keyboard.presentation.components.keys.ShiftKeyButton
 import kg.timmitof.keyboard.presentation.components.keys.SpaceKeyButton
+import kg.timmitof.keyboard.presentation.components.keys.SpecialIconKeyButton
 import kg.timmitof.keyboard.presentation.components.keys.SpecialKeyButton
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardEvent
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardState
@@ -44,7 +46,12 @@ internal fun KeyboardRows(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 row.forEach { key ->
-                    KeyboardKeySlot(key = key, state = state, onEvent = onEvent)
+                    KeyboardKeySlot(
+                        key = key,
+                        state = state,
+                        isLargeLabel = layout.largeLabels,
+                        onEvent = onEvent
+                    )
                 }
             }
         }
@@ -56,6 +63,7 @@ internal fun KeyboardRows(
 private fun RowScope.KeyboardKeySlot(
     key: KeyboardKey,
     state: State<KeyboardState>,
+    isLargeLabel: Boolean,
     onEvent: (KeyboardEvent) -> Unit
 ) {
     when (key) {
@@ -63,8 +71,13 @@ private fun RowScope.KeyboardKeySlot(
             label = if (state.value.shiftState.isUpperCase()) key.labelUpper else key.labelLower,
             isUpperCase = state.value.shiftState.isUpperCase(),
             weight = key.weight,
+            subLabel = key.subLabel,
+            hint = key.hint,
+            isLargeLabel = isLargeLabel,
+            output = key.output,
+            isSpecial = key.isSpecial,
             longPress = key.longPress,
-            font = state.value.selectedFont,
+            font = state.value.activeFont,
             onClick = { onEvent(KeyboardEvent.OnKeySelect(it)) }
         )
 
@@ -86,6 +99,7 @@ private fun RowScope.KeyboardKeySlot(
             weight = key.weight,
             languages = state.value.languages,
             selectedLanguage = state.value.selectedLanguage,
+            isLanguageSlideEnabled = state.value.fieldType.allowsLanguageSlide,
             onLanguageSelect = { onEvent(KeyboardEvent.OnLanguageSelect(it)) },
             onCursorMove = { horizontal, vertical ->
                 onEvent(KeyboardEvent.OnCursorMove(horizontal, vertical))
@@ -98,6 +112,13 @@ private fun RowScope.KeyboardKeySlot(
             weight = key.weight,
             enterAction = state.value.displayedEnterAction,
             onClick = { onEvent(KeyboardEvent.OnEnter) }
+        )
+
+        is KeyboardKey.EmojiSwitch -> SpecialIconKeyButton(
+            iconRes = R.drawable.ic_emoji_key,
+            contentDescription = "Emoji",
+            weight = key.weight,
+            onClick = { onEvent(KeyboardEvent.OnEmojiSwitch) }
         )
 
         is KeyboardKey.Spacer -> Spacer(modifier = Modifier.weight(key.weight))
@@ -117,6 +138,5 @@ private fun KeyboardKey.switchAction(): Pair<String, KeyboardEvent>? = when (thi
     is KeyboardKey.SymbolsSwitch -> "123" to KeyboardEvent.OnSymbolsSwitch
     is KeyboardKey.SymbolsAltSwitch -> label to KeyboardEvent.OnSymbolsAltSwitch
     is KeyboardKey.AbcSwitch -> "ABC" to KeyboardEvent.OnAbcSwitch
-    is KeyboardKey.EmojiSwitch -> "☺" to KeyboardEvent.OnEmojiSwitch
     else -> null
 }

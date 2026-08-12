@@ -1,5 +1,6 @@
 package kg.timmitof.keyboard.presentation.screens.keyboard.states
 
+import androidx.annotation.StringRes
 import androidx.compose.runtime.Stable
 import kg.timmitof.core.ui.base.BaseEvent
 import kg.timmitof.core.ui.base.BaseSideEffect
@@ -8,15 +9,18 @@ import kg.timmitof.keyboard.domain.model.EmojiCategory
 import kg.timmitof.keyboard.domain.model.KeyboardFont
 import kg.timmitof.keyboard.domain.model.KeyboardLanguage
 import kg.timmitof.keyboard.domain.model.KeyboardLayout
+import kg.timmitof.keyboard.domain.model.WordSuggestion
+import kg.timmitof.keyboard.presentation.R
 
 @Stable
 internal data class KeyboardState(
     val layer: KeyboardLayer = KeyboardLayer.LETTERS,
-    val keyboardLayout: KeyboardLayout = KeyboardLayout("", emptyList()),
+    val keyboardLayout: KeyboardLayout = KeyboardLayout(name = "", rows = emptyList()),
     val languages: List<KeyboardLanguage> = emptyList(),
     val selectedLanguage: KeyboardLanguage? = null,
     val fonts: List<KeyboardFont> = emptyList(),
     val selectedFont: KeyboardFont = KeyboardFont.Default,
+    val isFontsExpanded: Boolean = true,
     val emojiCategories: List<EmojiCategory> = emptyList(),
     val emojiVariants: Map<String, List<String>> = emptyMap(),
     val preferredEmojiVariants: Map<String, String> = emptyMap(),
@@ -25,17 +29,57 @@ internal data class KeyboardState(
     val emojiSearchResults: List<String> = emptyList(),
     val emojiSearchSelection: Int = 0,
     val shiftState: ShiftState = ShiftState.DISABLED,
-    val enterAction: EnterAction = EnterAction.RETURN,
+    val fieldContext: KeyboardFieldContext = KeyboardFieldContext(),
+    val suggestions: List<WordSuggestion> = emptyList(),
     val isCursorMode: Boolean = false,
 ): BaseState() {
+
+    val fieldType: KeyboardFieldType get() = fieldContext.type
+
+    val enterAction: EnterAction get() = fieldContext.enterAction
+
+    /**
+     * Действие на клавише Enter.
+     */
     val displayedEnterAction: EnterAction
-        get() = if (layer == KeyboardLayer.EMOJI_SEARCH) EnterAction.DONE else enterAction
+        get() = when {
+            layer == KeyboardLayer.EMOJI_SEARCH -> EnterAction.DONE
+            fieldType.hasOwnLayout && enterAction == EnterAction.RETURN -> EnterAction.DONE
+            else -> enterAction
+        }
+
+    /** Шрифт, который реально применяется: в адресах, паролях и цифрах ввод остаётся обычным. */
+    val activeFont: KeyboardFont
+        get() = if (fieldType.allowsFonts) selectedFont else KeyboardFont.Default
+
+    /** Показывать ли подсказки слов вместо шрифтов — задел под Т9. */
+    val hasSuggestions: Boolean
+        get() = suggestions.isNotEmpty() && fieldType.allowsSuggestions
+
+    /** Плашка-пояснение в верхней панели: почему клавиатура ведёт себя иначе. */
+    @get:StringRes
+    val noticeRes: Int?
+        get() = fieldType.noticeRes
+            ?: R.string.field_notice_multiline.takeIf { fieldContext.isMultiLine }
+
+    /**
+     * Вариант нижнего ряда для текущего поля.
+     *
+     * Тип поля важнее действия Enter: в адресе нужен `@`, даже если поле просит «Найти».
+     */
+    val bottomRowVariant: String?
+        get() = fieldType.bottomRowVariant ?: when (enterAction) {
+            EnterAction.SEARCH -> "search"
+            EnterAction.SEND -> "message"
+            else -> null
+        }
 }
 
 sealed class KeyboardSideEffect : BaseSideEffect.UiSideEffect() {
     data class CommitText(val char: CharSequence) : KeyboardSideEffect()
     data class SelectBeforeCursor(val chars: Int) : KeyboardSideEffect()
     data class MoveCursor(val horizontal: Int, val vertical: Int) : KeyboardSideEffect()
+    data class ReplaceWordBeforeCursor(val text: CharSequence) : KeyboardSideEffect()
     data object DeleteBackward : KeyboardSideEffect()
     data object PerformEditorAction : KeyboardSideEffect()
     data object DeleteWordBackward : KeyboardSideEffect()
@@ -47,7 +91,7 @@ internal sealed class KeyboardEvent : BaseEvent.UiEvent() {
     data class OnEmojiSelect(val emoji: String) : KeyboardEvent()
     data class OnEmojiVariantSelect(val base: String, val variant: String) : KeyboardEvent()
     data object OnInputSessionChange : KeyboardEvent()
-    data class OnEnterActionChange(val action: EnterAction) : KeyboardEvent()
+    data class OnFieldContextChange(val context: KeyboardFieldContext) : KeyboardEvent()
     data object OnShift : KeyboardEvent()
     data object OnBackspace : KeyboardEvent()
     data object OnBackspaceDeleteWord : KeyboardEvent()
@@ -59,6 +103,8 @@ internal sealed class KeyboardEvent : BaseEvent.UiEvent() {
     data object OnEnter : KeyboardEvent()
     data class OnLanguageSelect(val language: KeyboardLanguage) : KeyboardEvent()
     data class OnFontSelect(val font: KeyboardFont) : KeyboardEvent()
+    data class OnFontsExpandedChange(val expanded: Boolean) : KeyboardEvent()
+    data class OnSuggestionSelect(val suggestion: WordSuggestion) : KeyboardEvent()
     data object OnSymbolsSwitch : KeyboardEvent()
     data object OnSymbolsAltSwitch : KeyboardEvent()
     data object OnAbcSwitch : KeyboardEvent()

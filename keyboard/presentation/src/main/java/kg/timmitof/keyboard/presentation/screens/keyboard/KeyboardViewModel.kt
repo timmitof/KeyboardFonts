@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import kg.timmitof.core.ui.base.BaseSideEffect
 import kg.timmitof.core.ui.base.BaseViewModel
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.EmojiDelegate
+import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.FieldContextDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.FontDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.LanguageDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.LayerDelegate
@@ -28,6 +29,7 @@ internal class KeyboardViewModel(
     private val emojiDelegate: EmojiDelegate,
     private val languageDelegate: LanguageDelegate,
     private val fontDelegate: FontDelegate,
+    private val fieldContextDelegate: FieldContextDelegate,
 ) : BaseViewModel<KeyboardState, KeyboardSideEffect, KeyboardEvent>(KeyboardState()) {
 
     override fun onEvent(event: KeyboardEvent) {
@@ -37,6 +39,7 @@ internal class KeyboardViewModel(
             is KeyboardEvent.OnCursorMove -> intent { with(textInputDelegate) { moveCursor(event.horizontal, event.vertical) } }
             is KeyboardEvent.OnCursorModeChange -> intent { with(textInputDelegate) { setCursorMode(event.active) } }
             is KeyboardEvent.OnEnter -> intent { with(textInputDelegate) { pressEnter() } }
+            is KeyboardEvent.OnSuggestionSelect -> intent { with(textInputDelegate) { applySuggestion(event.suggestion) } }
             is KeyboardEvent.OnShift -> intent { with(textInputDelegate) { toggleShift() } }
             is KeyboardEvent.OnBackspace -> intent { with(textInputDelegate) { deleteBackward() } }
             is KeyboardEvent.OnBackspaceDeleteWord -> intent { with(textInputDelegate) { deleteWordBackward() } }
@@ -44,6 +47,7 @@ internal class KeyboardViewModel(
             is KeyboardEvent.OnBackspaceSelectCommit -> intent { with(textInputDelegate) { commitBackspaceSelection(event.chars) } }
             is KeyboardEvent.OnLanguageSelect -> intent { with(languageDelegate) { selectLanguage(event.language) } }
             is KeyboardEvent.OnFontSelect -> intent { with(fontDelegate) { selectFont(event.font) } }
+            is KeyboardEvent.OnFontsExpandedChange -> intent { with(fontDelegate) { setFontsExpanded(event.expanded) } }
             is KeyboardEvent.OnSymbolsSwitch -> intent { with(layerDelegate) { applyLayer(KeyboardLayer.SYMBOLS) } }
             is KeyboardEvent.OnSymbolsAltSwitch -> intent { with(layerDelegate) { toggleSymbolsAlt() } }
             is KeyboardEvent.OnAbcSwitch -> intent { with(layerDelegate) { applyLayer(KeyboardLayer.LETTERS) } }
@@ -54,7 +58,7 @@ internal class KeyboardViewModel(
             is KeyboardEvent.OnEmojiSearchClose -> intent { with(layerDelegate) { applyLayer(KeyboardLayer.EMOJI) } }
             is KeyboardEvent.OnEmojiSearchQueryChange -> intent { with(emojiDelegate) { updateSearchQuery(event.query) } }
             is KeyboardEvent.OnInputSessionChange -> resetInputSession()
-            is KeyboardEvent.OnEnterActionChange -> intent { with(textInputDelegate) { changeEnterAction(event.action) } }
+            is KeyboardEvent.OnFieldContextChange -> intent { with(fieldContextDelegate) { applyContext(event.context) } }
         }
     }
 
@@ -79,7 +83,8 @@ internal class KeyboardViewModel(
             state.copy(
                 emojiSearchQuery = "",
                 emojiSearchResults = emptyList(),
-                emojiSearchSelection = 0
+                emojiSearchSelection = 0,
+                suggestions = emptyList()
             )
         }
         with(layerDelegate) { applyLayer(KeyboardLayer.LETTERS) }

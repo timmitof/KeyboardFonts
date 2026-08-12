@@ -1,0 +1,29 @@
+{
+  "name": "123",
+  "rows": [
+    [
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "1", "labelUpper": "1" },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "2", "labelUpper": "2" },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "3", "labelUpper": "3" },
+      { "type": "BACKSPACE", "weight": 1.0 }
+    ],
+    [
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "4", "labelUpper": "4" },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "5", "labelUpper": "5" },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "6", "labelUpper": "6" },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "−", "labelUpper": "−", "output": "-", "special": true, "longPress": { "type": "SYMBOLS", "symbols": ["+", "±"] } }
+    ],
+    [
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "7", "labelUpper": "7" },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "8", "labelUpper": "8" },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "9", "labelUpper": "9" },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": ",", "labelUpper": ",", "special": true }
+    ],
+    [
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": ".", "labelUpper": "." },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "0", "labelUpper": "0" },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "00", "labelUpper": "00" },
+      { "type": "ENTER", "weight": 1.0 }
+    ]
+  ]
+}
