@@ -1,5 +1,6 @@
 {
   "name": "123",
+  "largeLabels": true,
   "rows": [
     [
       { "type": "CHARACTER", "weight": 1.0, "labelLower": "1", "labelUpper": "1" },

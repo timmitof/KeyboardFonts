@@ -16,6 +16,15 @@ data class KeyboardLayout(
         get() = rows.firstOrNull()?.sumOf { it.weight.toDouble() }?.toFloat() ?: 0f
 
     /**
+     * Есть ли в раскладке подписи под метками.
+     */
+    val hasSubLabels: Boolean by lazy {
+        rows.any { row ->
+            row.any { it is KeyboardKey.Character && it.subLabel != null }
+        }
+    }
+
+    /**
      * Раскладка с подменённым нижним рядом.
      *
      * Ряд-вариант описывается в собственном масштабе (например, 10 колонок), поэтому

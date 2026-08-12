@@ -50,6 +50,7 @@ internal fun KeyboardRows(
                         key = key,
                         state = state,
                         isLargeLabel = layout.largeLabels,
+                        hasSubLabels = layout.hasSubLabels,
                         onEvent = onEvent
                     )
                 }
@@ -64,6 +65,7 @@ private fun RowScope.KeyboardKeySlot(
     key: KeyboardKey,
     state: State<KeyboardState>,
     isLargeLabel: Boolean,
+    hasSubLabels: Boolean,
     onEvent: (KeyboardEvent) -> Unit
 ) {
     when (key) {
@@ -74,6 +76,7 @@ private fun RowScope.KeyboardKeySlot(
             subLabel = key.subLabel,
             hint = key.hint,
             isLargeLabel = isLargeLabel,
+            hasSubLabels = hasSubLabels,
             output = key.output,
             isSpecial = key.isSpecial,
             longPress = key.longPress,
