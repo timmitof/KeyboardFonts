@@ -14,5 +14,7 @@ internal enum class KeyboardLayer(
     SYMBOLS("symbols"),
     SYMBOLS_ALT("symbols_alt"),
     EMOJI,
-    EMOJI_SEARCH(usesLanguageLayout = true),
+    EMOJI_SEARCH(usesLanguageLayout = true);
+
+    val showsSuggestions: Boolean get() = this != EMOJI && this != EMOJI_SEARCH
 }

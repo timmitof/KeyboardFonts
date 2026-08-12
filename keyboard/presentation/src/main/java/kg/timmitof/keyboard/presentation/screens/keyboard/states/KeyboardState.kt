@@ -9,6 +9,7 @@ import kg.timmitof.keyboard.domain.model.EmojiCategory
 import kg.timmitof.keyboard.domain.model.KeyboardFont
 import kg.timmitof.keyboard.domain.model.KeyboardLanguage
 import kg.timmitof.keyboard.domain.model.KeyboardLayout
+import kg.timmitof.keyboard.domain.model.TextContext
 import kg.timmitof.keyboard.domain.model.WordSuggestion
 import kg.timmitof.keyboard.presentation.R
 
@@ -30,7 +31,9 @@ internal data class KeyboardState(
     val emojiSearchSelection: Int = 0,
     val shiftState: ShiftState = ShiftState.DISABLED,
     val fieldContext: KeyboardFieldContext = KeyboardFieldContext(),
+    val textContext: TextContext = TextContext(),
     val suggestions: List<WordSuggestion> = emptyList(),
+    val autoCorrection: AutoCorrection? = null,
     val isCursorMode: Boolean = false,
 ): BaseState() {
 
@@ -52,9 +55,17 @@ internal data class KeyboardState(
     val activeFont: KeyboardFont
         get() = if (fieldType.allowsFonts) selectedFont else KeyboardFont.Default
 
-    /** Показывать ли подсказки слов вместо шрифтов — задел под Т9. */
+    /** Работает ли Т9 прямо сейчас: и поле, и слой должны это позволять. */
+    val allowsSuggestions: Boolean
+        get() = fieldType.allowsSuggestions && layer.showsSuggestions
+
+    /** Показывать ли подсказки слов вместо шрифтов. */
     val hasSuggestions: Boolean
-        get() = suggestions.isNotEmpty() && fieldType.allowsSuggestions
+        get() = suggestions.isNotEmpty() && allowsSuggestions
+
+    /** Подсказка, которой пробел заменит набранное слово (если исправление нашлось). */
+    val pendingAutoCorrect: WordSuggestion?
+        get() = suggestions.firstOrNull { it.isAutoCorrect }.takeIf { allowsSuggestions }
 
     /** Плашка-пояснение в верхней панели: почему клавиатура ведёт себя иначе. */
     @get:StringRes
@@ -75,11 +86,21 @@ internal data class KeyboardState(
         }
 }
 
+/**
+ * Автозамена, которую применил пробел.
+ */
+@Stable
+internal data class AutoCorrection(
+    val original: String,
+    val corrected: String,
+)
+
 sealed class KeyboardSideEffect : BaseSideEffect.UiSideEffect() {
     data class CommitText(val char: CharSequence) : KeyboardSideEffect()
     data class SelectBeforeCursor(val chars: Int) : KeyboardSideEffect()
     data class MoveCursor(val horizontal: Int, val vertical: Int) : KeyboardSideEffect()
     data class ReplaceWordBeforeCursor(val text: CharSequence) : KeyboardSideEffect()
+    data class ReplaceTextBeforeCursor(val chars: Int, val text: CharSequence) : KeyboardSideEffect()
     data object DeleteBackward : KeyboardSideEffect()
     data object PerformEditorAction : KeyboardSideEffect()
     data object DeleteWordBackward : KeyboardSideEffect()
@@ -92,6 +113,7 @@ internal sealed class KeyboardEvent : BaseEvent.UiEvent() {
     data class OnEmojiVariantSelect(val base: String, val variant: String) : KeyboardEvent()
     data object OnInputSessionChange : KeyboardEvent()
     data class OnFieldContextChange(val context: KeyboardFieldContext) : KeyboardEvent()
+    data class OnTextContextChange(val context: TextContext) : KeyboardEvent()
     data object OnShift : KeyboardEvent()
     data object OnBackspace : KeyboardEvent()
     data object OnBackspaceDeleteWord : KeyboardEvent()

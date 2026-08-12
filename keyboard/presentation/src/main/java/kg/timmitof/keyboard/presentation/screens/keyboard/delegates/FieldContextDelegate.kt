@@ -21,6 +21,7 @@ internal class FieldContextDelegate(
             state.copy(
                 fieldContext = context,
                 suggestions = emptyList(),
+                autoCorrection = null,
                 isFontsExpanded = state.isFontsExpanded && context.type.allowsFonts,
                 shiftState = if (context.type.autoCapitalize) state.shiftState else ShiftState.DISABLED,
             )

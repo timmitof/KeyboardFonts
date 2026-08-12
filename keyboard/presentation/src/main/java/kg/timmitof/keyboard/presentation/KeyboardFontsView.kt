@@ -16,6 +16,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kg.timmitof.keyboard.domain.model.TextContext
 import kg.timmitof.keyboard.presentation.insets.KeyboardInsetsTracker
 import kg.timmitof.keyboard.presentation.insets.LocalKeyboardInsets
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardFieldContext
@@ -37,11 +38,18 @@ class KeyboardFontsView(
 
     private val fieldContext = mutableStateOf(KeyboardFieldContext())
 
+    private val textContext = mutableStateOf(TextContext())
+
     private val insetsTracker = KeyboardInsetsTracker(this)
 
     /** Сервис отдаёт сюда разобранный `EditorInfo` при каждой смене поля ввода. */
     fun updateFieldContext(context: KeyboardFieldContext) {
         fieldContext.value = context
+    }
+
+    /** Сервис отдаёт сюда текст вокруг курсора при каждой правке поля — вход Т9. */
+    fun updateTextContext(context: TextContext) {
+        textContext.value = context
     }
 
     override fun onAttachedToWindow() {
@@ -76,6 +84,10 @@ class KeyboardFontsView(
 
         LaunchedEffect(fieldContext.value) {
             viewModel.onEvent(KeyboardEvent.OnFieldContextChange(fieldContext.value))
+        }
+
+        LaunchedEffect(textContext.value) {
+            viewModel.onEvent(KeyboardEvent.OnTextContextChange(textContext.value))
         }
 
         val insets by insetsTracker.insets

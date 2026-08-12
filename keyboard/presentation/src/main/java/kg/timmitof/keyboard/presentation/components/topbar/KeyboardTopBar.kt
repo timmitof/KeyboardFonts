@@ -100,8 +100,8 @@ private enum class TopBarMode { CURSOR, SUGGESTIONS, FONTS_EXPANDED, IDLE }
 private val KeyboardState.topBarMode: TopBarMode
     get() = when {
         isCursorMode -> TopBarMode.CURSOR
-        hasSuggestions -> TopBarMode.SUGGESTIONS
         isFontsExpanded -> TopBarMode.FONTS_EXPANDED
+        hasSuggestions -> TopBarMode.SUGGESTIONS
         else -> TopBarMode.IDLE
     }
 

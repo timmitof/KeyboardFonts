@@ -28,6 +28,7 @@ internal class KeyboardActionHandler(
         when (action) {
             is KeyboardSideEffect.CommitText -> connection.commitText(action.char, 1)
             is KeyboardSideEffect.ReplaceWordBeforeCursor -> connection.replaceWordBeforeCursor(action.text)
+            is KeyboardSideEffect.ReplaceTextBeforeCursor -> connection.replaceBeforeCursor(action.chars, action.text)
             is KeyboardSideEffect.MoveCursor -> connection.moveCursor(action.horizontal, action.vertical)
             is KeyboardSideEffect.DeleteBackward -> connection.deleteLastGrapheme()
             is KeyboardSideEffect.DeleteWordBackward -> connection.deleteWordBeforeCursor()
@@ -41,15 +42,21 @@ internal class KeyboardActionHandler(
      * Заменяет незаконченное слово перед курсором на [text].
      */
     private fun InputConnection.replaceWordBeforeCursor(text: CharSequence) {
-        beginBatchEdit()
         val before = getTextBeforeCursor(WORD_LOOKUP_LENGTH, 0)?.toString().orEmpty()
-        val typed = before.takeLastWhile { !it.isWhitespace() }
-        if (typed.isNotEmpty()) {
-            deleteSurroundingText(typed.length, 0)
-        }
+        val typed = before.takeLastWhile { !it.isWordSeparator() }
+        replaceBeforeCursor(typed.length, text)
+    }
+
+    /** Меняет [chars] символов перед курсором на [text] одной правкой. */
+    private fun InputConnection.replaceBeforeCursor(chars: Int, text: CharSequence) {
+        beginBatchEdit()
+        if (chars > 0) deleteSurroundingText(chars, 0)
         commitText(text, 1)
         endBatchEdit()
     }
+
+    /** Граница слова: пробелы и знаки препинания в подсказку не входят. */
+    private fun Char.isWordSeparator(): Boolean = isWhitespace() || this in WORD_SEPARATORS
 
     private fun InputConnection.performEnter() {
         val editorInfo = editorInfoProvider()
@@ -135,6 +142,9 @@ internal class KeyboardActionHandler(
     private companion object {
         /** Сколько символов перед курсором запрашивать для поиска границы слова. */
         const val WORD_LOOKUP_LENGTH = 64
+
+        /** Знаки, которые не входят в слово (совпадают с разбором в `TextContext`). */
+        const val WORD_SEPARATORS = ".,!?;:()[]{}<>\"«»„“”…—–-/\\|@#\$%^&*+=~`№"
 
         /** Сколько символов хватает для поиска границы графемы. */
         const val GRAPHEME_LOOKUP_LENGTH = 32

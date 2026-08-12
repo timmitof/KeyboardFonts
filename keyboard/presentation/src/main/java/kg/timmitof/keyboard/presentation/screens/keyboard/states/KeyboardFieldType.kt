@@ -12,7 +12,8 @@ import kg.timmitof.keyboard.presentation.R
  * @param layoutName собственная раскладка вместо буквенной (цифры, телефон).
  * @param bottomRowVariant вариант нижнего ряда из `layouts/bottom_rows.json`.
  * @param allowsFonts применять ли выбранный Unicode-шрифт к вводу.
- * @param allowsSuggestions разрешены ли подсказки слов (задел под Т9).
+ * @param allowsSuggestions разрешены ли подсказки слов (Т9).
+ * @param allowsAutoCorrect можно ли исправлять слово при вводе пробела.
  * @param allowsLanguageSlide можно ли менять язык слайдом по пробелу.
  * @param autoCapitalize поднимать ли Shift в начале ввода.
  * @param noticeRes плашка-пояснение в верхней панели.
@@ -22,6 +23,7 @@ enum class KeyboardFieldType(
     val bottomRowVariant: String? = null,
     val allowsFonts: Boolean = true,
     val allowsSuggestions: Boolean = true,
+    val allowsAutoCorrect: Boolean = true,
     val allowsLanguageSlide: Boolean = true,
     val autoCapitalize: Boolean = true,
     @field:StringRes val noticeRes: Int? = null,
@@ -31,6 +33,7 @@ enum class KeyboardFieldType(
     EMAIL(
         bottomRowVariant = "email",
         allowsFonts = false,
+        allowsAutoCorrect = false,
         autoCapitalize = false,
         noticeRes = R.string.fonts_not_available,
     ),
@@ -39,6 +42,7 @@ enum class KeyboardFieldType(
         bottomRowVariant = "password",
         allowsFonts = false,
         allowsSuggestions = false,
+        allowsAutoCorrect = false,
         allowsLanguageSlide = true,
         autoCapitalize = false,
         noticeRes = R.string.field_notice_password,
@@ -48,6 +52,7 @@ enum class KeyboardFieldType(
         layoutName = "numeric",
         allowsFonts = false,
         allowsSuggestions = false,
+        allowsAutoCorrect = false,
         allowsLanguageSlide = false,
         autoCapitalize = false,
     ),
@@ -56,6 +61,7 @@ enum class KeyboardFieldType(
         layoutName = "phone",
         allowsFonts = false,
         allowsSuggestions = false,
+        allowsAutoCorrect = false,
         allowsLanguageSlide = false,
         autoCapitalize = false,
     );
