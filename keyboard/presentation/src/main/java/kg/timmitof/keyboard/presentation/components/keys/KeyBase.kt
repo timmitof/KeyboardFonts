@@ -3,7 +3,6 @@ package kg.timmitof.keyboard.presentation.components.keys
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
@@ -20,6 +19,11 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
+import kg.timmitof.core.ui.keyClickable
 import kg.timmitof.keyboard.presentation.components.KeyCornerRadius
 import kg.timmitof.keyboard.presentation.components.KeyRowSpacing
 import kg.timmitof.keyboard.presentation.components.KeySpacing
@@ -57,18 +61,16 @@ internal fun KeyBase(
         animationSpec = tween(80), label = "surface"
     )
 
-    val clickModifier = when {
-        customGestures != null -> customGestures(source)
-
-        else -> Modifier.clickable(
-            interactionSource = source,
-            indication = null,
-            onClick = onClick
-        )
-    }
+    val clickModifier = customGestures?.invoke(source)
+        ?: Modifier.keyClickable(interactionSource = source, onTap = onClick)
 
     Box(
-        modifier = modifier.then(clickModifier),
+        modifier = modifier
+            .semantics(mergeDescendants = true) {
+                role = Role.Button
+                onClick { onClick(); true }
+            }
+            .then(clickModifier),
         contentAlignment = Alignment.Center
     ) {
         Box(

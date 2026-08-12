@@ -30,8 +30,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kg.timmitof.core.ui.holdPickerClickable
+import androidx.compose.ui.zIndex
+import kg.timmitof.core.ui.keyClickable
+import kg.timmitof.keyboard.domain.model.KeyCharacter
 import kg.timmitof.keyboard.domain.model.KeyboardFont
+import kg.timmitof.keyboard.domain.model.KeyboardKey
 import kg.timmitof.keyboard.domain.model.LongPressAction
 import kg.timmitof.keyboard.presentation.theme.KFTheme
 import kotlin.math.roundToInt
@@ -61,30 +64,37 @@ private val HintSize = 10.sp
 
 internal fun String.isWordLabel(): Boolean = codePointCount(0, length) > 1
 
+/**
+ * Клавиша с символом.
+ *
+ * Наверх уходит [KeyCharacter] в обоих регистрах, а не готовая строка: какой
+ * регистр применить, решает ViewModel в момент ввода — состояние Shift к этому
+ * моменту может уже измениться соседним нажатием.
+ *
+ * @param onInput символ введён: обычным нажатием или выбором из пикера.
+ */
 @Composable
 internal fun RowScope.KeyboardKeyButton(
     modifier: Modifier = Modifier,
-    label: String,
+    key: KeyboardKey.Character,
     isUpperCase: Boolean = false,
-    weight: Float,
-    subLabel: String? = null,
-    hint: String? = null,
     isLargeLabel: Boolean = false,
     hasSubLabels: Boolean = false,
-    output: String? = null,
-    isSpecial: Boolean = false,
-    longPress: LongPressAction? = null,
     font: KeyboardFont = KeyboardFont.Default,
-    onClick: (char: String) -> Unit
+    onInput: (KeyCharacter) -> Unit,
 ) {
-    val symbols = remember(longPress, isUpperCase) {
-        (longPress as? LongPressAction.Symbols)?.symbols
-            ?.map { if (isUpperCase) it.labelUpper else it.labelLower }
-            .orEmpty()
+    val input = remember(key) {
+        key.output?.let(::KeyCharacter) ?: KeyCharacter(key.labelLower, key.labelUpper)
     }
+    val symbols = remember(key) {
+        (key.longPress as? LongPressAction.Symbols)?.symbols.orEmpty()
+    }
+
+    val label = key.let { if (isUpperCase) it.labelUpper else it.labelLower }
     val displayLabel = remember(label, font) { font.apply(label) }
-    val displaySymbols = remember(symbols, font) { symbols.map(font::apply) }
-    val typed = output ?: label
+    val displaySymbols = remember(symbols, isUpperCase, font) {
+        symbols.map { font.apply(it.text(isUpperCase)) }
+    }
 
     val cellWidthPx = with(LocalDensity.current) { LongPressSymbolCellSize.toPx() }
     var isPickerVisible by remember { mutableStateOf(false) }
@@ -98,8 +108,12 @@ internal fun RowScope.KeyboardKeyButton(
     }
 
     KeyBase(
-        modifier = modifier.weight(weight).fillMaxHeight(),
-        background = if (isSpecial) {
+        // Нажатая клавиша выше соседей: её шапка не должна уходить под соседнюю.
+        modifier = modifier
+            .weight(key.weight)
+            .zIndex(if (isPressed || isPickerVisible) 1f else 0f)
+            .fillMaxHeight(),
+        background = if (key.isSpecial) {
             KFTheme.color.keySpecialButtonBackground
         } else {
             KFTheme.color.keyButtonBackground
@@ -107,9 +121,9 @@ internal fun RowScope.KeyboardKeyButton(
         shadowColor = KFTheme.color.keyButtonShadow,
         interactionSource = interactionSource,
         customGestures = if (symbols.isEmpty()) null else { source ->
-            Modifier.holdPickerClickable(
+            Modifier.keyClickable(
                 interactionSource = source,
-                onTap = { onClick(typed) },
+                onTap = { onInput(input) },
                 onHoldStart = {
                     pickOffsetPx = 0f
                     isPickerVisible = true
@@ -117,19 +131,23 @@ internal fun RowScope.KeyboardKeyButton(
                 onPickChange = { pickOffsetPx = it },
                 onPickFinish = { offsetPx ->
                     isPickerVisible = false
-                    onClick(symbols[selectedIndexFor(offsetPx)])
+                    onInput(symbols[selectedIndexFor(offsetPx)])
                 }
             )
         },
-        onClick = { onClick(typed) }
+        onClick = { onInput(input) }
     ) {
-        hint?.let { KeyHint(hint = it) }
+        key.hint?.let { KeyHint(hint = it) }
 
         KeyLabel(
             label = displayLabel,
-            subLabel = subLabel ?: "".takeIf { hasSubLabels && !isSpecial },
+            subLabel = key.subLabel ?: "".takeIf { hasSubLabels && !key.isSpecial },
             isLarge = isLargeLabel,
-            color = if (isSpecial) KFTheme.color.keySpecialTextColor else KFTheme.color.keyTextColor
+            color = if (key.isSpecial) {
+                KFTheme.color.keySpecialTextColor
+            } else {
+                KFTheme.color.keyTextColor
+            }
         )
 
         when {
@@ -139,11 +157,7 @@ internal fun RowScope.KeyboardKeyButton(
                 onDismiss = { isPickerVisible = false }
             )
 
-            isPressed -> LongPressSymbolsPicker(
-                symbols = listOf(displayLabel),
-                selectedIndex = { 0 },
-                onDismiss = {}
-            )
+            isPressed -> KeyPressPreview(label = displayLabel)
         }
     }
 }

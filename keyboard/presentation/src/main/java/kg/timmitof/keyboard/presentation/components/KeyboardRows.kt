@@ -70,18 +70,12 @@ private fun RowScope.KeyboardKeySlot(
 ) {
     when (key) {
         is KeyboardKey.Character -> KeyboardKeyButton(
-            label = if (state.value.shiftState.isUpperCase()) key.labelUpper else key.labelLower,
+            key = key,
             isUpperCase = state.value.shiftState.isUpperCase(),
-            weight = key.weight,
-            subLabel = key.subLabel,
-            hint = key.hint,
             isLargeLabel = isLargeLabel,
             hasSubLabels = hasSubLabels,
-            output = key.output,
-            isSpecial = key.isSpecial,
-            longPress = key.longPress,
             font = state.value.activeFont,
-            onClick = { onEvent(KeyboardEvent.OnKeySelect(it)) }
+            onInput = { onEvent(KeyboardEvent.OnKeySelect(it)) }
         )
 
         is KeyboardKey.Shift -> ShiftKeyButton(
@@ -101,7 +95,7 @@ private fun RowScope.KeyboardKeySlot(
         is KeyboardKey.Space -> SpaceKeyButton(
             weight = key.weight,
             languages = state.value.languages,
-            selectedLanguage = state.value.selectedLanguage,
+            selectedLanguage = state.value.activeLanguage,
             isLanguageSlideEnabled = state.value.fieldType.allowsLanguageSlide,
             onLanguageSelect = { onEvent(KeyboardEvent.OnLanguageSelect(it)) },
             onCursorMove = { horizontal, vertical ->

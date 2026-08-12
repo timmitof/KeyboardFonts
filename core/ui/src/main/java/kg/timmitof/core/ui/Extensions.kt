@@ -28,6 +28,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 import kotlin.math.roundToInt
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Функция расширяющая [Context], для показа тоста
@@ -258,6 +259,67 @@ fun Modifier.spaceCursorClickable(
                     isSliding -> currentOnSlideFinish(totalDx)
                     else -> currentOnTap()
                 }
+
+                launch { interactionSource.emit(PressInteraction.Release(press)) }
+            }
+        }
+    }
+}
+
+/**
+ * Жест обычной клавиши
+ *
+ * @param onTap обычный ввод — при отпускании, если пикер не открывался.
+ * @param onHoldStart открытие пикера; `null` — у клавиши нет вариантов и зажатие ничего не делает.
+ */
+fun Modifier.keyClickable(
+    interactionSource: MutableInteractionSource,
+    holdDelayMillis: Long = 350L,
+    onTap: () -> Unit,
+    onHoldStart: (() -> Unit)? = null,
+    onPickChange: ((offsetPx: Float) -> Unit)? = null,
+    onPickFinish: ((offsetPx: Float) -> Unit)? = null,
+): Modifier = composed {
+    val currentOnTap by rememberUpdatedState(onTap)
+    val currentOnHoldStart by rememberUpdatedState(onHoldStart)
+    val currentOnPickChange by rememberUpdatedState(onPickChange)
+    val currentOnPickFinish by rememberUpdatedState(onPickFinish)
+
+    pointerInput(interactionSource) {
+        coroutineScope {
+            awaitEachGesture {
+                val down = awaitFirstDown(requireUnconsumed = false)
+                down.consume()
+
+                val press = PressInteraction.Press(down.position)
+                launch { interactionSource.emit(press) }
+
+                var holdFired = false
+                val holdJob = currentOnHoldStart?.let { onHold ->
+                    launch {
+                        delay(holdDelayMillis.milliseconds)
+                        holdFired = true
+                        onHold()
+                    }
+                }
+
+                var totalDx = 0f
+
+                while (true) {
+                    val event = awaitPointerEvent()
+                    val change = event.changes.firstOrNull { it.id == down.id } ?: break
+                    if (!change.pressed) break
+
+                    totalDx += change.positionChange().x
+                    if (holdFired) {
+                        change.consume()
+                        currentOnPickChange?.invoke(totalDx)
+                    }
+                }
+
+                holdJob?.cancel()
+
+                if (holdFired) currentOnPickFinish?.invoke(totalDx) else currentOnTap()
 
                 launch { interactionSource.emit(PressInteraction.Release(press)) }
             }

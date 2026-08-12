@@ -13,10 +13,12 @@ class LanguageRepositoryImpl @Inject constructor(
 
     override suspend fun getLanguages(): List<KeyboardLanguage> =
         LANGUAGE_CODES.map { code ->
+            val layout = keyboardLayoutRepository.getLayout(code)
             KeyboardLanguage(
                 code = code,
-                displayName = keyboardLayoutRepository.getLayout(code).name,
-                shortName = code.substringBefore('_').uppercase()
+                displayName = layout.name,
+                shortName = code.substringBefore('_').uppercase(),
+                isLatin = layout.isLatin
             )
         }
 

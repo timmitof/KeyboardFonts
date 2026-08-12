@@ -1,11 +1,13 @@
 package kg.timmitof.keyboard.presentation.screens.keyboard.delegates
 
+import kg.timmitof.keyboard.domain.model.KeyCharacter
 import kg.timmitof.keyboard.domain.model.WordSuggestion
 import kg.timmitof.keyboard.presentation.screens.keyboard.KeyboardSyntax
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.AutoCorrection
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardLayer
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardSideEffect
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.ShiftState
+import kg.timmitof.keyboard.presentation.screens.keyboard.states.isUpperCase
 
 internal class TextInputDelegate(
     private val layerDelegate: LayerDelegate,
@@ -13,7 +15,16 @@ internal class TextInputDelegate(
     private val suggestionsDelegate: SuggestionsDelegate,
 ) {
 
-    suspend fun KeyboardSyntax.typeCharacter(char: String) {
+    /**
+     * Ввод символа с клавиши.
+     *
+     * Регистр выбирается здесь, а не при отрисовке клавиши: при нескольких
+     * одновременных нажатиях кнопки успевают захватить состояние Shift,
+     * которое к моменту ввода уже устарело — и всё слово уходило заглавными.
+     */
+    suspend fun KeyboardSyntax.typeCharacter(character: KeyCharacter) {
+        val char = character.text(state.shiftState.isUpperCase())
+
         // Точка, запятая и прочие разделители заканчивают слово так же, как пробел.
         if (char.isSeparator() && state.layer != KeyboardLayer.EMOJI_SEARCH) {
             finishWord(char)
@@ -22,8 +33,12 @@ internal class TextInputDelegate(
 
         val styled = state.activeFont.apply(char)
         editText(KeyboardSideEffect.CommitText(styled)) { query -> query + char }
-        forgetAutoCorrection()
         releaseOneShotShift()
+
+        if (state.layer == KeyboardLayer.EMOJI_SEARCH) return
+
+        forgetAutoCorrection()
+        with(suggestionsDelegate) { applyLocalEdit { it.appending(styled) } }
     }
 
     /**
@@ -70,8 +85,10 @@ internal class TextInputDelegate(
             }
         } else {
             postSideEffect(KeyboardSideEffect.CommitText(separator))
-            forgetAutoCorrection()
             if (typed.isNotEmpty()) suggestionsDelegate.learnWord(state, typed)
+
+            forgetAutoCorrection()
+            with(suggestionsDelegate) { applyLocalEdit { it.appending(separator) } }
         }
     }
 

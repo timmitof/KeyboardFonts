@@ -3,8 +3,10 @@ package kg.timmitof.keyboard.data.suggestion
 import kg.timmitof.keyboard.data.font.FontDecoder
 import kg.timmitof.keyboard.domain.model.SuggestionRequest
 import kg.timmitof.keyboard.domain.model.WordSuggestion
+import kotlinx.coroutines.ensureActive
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.coroutines.coroutineContext
 import kotlin.math.ln
 
 /**
@@ -21,7 +23,7 @@ import kotlin.math.ln
 @Singleton
 class SuggestionEngine @Inject constructor() {
 
-    internal fun suggest(
+    internal suspend fun suggest(
         request: SuggestionRequest,
         model: LanguageModel,
         user: UserLanguageModel,
@@ -82,7 +84,7 @@ class SuggestionEngine @Inject constructor() {
     // endregion
 
     // region Дополнение и исправление набранного слова
-    private fun complete(
+    private suspend fun complete(
         request: SuggestionRequest,
         boosts: Boosts,
         model: LanguageModel,
@@ -168,7 +170,7 @@ class SuggestionEngine @Inject constructor() {
      * либо с её соседки по клавиатуре, либо со второй набранной буквы —
      * это покрывает промах, пропуск и перестановку в начале слова.
      */
-    private fun WordDictionary.rankByTypo(query: String): List<Pair<Int, Int>> {
+    private suspend fun WordDictionary.rankByTypo(query: String): List<Pair<Int, Int>> {
         if (query.length < MIN_TYPO_LENGTH) return emptyList()
 
         val matcher = PrefixMatcher(query, PrefixMatcher.budgetFor(query.length))
@@ -178,7 +180,13 @@ class SuggestionEngine @Inject constructor() {
         val distances = HashMap<Int, Int>(RANKING_SIZE * 4)
 
         firstChars.forEach { char ->
-            rangeOf(char).forEach { index ->
+            val range = rangeOf(char)
+            // Перебор тысяч слов — самая долгая часть расчёта: даём отменить себя,
+            // иначе следующее нажатие ждёт, пока досчитается устаревший запрос.
+            if (range.isEmpty()) return@forEach
+            coroutineContext.ensureActive()
+
+            range.forEach { index ->
                 if (char == query[0] && startsWithQuery(index, query)) return@forEach
 
                 val distance = matcher.match(this, index)

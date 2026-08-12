@@ -4,6 +4,7 @@ import kg.timmitof.keyboard.data.font.FontCatalog
 import kg.timmitof.keyboard.domain.model.SuggestionRequest
 import kg.timmitof.keyboard.domain.model.TextContext
 import kg.timmitof.keyboard.domain.model.WordSuggestion
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -116,14 +117,16 @@ class SuggestionEngineTest {
     private fun suggest(
         before: String,
         user: UserLanguageModel = UserLanguageModel(),
-    ): List<WordSuggestion> = engine.suggest(
-        request = SuggestionRequest(
-            languageCode = "ru_ru",
-            context = TextContext(before = before),
-        ),
-        model = model,
-        user = user,
-    )
+    ): List<WordSuggestion> = runBlocking {
+        engine.suggest(
+            request = SuggestionRequest(
+                languageCode = "ru_ru",
+                context = TextContext(before = before),
+            ),
+            model = model,
+            user = user,
+        )
+    }
 
     private fun dictionaryOf(vararg words: Pair<String, Int>): WordDictionary =
         WordDictionary.parse(

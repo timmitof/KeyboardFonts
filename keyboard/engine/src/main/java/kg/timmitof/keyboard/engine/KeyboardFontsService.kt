@@ -1,5 +1,7 @@
 package kg.timmitof.keyboard.engine
 
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import dagger.hilt.android.AndroidEntryPoint
@@ -39,6 +41,10 @@ internal class KeyboardFontsService : ComposeInputMethodService() {
 
     private var keyboardView: KeyboardFontsView? = null
 
+    private val textSyncHandler = Handler(Looper.getMainLooper())
+
+    private val textSyncTask = Runnable { syncTextContext() }
+
     override fun onCreateComposeView(): View = KeyboardFontsView(
         context = this,
         viewModelStoreOwner = this,
@@ -77,24 +83,52 @@ internal class KeyboardFontsService : ComposeInputMethodService() {
         super.onUpdateSelection(
             oldSelStart, oldSelEnd, newSelStart, newSelEnd, candidatesStart, candidatesEnd,
         )
-        syncTextContext()
+        scheduleTextSync()
+    }
+
+    /**
+     * Откладывает чтение поля до паузы в наборе.
+     *
+     * Во время быстрого набора поле присылает событие на каждый символ, а свой
+     * снимок клавиатура и так ведёт сама — читать чужой процесс по десять раз
+     * в секунду незачем.
+     */
+    private fun scheduleTextSync() {
+        textSyncHandler.removeCallbacks(textSyncTask)
+        textSyncHandler.postDelayed(textSyncTask, TEXT_SYNC_DELAY_MILLIS)
     }
 
     override fun onFinishInputView(finishingInput: Boolean) {
         super.onFinishInputView(finishingInput)
+        textSyncHandler.removeCallbacks(textSyncTask)
         keyboardView?.updateTextContext(TextContext())
     }
 
     /**
-     * Применяет действие к полю и сразу перечитывает контекст.
+     * Применяет действие к полю.
      *
-     * Некоторые поля не присылают `onUpdateSelection` на каждую правку,
-     * а подсказки должны обновляться после любого нажатия.
+     * После обычного ввода поле не перечитывается: клавиатура сама знает, что
+     * напечатала, и обновляет свой снимок текста мгновенно. Чтение через
+     * `InputConnection` — это блокирующий вызов в чужой процесс, и на каждом
+     * нажатии он превращается в заметную задержку.
+     *
+     * Перечитываем только после правок, результат которых клавиатуре
+     * неизвестен: удаление слова, работа с выделением, движение курсора.
      */
     private fun applyAction(action: KeyboardSideEffect) {
         actionHandler.handle(action)
-        syncTextContext()
+        if (action.needsTextResync) scheduleTextSync()
     }
+
+    /** Правки, после которых снимок текста надо перечитать из поля. */
+    private val KeyboardSideEffect.needsTextResync: Boolean
+        get() = when (this) {
+            is KeyboardSideEffect.CommitText,
+            is KeyboardSideEffect.SelectBeforeCursor,
+                -> false
+
+            else -> true
+        }
 
     private fun syncFieldContext() {
         keyboardView?.updateFieldContext(currentInputEditorInfo.toFieldContext())
@@ -120,12 +154,16 @@ internal class KeyboardFontsService : ComposeInputMethodService() {
 
     override fun onDestroy() {
         super.onDestroy()
+        textSyncHandler.removeCallbacks(textSyncTask)
         keyboardView = null
     }
 
     private companion object {
         /** Окно текста до курсора: хватает и на слово, и на лексику сообщения. */
-        const val BEFORE_LENGTH = 512
+        const val BEFORE_LENGTH = TextContext.MAX_BEFORE_LENGTH
+
+        /** Пауза в наборе, после которой снимок текста сверяется с полем. */
+        const val TEXT_SYNC_DELAY_MILLIS = 60L
 
         /** После курсора важно лишь то, стоит ли он внутри слова. */
         const val AFTER_LENGTH = 32

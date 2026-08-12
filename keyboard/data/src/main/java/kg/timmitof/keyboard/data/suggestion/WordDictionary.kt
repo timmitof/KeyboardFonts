@@ -92,33 +92,63 @@ internal class WordDictionary(
 
         /**
          * Разбирает ассет формата `слово<TAB>частота` (уже отсортированный).
+         *
+         * Идём по исходному тексту вручную, без `split` и списков `Int`: разбор
+         * сорока тысяч строк — первое, что делает клавиатура после запуска,
+         * и лишние объекты здесь превращаются в задержку перед первой подсказкой.
          */
         fun parse(text: String): WordDictionary {
             val words = StringBuilder(text.length)
-            val starts = ArrayList<Int>(INITIAL_CAPACITY)
-            val scores = ArrayList<Int>(INITIAL_CAPACITY)
+            var starts = IntArray(INITIAL_CAPACITY)
+            var scores = IntArray(INITIAL_CAPACITY)
+            var count = 0
 
-            text.lineSequence().forEach { line ->
-                val separator = line.indexOf('\t')
-                if (separator <= 0) return@forEach
-                val score = line.substring(separator + 1).trim().toIntOrNull() ?: return@forEach
+            var lineStart = 0
+            while (lineStart < text.length) {
+                var lineEnd = text.indexOf('\n', lineStart)
+                if (lineEnd < 0) lineEnd = text.length
 
-                starts += words.length
-                words.append(line, 0, separator).append('\n')
-                scores += score
+                val separator = text.indexOf('\t', lineStart)
+                if (separator in (lineStart + 1) until lineEnd) {
+                    val score = text.parseScore(separator + 1, lineEnd)
+                    if (score > 0) {
+                        if (count == starts.size) {
+                            starts = starts.copyOf(count * 2)
+                            scores = scores.copyOf(count * 2)
+                        }
+                        starts[count] = words.length
+                        scores[count] = score
+                        count++
+                        words.append(text, lineStart, separator).append('\n')
+                    }
+                }
+                lineStart = lineEnd + 1
             }
+
             // Замыкающая граница: конец последнего слова + разделитель.
-            starts += words.length
+            val bounds = starts.copyOf(count + 1)
+            bounds[count] = words.length
 
             return WordDictionary(
                 words = words.toString(),
-                starts = starts.toIntArray(),
-                scores = scores.toIntArray(),
+                starts = bounds,
+                scores = scores.copyOf(count),
             )
+        }
+
+        /** Целое число из диапазона строки; 0 — если там не число. */
+        private fun String.parseScore(from: Int, to: Int): Int {
+            var value = 0
+            for (index in from until to) {
+                val digit = this[index] - '0'
+                if (digit !in 0..9) return 0
+                value = value * 10 + digit
+            }
+            return value
         }
 
         val Empty = WordDictionary("", intArrayOf(0), IntArray(0))
 
-        private const val INITIAL_CAPACITY = 48 * 1024
+        private const val INITIAL_CAPACITY = 8 * 1024
     }
 }

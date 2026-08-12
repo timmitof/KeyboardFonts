@@ -15,6 +15,8 @@ import kg.timmitof.keyboard.presentation.R
  * @param allowsSuggestions разрешены ли подсказки слов (Т9).
  * @param allowsAutoCorrect можно ли исправлять слово при вводе пробела.
  * @param allowsLanguageSlide можно ли менять язык слайдом по пробелу.
+ * @param requiresLatinLayout поле открывается на латинице, даже если выбрана другая
+ * раскладка; сменить язык вручную при этом можно.
  * @param autoCapitalize поднимать ли Shift в начале ввода.
  * @param noticeRes плашка-пояснение в верхней панели.
  */
@@ -25,6 +27,7 @@ enum class KeyboardFieldType(
     val allowsSuggestions: Boolean = true,
     val allowsAutoCorrect: Boolean = true,
     val allowsLanguageSlide: Boolean = true,
+    val requiresLatinLayout: Boolean = false,
     val autoCapitalize: Boolean = true,
     @field:StringRes val noticeRes: Int? = null,
 ) {
@@ -35,6 +38,7 @@ enum class KeyboardFieldType(
         allowsFonts = false,
         allowsAutoCorrect = false,
         autoCapitalize = false,
+        requiresLatinLayout = true,
         noticeRes = R.string.fonts_not_available,
     ),
 
@@ -44,6 +48,7 @@ enum class KeyboardFieldType(
         allowsSuggestions = false,
         allowsAutoCorrect = false,
         allowsLanguageSlide = true,
+        requiresLatinLayout = true,
         autoCapitalize = false,
         noticeRes = R.string.field_notice_password,
     ),

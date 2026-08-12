@@ -1,5 +1,6 @@
 {
   "name": "Русский",
+  "script": "cyrillic",
   "rows": [
     [
       { "type": "CHARACTER", "weight": 1.0, "labelLower": "й", "labelUpper": "Й", "hint": "1", "longPress": { "type": "SYMBOLS", "symbols": ["1"] } },

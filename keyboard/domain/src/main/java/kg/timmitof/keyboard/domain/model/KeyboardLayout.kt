@@ -3,10 +3,12 @@ package kg.timmitof.keyboard.domain.model
 /**
  * Раскладка клавиатуры.
  *
+ * @param isLatin раскладка набирает латиницей.
  * @param largeLabels (телефонная раскладка).
  */
 data class KeyboardLayout(
     val name: String,
+    val isLatin: Boolean = false,
     val largeLabels: Boolean = false,
     val rows: List<List<KeyboardKey>>
 ) {

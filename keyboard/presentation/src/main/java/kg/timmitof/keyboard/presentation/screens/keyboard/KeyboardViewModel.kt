@@ -38,7 +38,7 @@ internal class KeyboardViewModel(
 
     override fun onEvent(event: KeyboardEvent) {
         when (event) {
-            is KeyboardEvent.OnKeySelect -> intent { with(textInputDelegate) { typeCharacter(event.char) } }
+            is KeyboardEvent.OnKeySelect -> intent { with(textInputDelegate) { typeCharacter(event.character) } }
             is KeyboardEvent.OnSpace -> intent { with(textInputDelegate) { typeSpace() } }
             is KeyboardEvent.OnCursorMove -> intent { with(textInputDelegate) { moveCursor(event.horizontal, event.vertical) } }
             is KeyboardEvent.OnCursorModeChange -> intent { with(textInputDelegate) { setCursorMode(event.active) } }
@@ -95,7 +95,7 @@ internal class KeyboardViewModel(
         layerDelegate.preloadLayouts(state.languages.map { it.code })
         observeSuggestions()
 
-        val languageCode = state.selectedLanguage?.code
+        val languageCode = state.activeLanguage?.code
 
         viewModelScope.launch {
             emojiDelegate.prefetchVariants()

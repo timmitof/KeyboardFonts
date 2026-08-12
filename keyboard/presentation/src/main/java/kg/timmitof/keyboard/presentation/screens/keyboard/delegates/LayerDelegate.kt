@@ -33,7 +33,7 @@ internal class LayerDelegate(
             ?.takeIf { layer == KeyboardLayer.LETTERS }
             ?.let { return keyboardLayoutRepository.getLayout(it) }
 
-        val layoutName = if (layer.usesLanguageLayout) selectedLanguage?.code else layer.fixedLayoutName
+        val layoutName = if (layer.usesLanguageLayout) activeLanguage?.code else layer.fixedLayoutName
         val layout = layoutName?.let { keyboardLayoutRepository.getLayout(it) } ?: return null
 
         if (layer != KeyboardLayer.LETTERS) return layout

@@ -9,8 +9,10 @@ import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardState
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.ShiftState
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.isUpperCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.mapLatest
 
@@ -31,13 +33,29 @@ internal class SuggestionsDelegate(
 
     private val requests = MutableStateFlow<SuggestionRequest?>(null)
 
-    @OptIn(ExperimentalCoroutinesApi::class)
+    /**
+     * Подсказки считаются в фоне, с паузой в несколько кадров: при быстром наборе
+     * промежуточные слова всё равно никто не увидит, а словарь перебирать дорого.
+     */
+    @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
     val suggestions: Flow<List<WordSuggestion>> = requests
         .filterNotNull()
+        .debounce(CALCULATION_DELAY_MILLIS)
         .mapLatest(suggestionRepository::suggest)
 
-    /** Новый снимок текста: пересчитать подсказки и поправить Shift. */
-    suspend fun KeyboardSyntax.applyTextContext(context: TextContext) {
+    /** Снимок текста от поля ввода: пересчитать подсказки и поправить Shift. */
+    suspend fun KeyboardSyntax.applyTextContext(context: TextContext) = updateContext(context)
+
+    /**
+     * Клавиатура сама изменила текст и знает результат — обновляем снимок сразу.
+     *
+     * Ответ поля придёт позже отдельным событием и просто подтвердит то же самое,
+     * а до тех пор подсказки и авто-Shift уже считаются по актуальному тексту.
+     */
+    suspend fun KeyboardSyntax.applyLocalEdit(edit: (TextContext) -> TextContext) =
+        updateContext(edit(state.textContext))
+
+    private suspend fun KeyboardSyntax.updateContext(context: TextContext) {
         if (state.textContext == context) return
 
         reduce { state.copy(textContext = context, shiftState = state.autoShift(context)) }
@@ -65,7 +83,7 @@ internal class SuggestionsDelegate(
 
     /** Пересобирает запрос под текущее состояние; в неподходящих полях — гасит подсказки. */
     suspend fun KeyboardSyntax.requestSuggestions() {
-        val languageCode = state.selectedLanguage?.code
+        val languageCode = state.activeLanguage?.code
         if (languageCode == null || !state.allowsSuggestions) {
             requests.value = null
             if (state.suggestions.isNotEmpty()) reduce { state.copy(suggestions = emptyList()) }
@@ -85,7 +103,7 @@ internal class SuggestionsDelegate(
      * клавиатура и подстраивается под конкретного человека и разговор.
      */
     suspend fun learnWord(state: KeyboardState, word: String) {
-        val languageCode = state.selectedLanguage?.code ?: return
+        val languageCode = state.activeLanguage?.code ?: return
         if (!state.allowsSuggestions) return
 
         suggestionRepository.learn(
@@ -98,13 +116,24 @@ internal class SuggestionsDelegate(
     suspend fun prefetch(languageCode: String) = suggestionRepository.prefetch(languageCode)
 
     /**
-     * Shift в начале предложения и его сброс внутри слова.
+     * Заглавная буква в начале предложения.
      *
-     * Caps Lock — осознанный выбор пользователя, его не трогаем.
+     * Правило одно: клавиатура решает за пользователя только на **границе слова**.
+     * Стоит курсор в начале предложения — Shift поднят, в середине — опущен.
+     * Внутри уже начатого слова Shift не трогаем совсем: там он мог быть поднят
+     * вручную, чтобы написать имя с большой буквы, и перебивать это нельзя.
+     *
+     * Caps Lock — тоже осознанный выбор, его не сбрасываем никогда.
      */
     private fun KeyboardState.autoShift(context: TextContext): ShiftState = when {
         shiftState == ShiftState.CAPS_LOCK || !fieldType.autoCapitalize -> shiftState
-        context.composingWord.isEmpty() && context.isSentenceStart -> ShiftState.ACTIVE
+        context.composingWord.isNotEmpty() -> shiftState
+        context.isSentenceStart -> ShiftState.ACTIVE
         else -> ShiftState.DISABLED
+    }
+
+    private companion object {
+        /** Пауза перед расчётом: примерно три кадра, на глаз незаметно. */
+        const val CALCULATION_DELAY_MILLIS = 45L
     }
 }

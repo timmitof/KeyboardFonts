@@ -6,6 +6,7 @@ import kg.timmitof.core.ui.base.BaseEvent
 import kg.timmitof.core.ui.base.BaseSideEffect
 import kg.timmitof.core.ui.base.BaseState
 import kg.timmitof.keyboard.domain.model.EmojiCategory
+import kg.timmitof.keyboard.domain.model.KeyCharacter
 import kg.timmitof.keyboard.domain.model.KeyboardFont
 import kg.timmitof.keyboard.domain.model.KeyboardLanguage
 import kg.timmitof.keyboard.domain.model.KeyboardLayout
@@ -19,6 +20,7 @@ internal data class KeyboardState(
     val keyboardLayout: KeyboardLayout = KeyboardLayout(name = "", rows = emptyList()),
     val languages: List<KeyboardLanguage> = emptyList(),
     val selectedLanguage: KeyboardLanguage? = null,
+    val fieldLanguage: KeyboardLanguage? = null,
     val fonts: List<KeyboardFont> = emptyList(),
     val selectedFont: KeyboardFont = KeyboardFont.Default,
     val isFontsExpanded: Boolean = true,
@@ -38,6 +40,27 @@ internal data class KeyboardState(
 ): BaseState() {
 
     val fieldType: KeyboardFieldType get() = fieldContext.type
+
+    /**
+     * Раскладка, которой набирают прямо сейчас.
+     *
+     * В адресе почты и пароле клавиатура сама встаёт на латиницу, но выбор
+     * пользователя главнее: как только он сменит язык руками, [fieldLanguage]
+     * сбрасывается и снова действует [selectedLanguage].
+     */
+    val activeLanguage: KeyboardLanguage? get() = fieldLanguage ?: selectedLanguage
+
+    /**
+     * Латинская раскладка, которой поле [type] нужно открыть вместо выбранной.
+     *
+     * `null` — подмена не нужна: поле принимает любой алфавит либо пользователь
+     * и так набирает латиницей.
+     */
+    fun latinLanguageFor(type: KeyboardFieldType): KeyboardLanguage? {
+        if (!type.requiresLatinLayout || selectedLanguage?.isLatin != false) return null
+
+        return languages.firstOrNull(KeyboardLanguage::isLatin)
+    }
 
     val enterAction: EnterAction get() = fieldContext.enterAction
 
@@ -108,7 +131,7 @@ sealed class KeyboardSideEffect : BaseSideEffect.UiSideEffect() {
 }
 
 internal sealed class KeyboardEvent : BaseEvent.UiEvent() {
-    data class OnKeySelect(val char: String) : KeyboardEvent()
+    data class OnKeySelect(val character: KeyCharacter) : KeyboardEvent()
     data class OnEmojiSelect(val emoji: String) : KeyboardEvent()
     data class OnEmojiVariantSelect(val base: String, val variant: String) : KeyboardEvent()
     data object OnInputSessionChange : KeyboardEvent()

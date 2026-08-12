@@ -97,7 +97,7 @@ private fun EmojiLayer(
     EmojiPanel(
         categories = state.value.emojiCategories,
         recentEmojis = state.value.recentEmojis,
-        selectedLanguage = state.value.selectedLanguage,
+        selectedLanguage = state.value.activeLanguage,
         onEvent = onEvent,
         emojiVariants = state.value.emojiVariants,
         preferredVariants = state.value.preferredEmojiVariants
