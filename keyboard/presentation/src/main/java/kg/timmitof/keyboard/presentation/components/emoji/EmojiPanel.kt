@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -23,9 +24,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kg.timmitof.keyboard.domain.model.EmojiCategory
@@ -42,12 +45,31 @@ import kg.timmitof.keyboard.presentation.theme.KeyboardTheme
 import kotlinx.coroutines.launch
 
 /** Высоты частей панели. */
-private val SearchFieldHeight = 36.dp
+private val SearchFieldHeight = 42.dp
 private val TabsBarHeight = 34.dp
-private val BottomRowHeight = 40.dp
+private val BottomRowHeight = 60.dp
+private val SearchGridSpacing = 6.dp
+private val GridTabsSpacing = 4.dp
+
+/** Высота всего, кроме сетки: поиск, зазоры, табы и нижний ряд. */
+private val EmojiChromeHeight =
+    SearchFieldHeight + SearchGridSpacing + GridTabsSpacing + TabsBarHeight + BottomRowHeight
+
+/** Сколько целых рядов эмодзи показываем, если высота экрана позволяет. */
+private const val PreferredGridRows = 5
+
+/** Минимум рядов — ниже этого сетка не опускается даже на низком экране. */
+private const val MinGridRows = 3
+
+/** Доля высоты экрана, которую панель старается не переступать. */
+private const val MaxScreenFraction = 0.55f
 
 /**
  * Панель эмодзи.
+ *
+ * Высота не фиксирована: сетка получает столько целых рядов, сколько влезает
+ * в [MaxScreenFraction] высоты экрана, но не меньше зоны клавиш ABC-слоя —
+ * так панель не «съезжает» вниз при переключении и не режет ряд пополам.
  */
 @Composable
 internal fun EmojiPanel(
@@ -72,46 +94,73 @@ internal fun EmojiPanel(
         derivedStateOf { index.sectionAt(gridState.firstVisibleItemIndex) }
     }
 
-    Column(modifier = modifier.fillMaxWidth()) {
-        EmojiSearchField(
-            onClick = { onEvent(KeyboardEvent.OnEmojiSearchOpen) },
-            modifier = Modifier.fillMaxWidth()
-        )
+    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
 
-        Spacer(modifier = Modifier.height(6.dp))
-
-        if (sections.isEmpty()) {
-            EmptyPlaceholder(modifier = Modifier.weight(1f))
-        } else {
-            EmojiSectionsGrid(
-                sections = sections,
-                gridState = gridState,
-                currentSection = currentSection,
-                emojiVariants = emojiVariants,
-                preferredVariants = preferredVariants,
-                onEvent = onEvent,
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth()
-            )
+    BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
+        val gridHeight = remember(maxWidth, screenHeight) {
+            gridHeight(cellSize = maxWidth / EmojiGridColumns, screenHeight = screenHeight)
         }
 
-        Spacer(modifier = Modifier.height(4.dp))
+        Column(modifier = Modifier.fillMaxWidth()) {
+            EmojiSearchField(
+                onClick = { onEvent(KeyboardEvent.OnEmojiSearchOpen) },
+                modifier = Modifier.fillMaxWidth()
+            )
 
-        EmojiTabsBar(
-            sections = sections,
-            selectedIndex = currentSection.value,
-            onTabClick = { section ->
-                scope.launch { gridState.animateScrollToItem(index.itemIndexOf(section)) }
-            },
-            modifier = Modifier.height(TabsBarHeight)
-        )
+            Spacer(modifier = Modifier.height(SearchGridSpacing))
 
-        EmojiBottomRow(
-            selectedLanguage = selectedLanguage,
-            onEvent = onEvent
-        )
+            val gridModifier = Modifier
+                .height(gridHeight)
+                .fillMaxWidth()
+
+            if (sections.isEmpty()) {
+                EmptyPlaceholder(modifier = gridModifier)
+            } else {
+                EmojiSectionsGrid(
+                    sections = sections,
+                    gridState = gridState,
+                    currentSection = currentSection,
+                    emojiVariants = emojiVariants,
+                    preferredVariants = preferredVariants,
+                    onEvent = onEvent,
+                    modifier = gridModifier
+                )
+            }
+
+            Spacer(modifier = Modifier.height(GridTabsSpacing))
+
+            EmojiTabsBar(
+                sections = sections,
+                selectedIndex = currentSection.value,
+                onTabClick = { section ->
+                    scope.launch { gridState.animateScrollToItem(index.itemIndexOf(section)) }
+                },
+                modifier = Modifier.height(TabsBarHeight)
+            )
+
+            EmojiBottomRow(
+                selectedLanguage = selectedLanguage,
+                onEvent = onEvent
+            )
+        }
     }
+}
+
+/**
+ * Высота сетки: целое число рядов плюс место под закреплённый заголовок,
+ * но не ниже зоны клавиш обычного слоя.
+ *
+ * @param cellSize сторона квадратной ячейки эмодзи.
+ * @param screenHeight высота экрана — потолок для панели.
+ */
+private fun gridHeight(cellSize: Dp, screenHeight: Dp): Dp {
+    val minHeight = KeyboardContentHeight - EmojiChromeHeight
+    if (cellSize <= 0.dp) return minHeight
+
+    val available = screenHeight * MaxScreenFraction - EmojiChromeHeight - EmojiSectionHeaderHeight
+    val rows = (available / cellSize).toInt().coerceIn(MinGridRows, PreferredGridRows)
+
+    return (cellSize * rows + EmojiSectionHeaderHeight).coerceAtLeast(minHeight)
 }
 
 /**
@@ -232,7 +281,6 @@ private fun EmojiPanelPreview() {
                 categories = previewCategories,
                 recentEmojis = listOf("😂", "🔥", "❤️", "👍", "🎉"),
                 onEvent = {},
-                modifier = Modifier.height(KeyboardContentHeight),
                 selectedLanguage = KeyboardLanguage(
                     code = "ru_ru",
                     displayName = "Русский",

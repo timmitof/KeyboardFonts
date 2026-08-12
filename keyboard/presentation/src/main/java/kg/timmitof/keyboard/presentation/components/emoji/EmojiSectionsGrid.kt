@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -15,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.State
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -24,7 +26,10 @@ import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardEvent
 import kg.timmitof.keyboard.presentation.theme.KFTheme
 
 /** Колонок в сетке. */
-private const val GridColumns = 8
+internal const val EmojiGridColumns = 8
+
+/** Высота заголовка секции — закреплённый заголовок занимает её поверх сетки. */
+internal val EmojiSectionHeaderHeight = 28.dp
 
 @Immutable
 internal data class EmojiGridIndex(
@@ -65,7 +70,7 @@ internal fun EmojiSectionsGrid(
 ) {
     Box(modifier = modifier) {
         LazyVerticalGrid(
-            columns = GridCells.Fixed(GridColumns),
+            columns = GridCells.Fixed(EmojiGridColumns),
             state = gridState,
             modifier = Modifier.fillMaxSize()
         ) {
@@ -110,12 +115,19 @@ private fun SectionHeader(
     @StringRes titleRes: Int,
     modifier: Modifier = Modifier,
 ) {
-    Text(
-        modifier = modifier.padding(start = 6.dp, top = 9.dp, bottom = 6.dp),
-        text = stringResource(titleRes),
-        fontSize = 9.5.sp,
-        fontWeight = FontWeight.SemiBold,
-        letterSpacing = 0.9.sp,
-        color = KFTheme.color.keySpecialTextColor
-    )
+    Box(
+        modifier = modifier
+            .height(EmojiSectionHeaderHeight)
+            .padding(start = 6.dp),
+        contentAlignment = Alignment.BottomStart
+    ) {
+        Text(
+            modifier = Modifier.padding(bottom = 6.dp),
+            text = stringResource(titleRes),
+            fontSize = 9.5.sp,
+            fontWeight = FontWeight.SemiBold,
+            letterSpacing = 0.9.sp,
+            color = KFTheme.color.keySpecialTextColor
+        )
+    }
 }

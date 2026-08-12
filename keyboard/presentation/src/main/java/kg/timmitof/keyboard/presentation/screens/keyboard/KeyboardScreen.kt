@@ -13,7 +13,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kg.timmitof.keyboard.domain.model.KeyboardLayout
 import kg.timmitof.keyboard.presentation.components.KeyRowSpacing
-import kg.timmitof.keyboard.presentation.components.KeyboardContentHeight
 import kg.timmitof.keyboard.presentation.components.KeyboardRows
 import kg.timmitof.keyboard.presentation.components.emoji.EmojiPanel
 import kg.timmitof.keyboard.presentation.components.emoji.EmojiSearchBar
@@ -100,7 +99,6 @@ private fun EmojiLayer(
         recentEmojis = state.value.recentEmojis,
         selectedLanguage = state.value.selectedLanguage,
         onEvent = onEvent,
-        modifier = Modifier.height(KeyboardContentHeight),
         emojiVariants = state.value.emojiVariants,
         preferredVariants = state.value.preferredEmojiVariants
     )
