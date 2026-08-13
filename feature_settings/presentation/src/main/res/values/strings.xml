@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="settings_title">Настройки клавиатуры</string>
+
+    <!-- Клавиатура Fonts -->
+    <string name="settings_section_app">Клавиатура Fonts</string>
+    <string name="settings_check_title">Проверить клавиатуру</string>
+    <string name="settings_check_description">Подключение и тестовые поля ввода</string>
+    <string name="settings_check_ready">Подключена</string>
+    <string name="settings_check_not_ready">Не подключена</string>
+
+    <!-- Ввод текста -->
+    <string name="settings_section_input">Ввод текста</string>
+    <string name="settings_suggestions_title">Подсказки слов (T9)</string>
+    <string name="settings_suggestions_description">Строка над клавишами предлагает варианты</string>
+    <string name="settings_suggestions_description_off">Выключено — строка отдана шрифтам</string>
+    <string name="settings_autocorrect_title">Автокоррекция</string>
+    <string name="settings_autocorrect_description">Исправлять опечатки при вводе пробела</string>
+    <string name="settings_space_commit_title">Подстановка пробелом</string>
+    <string name="settings_space_commit_description">Пробел принимает выделенную подсказку</string>
+    <string name="settings_next_word_title">Предсказание следующего слова</string>
+    <string name="settings_learn_title">Учиться на моём тексте</string>
+    <string name="settings_learn_description">Личный словарь пополняется тем, что вы пишете</string>
+
+    <!-- Шрифты -->
+    <string name="settings_section_fonts">Шрифты</string>
+    <string name="settings_styled_fonts_title">Стилизованные шрифты</string>
+    <string name="settings_styled_fonts_description">Панель со шрифтами над клавишами</string>
+    <string name="settings_font_set_title">Набор шрифтов</string>
+    <string name="settings_font_set_description">Порядок и видимость в панели</string>
+    <string name="settings_font_set_value">Все %1$d</string>
+    <string name="settings_remember_font_title">Запоминать выбранный шрифт</string>
+
+    <!-- Клавиатура -->
+    <string name="settings_section_keyboard">Клавиатура</string>
+    <string name="settings_languages_title">Языки и раскладки</string>
+    <string name="settings_size_title">Размер и высота</string>
+    <string name="settings_size_description">С предпросмотром клавиатуры</string>
+    <string name="settings_size_value">Средняя</string>
+    <string name="settings_digits_row_title">Цифровой ряд</string>
+    <string name="settings_digits_row_description">Отдельная строка цифр сверху</string>
+    <string name="settings_theme_title">Тема</string>
+    <string name="settings_theme_auto">Авто</string>
+    <string name="settings_theme_light">Светлая</string>
+    <string name="settings_theme_dark">Тёмная</string>
+
+    <!-- Отклик -->
+    <string name="settings_section_feedback">Отклик</string>
+    <string name="settings_vibration_title">Вибрация при нажатии</string>
+    <string name="settings_sound_title">Звук нажатия</string>
+    <string name="settings_key_preview_title">Всплывающий предпросмотр клавиши</string>
+
+    <!-- Скоро -->
+    <string name="settings_section_soon">Скоро</string>
+    <string name="settings_soon_badge">Скоро</string>
+    <string name="settings_translator_title">Переводчик</string>
+    <string name="settings_translator_description">Перевод текста прямо в поле ввода</string>
+    <string name="settings_voice_title">Голосовой ввод</string>
+
+</resources>

@@ -39,7 +39,9 @@ internal class LayerDelegate(
         if (layer != KeyboardLayer.LETTERS) return layout
 
         val bottomRow = bottomRowVariant?.let { keyboardLayoutRepository.getBottomRow(it) }
-        return bottomRow?.let(layout::withBottomRow) ?: layout
+        val letters = bottomRow?.let(layout::withBottomRow) ?: layout
+
+        return if (settings.isDigitsRowEnabled) letters.withDigitsRow() else letters
     }
 
     /** Прогревает кэш раскладок (языковых и фиксированных), чтобы переключение было мгновенным. */

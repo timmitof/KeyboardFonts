@@ -67,7 +67,8 @@ internal class TextInputDelegate(
         }
 
         val typed = state.textContext.composingWord
-        val correction = typed.takeIf { it.isNotEmpty() }
+        // Подстановку пробелом можно выключить: тогда подсказки остаются, но принимает их только тап.
+        val correction = typed.takeIf { it.isNotEmpty() && state.settings.isSpaceCommitsEnabled }
             ?.let { suggestionsDelegate.awaitCorrection(state) }
 
         if (correction != null) {

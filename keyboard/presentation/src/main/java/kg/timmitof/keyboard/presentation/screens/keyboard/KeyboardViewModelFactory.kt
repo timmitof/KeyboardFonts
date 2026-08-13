@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import kg.timmitof.keyboard.domain.repository.EmojiRepository
 import kg.timmitof.keyboard.domain.repository.FontRepository
 import kg.timmitof.keyboard.domain.repository.KeyboardLayoutRepository
+import kg.timmitof.keyboard.domain.repository.KeyboardSettingsRepository
 import kg.timmitof.keyboard.domain.repository.LanguageRepository
 import kg.timmitof.keyboard.domain.repository.SuggestionRepository
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.EmojiDelegate
@@ -12,6 +13,7 @@ import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.FieldContext
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.FontDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.LanguageDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.LayerDelegate
+import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.SettingsDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.SuggestionsDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.TextInputDelegate
 
@@ -21,6 +23,7 @@ class KeyboardViewModelFactory(
     private val languageRepository: LanguageRepository,
     private val fontRepository: FontRepository,
     private val suggestionRepository: SuggestionRepository,
+    private val keyboardSettingsRepository: KeyboardSettingsRepository,
 ) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -38,6 +41,7 @@ class KeyboardViewModelFactory(
                 fontDelegate = FontDelegate(fontRepository),
                 fieldContextDelegate = FieldContextDelegate(layerDelegate),
                 suggestionsDelegate = suggestionsDelegate,
+                settingsDelegate = SettingsDelegate(keyboardSettingsRepository),
             ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")

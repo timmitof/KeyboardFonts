@@ -9,6 +9,7 @@ import kg.timmitof.keyboard.domain.model.TextContext
 import kg.timmitof.keyboard.domain.repository.EmojiRepository
 import kg.timmitof.keyboard.domain.repository.FontRepository
 import kg.timmitof.keyboard.domain.repository.KeyboardLayoutRepository
+import kg.timmitof.keyboard.domain.repository.KeyboardSettingsRepository
 import kg.timmitof.keyboard.domain.repository.LanguageRepository
 import kg.timmitof.keyboard.domain.repository.SuggestionRepository
 import kg.timmitof.keyboard.presentation.KeyboardFontsView
@@ -34,6 +35,9 @@ internal class KeyboardFontsService : ComposeInputMethodService() {
     @Inject
     lateinit var suggestionRepository: SuggestionRepository
 
+    @Inject
+    lateinit var keyboardSettingsRepository: KeyboardSettingsRepository
+
     private val actionHandler = KeyboardActionHandler(
         inputConnectionProvider = { currentInputConnection },
         editorInfoProvider = { currentInputEditorInfo },
@@ -54,6 +58,7 @@ internal class KeyboardFontsService : ComposeInputMethodService() {
             languageRepository = languageRepository,
             fontRepository = fontRepository,
             suggestionRepository = suggestionRepository,
+            keyboardSettingsRepository = keyboardSettingsRepository,
         ),
         onKeyboardAction = ::applyAction,
     ).also { keyboardView = it }

@@ -157,7 +157,8 @@ internal fun RowScope.KeyboardKeyButton(
                 onDismiss = { isPickerVisible = false }
             )
 
-            isPressed -> KeyPressPreview(label = displayLabel)
+            isPressed && LocalKeyFeedback.current.isPreviewEnabled ->
+                KeyPressPreview(label = displayLabel)
         }
     }
 }

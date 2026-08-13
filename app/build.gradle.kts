@@ -46,6 +46,7 @@ dependencies {
 
     implementation(project(":feature_splash:feature_splash_presentation"))
     implementation(project(":feature_home:feature_home_presentation"))
+    implementation(project(":feature_settings:feature_settings_presentation"))
 
     implementation(project(":core:common"))
     implementation(project(":core:data"))

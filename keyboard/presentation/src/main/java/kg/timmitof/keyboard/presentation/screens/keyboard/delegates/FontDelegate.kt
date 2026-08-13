@@ -11,7 +11,11 @@ internal class FontDelegate(
     /** Загружает каталог шрифтов и сохранённый выбор в состояние. */
     suspend fun KeyboardSyntax.loadFonts() {
         val fonts = fontRepository.getFonts()
-        val selected = fontRepository.getSelectedFont()
+        val selected = if (state.settings.isFontRemembered) {
+            fontRepository.getSelectedFont()
+        } else {
+            KeyboardFont.Default
+        }
         reduce { state.copy(fonts = fonts, selectedFont = selected) }
     }
 
@@ -35,9 +39,22 @@ internal class FontDelegate(
      * Разворачивает карусель шрифтов на всю верхнюю панель или сворачивает её в кнопку «Aa».
      */
     suspend fun KeyboardSyntax.setFontsExpanded(expanded: Boolean) {
-        val target = expanded && state.fieldType.allowsFonts
+        val target = expanded && state.allowsFonts
         if (state.isFontsExpanded != target) {
             reduce { state.copy(isFontsExpanded = target) }
         }
+    }
+
+    /**
+     * Возврат к обычному шрифту в начале сессии ввода.
+     *
+     * Нужен, когда «Запоминать выбранный шрифт» выключено: выбор действует
+     * до конца текущего сообщения и не переносится в следующее поле.
+     */
+    suspend fun KeyboardSyntax.forgetFontIfNeeded() {
+        if (state.settings.isFontRemembered || state.selectedFont.isDefault) return
+
+        val default = state.fonts.firstOrNull(KeyboardFont::isDefault) ?: KeyboardFont.Default
+        reduce { state.copy(selectedFont = default) }
     }
 }

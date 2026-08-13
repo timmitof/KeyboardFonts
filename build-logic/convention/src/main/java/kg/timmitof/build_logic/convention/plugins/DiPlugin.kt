@@ -26,9 +26,15 @@ class DiPlugin : Plugin<Project> {
             implementation(libs.findLibrary("hilt-android").get())
             ksp(libs.findLibrary("hilt-compiler").get())
 
-            implementation(project(featureModulePath("domain")))
-            implementation(project(featureModulePath("data")))
+            // Слои подключаются, только если они есть: фича может не иметь своего data.
+            featureModuleIfExists("domain")?.let { implementation(project(it)) }
+            featureModuleIfExists("data")?.let { implementation(project(it)) }
             implementation(project(":core:common"))
         }
+    }
+
+    private fun Project.featureModuleIfExists(name: String): String? {
+        val path = featureModulePath(name)
+        return if (findProject(path) != null) path else null
     }
 }

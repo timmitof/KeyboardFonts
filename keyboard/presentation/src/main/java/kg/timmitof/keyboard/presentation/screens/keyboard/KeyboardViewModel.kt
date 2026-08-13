@@ -8,6 +8,7 @@ import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.FieldContext
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.FontDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.LanguageDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.LayerDelegate
+import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.SettingsDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.SuggestionsDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.TextInputDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardEvent
@@ -34,6 +35,7 @@ internal class KeyboardViewModel(
     private val fontDelegate: FontDelegate,
     private val fieldContextDelegate: FieldContextDelegate,
     private val suggestionsDelegate: SuggestionsDelegate,
+    private val settingsDelegate: SettingsDelegate,
 ) : BaseViewModel<KeyboardState, KeyboardSideEffect, KeyboardEvent>(KeyboardState()) {
 
     override fun onEvent(event: KeyboardEvent) {
@@ -88,12 +90,15 @@ internal class KeyboardViewModel(
     }
 
     override suspend fun Syntax<KeyboardState, BaseSideEffect>.onBootstrap() {
+        // Настройки первыми: от них зависят и шрифт по умолчанию, и вид раскладки.
+        with(settingsDelegate) { loadSettings() }
         with(languageDelegate) { loadLanguages() }
         with(fontDelegate) { loadFonts() }
         with(layerDelegate) { applyLayer(KeyboardLayer.LETTERS) }
 
         layerDelegate.preloadLayouts(state.languages.map { it.code })
         observeSuggestions()
+        observeSettings()
 
         val languageCode = state.activeLanguage?.code
 
@@ -112,6 +117,24 @@ internal class KeyboardViewModel(
             .launchIn(viewModelScope)
     }
 
+    /**
+     * Настройки правит другой процесс — приложение.
+     *
+     * Раскладка пересобирается вместе с ними: цифровой ряд появляется и исчезает
+     * сразу, не дожидаясь следующего открытия клавиатуры.
+     */
+    private fun observeSettings() {
+        settingsDelegate.settings
+            .onEach { settings ->
+                intent {
+                    with(settingsDelegate) { applySettings(settings) }
+                    with(layerDelegate) { applyLayer(state.layer) }
+                    with(suggestionsDelegate) { requestSuggestions() }
+                }
+            }
+            .launchIn(viewModelScope)
+    }
+
     private fun prefetchSearchIndex() = viewModelScope.launch {
         emojiDelegate.prefetchSearchIndex()
     }
@@ -124,12 +147,13 @@ internal class KeyboardViewModel(
      */
     private fun resetInputSession() = intent {
         with(textInputDelegate) { resetShift() }
+        with(fontDelegate) { forgetFontIfNeeded() }
         reduce {
             state.copy(
                 suggestions = emptyList(),
                 suggestionsWord = "",
                 autoCorrection = null,
-                isFontsExpanded = state.fieldType.allowsFonts,
+                isFontsExpanded = state.allowsFonts,
             )
         }
 

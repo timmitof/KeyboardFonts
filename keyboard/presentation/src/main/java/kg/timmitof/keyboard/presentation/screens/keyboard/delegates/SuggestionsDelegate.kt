@@ -118,11 +118,14 @@ internal class SuggestionsDelegate(
         val languageCode = activeLanguage?.code ?: return null
         if (!allowsSuggestions) return null
 
+        // Слово ещё не начато — это предсказание следующего, а его можно выключить.
+        if (textContext.composingWord.isEmpty() && !settings.isNextWordPredictionEnabled) return null
+
         return SuggestionRequest(
             languageCode = languageCode,
             context = textContext,
             isShifted = shiftState.isUpperCase(),
-            allowsAutoCorrect = fieldType.allowsAutoCorrect,
+            allowsAutoCorrect = fieldType.allowsAutoCorrect && settings.isAutoCorrectEnabled,
         )
     }
 
@@ -132,7 +135,7 @@ internal class SuggestionsDelegate(
      */
     suspend fun learnWord(state: KeyboardState, word: String) {
         val languageCode = state.activeLanguage?.code ?: return
-        if (!state.allowsSuggestions) return
+        if (!state.allowsSuggestions || !state.settings.isLearningEnabled) return
 
         suggestionRepository.learn(
             languageCode = languageCode,

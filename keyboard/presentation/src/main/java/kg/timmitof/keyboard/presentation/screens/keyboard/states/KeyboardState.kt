@@ -10,6 +10,7 @@ import kg.timmitof.keyboard.domain.model.KeyCharacter
 import kg.timmitof.keyboard.domain.model.KeyboardFont
 import kg.timmitof.keyboard.domain.model.KeyboardLanguage
 import kg.timmitof.keyboard.domain.model.KeyboardLayout
+import kg.timmitof.keyboard.domain.model.KeyboardSettings
 import kg.timmitof.keyboard.domain.model.TextContext
 import kg.timmitof.keyboard.domain.model.WordSuggestion
 import kg.timmitof.keyboard.presentation.R
@@ -38,6 +39,7 @@ internal data class KeyboardState(
     val suggestionsWord: String = "",
     val autoCorrection: AutoCorrection? = null,
     val isCursorMode: Boolean = false,
+    val settings: KeyboardSettings = KeyboardSettings(),
 ): BaseState() {
 
     val fieldType: KeyboardFieldType get() = fieldContext.type
@@ -75,13 +77,20 @@ internal data class KeyboardState(
             else -> enterAction
         }
 
-    /** Шрифт, который реально применяется: в адресах, паролях и цифрах ввод остаётся обычным. */
-    val activeFont: KeyboardFont
-        get() = if (fieldType.allowsFonts) selectedFont else KeyboardFont.Default
+    /**
+     * Нужна ли панель шрифтов: её убирают и настройки, и само поле —
+     * в адресах, паролях и цифрах стилизация только мешает.
+     */
+    val allowsFonts: Boolean
+        get() = settings.isFontsPanelEnabled && fieldType.allowsFonts
 
-    /** Работает ли Т9 прямо сейчас: и поле, и слой должны это позволять. */
+    /** Шрифт, который реально применяется: там, где панели нет, ввод остаётся обычным. */
+    val activeFont: KeyboardFont
+        get() = if (allowsFonts) selectedFont else KeyboardFont.Default
+
+    /** Работает ли Т9 прямо сейчас: его разрешают настройки, поле и слой. */
     val allowsSuggestions: Boolean
-        get() = fieldType.allowsSuggestions && layer.showsSuggestions
+        get() = settings.isSuggestionsEnabled && fieldType.allowsSuggestions && layer.showsSuggestions
 
     /** Показывать ли подсказки слов вместо шрифтов. */
     val hasSuggestions: Boolean

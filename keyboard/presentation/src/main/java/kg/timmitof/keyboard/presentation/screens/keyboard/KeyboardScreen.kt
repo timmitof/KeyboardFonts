@@ -8,12 +8,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kg.timmitof.keyboard.domain.model.KeyboardLayout
 import kg.timmitof.keyboard.presentation.components.KeyRowSpacing
 import kg.timmitof.keyboard.presentation.components.KeyboardRows
+import kg.timmitof.keyboard.presentation.components.keys.LocalKeyFeedback
+import kg.timmitof.keyboard.presentation.components.keys.rememberKeyFeedback
 import kg.timmitof.keyboard.presentation.components.emoji.EmojiPanel
 import kg.timmitof.keyboard.presentation.components.emoji.EmojiSearchBar
 import kg.timmitof.keyboard.presentation.components.topbar.KeyboardTopBar
@@ -28,10 +34,16 @@ import org.orbitmvi.orbit.compose.collectAsState
 internal fun KeyboardFontsScreen(viewModel: KeyboardViewModel) {
     val state = viewModel.collectAsState()
 
-    KeyboardContent(
-        state = state,
-        onEvent = viewModel::onEvent
-    )
+    // Настройки меняются редко: derivedStateOf отсекает от них поток нажатий,
+    // иначе отклик пересобирался бы на каждую букву.
+    val settings by remember { derivedStateOf { state.value.settings } }
+
+    CompositionLocalProvider(LocalKeyFeedback provides rememberKeyFeedback(settings)) {
+        KeyboardContent(
+            state = state,
+            onEvent = viewModel::onEvent
+        )
+    }
 }
 
 /** Каркас клавиатуры: фон + переключение между слоями */

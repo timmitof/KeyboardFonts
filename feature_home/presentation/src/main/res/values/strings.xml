@@ -2,6 +2,7 @@
 <resources>
 
     <string name="app_title">Keyboard Fonts</string>
+    <string name="check_keyboard_title">Проверить клавиатуру</string>
 
     <string name="content_description_keyboard_off">Открыть панель для включения клавиатуры</string>
     <string name="content_description_keyboard_on">Клавиатура подключена</string>

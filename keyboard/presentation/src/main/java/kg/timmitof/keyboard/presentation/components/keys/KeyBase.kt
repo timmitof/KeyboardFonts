@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -51,6 +52,12 @@ internal fun KeyBase(
 ) {
     val source = remember(interactionSource) { interactionSource ?: MutableInteractionSource() }
     val isPressed by source.collectIsPressedAsState()
+
+    // Вибрация и звук — на касание, а не на ввод: отклик должен опережать символ.
+    val feedback = LocalKeyFeedback.current
+    LaunchedEffect(isPressed) {
+        if (isPressed) feedback.onKeyPress()
+    }
 
     val scale by animateFloatAsState(
         targetValue = if (isPressed) 0.92f else 1f,

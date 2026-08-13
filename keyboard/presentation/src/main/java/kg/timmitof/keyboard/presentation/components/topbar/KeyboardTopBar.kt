@@ -53,7 +53,7 @@ internal fun KeyboardTopBar(
             TopBarMode.CURSOR -> CursorModeHint()
 
             TopBarMode.SUGGESTIONS -> TopBarRow {
-                if (state.value.fieldType.allowsFonts) {
+                if (state.value.allowsFonts) {
                     FontToggleButton(
                         preview = state.value.selectedFont.apply(FontPreviewText),
                         onClick = { onEvent(KeyboardEvent.OnFontsExpandedChange(true)) }
@@ -81,7 +81,7 @@ internal fun KeyboardTopBar(
             }
 
             TopBarMode.IDLE -> TopBarRow {
-                if (state.value.fieldType.allowsFonts) {
+                if (state.value.allowsFonts) {
                     FontToggleButton(
                         preview = state.value.selectedFont.apply(FontPreviewText),
                         onClick = { onEvent(KeyboardEvent.OnFontsExpandedChange(true)) }

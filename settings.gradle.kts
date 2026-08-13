@@ -63,4 +63,5 @@ include(
 )
 
 includeFeature("home")
+includeFeature("settings")
 includeFeature("splash")
