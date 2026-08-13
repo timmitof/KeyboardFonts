@@ -44,6 +44,7 @@ internal class KeyboardFontsService : ComposeInputMethodService() {
     lateinit var clipboardRepository: ClipboardRepository
 
     private val actionHandler = KeyboardActionHandler(
+        context = this,
         inputConnectionProvider = { currentInputConnection },
         editorInfoProvider = { currentInputEditorInfo },
     )
@@ -141,6 +142,8 @@ internal class KeyboardFontsService : ComposeInputMethodService() {
     private val KeyboardSideEffect.Input.needsTextResync: Boolean
         get() = when (this) {
             is KeyboardSideEffect.Input.CommitText,
+            is KeyboardSideEffect.Input.SetComposingText,
+            is KeyboardSideEffect.Input.FinishComposing,
             is KeyboardSideEffect.Input.SelectBeforeCursor,
                 -> false
 

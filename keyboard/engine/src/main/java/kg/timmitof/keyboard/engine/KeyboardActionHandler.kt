@@ -1,7 +1,11 @@
 package kg.timmitof.keyboard.engine
 
+import android.content.Context
 import android.icu.text.BreakIterator
 import android.os.SystemClock
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.SuggestionSpan
 import android.view.KeyEvent
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.ExtractedTextRequest
@@ -15,10 +19,12 @@ import kotlin.math.abs
  * [InputConnection] и [EditorInfo] запрашиваются через провайдеры на каждое действие,
  * потому что у IME они меняются при каждой смене поля ввода
  *
+ * @param context нужен спану подсказки — по нему он берёт локаль
  * @param inputConnectionProvider доступ к актуальному [InputConnection]
  * @param editorInfoProvider доступ к актуальному [EditorInfo]
  */
 internal class KeyboardActionHandler(
+    private val context: Context,
     private val inputConnectionProvider: () -> InputConnection?,
     private val editorInfoProvider: () -> EditorInfo?,
 ) {
@@ -27,6 +33,10 @@ internal class KeyboardActionHandler(
         val connection = inputConnectionProvider() ?: return
         when (action) {
             is KeyboardSideEffect.Input.CommitText -> connection.commitText(action.char, 1)
+            is KeyboardSideEffect.Input.SetComposingText ->
+                connection.setComposingText(action.text.withCorrectionHint(action.hasCorrection), 1)
+
+            is KeyboardSideEffect.Input.FinishComposing -> connection.finishComposingText()
             is KeyboardSideEffect.Input.ReplaceWordBeforeCursor -> connection.replaceWordBeforeCursor(action.text)
             is KeyboardSideEffect.Input.ReplaceTextBeforeCursor -> connection.replaceBeforeCursor(action.chars, action.text)
             is KeyboardSideEffect.Input.MoveCursor -> connection.moveCursor(action.horizontal, action.vertical)
@@ -35,6 +45,22 @@ internal class KeyboardActionHandler(
             is KeyboardSideEffect.Input.SelectBeforeCursor -> connection.selectBeforeCursor(action.chars)
             is KeyboardSideEffect.Input.PerformEditorAction -> connection.performEnter()
             is KeyboardSideEffect.Input.DeleteSelection -> connection.commitText("", 1)
+        }
+    }
+
+    /**
+     * Помечает черновик как «будет исправлен».
+     */
+    private fun CharSequence.withCorrectionHint(hasCorrection: Boolean): CharSequence {
+        if (!hasCorrection) return this
+
+        return SpannableString(this).apply {
+            setSpan(
+                SuggestionSpan(context, arrayOf(), SuggestionSpan.FLAG_AUTO_CORRECTION),
+                0,
+                length,
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
+            )
         }
     }
 

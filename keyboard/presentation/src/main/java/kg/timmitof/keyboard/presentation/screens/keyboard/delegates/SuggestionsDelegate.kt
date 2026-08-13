@@ -5,6 +5,7 @@ import kg.timmitof.keyboard.domain.model.TextContext
 import kg.timmitof.keyboard.domain.model.WordSuggestion
 import kg.timmitof.keyboard.domain.repository.SuggestionRepository
 import kg.timmitof.keyboard.presentation.screens.keyboard.KeyboardSyntax
+import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardSideEffect
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardState
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.ShiftState
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.isUpperCase
@@ -87,6 +88,21 @@ internal class SuggestionsDelegate(
                 isFontsExpanded = state.isFontsExpanded && !collapseFonts,
             )
         }
+        markComposingCorrection(suggestions)
+    }
+
+    /**
+     * Помечает черновик в поле как «будет исправлен»
+     */
+    private suspend fun KeyboardSyntax.markComposingCorrection(suggestions: List<WordSuggestion>) {
+        val composing = state.composing
+        if (!composing.isActive) return
+
+        val hasCorrection = suggestions.any(WordSuggestion::isAutoCorrect)
+        if (composing.hasCorrection == hasCorrection) return
+
+        postSideEffect(KeyboardSideEffect.Input.SetComposingText(composing.text, hasCorrection))
+        reduce { state.copy(composing = composing.copy(hasCorrection = hasCorrection)) }
     }
 
     /** Пересобирает запрос под текущее состояние; в неподходящих полях — гасит подсказки. */

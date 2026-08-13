@@ -12,6 +12,7 @@ import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.LayerDelegat
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.SettingsDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.SuggestionsDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.TextInputDelegate
+import kg.timmitof.keyboard.presentation.screens.keyboard.states.ComposingText
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardEvent
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardLayer
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardOverlay
@@ -69,13 +70,20 @@ internal class KeyboardViewModel(
             }
             is KeyboardEvent.OnEmojiSwitch -> {
                 intent {
+                    with(textInputDelegate) { closeComposing() }
                     with(emojiDelegate) { openEmojiPanel() }
                     with(suggestionsDelegate) { requestSuggestions() }
                 }
                 prefetchSearchIndex()
             }
-            is KeyboardEvent.OnEmojiSelect -> intent { with(emojiDelegate) { selectEmoji(event.emoji) } }
-            is KeyboardEvent.OnEmojiVariantSelect -> intent { with(emojiDelegate) { selectVariant(event.base, event.variant) } }
+            is KeyboardEvent.OnEmojiSelect -> intent {
+                with(textInputDelegate) { closeComposing() }
+                with(emojiDelegate) { selectEmoji(event.emoji) }
+            }
+            is KeyboardEvent.OnEmojiVariantSelect -> intent {
+                with(textInputDelegate) { closeComposing() }
+                with(emojiDelegate) { selectVariant(event.base, event.variant) }
+            }
             is KeyboardEvent.OnEmojiSearchOpen -> intent { with(emojiDelegate) { openSearch() } }
             is KeyboardEvent.OnEmojiSearchClose -> intent {
                 with(layerDelegate) { applyLayer(KeyboardLayer.EMOJI) }
@@ -91,6 +99,7 @@ internal class KeyboardViewModel(
                 }
             }
             is KeyboardEvent.OnClipboardPaste -> intent {
+                with(textInputDelegate) { closeComposing() }
                 with(clipboardDelegate) { paste(event.entry.text) }
             }
             is KeyboardEvent.OnClipboardAction -> intent { clipboardDelegate.applyAction(event.action) }
@@ -104,6 +113,7 @@ internal class KeyboardViewModel(
                 with(suggestionsDelegate) { requestSuggestions() }
             }
             is KeyboardEvent.OnTextContextChange -> intent {
+                with(textInputDelegate) { reconcileComposing(event.context) }
                 with(suggestionsDelegate) { applyTextContext(event.context) }
             }
         }
@@ -187,6 +197,7 @@ internal class KeyboardViewModel(
                 suggestions = emptyList(),
                 suggestionsWord = "",
                 autoCorrection = null,
+                composing = ComposingText(),
                 isFontsExpanded = state.allowsFonts,
                 keyboardOverlay = null,
             )

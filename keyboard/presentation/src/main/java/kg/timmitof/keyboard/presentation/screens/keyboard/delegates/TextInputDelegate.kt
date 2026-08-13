@@ -1,9 +1,11 @@
 package kg.timmitof.keyboard.presentation.screens.keyboard.delegates
 
 import kg.timmitof.keyboard.domain.model.KeyCharacter
+import kg.timmitof.keyboard.domain.model.TextContext
 import kg.timmitof.keyboard.domain.model.WordSuggestion
 import kg.timmitof.keyboard.presentation.screens.keyboard.KeyboardSyntax
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.AutoCorrection
+import kg.timmitof.keyboard.presentation.screens.keyboard.states.ComposingText
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardLayer
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardSideEffect
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.ShiftState
@@ -32,7 +34,7 @@ internal class TextInputDelegate(
         }
 
         val styled = state.activeFont.apply(char)
-        editText(KeyboardSideEffect.Input.CommitText(styled)) { query -> query + char }
+        editText(typeEffect(styled)) { query -> query + char }
         releaseOneShotShift()
 
         if (state.layer == KeyboardLayer.EMOJI_SEARCH) return
@@ -42,11 +44,29 @@ internal class TextInputDelegate(
     }
 
     /**
+     * Буква либо продолжает черновик, либо вписывается начисто.
+     *
+     * Черновик отправляется целиком: `setComposingText` заменяет всю область
+     * компоновки, поэтому досылать один символ нельзя.
+     */
+    private suspend fun KeyboardSyntax.typeEffect(styled: String): KeyboardSideEffect.Input {
+        if (!state.canStartComposing || !styled.isWordText()) {
+            closeComposing()
+            return KeyboardSideEffect.Input.CommitText(styled)
+        }
+
+        val composing = state.composing.let { it.copy(text = it.text + styled) }
+        reduce { state.copy(composing = composing) }
+
+        return KeyboardSideEffect.Input.SetComposingText(composing.text, composing.hasCorrection)
+    }
+
+    /**
      * Подставляет подсказку вместо набранного слова.
      */
     suspend fun KeyboardSyntax.applySuggestion(suggestion: WordSuggestion) {
         val styled = state.activeFont.apply(suggestion.text)
-        postSideEffect(KeyboardSideEffect.Input.ReplaceWordBeforeCursor("$styled "))
+        replaceWord("$styled ")
 
         suggestionsDelegate.learnWord(state, suggestion.text)
         reduce { state.copy(suggestions = emptyList(), suggestionsWord = "", autoCorrection = null) }
@@ -73,7 +93,7 @@ internal class TextInputDelegate(
 
         if (correction != null) {
             val corrected = state.activeFont.apply(correction.text) + separator
-            postSideEffect(KeyboardSideEffect.Input.ReplaceWordBeforeCursor(corrected))
+            replaceWord(corrected)
 
             suggestionsDelegate.learnWord(state, correction.text)
             reduce {
@@ -90,6 +110,7 @@ internal class TextInputDelegate(
                 applyLocalEdit { it.removingLast(typed.length).appending(corrected) }
             }
         } else {
+            closeComposing()
             postSideEffect(KeyboardSideEffect.Input.CommitText(separator))
             if (typed.isNotEmpty()) suggestionsDelegate.learnWord(state, typed)
 
@@ -98,9 +119,47 @@ internal class TextInputDelegate(
         }
     }
 
+    /**
+     * Меняет набранное слово на [replacement].
+     *
+     * Черновик заменяется целиком одним вызовом. Без него остаётся прежний путь
+     * с чтением поля: черновика нет как раз тогда, когда курсор поставили посреди
+     * чужого текста, и границы слова лучше спросить у самого поля.
+     */
+    private suspend fun KeyboardSyntax.replaceWord(replacement: String) {
+        if (state.composing.isActive) {
+            postSideEffect(KeyboardSideEffect.Input.SetComposingText(replacement))
+            closeComposing()
+        } else {
+            postSideEffect(KeyboardSideEffect.Input.ReplaceWordBeforeCursor(replacement))
+        }
+    }
+
+    /**
+     * Сверяет черновик с тем, что реально в поле.
+     *
+     * Текст меняет не только набор: пользователь ставит курсор в другое место,
+     * приложение подставляет своё. Как только слово перестало совпадать
+     * с черновиком, область компоновки уже не наша — забываем про неё.
+     */
+    suspend fun KeyboardSyntax.reconcileComposing(context: TextContext) {
+        if (!state.composing.isActive || context.composingWord == state.composing.text) return
+
+        closeComposing()
+    }
+
+    /** Закрывает черновик, если он открыт: дальше текст правится не им. */
+    suspend fun KeyboardSyntax.closeComposing() {
+        if (!state.composing.isActive) return
+
+        postSideEffect(KeyboardSideEffect.Input.FinishComposing)
+        reduce { state.copy(composing = ComposingText()) }
+    }
+
     suspend fun KeyboardSyntax.moveCursor(horizontal: Int, vertical: Int) {
         if (state.layer == KeyboardLayer.EMOJI_SEARCH) return
         if (horizontal != 0 || vertical != 0) {
+            closeComposing()
             postSideEffect(KeyboardSideEffect.Input.MoveCursor(horizontal, vertical))
         }
     }
@@ -119,6 +178,7 @@ internal class TextInputDelegate(
                 .takeIf { it.isNotEmpty() }
                 ?.let { suggestionsDelegate.learnWord(state, it) }
 
+            closeComposing()
             postSideEffect(KeyboardSideEffect.Input.PerformEditorAction)
             forgetAutoCorrection()
         }
@@ -153,14 +213,37 @@ internal class TextInputDelegate(
     // region Backspace
     suspend fun KeyboardSyntax.deleteBackward() {
         if (undoAutoCorrection()) return
+        if (shrinkComposing()) return
 
         editText(KeyboardSideEffect.Input.DeleteBackward) { query ->
             query.ifEmpty { null }?.dropLast(1)
         }
     }
 
+    /**
+     * Backspace внутри черновика сокращает его целиком, а не удаляет символ в поле:
+     * область компоновки правится только заменой, иначе она разъедется с текстом.
+     */
+    private suspend fun KeyboardSyntax.shrinkComposing(): Boolean {
+        val composing = state.composing
+        if (!composing.isActive) return false
+
+        val shortened = composing.copy(text = composing.text.dropLastCodePoint())
+        postSideEffect(
+            KeyboardSideEffect.Input.SetComposingText(shortened.text, shortened.hasCorrection)
+        )
+        if (!shortened.isActive) postSideEffect(KeyboardSideEffect.Input.FinishComposing)
+
+        reduce { state.copy(composing = shortened) }
+        with(suggestionsDelegate) {
+            applyLocalEdit { it.removingLast(composing.text.length - shortened.text.length) }
+        }
+        return true
+    }
+
     suspend fun KeyboardSyntax.deleteWordBackward() {
         forgetAutoCorrection()
+        closeComposing()
         editText(KeyboardSideEffect.Input.DeleteWordBackward) { query ->
             query.ifEmpty { null }?.dropLastWord()
         }
@@ -203,6 +286,7 @@ internal class TextInputDelegate(
                 state.copy(emojiSearchSelection = chars.coerceAtMost(state.emojiSearchQuery.length))
             }
         } else {
+            closeComposing()
             postSideEffect(KeyboardSideEffect.Input.SelectBeforeCursor(chars))
         }
     }
@@ -216,6 +300,7 @@ internal class TextInputDelegate(
                 reduce { state.copy(emojiSearchSelection = 0) }
             }
         } else {
+            closeComposing()
             postSideEffect(KeyboardSideEffect.Input.DeleteSelection)
         }
     }
@@ -235,6 +320,13 @@ internal class TextInputDelegate(
 
     private fun String.dropLastWord(): String =
         trimEnd().dropLastWhile { !it.isWhitespace() }
+
+    /** Убирает последний символ целиком: стилизованные буквы — суррогатные пары. */
+    private fun String.dropLastCodePoint(): String =
+        if (isEmpty()) this else dropLast(Character.charCount(codePointBefore(length)))
+
+    /** Продолжает ли текст слово — правило то же, что у снимка вокруг курсора. */
+    private fun String.isWordText(): Boolean = all(TextContext.Companion::isWordChar)
 
     /** Знаки, после которых слово считается законченным. */
     private fun String.isSeparator(): Boolean = length == 1 && this[0] in WORD_SEPARATORS

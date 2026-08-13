@@ -43,6 +43,7 @@ internal data class KeyboardState(
     val suggestions: List<WordSuggestion> = emptyList(),
     val suggestionsWord: String = "",
     val autoCorrection: AutoCorrection? = null,
+    val composing: ComposingText = ComposingText(),
     val isCursorMode: Boolean = false,
     val settings: KeyboardSettings = KeyboardSettings(),
     val keyboardOverlay: KeyboardOverlay? = null,
@@ -108,6 +109,17 @@ internal data class KeyboardState(
         get() = suggestions.firstOrNull { it.isAutoCorrect }.takeIf { allowsSuggestions }
 
     /**
+     * Можно ли вести слово черновиком — подчёркнутым и заменяемым целиком.
+     */
+    val allowsComposing: Boolean get() = allowsSuggestions
+
+    /**
+     * Продолжает ли следующая буква текущий черновик.
+     */
+    val canStartComposing: Boolean
+        get() = allowsComposing && (composing.isActive || textContext.composingWord.isEmpty())
+
+    /**
      * Посчитаны ли подсказки именно для того слова, которое сейчас набрано.
      *
      * Расчёт идёт в фоне с небольшой паузой, и при быстром наборе пробел легко
@@ -150,6 +162,19 @@ internal sealed class ClipboardAction {
 }
 
 /**
+ * Черновик — слово, которое сейчас держит поле в области компоновки.
+ *
+ * @property hasCorrection слово уже помечено как «будет исправлено».
+ */
+@Stable
+internal data class ComposingText(
+    val text: String = "",
+    val hasCorrection: Boolean = false,
+) {
+    val isActive: Boolean get() = text.isNotEmpty()
+}
+
+/**
  * Автозамена, которую применил пробел.
  */
 @Stable
@@ -163,6 +188,20 @@ sealed class KeyboardSideEffect : BaseSideEffect.UiSideEffect() {
     /** Правки поля — единственное, что уходит в `InputConnection`. */
     sealed class Input : KeyboardSideEffect() {
         data class CommitText(val char: CharSequence) : Input()
+
+        /**
+         * Черновик: слово, которое поле подчёркивает и готово заменить целиком.
+         *
+         * @param hasCorrection слово будет исправлено — поле помечает это своим
+         * стилем подсказки, а не просто подчёркиванием.
+         */
+        data class SetComposingText(
+            val text: CharSequence,
+            val hasCorrection: Boolean = false,
+        ) : Input()
+
+        /** Закрывает черновик: подчёркивание уходит, текст становится обычным. */
+        data object FinishComposing : Input()
         data class SelectBeforeCursor(val chars: Int) : Input()
         data class MoveCursor(val horizontal: Int, val vertical: Int) : Input()
         data class ReplaceWordBeforeCursor(val text: CharSequence) : Input()

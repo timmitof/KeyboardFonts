@@ -17,10 +17,10 @@ data class TextContext(
 
     /** Слово, которое набирается прямо сейчас. Пусто, если курсор не в конце слова. */
     val composingWord: String
-        get() = if (after.firstOrNull()?.isWordChar() == true) {
+        get() = if (after.firstOrNull()?.let(::isWordChar) == true) {
             ""
         } else {
-            before.takeLastWhile { it.isWordChar() }
+            before.takeLastWhile { isWordChar(it) }
         }
 
     /** Текст до начала набираемого слова — на нём считается контекст предложения. */
@@ -37,7 +37,7 @@ data class TextContext(
         get() = if (isSentenceStart) {
             ""
         } else {
-            beforeWord.trimEnd { !it.isWordChar() }.takeLastWhile { it.isWordChar() }
+            beforeWord.trimEnd { !isWordChar(it) }.takeLastWhile { isWordChar(it) }
         }
 
     /**
@@ -87,6 +87,9 @@ data class TextContext(
 
         private const val MIN_CONTEXT_WORD = 2
 
-        private fun Char.isWordChar(): Boolean = !isWhitespace() && this !in SEPARATORS
+        /**
+         * Входит ли символ в слово.
+         */
+        fun isWordChar(char: Char): Boolean = !char.isWhitespace() && char !in SEPARATORS
     }
 }

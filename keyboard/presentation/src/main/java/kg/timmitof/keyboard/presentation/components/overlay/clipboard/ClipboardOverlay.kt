@@ -87,13 +87,13 @@ internal fun ColumnScope.ClipboardOverlay(
         }
     }
 
-    OverlayActionRow(
-        label = stringResource(R.string.clipboard_open_app),
-        onClick = { onEvent(KeyboardEvent.OnOpenApp) },
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 3.dp),
-    )
+//    OverlayActionRow(
+//        label = stringResource(R.string.clipboard_open_app),
+//        onClick = { onEvent(KeyboardEvent.OnOpenApp) },
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .padding(horizontal = 12.dp, vertical = 3.dp),
+//    )
 }
 
 private fun LazyGridScope.section(
