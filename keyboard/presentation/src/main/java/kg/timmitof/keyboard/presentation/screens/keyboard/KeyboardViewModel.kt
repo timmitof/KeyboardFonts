@@ -106,8 +106,8 @@ internal class KeyboardViewModel(
     /** Готовые подсказки приходят из фонового расчёта и попадают в состояние. */
     private fun observeSuggestions() {
         suggestionsDelegate.suggestions
-            .onEach { suggestions ->
-                intent { with(suggestionsDelegate) { applySuggestions(suggestions) } }
+            .onEach { (request, suggestions) ->
+                intent { with(suggestionsDelegate) { applySuggestions(request, suggestions) } }
             }
             .launchIn(viewModelScope)
     }
@@ -127,6 +127,7 @@ internal class KeyboardViewModel(
         reduce {
             state.copy(
                 suggestions = emptyList(),
+                suggestionsWord = "",
                 autoCorrection = null,
                 isFontsExpanded = state.fieldType.allowsFonts,
             )

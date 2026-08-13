@@ -25,10 +25,13 @@ class SuggestionEngineTest {
             "приветствие" to 500,
             "пирог" to 400,
             "как" to 950,
+            "да" to 990,
+            "для" to 980,
             "дела" to 800,
+            "делать" to 780,
             "hello" to 600,
         ),
-        bigrams = BigramTable.parse("привет\tкак\t900\nкак\tдела\t900\n"),
+        bigrams = BigramTable.parse("как\tдела делать\nпривет\tкак\nчто\tты как делать\n"),
     )
 
     @Test
@@ -63,6 +66,40 @@ class SuggestionEngineTest {
         val suggestions = suggest(before = "пирог")
 
         assertTrue(suggestions.none(WordSuggestion::isAutoCorrect))
+    }
+
+    @Test
+    fun `дописывает начатое слово на пробеле`() {
+        val suggestions = suggest(before = "прив")
+
+        assertEquals("привет", suggestions[1].text)
+        assertTrue(suggestions[1].isAutoCorrect)
+    }
+
+    @Test
+    fun `продолжение фразы обгоняет частотные слова на ту же букву`() {
+        val afterHow = suggest(before = "как д")
+        assertEquals("дела", afterHow[1].text)
+        assertTrue(afterHow[1].isAutoCorrect)
+
+        val afterWhat = suggest(before = "что д")
+        assertEquals("делать", afterWhat[1].text)
+        assertTrue(afterWhat[1].isAutoCorrect)
+    }
+
+    @Test
+    fun `одна буква без контекста ничем не дописывается`() {
+        val suggestions = suggest(before = "д")
+
+        assertTrue(suggestions.none(WordSuggestion::isAutoCorrect))
+    }
+
+    @Test
+    fun `имя с большой буквы посреди предложения не исправляется`() {
+        val suggestions = suggest(before = "написал Прив")
+
+        assertTrue(suggestions.none(WordSuggestion::isAutoCorrect))
+        assertEquals("Привет", suggestions[1].text)
     }
 
     @Test

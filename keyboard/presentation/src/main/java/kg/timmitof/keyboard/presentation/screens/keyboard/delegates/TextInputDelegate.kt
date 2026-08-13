@@ -49,7 +49,7 @@ internal class TextInputDelegate(
         postSideEffect(KeyboardSideEffect.ReplaceWordBeforeCursor("$styled "))
 
         suggestionsDelegate.learnWord(state, suggestion.text)
-        reduce { state.copy(suggestions = emptyList(), autoCorrection = null) }
+        reduce { state.copy(suggestions = emptyList(), suggestionsWord = "", autoCorrection = null) }
     }
 
     suspend fun KeyboardSyntax.typeSpace() = finishWord(" ")
@@ -66,10 +66,11 @@ internal class TextInputDelegate(
             return
         }
 
-        val correction = state.pendingAutoCorrect
         val typed = state.textContext.composingWord
+        val correction = typed.takeIf { it.isNotEmpty() }
+            ?.let { suggestionsDelegate.awaitCorrection(state) }
 
-        if (correction != null && typed.isNotEmpty()) {
+        if (correction != null) {
             val corrected = state.activeFont.apply(correction.text) + separator
             postSideEffect(KeyboardSideEffect.ReplaceWordBeforeCursor(corrected))
 
@@ -77,11 +78,15 @@ internal class TextInputDelegate(
             reduce {
                 state.copy(
                     suggestions = emptyList(),
+                    suggestionsWord = "",
                     autoCorrection = AutoCorrection(
                         original = typed + separator,
                         corrected = corrected,
                     ),
                 )
+            }
+            with(suggestionsDelegate) {
+                applyLocalEdit { it.removingLast(typed.length).appending(corrected) }
             }
         } else {
             postSideEffect(KeyboardSideEffect.CommitText(separator))

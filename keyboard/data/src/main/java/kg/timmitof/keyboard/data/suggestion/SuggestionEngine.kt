@@ -40,7 +40,7 @@ class SuggestionEngine @Inject constructor() {
         return if (typed.isEmpty()) {
             predict(request, boosts, model, user, previous)
         } else {
-            complete(request, boosts, model, user, typed)
+            complete(request, boosts, model, user, previous, typed)
         }
     }
 
@@ -68,7 +68,9 @@ class SuggestionEngine @Inject constructor() {
 
         if (previous.isNotEmpty()) {
             user.followersOf(previous).keys.forEach { word -> offer(word) }
-            model.bigrams.after(previous).forEach { follower -> offer(follower.word) }
+            model.bigrams.after(previous, PREDICTION_FOLLOWERS).forEach { follower ->
+                offer(follower.word)
+            }
         } else {
             // Начало сообщения: подсказываем то, с чего пользователь обычно начинает.
             user.frequentWords(START_WORDS).forEach { word -> offer(word, START_WORD_SCORE) }
@@ -89,6 +91,7 @@ class SuggestionEngine @Inject constructor() {
         boosts: Boosts,
         model: LanguageModel,
         user: UserLanguageModel,
+        previous: String,
         typed: String,
     ): List<WordSuggestion> {
         val query = typed.foldToDictionary()
@@ -122,11 +125,16 @@ class SuggestionEngine @Inject constructor() {
         user.wordsWithPrefix(query).forEach { word -> offer(word, USER_WORD_SCORE, distance = 0) }
         boosts.surroundingWithPrefix(query).forEach { word -> offer(word, USER_WORD_SCORE, distance = 0) }
 
+        // Продолжения фразы, которые человек уже начал набирать: «как д…» → «дела».
+        // Словарный топ по префиксу их не находит — по частоте «да» и «для» всегда
+        // впереди, и без явного вопроса к парам слов контекст пропадает зря.
+        val expected = expectedAfter(previous, query, model, user, ::offer)
+
         val ranked = candidates.values.sortedByDescending { it.score }
         val best = ranked.firstOrNull() ?: return emptyList()
         val isAutoCorrect = request.allowsAutoCorrect && !isKnown &&
-                best.distance in 1..PrefixMatcher.EDIT &&
-                best.word.length <= query.length + AUTO_CORRECT_EXTRA_CHARS
+                best.replaces(query, expected) &&
+                typed.isCorrectable(request.context.isSentenceStart)
 
         return buildList(MAX_SUGGESTIONS) {
             add(WordSuggestion(text = typed, isLiteral = !isKnown))
@@ -141,6 +149,62 @@ class SuggestionEngine @Inject constructor() {
             }
         }
     }
+
+    /**
+     * Слова, которых ждёт продолжение фразы, среди начатых на [query].
+     *
+     * Берём их из пар слов — словарных и выученных — и сразу отдаём в общий
+     * отбор: у них своя надбавка за связь с предыдущим словом, и без неё
+     * длинное «делать» никогда не обгонит короткое частотное «да».
+     *
+     * @return сами эти слова — по ним видно, что дополнение подсказано контекстом,
+     * а не просто угадано по началу.
+     */
+    private fun expectedAfter(
+        previous: String,
+        query: String,
+        model: LanguageModel,
+        user: UserLanguageModel,
+        offer: (word: String, score: Int, distance: Int) -> Unit,
+    ): Set<String> {
+        if (previous.isEmpty()) return emptySet()
+
+        val expected = HashSet<String>(EXPECTED_CAPACITY)
+
+        model.bigrams.followersWithPrefix(previous, query).forEach { follower ->
+            expected += follower.word
+            offer(follower.word, model.dictionary.scoreOf(follower.word), 0)
+        }
+        user.followersOf(previous).keys.forEach { word ->
+            if (word.length <= query.length || !word.startsWith(query)) return@forEach
+            expected += word
+            offer(word, maxOf(model.dictionary.scoreOf(word), USER_WORD_SCORE), 0)
+        }
+
+        return expected
+    }
+
+    /**
+     * Можно ли молча подставить кандидата вместо набранного при пробеле.
+     *
+     * Исправление опечатки — как раньше: слово почти той же длины, пара правок.
+     * Дополнение начатого слова разрешаем в двух случаях: набрано достаточно,
+     * чтобы догадка была уверенной («прив» → «привет»), либо продолжение прямо
+     * следует из фразы («как д» → «дела») — тогда хватает и одной буквы.
+     */
+    private fun Candidate.replaces(query: String, expected: Set<String>): Boolean = when {
+        distance > 0 -> distance <= PrefixMatcher.EDIT &&
+                word.length <= query.length + AUTO_CORRECT_EXTRA_CHARS
+
+        else -> word in expected || query.length >= AUTO_COMPLETE_MIN_CHARS
+    }
+
+    /**
+     * Слово с большой буквы посреди предложения — имя или сокращение,
+     * которое человек написал осознанно. Такое не исправляем.
+     */
+    private fun String.isCorrectable(isSentenceStart: Boolean): Boolean =
+        isSentenceStart || firstOrNull()?.isUpperCase() != true
 
     /** Дополнение тем длиннее, чем меньше от него пользы: длинные хвосты штрафуем. */
     private fun completionPenalty(word: String, query: String): Int =
@@ -257,7 +321,13 @@ class SuggestionEngine @Inject constructor() {
         const val START_WORD_SCORE = 200
         const val START_WORDS = 3
 
-        const val DICTIONARY_PAIR_WEIGHT = 8
+        /**
+         * Насколько пара слов языка весомее частоты самого слова.
+         *
+         * Больше единицы намеренно: связь с предыдущим словом — самый сильный
+         * сигнал из всех, что есть у клавиатуры без модели языка целиком.
+         */
+        const val DICTIONARY_PAIR_WEIGHT = 15
         const val WEIGHT_UNIT = 10
 
         /** Насколько личная статистика может обогнать словарную частоту. */
@@ -265,11 +335,19 @@ class SuggestionEngine @Inject constructor() {
         const val PERSONAL_LIMIT = 450
 
         /** Своя пара слов должна обгонять словарную уже после нескольких повторов. */
-        const val PAIR_WEIGHT = 350
-        const val PAIR_LIMIT = 1200
+        const val PAIR_WEIGHT = 700
+        const val PAIR_LIMIT = 2000
 
         /** На сколько букв исправление может быть длиннее набранного. */
         const val AUTO_CORRECT_EXTRA_CHARS = 1
+
+        /** Со скольких букв клавиатура сама дописывает слово, если контекст молчит. */
+        const val AUTO_COMPLETE_MIN_CHARS = 3
+
+        /** Сколько продолжений фразы разбирается на предсказании следующего слова. */
+        const val PREDICTION_FOLLOWERS = 24
+
+        const val EXPECTED_CAPACITY = 8
 
         fun personalScore(count: Int): Int =
             if (count <= 0) 0 else minOf(PERSONAL_LIMIT, (PERSONAL_WEIGHT * ln(1.0 + count)).toInt())

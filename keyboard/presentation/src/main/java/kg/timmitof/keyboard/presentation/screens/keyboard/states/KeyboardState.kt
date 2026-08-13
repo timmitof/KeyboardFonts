@@ -35,6 +35,7 @@ internal data class KeyboardState(
     val fieldContext: KeyboardFieldContext = KeyboardFieldContext(),
     val textContext: TextContext = TextContext(),
     val suggestions: List<WordSuggestion> = emptyList(),
+    val suggestionsWord: String = "",
     val autoCorrection: AutoCorrection? = null,
     val isCursorMode: Boolean = false,
 ): BaseState() {
@@ -89,6 +90,15 @@ internal data class KeyboardState(
     /** Подсказка, которой пробел заменит набранное слово (если исправление нашлось). */
     val pendingAutoCorrect: WordSuggestion?
         get() = suggestions.firstOrNull { it.isAutoCorrect }.takeIf { allowsSuggestions }
+
+    /**
+     * Посчитаны ли подсказки именно для того слова, которое сейчас набрано.
+     *
+     * Расчёт идёт в фоне с небольшой паузой, и при быстром наборе пробел легко
+     * обгоняет его — тогда автозамену нужно досчитать на месте, а не пропускать.
+     */
+    val hasFreshSuggestions: Boolean
+        get() = suggestionsWord == textContext.composingWord
 
     /** Плашка-пояснение в верхней панели: почему клавиатура ведёт себя иначе. */
     @get:StringRes

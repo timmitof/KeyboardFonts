@@ -36,12 +36,15 @@ internal class SuggestionsDelegate(
     /**
      * Подсказки считаются в фоне, с паузой в несколько кадров: при быстром наборе
      * промежуточные слова всё равно никто не увидит, а словарь перебирать дорого.
+     *
+     * Вместе с результатом идёт и запрос — по нему видно, для какого слова
+     * подсказки посчитаны.
      */
     @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
-    val suggestions: Flow<List<WordSuggestion>> = requests
+    val suggestions: Flow<Pair<SuggestionRequest, List<WordSuggestion>>> = requests
         .filterNotNull()
         .debounce(CALCULATION_DELAY_MILLIS)
-        .mapLatest(suggestionRepository::suggest)
+        .mapLatest { request -> request to suggestionRepository.suggest(request) }
 
     /** Снимок текста от поля ввода: пересчитать подсказки и поправить Shift. */
     suspend fun KeyboardSyntax.applyTextContext(context: TextContext) = updateContext(context)
@@ -69,13 +72,18 @@ internal class SuggestionsDelegate(
      * слово, полезнее видеть варианты. Если он открыл карусель сам — она останется,
      * потому что подсказки к этому моменту уже были показаны.
      */
-    suspend fun KeyboardSyntax.applySuggestions(suggestions: List<WordSuggestion>) {
-        if (state.suggestions == suggestions) return
+    suspend fun KeyboardSyntax.applySuggestions(
+        request: SuggestionRequest,
+        suggestions: List<WordSuggestion>,
+    ) {
+        val word = request.context.composingWord
+        if (state.suggestions == suggestions && state.suggestionsWord == word) return
 
         val collapseFonts = state.suggestions.isEmpty() && suggestions.isNotEmpty()
         reduce {
             state.copy(
                 suggestions = suggestions,
+                suggestionsWord = word,
                 isFontsExpanded = state.isFontsExpanded && !collapseFonts,
             )
         }
@@ -83,18 +91,38 @@ internal class SuggestionsDelegate(
 
     /** Пересобирает запрос под текущее состояние; в неподходящих полях — гасит подсказки. */
     suspend fun KeyboardSyntax.requestSuggestions() {
-        val languageCode = state.activeLanguage?.code
-        if (languageCode == null || !state.allowsSuggestions) {
-            requests.value = null
-            if (state.suggestions.isNotEmpty()) reduce { state.copy(suggestions = emptyList()) }
-            return
-        }
+        val request = state.suggestionRequest()
+        requests.value = request
 
-        requests.value = SuggestionRequest(
+        if (request == null && state.suggestions.isNotEmpty()) {
+            reduce { state.copy(suggestions = emptyList(), suggestionsWord = "") }
+        }
+    }
+
+    /**
+     * Автозамена для слова, которое сейчас заканчивается пробелом.
+     *
+     * Если фоновый расчёт за набором не успел, досчитываем прямо здесь: пробел
+     * нажимают один раз на слово, и лучше подождать пару миллисекунд, чем
+     * оставить человека дописывать слово, которое клавиатура и так знает.
+     */
+    suspend fun awaitCorrection(state: KeyboardState): WordSuggestion? {
+        if (state.hasFreshSuggestions) return state.pendingAutoCorrect
+
+        val request = state.suggestionRequest() ?: return null
+        return suggestionRepository.suggest(request).firstOrNull { it.isAutoCorrect }
+    }
+
+    /** Запрос под текущее состояние; `null` — подсказки в этом поле не нужны. */
+    private fun KeyboardState.suggestionRequest(): SuggestionRequest? {
+        val languageCode = activeLanguage?.code ?: return null
+        if (!allowsSuggestions) return null
+
+        return SuggestionRequest(
             languageCode = languageCode,
-            context = state.textContext,
-            isShifted = state.shiftState.isUpperCase(),
-            allowsAutoCorrect = state.fieldType.allowsAutoCorrect,
+            context = textContext,
+            isShifted = shiftState.isUpperCase(),
+            allowsAutoCorrect = fieldType.allowsAutoCorrect,
         )
     }
 
