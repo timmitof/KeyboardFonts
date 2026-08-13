@@ -1,6 +1,7 @@
 package kg.timmitof.keyboard.data.repository
 
 import kg.timmitof.keyboard.data.settings.KeyboardSettingsDataSource
+import kg.timmitof.keyboard.domain.model.KeyboardHeight
 import kg.timmitof.keyboard.domain.model.KeyboardSettings
 import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
 import kg.timmitof.keyboard.domain.model.KeyboardToggle
@@ -27,4 +28,6 @@ class KeyboardSettingsRepositoryImpl @Inject constructor(
         dataSource.setToggle(toggle, enabled)
 
     override suspend fun setTheme(mode: KeyboardThemeMode) = dataSource.setTheme(mode)
+
+    override suspend fun setHeight(height: KeyboardHeight) = dataSource.setHeight(height)
 }

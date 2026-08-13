@@ -1,6 +1,9 @@
 package kg.timmitof.keyboard.presentation.screens.keyboard.delegates
 
+import kg.timmitof.keyboard.domain.model.KeyboardHeight
 import kg.timmitof.keyboard.domain.model.KeyboardSettings
+import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
+import kg.timmitof.keyboard.domain.model.KeyboardToggle
 import kg.timmitof.keyboard.domain.repository.KeyboardSettingsRepository
 import kg.timmitof.keyboard.presentation.screens.keyboard.KeyboardSyntax
 import kotlinx.coroutines.flow.Flow
@@ -37,4 +40,16 @@ internal class SettingsDelegate(
             )
         }
     }
+
+    /**
+     * Правки из листа быстрых настроек: значение уходит в хранилище и приходит
+     * обратно потоком — той же дорогой, что и правка с экрана приложения.
+     */
+    suspend fun setToggle(toggle: KeyboardToggle, isEnabled: Boolean) =
+        keyboardSettingsRepository.setToggle(toggle, isEnabled)
+
+    suspend fun setHeight(height: KeyboardHeight) = keyboardSettingsRepository.setHeight(height)
+
+    suspend fun setTheme(theme: KeyboardThemeMode) =
+        keyboardSettingsRepository.setTheme(theme)
 }

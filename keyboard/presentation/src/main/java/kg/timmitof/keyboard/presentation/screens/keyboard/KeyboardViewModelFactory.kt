@@ -2,12 +2,14 @@ package kg.timmitof.keyboard.presentation.screens.keyboard
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import kg.timmitof.keyboard.domain.repository.ClipboardRepository
 import kg.timmitof.keyboard.domain.repository.EmojiRepository
 import kg.timmitof.keyboard.domain.repository.FontRepository
 import kg.timmitof.keyboard.domain.repository.KeyboardLayoutRepository
 import kg.timmitof.keyboard.domain.repository.KeyboardSettingsRepository
 import kg.timmitof.keyboard.domain.repository.LanguageRepository
 import kg.timmitof.keyboard.domain.repository.SuggestionRepository
+import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.ClipboardDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.EmojiDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.FieldContextDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.FontDelegate
@@ -24,6 +26,7 @@ class KeyboardViewModelFactory(
     private val fontRepository: FontRepository,
     private val suggestionRepository: SuggestionRepository,
     private val keyboardSettingsRepository: KeyboardSettingsRepository,
+    private val clipboardRepository: ClipboardRepository,
 ) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -42,6 +45,7 @@ class KeyboardViewModelFactory(
                 fieldContextDelegate = FieldContextDelegate(layerDelegate),
                 suggestionsDelegate = suggestionsDelegate,
                 settingsDelegate = SettingsDelegate(keyboardSettingsRepository),
+                clipboardDelegate = ClipboardDelegate(clipboardRepository),
             ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")

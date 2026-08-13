@@ -5,12 +5,17 @@ import androidx.compose.runtime.Stable
 import kg.timmitof.core.ui.base.BaseEvent
 import kg.timmitof.core.ui.base.BaseSideEffect
 import kg.timmitof.core.ui.base.BaseState
+import kg.timmitof.keyboard.domain.model.ClipboardBoard
+import kg.timmitof.keyboard.domain.model.ClipboardEntry
 import kg.timmitof.keyboard.domain.model.EmojiCategory
+import kg.timmitof.keyboard.domain.model.KeyboardHeight
 import kg.timmitof.keyboard.domain.model.KeyCharacter
 import kg.timmitof.keyboard.domain.model.KeyboardFont
 import kg.timmitof.keyboard.domain.model.KeyboardLanguage
 import kg.timmitof.keyboard.domain.model.KeyboardLayout
 import kg.timmitof.keyboard.domain.model.KeyboardSettings
+import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
+import kg.timmitof.keyboard.domain.model.KeyboardToggle
 import kg.timmitof.keyboard.domain.model.TextContext
 import kg.timmitof.keyboard.domain.model.WordSuggestion
 import kg.timmitof.keyboard.presentation.R
@@ -40,6 +45,8 @@ internal data class KeyboardState(
     val autoCorrection: AutoCorrection? = null,
     val isCursorMode: Boolean = false,
     val settings: KeyboardSettings = KeyboardSettings(),
+    val keyboardOverlay: KeyboardOverlay? = null,
+    val clipboard: ClipboardBoard = ClipboardBoard(),
 ): BaseState() {
 
     val fieldType: KeyboardFieldType get() = fieldContext.type
@@ -128,6 +135,20 @@ internal data class KeyboardState(
         }
 }
 
+/** Действия строки настроек, которые правит сама клавиатура. */
+internal sealed class QuickSetting {
+    data class Toggle(val toggle: KeyboardToggle, val isEnabled: Boolean) : QuickSetting()
+    data class Height(val height: KeyboardHeight) : QuickSetting()
+    data class Theme(val theme: KeyboardThemeMode) : QuickSetting()
+}
+
+/** Правки карточки буфера — всё, кроме вставки. */
+internal sealed class ClipboardAction {
+    data class Pin(val entry: ClipboardEntry, val isPinned: Boolean) : ClipboardAction()
+    data class Remove(val entry: ClipboardEntry) : ClipboardAction()
+    data object ClearRecent : ClipboardAction()
+}
+
 /**
  * Автозамена, которую применил пробел.
  */
@@ -138,15 +159,22 @@ internal data class AutoCorrection(
 )
 
 sealed class KeyboardSideEffect : BaseSideEffect.UiSideEffect() {
-    data class CommitText(val char: CharSequence) : KeyboardSideEffect()
-    data class SelectBeforeCursor(val chars: Int) : KeyboardSideEffect()
-    data class MoveCursor(val horizontal: Int, val vertical: Int) : KeyboardSideEffect()
-    data class ReplaceWordBeforeCursor(val text: CharSequence) : KeyboardSideEffect()
-    data class ReplaceTextBeforeCursor(val chars: Int, val text: CharSequence) : KeyboardSideEffect()
-    data object DeleteBackward : KeyboardSideEffect()
-    data object PerformEditorAction : KeyboardSideEffect()
-    data object DeleteWordBackward : KeyboardSideEffect()
-    data object DeleteSelection : KeyboardSideEffect()
+
+    /** Правки поля — единственное, что уходит в `InputConnection`. */
+    sealed class Input : KeyboardSideEffect() {
+        data class CommitText(val char: CharSequence) : Input()
+        data class SelectBeforeCursor(val chars: Int) : Input()
+        data class MoveCursor(val horizontal: Int, val vertical: Int) : Input()
+        data class ReplaceWordBeforeCursor(val text: CharSequence) : Input()
+        data class ReplaceTextBeforeCursor(val chars: Int, val text: CharSequence) : Input()
+        data object DeleteBackward : Input()
+        data object PerformEditorAction : Input()
+        data object DeleteWordBackward : Input()
+        data object DeleteSelection : Input()
+    }
+
+    /** Уводит из клавиатуры в приложение — единственное действие мимо поля ввода. */
+    data object OpenApp : KeyboardSideEffect()
 }
 
 internal sealed class KeyboardEvent : BaseEvent.UiEvent() {
@@ -176,4 +204,9 @@ internal sealed class KeyboardEvent : BaseEvent.UiEvent() {
     data object OnEmojiSearchOpen : KeyboardEvent()
     data object OnEmojiSearchClose : KeyboardEvent()
     data class OnEmojiSearchQueryChange(val query: String) : KeyboardEvent()
+    data class OnOverlayChange(val overlay: KeyboardOverlay?) : KeyboardEvent()
+    data class OnQuickSetting(val setting: QuickSetting) : KeyboardEvent()
+    data class OnClipboardPaste(val entry: ClipboardEntry) : KeyboardEvent()
+    data class OnClipboardAction(val action: ClipboardAction) : KeyboardEvent()
+    data object OnOpenApp : KeyboardEvent()
 }

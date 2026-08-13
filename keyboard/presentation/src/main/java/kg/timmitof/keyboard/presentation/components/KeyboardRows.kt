@@ -34,6 +34,8 @@ internal fun KeyboardRows(
     state: State<KeyboardState>,
     onEvent: (KeyboardEvent) -> Unit
 ) {
+    val rowHeight = LocalKeyRowHeight.current
+
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -42,7 +44,7 @@ internal fun KeyboardRows(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(KeyRowHeight),
+                    .height(rowHeight),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 row.forEach { key ->

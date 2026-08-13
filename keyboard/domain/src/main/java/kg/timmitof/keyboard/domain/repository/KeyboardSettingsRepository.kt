@@ -1,5 +1,6 @@
 package kg.timmitof.keyboard.domain.repository
 
+import kg.timmitof.keyboard.domain.model.KeyboardHeight
 import kg.timmitof.keyboard.domain.model.KeyboardSettings
 import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
 import kg.timmitof.keyboard.domain.model.KeyboardToggle
@@ -22,4 +23,6 @@ interface KeyboardSettingsRepository {
     suspend fun setToggle(toggle: KeyboardToggle, enabled: Boolean)
 
     suspend fun setTheme(mode: KeyboardThemeMode)
+
+    suspend fun setHeight(height: KeyboardHeight)
 }

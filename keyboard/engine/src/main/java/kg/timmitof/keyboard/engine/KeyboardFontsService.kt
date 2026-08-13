@@ -1,11 +1,13 @@
 package kg.timmitof.keyboard.engine
 
+import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import dagger.hilt.android.AndroidEntryPoint
 import kg.timmitof.keyboard.domain.model.TextContext
+import kg.timmitof.keyboard.domain.repository.ClipboardRepository
 import kg.timmitof.keyboard.domain.repository.EmojiRepository
 import kg.timmitof.keyboard.domain.repository.FontRepository
 import kg.timmitof.keyboard.domain.repository.KeyboardLayoutRepository
@@ -38,6 +40,9 @@ internal class KeyboardFontsService : ComposeInputMethodService() {
     @Inject
     lateinit var keyboardSettingsRepository: KeyboardSettingsRepository
 
+    @Inject
+    lateinit var clipboardRepository: ClipboardRepository
+
     private val actionHandler = KeyboardActionHandler(
         inputConnectionProvider = { currentInputConnection },
         editorInfoProvider = { currentInputEditorInfo },
@@ -59,6 +64,7 @@ internal class KeyboardFontsService : ComposeInputMethodService() {
             fontRepository = fontRepository,
             suggestionRepository = suggestionRepository,
             keyboardSettingsRepository = keyboardSettingsRepository,
+            clipboardRepository = clipboardRepository,
         ),
         onKeyboardAction = ::applyAction,
     ).also { keyboardView = it }
@@ -121,19 +127,34 @@ internal class KeyboardFontsService : ComposeInputMethodService() {
      * неизвестен: удаление слова, работа с выделением, движение курсора.
      */
     private fun applyAction(action: KeyboardSideEffect) {
-        actionHandler.handle(action)
-        if (action.needsTextResync) scheduleTextSync()
+        when (action) {
+            is KeyboardSideEffect.Input -> {
+                actionHandler.handle(action)
+                if (action.needsTextResync) scheduleTextSync()
+            }
+
+            KeyboardSideEffect.OpenApp -> openApp()
+        }
     }
 
     /** Правки, после которых снимок текста надо перечитать из поля. */
-    private val KeyboardSideEffect.needsTextResync: Boolean
+    private val KeyboardSideEffect.Input.needsTextResync: Boolean
         get() = when (this) {
-            is KeyboardSideEffect.CommitText,
-            is KeyboardSideEffect.SelectBeforeCursor,
+            is KeyboardSideEffect.Input.CommitText,
+            is KeyboardSideEffect.Input.SelectBeforeCursor,
                 -> false
 
             else -> true
         }
+
+    /** Переход в приложение из листа настроек или буфера. */
+    private fun openApp() {
+        val intent = packageManager.getLaunchIntentForPackage(packageName)
+            ?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            ?: return
+
+        runCatching { startActivity(intent) }
+    }
 
     private fun syncFieldContext() {
         keyboardView?.updateFieldContext(currentInputEditorInfo.toFieldContext())

@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.unit.Dp
@@ -383,6 +384,17 @@ fun Modifier.holdPickerClickable(
 
                 launch { interactionSource.emit(PressInteraction.Release(press)) }
             }
+        }
+    }
+}
+
+/**
+ * Гасит все касания, не пропуская их к тому, что лежит ниже.
+ */
+fun Modifier.consumeTouches(): Modifier = pointerInput(Unit) {
+    awaitPointerEventScope {
+        while (true) {
+            awaitPointerEvent().changes.forEach(PointerInputChange::consume)
         }
     }
 }

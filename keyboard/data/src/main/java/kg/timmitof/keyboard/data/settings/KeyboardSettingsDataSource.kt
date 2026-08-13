@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kg.timmitof.keyboard.data.language.keyboardPreferences
+import kg.timmitof.keyboard.domain.model.KeyboardHeight
 import kg.timmitof.keyboard.domain.model.KeyboardSettings
 import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
 import kg.timmitof.keyboard.domain.model.KeyboardToggle
@@ -55,14 +56,21 @@ class KeyboardSettingsDataSource @Inject constructor(
         context.keyboardPreferences.edit { prefs -> prefs[THEME_KEY] = mode.key }
     }
 
+    suspend fun setHeight(height: KeyboardHeight) {
+        context.keyboardPreferences.edit { prefs -> prefs[HEIGHT_KEY] = height.key }
+    }
+
     private fun toSettings(prefs: Preferences) = KeyboardSettings(
         flags = KeyboardToggle.entries.associateWith { toggle ->
             prefs[toggleKeys.getValue(toggle)] ?: toggle.default
         },
         theme = KeyboardThemeMode.of(prefs[THEME_KEY]),
+        height = KeyboardHeight.of(prefs[HEIGHT_KEY]),
     )
 
     private companion object {
         val THEME_KEY = stringPreferencesKey("keyboard_theme")
+
+        val HEIGHT_KEY = stringPreferencesKey("keyboard_height")
     }
 }

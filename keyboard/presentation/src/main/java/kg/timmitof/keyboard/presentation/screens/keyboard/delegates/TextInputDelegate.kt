@@ -32,7 +32,7 @@ internal class TextInputDelegate(
         }
 
         val styled = state.activeFont.apply(char)
-        editText(KeyboardSideEffect.CommitText(styled)) { query -> query + char }
+        editText(KeyboardSideEffect.Input.CommitText(styled)) { query -> query + char }
         releaseOneShotShift()
 
         if (state.layer == KeyboardLayer.EMOJI_SEARCH) return
@@ -46,7 +46,7 @@ internal class TextInputDelegate(
      */
     suspend fun KeyboardSyntax.applySuggestion(suggestion: WordSuggestion) {
         val styled = state.activeFont.apply(suggestion.text)
-        postSideEffect(KeyboardSideEffect.ReplaceWordBeforeCursor("$styled "))
+        postSideEffect(KeyboardSideEffect.Input.ReplaceWordBeforeCursor("$styled "))
 
         suggestionsDelegate.learnWord(state, suggestion.text)
         reduce { state.copy(suggestions = emptyList(), suggestionsWord = "", autoCorrection = null) }
@@ -73,7 +73,7 @@ internal class TextInputDelegate(
 
         if (correction != null) {
             val corrected = state.activeFont.apply(correction.text) + separator
-            postSideEffect(KeyboardSideEffect.ReplaceWordBeforeCursor(corrected))
+            postSideEffect(KeyboardSideEffect.Input.ReplaceWordBeforeCursor(corrected))
 
             suggestionsDelegate.learnWord(state, correction.text)
             reduce {
@@ -90,7 +90,7 @@ internal class TextInputDelegate(
                 applyLocalEdit { it.removingLast(typed.length).appending(corrected) }
             }
         } else {
-            postSideEffect(KeyboardSideEffect.CommitText(separator))
+            postSideEffect(KeyboardSideEffect.Input.CommitText(separator))
             if (typed.isNotEmpty()) suggestionsDelegate.learnWord(state, typed)
 
             forgetAutoCorrection()
@@ -101,7 +101,7 @@ internal class TextInputDelegate(
     suspend fun KeyboardSyntax.moveCursor(horizontal: Int, vertical: Int) {
         if (state.layer == KeyboardLayer.EMOJI_SEARCH) return
         if (horizontal != 0 || vertical != 0) {
-            postSideEffect(KeyboardSideEffect.MoveCursor(horizontal, vertical))
+            postSideEffect(KeyboardSideEffect.Input.MoveCursor(horizontal, vertical))
         }
     }
 
@@ -119,7 +119,7 @@ internal class TextInputDelegate(
                 .takeIf { it.isNotEmpty() }
                 ?.let { suggestionsDelegate.learnWord(state, it) }
 
-            postSideEffect(KeyboardSideEffect.PerformEditorAction)
+            postSideEffect(KeyboardSideEffect.Input.PerformEditorAction)
             forgetAutoCorrection()
         }
     }
@@ -154,14 +154,14 @@ internal class TextInputDelegate(
     suspend fun KeyboardSyntax.deleteBackward() {
         if (undoAutoCorrection()) return
 
-        editText(KeyboardSideEffect.DeleteBackward) { query ->
+        editText(KeyboardSideEffect.Input.DeleteBackward) { query ->
             query.ifEmpty { null }?.dropLast(1)
         }
     }
 
     suspend fun KeyboardSyntax.deleteWordBackward() {
         forgetAutoCorrection()
-        editText(KeyboardSideEffect.DeleteWordBackward) { query ->
+        editText(KeyboardSideEffect.Input.DeleteWordBackward) { query ->
             query.ifEmpty { null }?.dropLastWord()
         }
     }
@@ -182,7 +182,7 @@ internal class TextInputDelegate(
         }
 
         postSideEffect(
-            KeyboardSideEffect.ReplaceTextBeforeCursor(
+            KeyboardSideEffect.Input.ReplaceTextBeforeCursor(
                 chars = correction.corrected.length,
                 text = correction.original,
             )
@@ -203,7 +203,7 @@ internal class TextInputDelegate(
                 state.copy(emojiSearchSelection = chars.coerceAtMost(state.emojiSearchQuery.length))
             }
         } else {
-            postSideEffect(KeyboardSideEffect.SelectBeforeCursor(chars))
+            postSideEffect(KeyboardSideEffect.Input.SelectBeforeCursor(chars))
         }
     }
 
@@ -216,7 +216,7 @@ internal class TextInputDelegate(
                 reduce { state.copy(emojiSearchSelection = 0) }
             }
         } else {
-            postSideEffect(KeyboardSideEffect.DeleteSelection)
+            postSideEffect(KeyboardSideEffect.Input.DeleteSelection)
         }
     }
     // endregion

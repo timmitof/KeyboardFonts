@@ -8,12 +8,14 @@ import kg.timmitof.keyboard.data.AssetJsonKeyboardLayoutLoader
 import kg.timmitof.keyboard.data.AssetTextLoader
 import kg.timmitof.keyboard.data.AssetTextLoaderImpl
 import kg.timmitof.keyboard.data.JsonKeyboardLayoutLoader
+import kg.timmitof.keyboard.data.repository.ClipboardRepositoryImpl
 import kg.timmitof.keyboard.data.repository.EmojiRepositoryImpl
 import kg.timmitof.keyboard.data.repository.FontRepositoryImpl
 import kg.timmitof.keyboard.data.repository.KeyboardLayoutRepositoryImpl
 import kg.timmitof.keyboard.data.repository.KeyboardSettingsRepositoryImpl
 import kg.timmitof.keyboard.data.repository.LanguageRepositoryImpl
 import kg.timmitof.keyboard.data.repository.SuggestionRepositoryImpl
+import kg.timmitof.keyboard.domain.repository.ClipboardRepository
 import kg.timmitof.keyboard.domain.repository.EmojiRepository
 import kg.timmitof.keyboard.domain.repository.FontRepository
 import kg.timmitof.keyboard.domain.repository.KeyboardLayoutRepository
@@ -59,4 +61,8 @@ abstract class KeyboardDataModule {
     abstract fun bindKeyboardSettingsRepository(
         impl: KeyboardSettingsRepositoryImpl
     ): KeyboardSettingsRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindClipboardRepository(impl: ClipboardRepositoryImpl): ClipboardRepository
 }

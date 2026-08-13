@@ -3,6 +3,7 @@ package kg.timmitof.keyboard.presentation.screens.keyboard
 import androidx.lifecycle.viewModelScope
 import kg.timmitof.core.ui.base.BaseSideEffect
 import kg.timmitof.core.ui.base.BaseViewModel
+import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.ClipboardDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.EmojiDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.FieldContextDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.FontDelegate
@@ -13,8 +14,10 @@ import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.SuggestionsD
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.TextInputDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardEvent
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardLayer
+import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardOverlay
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardSideEffect
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardState
+import kg.timmitof.keyboard.presentation.screens.keyboard.states.QuickSetting
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -36,6 +39,7 @@ internal class KeyboardViewModel(
     private val fieldContextDelegate: FieldContextDelegate,
     private val suggestionsDelegate: SuggestionsDelegate,
     private val settingsDelegate: SettingsDelegate,
+    private val clipboardDelegate: ClipboardDelegate,
 ) : BaseViewModel<KeyboardState, KeyboardSideEffect, KeyboardEvent>(KeyboardState()) {
 
     override fun onEvent(event: KeyboardEvent) {
@@ -78,6 +82,22 @@ internal class KeyboardViewModel(
                 with(suggestionsDelegate) { requestSuggestions() }
             }
             is KeyboardEvent.OnEmojiSearchQueryChange -> intent { with(emojiDelegate) { updateSearchQuery(event.query) } }
+            is KeyboardEvent.OnOverlayChange -> openOverlay(event.overlay)
+            is KeyboardEvent.OnQuickSetting -> intent {
+                when (val setting = event.setting) {
+                    is QuickSetting.Toggle -> settingsDelegate.setToggle(setting.toggle, setting.isEnabled)
+                    is QuickSetting.Height -> settingsDelegate.setHeight(setting.height)
+                    is QuickSetting.Theme -> with(settingsDelegate) { setTheme(setting.theme) }
+                }
+            }
+            is KeyboardEvent.OnClipboardPaste -> intent {
+                with(clipboardDelegate) { paste(event.entry.text) }
+            }
+            is KeyboardEvent.OnClipboardAction -> intent { clipboardDelegate.applyAction(event.action) }
+            is KeyboardEvent.OnOpenApp -> intent {
+                reduce { state.copy(keyboardOverlay = null) }
+                postSideEffect(KeyboardSideEffect.OpenApp)
+            }
             is KeyboardEvent.OnInputSessionChange -> resetInputSession()
             is KeyboardEvent.OnFieldContextChange -> intent {
                 with(fieldContextDelegate) { applyContext(event.context) }
@@ -99,6 +119,7 @@ internal class KeyboardViewModel(
         layerDelegate.preloadLayouts(state.languages.map { it.code })
         observeSuggestions()
         observeSettings()
+        observeClipboard()
 
         val languageCode = state.activeLanguage?.code
 
@@ -106,6 +127,18 @@ internal class KeyboardViewModel(
             emojiDelegate.prefetchVariants()
             languageCode?.let { suggestionsDelegate.prefetch(it) }
         }
+    }
+
+    private fun openOverlay(overlay: KeyboardOverlay?) = intent {
+        if (overlay == KeyboardOverlay.CLIPBOARD) clipboardDelegate.captureSystemClip()
+
+        reduce { state.copy(keyboardOverlay = overlay) }
+    }
+
+    private fun observeClipboard() {
+        clipboardDelegate.board
+            .onEach { board -> intent { with(clipboardDelegate) { applyBoard(board) } } }
+            .launchIn(viewModelScope)
     }
 
     /** Готовые подсказки приходят из фонового расчёта и попадают в состояние. */
@@ -148,12 +181,14 @@ internal class KeyboardViewModel(
     private fun resetInputSession() = intent {
         with(textInputDelegate) { resetShift() }
         with(fontDelegate) { forgetFontIfNeeded() }
+        clipboardDelegate.captureSystemClip()
         reduce {
             state.copy(
                 suggestions = emptyList(),
                 suggestionsWord = "",
                 autoCorrection = null,
                 isFontsExpanded = state.allowsFonts,
+                keyboardOverlay = null,
             )
         }
 

@@ -63,6 +63,22 @@ enum class KeyboardThemeMode(val key: String) {
 }
 
 /**
+ * Высота рядов клавиш.
+ */
+enum class KeyboardHeight(val key: String, val scale: Float) {
+    S("s", 0.86f),
+    M("m", 1f),
+    L("l", 1.14f),
+    XL("xl", 1.28f);
+
+    companion object {
+        val Default = M
+
+        fun of(key: String?): KeyboardHeight = entries.firstOrNull { it.key == key } ?: Default
+    }
+}
+
+/**
  * Снимок всех настроек клавиатуры.
  *
  * [flags] только читается — экземпляр собирается хранилищем и дальше не меняется,
@@ -71,6 +87,7 @@ enum class KeyboardThemeMode(val key: String) {
 data class KeyboardSettings(
     private val flags: Map<KeyboardToggle, Boolean> = emptyMap(),
     val theme: KeyboardThemeMode = KeyboardThemeMode.Default,
+    val height: KeyboardHeight = KeyboardHeight.Default,
 ) {
 
     /** Положение самого переключателя — таким его видит пользователь на экране. */

@@ -23,18 +23,18 @@ internal class KeyboardActionHandler(
     private val editorInfoProvider: () -> EditorInfo?,
 ) {
 
-    fun handle(action: KeyboardSideEffect) {
+    fun handle(action: KeyboardSideEffect.Input) {
         val connection = inputConnectionProvider() ?: return
         when (action) {
-            is KeyboardSideEffect.CommitText -> connection.commitText(action.char, 1)
-            is KeyboardSideEffect.ReplaceWordBeforeCursor -> connection.replaceWordBeforeCursor(action.text)
-            is KeyboardSideEffect.ReplaceTextBeforeCursor -> connection.replaceBeforeCursor(action.chars, action.text)
-            is KeyboardSideEffect.MoveCursor -> connection.moveCursor(action.horizontal, action.vertical)
-            is KeyboardSideEffect.DeleteBackward -> connection.deleteLastGrapheme()
-            is KeyboardSideEffect.DeleteWordBackward -> connection.deleteWordBeforeCursor()
-            is KeyboardSideEffect.SelectBeforeCursor -> connection.selectBeforeCursor(action.chars)
-            is KeyboardSideEffect.PerformEditorAction -> connection.performEnter()
-            is KeyboardSideEffect.DeleteSelection -> connection.commitText("", 1)
+            is KeyboardSideEffect.Input.CommitText -> connection.commitText(action.char, 1)
+            is KeyboardSideEffect.Input.ReplaceWordBeforeCursor -> connection.replaceWordBeforeCursor(action.text)
+            is KeyboardSideEffect.Input.ReplaceTextBeforeCursor -> connection.replaceBeforeCursor(action.chars, action.text)
+            is KeyboardSideEffect.Input.MoveCursor -> connection.moveCursor(action.horizontal, action.vertical)
+            is KeyboardSideEffect.Input.DeleteBackward -> connection.deleteLastGrapheme()
+            is KeyboardSideEffect.Input.DeleteWordBackward -> connection.deleteWordBeforeCursor()
+            is KeyboardSideEffect.Input.SelectBeforeCursor -> connection.selectBeforeCursor(action.chars)
+            is KeyboardSideEffect.Input.PerformEditorAction -> connection.performEnter()
+            is KeyboardSideEffect.Input.DeleteSelection -> connection.commitText("", 1)
         }
     }
 
