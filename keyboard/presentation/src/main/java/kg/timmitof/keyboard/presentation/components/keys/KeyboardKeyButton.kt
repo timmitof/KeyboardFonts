@@ -33,7 +33,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import kg.timmitof.core.ui.keyClickable
 import kg.timmitof.keyboard.domain.model.KeyCharacter
-import kg.timmitof.keyboard.domain.model.KeyboardFont
+import kg.timmitof.keyboard.font.domain.model.KeyboardFont
 import kg.timmitof.keyboard.domain.model.KeyboardKey
 import kg.timmitof.keyboard.domain.model.LongPressAction
 import kg.timmitof.keyboard.presentation.theme.KFTheme

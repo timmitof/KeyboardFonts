@@ -9,7 +9,7 @@ import kg.timmitof.feature_settings.domain.usecase.GetSettingsSummaryUseCase
 import kg.timmitof.feature_settings.domain.usecase.ObserveKeyboardSettingsUseCase
 import kg.timmitof.feature_settings.domain.usecase.SetKeyboardThemeUseCase
 import kg.timmitof.feature_settings.domain.usecase.SetKeyboardToggleUseCase
-import kg.timmitof.keyboard.domain.repository.FontRepository
+import kg.timmitof.keyboard.font.domain.repository.FontRepository
 import kg.timmitof.keyboard.domain.repository.KeyboardSettingsRepository
 import kg.timmitof.keyboard.domain.repository.LanguageRepository
 import kg.timmitof.keyboard.integration.KeyboardContract

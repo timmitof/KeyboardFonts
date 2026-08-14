@@ -1,7 +1,7 @@
 package kg.timmitof.keyboard.presentation.screens.keyboard.delegates
 
-import kg.timmitof.keyboard.domain.model.KeyboardFont
-import kg.timmitof.keyboard.domain.repository.FontRepository
+import kg.timmitof.keyboard.font.domain.model.KeyboardFont
+import kg.timmitof.keyboard.font.domain.repository.FontRepository
 import kg.timmitof.keyboard.presentation.screens.keyboard.KeyboardSyntax
 
 internal class FontDelegate(

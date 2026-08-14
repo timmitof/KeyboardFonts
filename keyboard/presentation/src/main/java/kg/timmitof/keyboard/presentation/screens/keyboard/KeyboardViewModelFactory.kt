@@ -2,13 +2,13 @@ package kg.timmitof.keyboard.presentation.screens.keyboard
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import kg.timmitof.keyboard.domain.repository.ClipboardRepository
+import kg.timmitof.keyboard.clipboard.domain.repository.ClipboardRepository
 import kg.timmitof.keyboard.domain.repository.EmojiRepository
-import kg.timmitof.keyboard.domain.repository.FontRepository
+import kg.timmitof.keyboard.font.domain.repository.FontRepository
 import kg.timmitof.keyboard.domain.repository.KeyboardLayoutRepository
 import kg.timmitof.keyboard.domain.repository.KeyboardSettingsRepository
 import kg.timmitof.keyboard.domain.repository.LanguageRepository
-import kg.timmitof.keyboard.domain.repository.SuggestionRepository
+import kg.timmitof.keyboard.suggestion.domain.repository.SuggestionRepository
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.ClipboardDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.EmojiDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.FieldContextDelegate

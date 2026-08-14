@@ -4,4 +4,4 @@ import android.content.Context
 import androidx.datastore.preferences.preferencesDataStore
 
 /** DataStore Preferences для общих настроек клавиатуры (выбранный язык и т. п.). */
-internal val Context.keyboardPreferences by preferencesDataStore(name = "keyboard_preferences")
+val Context.keyboardPreferences by preferencesDataStore(name = "keyboard_preferences")

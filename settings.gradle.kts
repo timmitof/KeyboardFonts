@@ -62,6 +62,23 @@ include(
     ":keyboard:di",
 )
 
+fun includeKeyboardModule(name: String) {
+    val layers = listOf("data", "domain", "di")
+    layers.forEach { layer ->
+        val layerDir = file("keyboard/$name/$layer")
+        if (layerDir.exists()) {
+            val modulePath = ":keyboard:$name:$layer"
+            include(modulePath)
+            project(modulePath).projectDir = layerDir
+            println("Included $modulePath")
+        }
+    }
+}
+
+includeKeyboardModule("suggestion")
+includeKeyboardModule("font")
+includeKeyboardModule("clipboard")
+
 includeFeature("home")
 includeFeature("settings")
 includeFeature("splash")

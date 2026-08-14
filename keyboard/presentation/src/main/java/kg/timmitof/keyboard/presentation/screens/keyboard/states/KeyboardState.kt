@@ -5,19 +5,19 @@ import androidx.compose.runtime.Stable
 import kg.timmitof.core.ui.base.BaseEvent
 import kg.timmitof.core.ui.base.BaseSideEffect
 import kg.timmitof.core.ui.base.BaseState
-import kg.timmitof.keyboard.domain.model.ClipboardBoard
-import kg.timmitof.keyboard.domain.model.ClipboardEntry
+import kg.timmitof.keyboard.clipboard.domain.model.ClipboardBoard
+import kg.timmitof.keyboard.clipboard.domain.model.ClipboardEntry
 import kg.timmitof.keyboard.domain.model.EmojiCategory
 import kg.timmitof.keyboard.domain.model.KeyboardHeight
 import kg.timmitof.keyboard.domain.model.KeyCharacter
-import kg.timmitof.keyboard.domain.model.KeyboardFont
+import kg.timmitof.keyboard.font.domain.model.KeyboardFont
 import kg.timmitof.keyboard.domain.model.KeyboardLanguage
 import kg.timmitof.keyboard.domain.model.KeyboardLayout
 import kg.timmitof.keyboard.domain.model.KeyboardSettings
 import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
 import kg.timmitof.keyboard.domain.model.KeyboardToggle
-import kg.timmitof.keyboard.domain.model.TextContext
-import kg.timmitof.keyboard.domain.model.WordSuggestion
+import kg.timmitof.keyboard.suggestion.domain.model.TextContext
+import kg.timmitof.keyboard.suggestion.domain.model.WordSuggestion
 import kg.timmitof.keyboard.presentation.R
 
 @Stable

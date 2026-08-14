@@ -1,9 +1,9 @@
 package kg.timmitof.keyboard.presentation.screens.keyboard.delegates
 
-import kg.timmitof.keyboard.domain.model.SuggestionRequest
-import kg.timmitof.keyboard.domain.model.TextContext
-import kg.timmitof.keyboard.domain.model.WordSuggestion
-import kg.timmitof.keyboard.domain.repository.SuggestionRepository
+import kg.timmitof.keyboard.suggestion.domain.model.SuggestionRequest
+import kg.timmitof.keyboard.suggestion.domain.model.TextContext
+import kg.timmitof.keyboard.suggestion.domain.model.WordSuggestion
+import kg.timmitof.keyboard.suggestion.domain.repository.SuggestionRepository
 import kg.timmitof.keyboard.presentation.screens.keyboard.KeyboardSyntax
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardSideEffect
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardState

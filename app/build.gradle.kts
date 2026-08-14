@@ -43,6 +43,9 @@ android {
 
 dependencies {
     implementation(project(":keyboard:integration"))
+    implementation(project(":keyboard:suggestion:di"))
+    implementation(project(":keyboard:font:di"))
+    implementation(project(":keyboard:clipboard:di"))
 
     implementation(project(":feature_splash:feature_splash_presentation"))
     implementation(project(":feature_home:feature_home_presentation"))

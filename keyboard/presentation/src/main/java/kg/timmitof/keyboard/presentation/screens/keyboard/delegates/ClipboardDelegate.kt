@@ -1,7 +1,7 @@
 package kg.timmitof.keyboard.presentation.screens.keyboard.delegates
 
-import kg.timmitof.keyboard.domain.model.ClipboardBoard
-import kg.timmitof.keyboard.domain.repository.ClipboardRepository
+import kg.timmitof.keyboard.clipboard.domain.model.ClipboardBoard
+import kg.timmitof.keyboard.clipboard.domain.repository.ClipboardRepository
 import kg.timmitof.keyboard.presentation.screens.keyboard.KeyboardSyntax
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.ClipboardAction
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardSideEffect

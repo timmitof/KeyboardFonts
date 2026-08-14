@@ -1,8 +1,8 @@
 package kg.timmitof.keyboard.presentation.screens.keyboard.delegates
 
 import kg.timmitof.keyboard.domain.model.KeyCharacter
-import kg.timmitof.keyboard.domain.model.TextContext
-import kg.timmitof.keyboard.domain.model.WordSuggestion
+import kg.timmitof.keyboard.suggestion.domain.model.TextContext
+import kg.timmitof.keyboard.suggestion.domain.model.WordSuggestion
 import kg.timmitof.keyboard.presentation.screens.keyboard.KeyboardSyntax
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.AutoCorrection
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.ComposingText

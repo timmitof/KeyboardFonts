@@ -3,7 +3,7 @@ package kg.timmitof.keyboard.data.font
 /**
  * Возвращает стилизованный текст к обычным буквам.
  */
-internal object FontDecoder {
+object FontDecoder {
 
     /** Код-поинт глифа → обычный символ. */
     private val plainByGlyph: Map<Int, Char> by lazy { buildIndex() }

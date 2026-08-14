@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!--
+        SymSpellKt 3.4.0 по ошибке публикует minSdk 26, хотя Android-вариант
+        содержит только общий Kotlin-код и не обращается к Android API.
+        Клавиатура поддерживает API 24, поэтому снимаем только этот manifest-барьер.
+    -->
+    <uses-sdk tools:overrideLibrary="com.darkrockstudios.symspellkt" />
+</manifest>

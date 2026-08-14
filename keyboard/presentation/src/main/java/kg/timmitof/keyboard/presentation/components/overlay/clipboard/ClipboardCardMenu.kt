@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
-import kg.timmitof.keyboard.domain.model.ClipboardEntry
+import kg.timmitof.keyboard.clipboard.domain.model.ClipboardEntry
 import kg.timmitof.keyboard.presentation.R
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.ClipboardAction
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardEvent

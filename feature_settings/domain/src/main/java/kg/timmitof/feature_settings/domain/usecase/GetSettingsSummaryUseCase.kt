@@ -2,7 +2,7 @@ package kg.timmitof.feature_settings.domain.usecase
 
 import kg.timmitof.feature_settings.domain.model.SettingsSummary
 import kg.timmitof.keyboard.domain.model.KeyboardLanguage
-import kg.timmitof.keyboard.domain.repository.FontRepository
+import kg.timmitof.keyboard.font.domain.repository.FontRepository
 import kg.timmitof.keyboard.domain.repository.LanguageRepository
 import kg.timmitof.keyboard.integration.KeyboardContract
 

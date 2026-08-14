@@ -20,7 +20,7 @@ import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
-import kg.timmitof.keyboard.domain.model.TextContext
+import kg.timmitof.keyboard.suggestion.domain.model.TextContext
 import kg.timmitof.keyboard.presentation.insets.KeyboardInsetsTracker
 import kg.timmitof.keyboard.presentation.insets.LocalKeyboardInsets
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardFieldContext

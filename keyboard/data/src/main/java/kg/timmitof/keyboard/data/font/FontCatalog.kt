@@ -1,11 +1,11 @@
 package kg.timmitof.keyboard.data.font
 
-import kg.timmitof.keyboard.domain.model.KeyboardFont
+import kg.timmitof.keyboard.font.domain.model.KeyboardFont
 
 /**
  * Каталог шрифтов: строит Unicode-карты стилизации.
  */
-internal object FontCatalog {
+object FontCatalog {
 
     val fonts: List<KeyboardFont> by lazy { buildFonts() }
 
