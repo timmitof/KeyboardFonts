@@ -8,12 +8,17 @@ import kg.timmitof.keyboard.domain.model.KeyType
 import kg.timmitof.keyboard.domain.model.KeyboardKey
 import kg.timmitof.keyboard.domain.model.KeyboardLayout
 import kg.timmitof.keyboard.domain.model.LongPressAction
-import kg.timmitof.keyboard.domain.model.LongPressCharacter
+import kg.timmitof.keyboard.domain.model.KeyCharacter
 
 object KeyboardMapper {
 
+    /** Значение поля `script` в JSON-раскладке. */
+    private const val LATIN_SCRIPT = "latin"
+
+
     fun KeyboardLayoutDto.toDomain(): KeyboardLayout = KeyboardLayout(
         name = name,
+        isLatin = script.equals(LATIN_SCRIPT, ignoreCase = true),
         largeLabels = largeLabels,
         rows = rows.map { row -> row.mapNotNull { it.toDomain() } }
     )
@@ -54,8 +59,8 @@ object KeyboardMapper {
     }
 
     private fun KeyLongPressDto.toSymbols(): LongPressAction.Symbols? {
-        val options = symbols.orEmpty().map { LongPressCharacter(it) } +
-            characters.orEmpty().map { LongPressCharacter(it.labelLower, it.labelUpper ?: it.labelLower) }
+        val options = symbols.orEmpty().map { KeyCharacter(it) } +
+            characters.orEmpty().map { KeyCharacter(it.labelLower, it.labelUpper ?: it.labelLower) }
 
         return options.takeIf { it.isNotEmpty() }?.let { LongPressAction.Symbols(it) }
     }

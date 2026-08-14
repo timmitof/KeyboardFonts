@@ -12,31 +12,36 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import kg.timmitof.core.ui.base.Container
 import kg.timmitof.core.ui.base.ContainerDSLBuilder
+import kg.timmitof.core.ui.components.AppTopBar
 import kg.timmitof.core.ui.theme.KeyboardFontsTheme
 import kg.timmitof.feature_home.domain.model.KeyboardSetupStep
-import kg.timmitof.feature_home.presentation.components.HomeTopAppBar
+import kg.timmitof.feature_home.presentation.R
 import kg.timmitof.feature_home.presentation.components.KeyboardSetupGuide
 import kg.timmitof.feature_home.presentation.components.TryKeyboardField
-import org.orbitmvi.orbit.compose.collectAsState
 
+/**
+ * Проверка клавиатуры: инструкция подключения и тестовые поля ввода.
+ *
+ * Экран открывается из настроек — здесь видно и то, что клавиатура подключена,
+ * и то, как она ведёт себя в разных типах полей.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(
-    viewModel: HomeViewModel = hiltViewModel()
+fun CheckKeyboardScreen(
+    viewModel: CheckKeyboardViewModel = hiltViewModel()
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
-    val screenState by viewModel.collectAsState()
 
     Container(
         modifier = Modifier
@@ -44,16 +49,14 @@ fun HomeScreen(
             .nestedScroll(scrollBehavior.nestedScrollConnection),
         viewModel = viewModel,
         topBar = {
-            HomeTopAppBar(
+            AppTopBar(
+                title = stringResource(R.string.check_keyboard_title),
                 scrollBehavior = scrollBehavior,
-                isKeyboardReady = screenState.keyboardSetup.currentStep == KeyboardSetupStep.DONE,
-                onOpenKeyboardSettings = {
-                    viewModel.onEvent(HomeEvent.SetupStepClicked(KeyboardSetupStep.ENABLE))
-                }
+                onBack = { viewModel.onEvent(CheckKeyboardEvent.BackClicked) }
             )
         }
     ) { state, innerPadding ->
-        HomeContent(
+        CheckKeyboardContent(
             state = state,
             innerPadding = innerPadding
         )
@@ -61,8 +64,8 @@ fun HomeScreen(
 }
 
 @Composable
-internal fun ContainerDSLBuilder<HomeSideEffect, HomeEvent>.HomeContent(
-    state: State<HomeState>,
+internal fun ContainerDSLBuilder<CheckKeyboardSideEffect, CheckKeyboardEvent>.CheckKeyboardContent(
+    state: State<CheckKeyboardState>,
     innerPadding: PaddingValues = PaddingValues()
 ) {
     val scrollState = rememberScrollState()
@@ -70,12 +73,12 @@ internal fun ContainerDSLBuilder<HomeSideEffect, HomeEvent>.HomeContent(
 
     // Статус клавиатуры меняется в системных настройках — перечитываем его при каждом возврате
     LifecycleResumeEffect(Unit) {
-        sendEvent(HomeEvent.KeyboardSetupChecked)
+        sendEvent(CheckKeyboardEvent.KeyboardSetupChecked)
         onPauseOrDispose { }
     }
 
     val onStepClick = remember<(KeyboardSetupStep) -> Unit> {
-        { step -> sendEvent(HomeEvent.SetupStepClicked(step)) }
+        { step -> sendEvent(CheckKeyboardEvent.SetupStepClicked(step)) }
     }
 
     Column(
@@ -105,8 +108,8 @@ private val HORIZONTAL_PADDING = 16.dp
 private fun Preview() {
     KeyboardFontsTheme {
         Surface {
-            ContainerDSLBuilder<HomeSideEffect, HomeEvent>({}).HomeContent(
-                state = remember { mutableStateOf(HomeState()) }
+            ContainerDSLBuilder<CheckKeyboardSideEffect, CheckKeyboardEvent>({}).CheckKeyboardContent(
+                state = remember { mutableStateOf(CheckKeyboardState()) }
             )
         }
     }

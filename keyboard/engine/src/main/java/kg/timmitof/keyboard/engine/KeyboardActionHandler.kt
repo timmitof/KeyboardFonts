@@ -1,7 +1,11 @@
 package kg.timmitof.keyboard.engine
 
+import android.content.Context
 import android.icu.text.BreakIterator
 import android.os.SystemClock
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.SuggestionSpan
 import android.view.KeyEvent
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.ExtractedTextRequest
@@ -15,25 +19,48 @@ import kotlin.math.abs
  * [InputConnection] и [EditorInfo] запрашиваются через провайдеры на каждое действие,
  * потому что у IME они меняются при каждой смене поля ввода
  *
+ * @param context нужен спану подсказки — по нему он берёт локаль
  * @param inputConnectionProvider доступ к актуальному [InputConnection]
  * @param editorInfoProvider доступ к актуальному [EditorInfo]
  */
 internal class KeyboardActionHandler(
+    private val context: Context,
     private val inputConnectionProvider: () -> InputConnection?,
     private val editorInfoProvider: () -> EditorInfo?,
 ) {
 
-    fun handle(action: KeyboardSideEffect) {
+    fun handle(action: KeyboardSideEffect.Input) {
         val connection = inputConnectionProvider() ?: return
         when (action) {
-            is KeyboardSideEffect.CommitText -> connection.commitText(action.char, 1)
-            is KeyboardSideEffect.ReplaceWordBeforeCursor -> connection.replaceWordBeforeCursor(action.text)
-            is KeyboardSideEffect.MoveCursor -> connection.moveCursor(action.horizontal, action.vertical)
-            is KeyboardSideEffect.DeleteBackward -> connection.deleteLastGrapheme()
-            is KeyboardSideEffect.DeleteWordBackward -> connection.deleteWordBeforeCursor()
-            is KeyboardSideEffect.SelectBeforeCursor -> connection.selectBeforeCursor(action.chars)
-            is KeyboardSideEffect.PerformEditorAction -> connection.performEnter()
-            is KeyboardSideEffect.DeleteSelection -> connection.commitText("", 1)
+            is KeyboardSideEffect.Input.CommitText -> connection.commitText(action.char, 1)
+            is KeyboardSideEffect.Input.SetComposingText ->
+                connection.setComposingText(action.text.withCorrectionHint(action.hasCorrection), 1)
+
+            is KeyboardSideEffect.Input.FinishComposing -> connection.finishComposingText()
+            is KeyboardSideEffect.Input.ReplaceWordBeforeCursor -> connection.replaceWordBeforeCursor(action.text)
+            is KeyboardSideEffect.Input.ReplaceTextBeforeCursor -> connection.replaceBeforeCursor(action.chars, action.text)
+            is KeyboardSideEffect.Input.MoveCursor -> connection.moveCursor(action.horizontal, action.vertical)
+            is KeyboardSideEffect.Input.DeleteBackward -> connection.deleteLastGrapheme()
+            is KeyboardSideEffect.Input.DeleteWordBackward -> connection.deleteWordBeforeCursor()
+            is KeyboardSideEffect.Input.SelectBeforeCursor -> connection.selectBeforeCursor(action.chars)
+            is KeyboardSideEffect.Input.PerformEditorAction -> connection.performEnter()
+            is KeyboardSideEffect.Input.DeleteSelection -> connection.commitText("", 1)
+        }
+    }
+
+    /**
+     * Помечает черновик как «будет исправлен».
+     */
+    private fun CharSequence.withCorrectionHint(hasCorrection: Boolean): CharSequence {
+        if (!hasCorrection) return this
+
+        return SpannableString(this).apply {
+            setSpan(
+                SuggestionSpan(context, arrayOf(), SuggestionSpan.FLAG_AUTO_CORRECTION),
+                0,
+                length,
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
+            )
         }
     }
 
@@ -41,15 +68,21 @@ internal class KeyboardActionHandler(
      * Заменяет незаконченное слово перед курсором на [text].
      */
     private fun InputConnection.replaceWordBeforeCursor(text: CharSequence) {
-        beginBatchEdit()
         val before = getTextBeforeCursor(WORD_LOOKUP_LENGTH, 0)?.toString().orEmpty()
-        val typed = before.takeLastWhile { !it.isWhitespace() }
-        if (typed.isNotEmpty()) {
-            deleteSurroundingText(typed.length, 0)
-        }
+        val typed = before.takeLastWhile { !it.isWordSeparator() }
+        replaceBeforeCursor(typed.length, text)
+    }
+
+    /** Меняет [chars] символов перед курсором на [text] одной правкой. */
+    private fun InputConnection.replaceBeforeCursor(chars: Int, text: CharSequence) {
+        beginBatchEdit()
+        if (chars > 0) deleteSurroundingText(chars, 0)
         commitText(text, 1)
         endBatchEdit()
     }
+
+    /** Граница слова: пробелы и знаки препинания в подсказку не входят. */
+    private fun Char.isWordSeparator(): Boolean = isWhitespace() || this in WORD_SEPARATORS
 
     private fun InputConnection.performEnter() {
         val editorInfo = editorInfoProvider()
@@ -135,6 +168,9 @@ internal class KeyboardActionHandler(
     private companion object {
         /** Сколько символов перед курсором запрашивать для поиска границы слова. */
         const val WORD_LOOKUP_LENGTH = 64
+
+        /** Знаки, которые не входят в слово (совпадают с разбором в `TextContext`). */
+        const val WORD_SEPARATORS = ".,!?;:()[]{}<>\"«»„“”…—–-/\\|@#\$%^&*+=~`№"
 
         /** Сколько символов хватает для поиска границы графемы. */
         const val GRAPHEME_LOOKUP_LENGTH = 32

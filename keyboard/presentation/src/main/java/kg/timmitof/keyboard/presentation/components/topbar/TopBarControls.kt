@@ -2,6 +2,8 @@ package kg.timmitof.keyboard.presentation.components.topbar
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -16,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,6 +27,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -38,6 +42,9 @@ import kg.timmitof.keyboard.presentation.theme.KFTheme
 private val ControlHeight = 32.dp
 
 private val ControlShape = RoundedCornerShape(ControlHeight / 2)
+
+/** Сторона якоря справа: зона нажатия во всю высоту панели. */
+private val AnchorSize = 40.dp
 
 /**
  * Свёрнутая карусель шрифтов: кнопка с текущим стилем.
@@ -77,18 +84,31 @@ internal fun FontToggleButton(
     }
 }
 
-/** Круглая кнопка-иконка панели: свернуть клавиатуру, закрыть карусель. */
+/** Якорь в правом краю панели: подсвечен, пока открыт его лист. */
 @Composable
-internal fun TopBarIconButton(
+internal fun TopBarAnchorButton(
     @DrawableRes iconRes: Int,
     contentDescription: String,
+    isActive: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val background by animateColorAsState(
+        targetValue = if (isActive) KFTheme.color.noticeBackground else Color.Transparent,
+        animationSpec = tween(180),
+        label = "anchorBackground"
+    )
+    val tint by animateColorAsState(
+        targetValue = if (isActive) KFTheme.color.noticeTextColor else KFTheme.color.keySpecialTextColor,
+        animationSpec = tween(180),
+        label = "anchorTint"
+    )
+
     Box(
         modifier = modifier
-            .size(ControlHeight)
+            .size(AnchorSize)
             .clip(CircleShape)
+            .background(background)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
@@ -99,8 +119,8 @@ internal fun TopBarIconButton(
         Icon(
             imageVector = ImageVector.vectorResource(iconRes),
             contentDescription = contentDescription,
-            tint = KFTheme.color.keySpecialTextColor,
-            modifier = Modifier.size(18.dp)
+            tint = tint,
+            modifier = Modifier.size(20.dp)
         )
     }
 }

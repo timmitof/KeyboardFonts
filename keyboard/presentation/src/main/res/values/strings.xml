@@ -15,6 +15,36 @@
     <string name="fonts_collapse">Свернуть шрифты</string>
     <string name="keyboard_hide">Свернуть клавиатуру</string>
 
+    <string name="quick_settings_title">Быстрые настройки</string>
+    <string name="overlay_close">Закрыть</string>
+    <string name="quick_settings_suggestions">Подсказки T9</string>
+    <string name="quick_settings_autocorrect_on">Автозамена включена</string>
+    <string name="quick_settings_autocorrect_off">Автозамена выключена</string>
+    <string name="quick_settings_fonts">Шрифты</string>
+    <string name="quick_settings_height">Высота</string>
+    <string name="quick_settings_vibration">Вибрация</string>
+    <string name="quick_settings_theme">Тема</string>
+    <string name="quick_settings_open_app">Все настройки в приложении</string>
+
+    <string name="keyboard_height_s">S</string>
+    <string name="keyboard_height_m">M</string>
+    <string name="keyboard_height_l">L</string>
+    <string name="keyboard_height_xl">XL</string>
+
+    <string name="keyboard_theme_auto">Авто</string>
+    <string name="keyboard_theme_light">Светлая</string>
+    <string name="keyboard_theme_dark">Тёмная</string>
+
+    <string name="clipboard_title">Буфер обмена</string>
+    <string name="clipboard_clear">Очистить недавнее</string>
+    <string name="clipboard_pinned">Закреплено</string>
+    <string name="clipboard_recent">Недавнее</string>
+    <string name="clipboard_empty">Скопируйте текст — он появится здесь</string>
+    <string name="clipboard_pin">Закрепить</string>
+    <string name="clipboard_unpin">Открепить</string>
+    <string name="clipboard_delete">Удалить</string>
+    <string name="clipboard_open_app">История буфера в приложении</string>
+
     <string name="emoji_category_recent">Недавние</string>
     <string name="emoji_category_smileys">Смайлы и эмоции</string>
     <string name="emoji_category_people">Люди и тело</string>

@@ -1,10 +1,16 @@
 package kg.timmitof.keyboard.presentation.components
 
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.unit.dp
 
-/** Высота ряда — она же высота зоны нажатия клавиши (вместе с её зазорами). */
+/** Базовая высота ряда — она же высота зоны нажатия клавиши (вместе с её зазорами). */
 internal val KeyRowHeight = 60.dp
+
+/**
+ * Высота ряда с учётом выбранной в настройках высоты клавиатуры.
+ */
+internal val LocalKeyRowHeight = staticCompositionLocalOf { KeyRowHeight }
 
 /** Видимый вертикальный зазор между рядами. */
 internal val KeyRowSpacing = 8.dp
@@ -23,13 +29,8 @@ internal val KeyShape = RoundedCornerShape(KeyCornerRadius)
  */
 internal val KeySupport = 1.5.dp
 
-/** Высота верхней панели: шрифты, подсказки поля и кнопка «свернуть». */
+/** Высота верхней панели: шрифты, подсказки поля и якоря справа. */
 internal val TopBarHeight = 40.dp
 
-/** Высота зоны клавиш: 4 ряда вплотную — промежутки входят в высоту самих рядов. */
-internal val KeyboardBodyHeight = KeyRowHeight * 4
-
-/**
- * Полная высота содержимого клавиатуры.
- */
-internal val KeyboardContentHeight = TopBarHeight + KeyRowSpacing / 2 + KeyboardBodyHeight
+/** Число рядов клавиш в любом слое — по нему считается высота зоны клавиш. */
+internal const val KeyRowCount = 4

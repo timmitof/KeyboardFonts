@@ -8,27 +8,27 @@ import kg.timmitof.feature_home.domain.model.KeyboardSetupStep
 import kg.timmitof.feature_home.domain.model.TemplateModel
 
 /**
- * `HomeState` represents the current UI state of the **Home** screen.
+ * Состояние экрана проверки клавиатуры.
  *
  * @property keyboardSetup состояние подключения клавиатуры — от него зависит вся инструкция.
  */
-data class HomeState(
+data class CheckKeyboardState(
     val templateList: List<TemplateModel> = emptyList(),
     val keyboardSetup: KeyboardSetupModel = KeyboardSetupModel()
-): BaseState()
+) : BaseState()
 
 /** Screen-specific one-off effects */
-sealed class HomeSideEffect : BaseSideEffect.UiSideEffect() {
-
-}
+sealed class CheckKeyboardSideEffect : BaseSideEffect.UiSideEffect()
 
 /** All actions coming from the UI */
-sealed class HomeEvent : BaseEvent.UiEvent() {
-    data class BackgroundSelected(val backgroundPath: String) : HomeEvent()
+sealed class CheckKeyboardEvent : BaseEvent.UiEvent() {
 
     /** Экран вернулся на передний план — перепроверяем статус клавиатуры. */
-    data object KeyboardSetupChecked : HomeEvent()
+    data object KeyboardSetupChecked : CheckKeyboardEvent()
 
     /** Нажата кнопка шага инструкции. */
-    data class SetupStepClicked(val step: KeyboardSetupStep) : HomeEvent()
+    data class SetupStepClicked(val step: KeyboardSetupStep) : CheckKeyboardEvent()
+
+    /** Стрелка «назад» в верхней панели. */
+    data object BackClicked : CheckKeyboardEvent()
 }

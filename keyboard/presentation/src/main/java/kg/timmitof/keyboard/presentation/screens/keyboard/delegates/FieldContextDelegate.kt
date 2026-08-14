@@ -20,7 +20,9 @@ internal class FieldContextDelegate(
         reduce {
             state.copy(
                 fieldContext = context,
+                fieldLanguage = state.latinLanguageFor(context.type),
                 suggestions = emptyList(),
+                autoCorrection = null,
                 isFontsExpanded = state.isFontsExpanded && context.type.allowsFonts,
                 shiftState = if (context.type.autoCapitalize) state.shiftState else ShiftState.DISABLED,
             )

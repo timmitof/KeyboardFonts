@@ -7,19 +7,19 @@ import kg.timmitof.feature_home.domain.model.KeyboardSetupStep
 import javax.inject.Inject
 
 @HiltViewModel
-class HomeViewModel @Inject constructor(
+class CheckKeyboardViewModel @Inject constructor(
     private val homeInteractor: HomeInteractor
-): BaseViewModel<HomeState, HomeSideEffect, HomeEvent>(HomeState()) {
+) : BaseViewModel<CheckKeyboardState, CheckKeyboardSideEffect, CheckKeyboardEvent>(CheckKeyboardState()) {
 
     init {
         observeKeyboardSetup()
     }
 
-    override fun onEvent(event: HomeEvent) {
+    override fun onEvent(event: CheckKeyboardEvent) {
         when (event) {
-            is HomeEvent.BackgroundSelected -> Unit
-            is HomeEvent.KeyboardSetupChecked -> checkKeyboardSetup()
-            is HomeEvent.SetupStepClicked -> openSetupStep(event.step)
+            is CheckKeyboardEvent.KeyboardSetupChecked -> checkKeyboardSetup()
+            is CheckKeyboardEvent.SetupStepClicked -> openSetupStep(event.step)
+            is CheckKeyboardEvent.BackClicked -> navigateBack()
         }
     }
 

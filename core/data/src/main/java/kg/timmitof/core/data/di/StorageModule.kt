@@ -8,6 +8,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kg.timmitof.core.data.local.AppDatabase
+import kg.timmitof.core.data.local.Migrations
+import kg.timmitof.core.data.local.dao.ClipboardDao
 import kg.timmitof.core.data.local.dao.ProjectDao
 import kg.timmitof.core.data.local.dao.TemplateDao
 import javax.inject.Singleton
@@ -23,7 +25,7 @@ object StorageModule {
     @Provides
     fun provideDatabase(@ApplicationContext context: Context): AppDatabase =
         Room.databaseBuilder(context, AppDatabase::class.java, AppDatabase.TAG)
-            .fallbackToDestructiveMigration(false)
+            .addMigrations(*Migrations.all)
             .build()
 
     @Singleton
@@ -33,4 +35,8 @@ object StorageModule {
     @Singleton
     @Provides
     fun provideTemplateDao(database: AppDatabase): TemplateDao = database.templateDao()
+
+    @Singleton
+    @Provides
+    fun provideClipboardDao(database: AppDatabase): ClipboardDao = database.clipboardDao()
 }

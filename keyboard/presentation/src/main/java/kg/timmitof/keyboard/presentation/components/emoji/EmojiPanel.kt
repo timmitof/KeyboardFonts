@@ -35,7 +35,10 @@ import kg.timmitof.keyboard.domain.model.EmojiCategory
 import kg.timmitof.keyboard.domain.model.KeyboardLanguage
 import kg.timmitof.keyboard.presentation.R
 import kg.timmitof.keyboard.presentation.components.KeyShape
-import kg.timmitof.keyboard.presentation.components.KeyboardContentHeight
+import kg.timmitof.keyboard.presentation.components.KeyRowCount
+import kg.timmitof.keyboard.presentation.components.KeyRowSpacing
+import kg.timmitof.keyboard.presentation.components.LocalKeyRowHeight
+import kg.timmitof.keyboard.presentation.components.TopBarHeight
 import kg.timmitof.keyboard.presentation.components.keys.BackspaceKeyButton
 import kg.timmitof.keyboard.presentation.components.keys.SpaceKeyButton
 import kg.timmitof.keyboard.presentation.components.keys.SpecialKeyButton
@@ -96,9 +99,15 @@ internal fun EmojiPanel(
 
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
 
+    val keyboardHeight = TopBarHeight + KeyRowSpacing / 2 + LocalKeyRowHeight.current * KeyRowCount
+
     BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
-        val gridHeight = remember(maxWidth, screenHeight) {
-            gridHeight(cellSize = maxWidth / EmojiGridColumns, screenHeight = screenHeight)
+        val gridHeight = remember(maxWidth, screenHeight, keyboardHeight) {
+            gridHeight(
+                cellSize = maxWidth / EmojiGridColumns,
+                screenHeight = screenHeight,
+                lettersHeight = keyboardHeight,
+            )
         }
 
         Column(modifier = Modifier.fillMaxWidth()) {
@@ -152,9 +161,10 @@ internal fun EmojiPanel(
  *
  * @param cellSize сторона квадратной ячейки эмодзи.
  * @param screenHeight высота экрана — потолок для панели.
+ * @param lettersHeight высота ABC-слоя — пол для панели.
  */
-private fun gridHeight(cellSize: Dp, screenHeight: Dp): Dp {
-    val minHeight = KeyboardContentHeight - EmojiChromeHeight
+private fun gridHeight(cellSize: Dp, screenHeight: Dp, lettersHeight: Dp): Dp {
+    val minHeight = lettersHeight - EmojiChromeHeight
     if (cellSize <= 0.dp) return minHeight
 
     val available = screenHeight * MaxScreenFraction - EmojiChromeHeight - EmojiSectionHeaderHeight

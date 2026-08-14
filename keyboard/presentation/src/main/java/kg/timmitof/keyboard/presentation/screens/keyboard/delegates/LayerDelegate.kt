@@ -33,13 +33,15 @@ internal class LayerDelegate(
             ?.takeIf { layer == KeyboardLayer.LETTERS }
             ?.let { return keyboardLayoutRepository.getLayout(it) }
 
-        val layoutName = if (layer.usesLanguageLayout) selectedLanguage?.code else layer.fixedLayoutName
+        val layoutName = if (layer.usesLanguageLayout) activeLanguage?.code else layer.fixedLayoutName
         val layout = layoutName?.let { keyboardLayoutRepository.getLayout(it) } ?: return null
 
         if (layer != KeyboardLayer.LETTERS) return layout
 
         val bottomRow = bottomRowVariant?.let { keyboardLayoutRepository.getBottomRow(it) }
-        return bottomRow?.let(layout::withBottomRow) ?: layout
+        val letters = bottomRow?.let(layout::withBottomRow) ?: layout
+
+        return if (settings.isDigitsRowEnabled) letters.withDigitsRow() else letters
     }
 
     /** Прогревает кэш раскладок (языковых и фиксированных), чтобы переключение было мгновенным. */
