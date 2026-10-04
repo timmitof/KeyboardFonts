@@ -19,7 +19,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.unit.Dp
@@ -372,11 +371,9 @@ fun Modifier.holdPickerClickable(
     }
 }
 
-fun Modifier.consumeTouches(): Modifier = pointerInput(Unit) {
+fun Modifier.interceptTouches(): Modifier = pointerInput(Unit) {
     awaitPointerEventScope {
-        while (true) {
-            awaitPointerEvent().changes.forEach(PointerInputChange::consume)
-        }
+        while (true) awaitPointerEvent()
     }
 }
 
