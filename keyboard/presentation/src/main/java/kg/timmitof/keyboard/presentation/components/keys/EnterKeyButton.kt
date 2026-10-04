@@ -29,8 +29,9 @@ internal fun RowScope.EnterKeyButton(
 ) {
     KeyBase(
         modifier = modifier.weight(weight).fillMaxHeight(),
-        background = KFTheme.color.keySpecialButtonBackground,
+        background = KFTheme.color.keyEnterBackground,
         shadowColor = KFTheme.color.keyButtonShadow,
+        pressedBackground = KFTheme.color.keyEnterPressedBackground,
         onClick = onClick
     ) {
         AnimatedContent(
@@ -44,7 +45,7 @@ internal fun RowScope.EnterKeyButton(
             Icon(
                 imageVector = ImageVector.vectorResource(action.iconRes),
                 contentDescription = action.name,
-                tint = KFTheme.color.keySpecialTextColor,
+                tint = KFTheme.color.keyEnterTextColor,
                 modifier = Modifier.size(20.dp)
             )
         }

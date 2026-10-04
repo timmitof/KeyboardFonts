@@ -78,6 +78,9 @@ internal fun ContainerDSLBuilder<SettingsSideEffect, SettingsEvent>.SettingsCont
     val onHeight = remember<(KeyboardHeight) -> Unit> {
         { height -> sendEvent(SettingsEvent.HeightChanged(height)) }
     }
+    val onEnterColor = remember<(Long?) -> Unit> {
+        { argb -> sendEvent(SettingsEvent.EnterColorChanged(argb)) }
+    }
     val onTab = remember<(StudioTab) -> Unit> {
         { tab -> sendEvent(SettingsEvent.TabSelected(tab)) }
     }
@@ -121,7 +124,12 @@ internal fun ContainerDSLBuilder<SettingsSideEffect, SettingsEvent>.SettingsCont
             ) {
                 // «Фон» не зарегистрирован, пока нет редактора фона, — чипа нет.
                 tab(StudioTab.THEME) {
-                    ThemePane(selected = settings.theme, onSelect = onTheme)
+                    ThemePane(
+                        settings = settings,
+                        onTheme = onTheme,
+                        onEnterColor = onEnterColor,
+                        onToggle = onToggle,
+                    )
                 }
                 tab(StudioTab.FONTS) {
                     FontsPane(

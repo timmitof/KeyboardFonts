@@ -1,6 +1,7 @@
 package kg.timmitof.core.ui.components.settings
 
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 
 /** Строка настроек — кирпич любой секции; [icon] ставится только первой строке секции, иначе список рябит. */
@@ -59,6 +60,20 @@ sealed interface SettingsRow {
         val steps: Int = 0,
         val valueLabel: String? = null,
         val onValueChange: (Float) -> Unit,
+    ) : SettingsRow
+
+    /** [onPickCustom] = `null` — только готовые цвета, без своего. */
+    @Immutable
+    data class Colors(
+        override val title: String,
+        override val description: String? = null,
+        override val icon: Painter? = null,
+        override val isNested: Boolean = false,
+        override val isEnabled: Boolean = true,
+        val colors: List<Color>,
+        val selected: Color?,
+        val onSelect: (Color) -> Unit,
+        val onPickCustom: (() -> Unit)? = null,
     ) : SettingsRow
 
     /** Строка-справка без контрола; [badge] — метка слева, например код языка «RU». */

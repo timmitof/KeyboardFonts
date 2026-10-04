@@ -37,6 +37,9 @@ class SettingsInteractorImpl @Inject constructor(
     override suspend fun setHeight(height: KeyboardHeight) =
         keyboardSettingsRepository.setHeight(height)
 
+    override suspend fun setEnterColor(argb: Long?) =
+        keyboardSettingsRepository.setEnterColor(argb)
+
     override suspend fun getSummary(): SettingsSummary {
         val keyboardState = keyboardContract.getKeyboardState()
         val selectedLanguage = languageRepository.getSelectedLanguage()

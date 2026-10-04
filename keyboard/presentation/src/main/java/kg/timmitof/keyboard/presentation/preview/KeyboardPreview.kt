@@ -41,7 +41,6 @@ import androidx.compose.ui.unit.sp
 import kg.timmitof.keyboard.domain.model.KeyboardKey
 import kg.timmitof.keyboard.domain.model.KeyboardLayout
 import kg.timmitof.keyboard.domain.model.KeyboardSettings
-import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
 import kg.timmitof.keyboard.font.domain.model.KeyboardFont
 import kg.timmitof.keyboard.presentation.R
 import kg.timmitof.keyboard.presentation.components.KeyCornerRadius
@@ -52,6 +51,7 @@ import kg.timmitof.keyboard.presentation.components.TopBarHeight
 import kg.timmitof.keyboard.presentation.components.keys.keySurface
 import kg.timmitof.keyboard.presentation.theme.KFTheme
 import kg.timmitof.keyboard.presentation.theme.KeyboardTheme
+import kg.timmitof.keyboard.presentation.theme.appearance
 
 /** Уменьшенная копия клавиатуры для приложения: те же цвета, раскладка и клавиши, но без ввода. */
 @Composable
@@ -65,11 +65,7 @@ fun KeyboardPreview(
     shape: Shape = PreviewShape,
 ) {
     val isSystemDark = isSystemInDarkTheme()
-    val isDark = when (settings.theme) {
-        KeyboardThemeMode.AUTO -> isSystemDark
-        KeyboardThemeMode.LIGHT -> false
-        KeyboardThemeMode.DARK -> true
-    }
+    val appearance = remember(settings, isSystemDark) { settings.appearance(isSystemDark) }
 
     val rowHeight by animateDpAsState(
         targetValue = KeyRowHeight * settings.height.scale * PreviewScale,
@@ -82,7 +78,7 @@ fun KeyboardPreview(
         (if (settings.isDigitsRowEnabled) letters.withDigitsRow() else letters).rows
     }
 
-    KeyboardTheme(darkTheme = isDark) {
+    KeyboardTheme(appearance = appearance) {
         Column(
             modifier = modifier
                 .fillMaxWidth()
@@ -204,7 +200,12 @@ private fun RowScope.PreviewKey(
 
         is KeyboardKey.Shift -> PreviewIconKey(key.weight, R.drawable.ic_shift_key)
         is KeyboardKey.Backspace -> PreviewIconKey(key.weight, R.drawable.ic_backspace_key)
-        is KeyboardKey.Enter -> PreviewIconKey(key.weight, R.drawable.ic_enter_key)
+        is KeyboardKey.Enter -> PreviewIconKey(
+            weight = key.weight,
+            iconRes = R.drawable.ic_enter_key,
+            background = KFTheme.color.keyEnterBackground,
+            tint = KFTheme.color.keyEnterTextColor,
+        )
         is KeyboardKey.EmojiSwitch -> PreviewIconKey(key.weight, R.drawable.ic_emoji_key)
 
         is KeyboardKey.SymbolsSwitch -> PreviewTextKey(key.weight, SymbolsLabel)
@@ -214,12 +215,17 @@ private fun RowScope.PreviewKey(
 }
 
 @Composable
-private fun RowScope.PreviewIconKey(weight: Float, @DrawableRes iconRes: Int) {
-    PreviewKeyCap(weight = weight, isSpecial = true) {
+private fun RowScope.PreviewIconKey(
+    weight: Float,
+    @DrawableRes iconRes: Int,
+    background: Color = KFTheme.color.keySpecialButtonBackground,
+    tint: Color = KFTheme.color.keySpecialTextColor,
+) {
+    PreviewKeyCap(weight = weight, isSpecial = true, background = background) {
         Icon(
             painter = painterResource(iconRes),
             contentDescription = null,
-            tint = KFTheme.color.keySpecialTextColor,
+            tint = tint,
             modifier = Modifier.size(14.dp),
         )
     }
@@ -256,21 +262,27 @@ private fun PreviewLabel(
 private fun RowScope.PreviewKeyCap(
     weight: Float,
     isSpecial: Boolean,
-    content: @Composable () -> Unit,
-) {
-    val background = if (isSpecial) {
+    background: Color = if (isSpecial) {
         KFTheme.color.keySpecialButtonBackground
     } else {
         KFTheme.color.keyButtonBackground
-    }
+    },
+    content: @Composable () -> Unit,
+) {
     val shadow = KFTheme.color.keyButtonShadow
+    val outline = KFTheme.color.keyOutline.takeIf { KFTheme.isKeyOutlined }
 
     Box(
         modifier = Modifier
             .weight(weight)
             .fillMaxHeight()
             .padding(horizontal = KeySpacing * PreviewScale / 2, vertical = KeyRowSpacing * PreviewScale / 2)
-            .keySurface(surface = { background }, support = { shadow }, cornerRadius = PreviewKeyRadius),
+            .keySurface(
+                surface = { background },
+                support = { shadow },
+                cornerRadius = PreviewKeyRadius,
+                outline = outline,
+            ),
         contentAlignment = Alignment.Center,
     ) {
         content()

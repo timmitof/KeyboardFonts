@@ -15,6 +15,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.text.font.FontWeight
@@ -122,6 +123,30 @@ class SettingsSectionScope internal constructor() {
             steps = steps,
             valueLabel = valueLabel,
             onValueChange = onValueChange,
+        )
+    )
+
+    fun colors(
+        title: String,
+        colors: List<Color>,
+        selected: Color?,
+        description: String? = null,
+        icon: Painter? = null,
+        isNested: Boolean = false,
+        isEnabled: Boolean = true,
+        onPickCustom: (() -> Unit)? = null,
+        onSelect: (Color) -> Unit,
+    ) = row(
+        SettingsRow.Colors(
+            title = title,
+            description = description,
+            icon = icon,
+            isNested = isNested,
+            isEnabled = isEnabled,
+            colors = colors,
+            selected = selected,
+            onSelect = onSelect,
+            onPickCustom = onPickCustom,
         )
     )
 

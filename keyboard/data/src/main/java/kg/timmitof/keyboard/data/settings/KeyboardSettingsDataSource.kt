@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kg.timmitof.keyboard.data.language.keyboardPreferences
@@ -52,17 +53,26 @@ class KeyboardSettingsDataSource @Inject constructor(
         context.keyboardPreferences.edit { prefs -> prefs[HEIGHT_KEY] = height.key }
     }
 
+    suspend fun setEnterColor(argb: Long?) {
+        context.keyboardPreferences.edit { prefs ->
+            if (argb == null) prefs.remove(ENTER_COLOR_KEY) else prefs[ENTER_COLOR_KEY] = argb
+        }
+    }
+
     private fun toSettings(prefs: Preferences) = KeyboardSettings(
         flags = KeyboardToggle.entries.associateWith { toggle ->
             prefs[toggleKeys.getValue(toggle)] ?: toggle.default
         },
         theme = KeyboardThemeMode.of(prefs[THEME_KEY]),
         height = KeyboardHeight.of(prefs[HEIGHT_KEY]),
+        enterColor = prefs[ENTER_COLOR_KEY],
     )
 
     private companion object {
         val THEME_KEY = stringPreferencesKey("keyboard_theme")
 
         val HEIGHT_KEY = stringPreferencesKey("keyboard_height")
+
+        val ENTER_COLOR_KEY = longPreferencesKey("enter_key_color")
     }
 }

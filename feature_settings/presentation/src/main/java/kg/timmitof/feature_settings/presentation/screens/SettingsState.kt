@@ -30,6 +30,8 @@ sealed class SettingsEvent : BaseEvent.UiEvent() {
 
     data class HeightChanged(val height: KeyboardHeight) : SettingsEvent()
 
+    data class EnterColorChanged(val argb: Long?) : SettingsEvent()
+
     data class TabSelected(val tab: StudioTab) : SettingsEvent()
 
     data object ClearRecentClipboardClicked : SettingsEvent()

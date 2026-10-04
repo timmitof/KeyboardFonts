@@ -23,6 +23,12 @@
     <string name="theme_light">Светлая</string>
     <string name="theme_dark">Тёмная</string>
     <string name="theme_auto">Как в системе</string>
+    <string name="theme_enter_color_title">Цвет клавиши Enter</string>
+    <string name="theme_enter_color_picker_title">Свой цвет Enter</string>
+    <string name="theme_key_outline_title">Контур клавиш</string>
+    <string name="theme_key_outline_description">Тонкая рамка вместо тени</string>
+    <string name="color_picker_confirm">Готово</string>
+    <string name="color_picker_dismiss">Отмена</string>
 
     <!-- Шрифты -->
     <string name="fonts_panel_title">Панель шрифтов</string>

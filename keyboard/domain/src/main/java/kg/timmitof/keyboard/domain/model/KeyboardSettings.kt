@@ -26,7 +26,9 @@ enum class KeyboardToggle(
 
     SOUND("key_sound", default = false),
 
-    KEY_PREVIEW("key_preview", default = true);
+    KEY_PREVIEW("key_preview", default = true),
+
+    KEY_OUTLINE("key_outline", default = false);
 }
 
 enum class KeyboardThemeMode(val key: String) {
@@ -58,6 +60,8 @@ data class KeyboardSettings(
     private val flags: Map<KeyboardToggle, Boolean> = emptyMap(),
     val theme: KeyboardThemeMode = KeyboardThemeMode.Default,
     val height: KeyboardHeight = KeyboardHeight.Default,
+    /** ARGB; `null` — серый, как у остальных служебных клавиш. */
+    val enterColor: Long? = null,
 ) {
 
     operator fun get(toggle: KeyboardToggle): Boolean = flags[toggle] ?: toggle.default
@@ -87,4 +91,6 @@ data class KeyboardSettings(
     val isSoundEnabled: Boolean get() = isOn(KeyboardToggle.SOUND)
 
     val isKeyPreviewEnabled: Boolean get() = isOn(KeyboardToggle.KEY_PREVIEW)
+
+    val isKeyOutlineEnabled: Boolean get() = isOn(KeyboardToggle.KEY_OUTLINE)
 }

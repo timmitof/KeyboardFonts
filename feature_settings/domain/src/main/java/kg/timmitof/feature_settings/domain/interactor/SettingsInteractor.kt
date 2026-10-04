@@ -18,6 +18,8 @@ interface SettingsInteractor {
 
     suspend fun setHeight(height: KeyboardHeight)
 
+    suspend fun setEnterColor(argb: Long?)
+
     suspend fun getSummary(): SettingsSummary
 
     fun observeClipboard(): Flow<ClipboardBoard>

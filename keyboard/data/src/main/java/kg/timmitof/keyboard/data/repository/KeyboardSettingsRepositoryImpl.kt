@@ -26,4 +26,6 @@ class KeyboardSettingsRepositoryImpl @Inject constructor(
     override suspend fun setTheme(mode: KeyboardThemeMode) = dataSource.setTheme(mode)
 
     override suspend fun setHeight(height: KeyboardHeight) = dataSource.setHeight(height)
+
+    override suspend fun setEnterColor(argb: Long?) = dataSource.setEnterColor(argb)
 }

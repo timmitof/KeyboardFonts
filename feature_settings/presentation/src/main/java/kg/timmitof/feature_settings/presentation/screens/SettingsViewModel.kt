@@ -27,6 +27,7 @@ class SettingsViewModel @Inject constructor(
             is SettingsEvent.ToggleChanged -> setToggle(event.toggle, event.enabled)
             is SettingsEvent.ThemeChanged -> setTheme(event.mode)
             is SettingsEvent.HeightChanged -> setHeight(event.height)
+            is SettingsEvent.EnterColorChanged -> setEnterColor(event.argb)
             is SettingsEvent.TabSelected -> selectTab(event.tab)
             is SettingsEvent.ClearRecentClipboardClicked -> clearRecentClipboard()
             is SettingsEvent.ScreenResumed -> loadSummary()
@@ -62,6 +63,10 @@ class SettingsViewModel @Inject constructor(
 
     private fun setHeight(height: KeyboardHeight) = intent {
         settingsInteractor.setHeight(height)
+    }
+
+    private fun setEnterColor(argb: Long?) = intent {
+        settingsInteractor.setEnterColor(argb)
     }
 
     private fun selectTab(tab: StudioTab) = intent {

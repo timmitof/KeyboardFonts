@@ -36,6 +36,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kg.timmitof.core.ui.R
+import kg.timmitof.core.ui.components.color.ColorSwatches
 import kg.timmitof.core.ui.theme.appColors
 
 private val RowMinHeight = 54.dp
@@ -202,6 +203,14 @@ private fun RowScope.RowControl(row: SettingsRow, alpha: () -> Float) {
         )
 
         is SettingsRow.Soon -> SettingsSoonBadge(text = row.badge)
+
+        is SettingsRow.Colors -> ColorSwatches(
+            colors = row.colors,
+            selected = row.selected,
+            onSelect = row.onSelect,
+            onPickCustom = row.onPickCustom,
+            modifier = Modifier.graphicsLayer { this.alpha = alpha() },
+        )
 
         is SettingsRow.Slider, is SettingsRow.Info -> Unit
     }

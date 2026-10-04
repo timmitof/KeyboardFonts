@@ -2,7 +2,14 @@ package kg.timmitof.feature_settings.presentation.studio
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
+import kg.timmitof.core.ui.components.color.ColorPickerDialog
 import kg.timmitof.core.ui.components.settings.SettingsSection
 import kg.timmitof.core.ui.components.settings.SettingsSectionAction
 import kg.timmitof.core.ui.components.settings.SettingsSectionHeader
@@ -22,16 +29,59 @@ import kg.timmitof.keyboard.font.domain.model.KeyboardFont
 /** Ресурсы читаются до DSL: сборщик строк намеренно не композабельный. */
 @Composable
 internal fun ThemePane(
-    selected: KeyboardThemeMode,
-    onSelect: (KeyboardThemeMode) -> Unit,
+    settings: KeyboardSettings,
+    onTheme: (KeyboardThemeMode) -> Unit,
+    onEnterColor: (Long?) -> Unit,
+    onToggle: (KeyboardToggle, Boolean) -> Unit,
 ) {
+    var isPickerOpen by rememberSaveable { mutableStateOf(false) }
+
     val tiles = listOf(
         ThemeTile(KeyboardThemeMode.LIGHT, stringResource(R.string.theme_light)),
         ThemeTile(KeyboardThemeMode.DARK, stringResource(R.string.theme_dark)),
         ThemeTile(KeyboardThemeMode.AUTO, stringResource(R.string.theme_auto)),
     )
+    val enterTitle = stringResource(R.string.theme_enter_color_title)
+    val outlineTitle = stringResource(R.string.theme_key_outline_title)
+    val outlineDescription = stringResource(R.string.theme_key_outline_description)
+    val enterColor = settings.enterColor?.let { Color(it.toInt()) } ?: DefaultEnterColor
 
-    ThemeTiles(tiles = tiles, selected = selected, onSelect = onSelect)
+    // Первый кружок — серый Enter по умолчанию: он хранится как `null` и следует за темой.
+    val selectEnterColor = { color: Color ->
+        onEnterColor(color.takeIf { it != DefaultEnterColor }?.toArgb()?.toLong())
+    }
+
+    ThemeTiles(tiles = tiles, selected = settings.theme, onSelect = onTheme)
+
+    SettingsSection {
+        colors(
+            title = enterTitle,
+            colors = EnterColorPresets,
+            selected = enterColor,
+            onPickCustom = { isPickerOpen = true },
+            onSelect = selectEnterColor,
+        )
+        toggle(
+            title = outlineTitle,
+            description = outlineDescription,
+            checked = settings[KeyboardToggle.KEY_OUTLINE],
+            onCheckedChange = { onToggle(KeyboardToggle.KEY_OUTLINE, it) },
+        )
+    }
+
+    if (isPickerOpen) {
+        ColorPickerDialog(
+            initial = enterColor,
+            title = stringResource(R.string.theme_enter_color_picker_title),
+            confirmLabel = stringResource(R.string.color_picker_confirm),
+            dismissLabel = stringResource(R.string.color_picker_dismiss),
+            onConfirm = { color ->
+                isPickerOpen = false
+                selectEnterColor(color)
+            },
+            onDismiss = { isPickerOpen = false },
+        )
+    }
 }
 
 @Composable
@@ -247,6 +297,14 @@ internal fun ClipboardPane(
         )
     }
 }
+
+private val DefaultEnterColor = Color(0xFFBFC4CB)
+
+private val EnterColorPresets = listOf(
+    DefaultEnterColor,
+    Color(0xFF6D4BD8),
+    Color(0xFF0F7B6C),
+)
 
 private val KeyboardHeight.labelRes: Int
     get() = when (this) {
