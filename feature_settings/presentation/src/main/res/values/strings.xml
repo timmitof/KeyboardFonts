@@ -36,6 +36,30 @@
     <string name="fonts_remember_title">Запоминать выбранный шрифт</string>
     <string name="fonts_remember_description">Стиль остаётся и в следующем поле</string>
     <string name="fonts_catalog_header">В панели · %1$d</string>
+    <string name="fonts_hidden_header">Скрытые · %1$d</string>
+    <string name="fonts_reorder_hint">Перетащите за ручку справа, чтобы поменять порядок</string>
+    <string name="fonts_reset">Сбросить</string>
+
+    <!-- Названия шрифтов -->
+    <string name="font_name_default">Обычный</string>
+    <string name="font_name_script">Рукописный</string>
+    <string name="font_name_bold_script">Рукописный жирный</string>
+    <string name="font_name_fraktur">Готика</string>
+    <string name="font_name_bold_fraktur">Готика жирная</string>
+    <string name="font_name_double_struck">Двойной контур</string>
+    <string name="font_name_circled">В кружках</string>
+    <string name="font_name_squared">В квадратах</string>
+    <string name="font_name_small_caps">Капитель</string>
+    <string name="font_name_bold">Жирный</string>
+    <string name="font_name_italic">Курсив</string>
+    <string name="font_name_bold_italic">Жирный курсив</string>
+    <string name="font_name_sans">Без засечек</string>
+    <string name="font_name_sans_bold">Без засечек, жирный</string>
+    <string name="font_name_sans_italic">Без засечек, курсив</string>
+    <string name="font_name_sans_bold_italic">Без засечек, жирный курсив</string>
+    <string name="font_name_monospace">Моноширинный</string>
+    <string name="font_name_underline">Подчёркнутый</string>
+    <string name="font_name_strikethrough">Зачёркнутый</string>
 
     <!-- Ввод -->
     <string name="input_suggestions_title">Подсказки T9</string>

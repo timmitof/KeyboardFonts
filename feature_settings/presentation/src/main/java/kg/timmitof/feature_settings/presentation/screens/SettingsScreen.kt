@@ -81,6 +81,10 @@ internal fun ContainerDSLBuilder<SettingsSideEffect, SettingsEvent>.SettingsCont
     val onEnterColor = remember<(Long?) -> Unit> {
         { argb -> sendEvent(SettingsEvent.EnterColorChanged(argb)) }
     }
+    val onPanelFonts = remember<(List<String>) -> Unit> {
+        { ids -> sendEvent(SettingsEvent.PanelFontsChanged(ids)) }
+    }
+    val onResetFonts = remember { { sendEvent(SettingsEvent.ResetFontPanelClicked) } }
     val onTab = remember<(StudioTab) -> Unit> {
         { tab -> sendEvent(SettingsEvent.TabSelected(tab)) }
     }
@@ -107,6 +111,7 @@ internal fun ContainerDSLBuilder<SettingsSideEffect, SettingsEvent>.SettingsCont
             modifier = Modifier.padding(horizontal = HorizontalPadding),
             settings = settings,
             summary = summary,
+            fonts = state.value.fontPanel.visible,
             sample = stringResource(R.string.studio_preview_sample),
             checkLabel = stringResource(R.string.studio_preview_check),
         )
@@ -134,9 +139,10 @@ internal fun ContainerDSLBuilder<SettingsSideEffect, SettingsEvent>.SettingsCont
                 tab(StudioTab.FONTS) {
                     FontsPane(
                         settings = settings,
-                        fonts = summary.fonts,
-                        selectedFont = summary.selectedFont,
+                        panel = state.value.fontPanel,
                         onToggle = onToggle,
+                        onPanelFonts = onPanelFonts,
+                        onReset = onResetFonts,
                     )
                 }
                 tab(StudioTab.INPUT) {

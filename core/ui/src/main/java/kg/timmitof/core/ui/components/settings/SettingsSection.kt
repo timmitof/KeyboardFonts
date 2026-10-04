@@ -249,6 +249,20 @@ fun SettingsSectionHeader(
 }
 
 @Composable
+fun SettingsSectionFooter(
+    text: String,
+    modifier: Modifier = Modifier,
+) {
+    Text(
+        modifier = modifier.padding(start = 2.dp, end = 2.dp, top = 8.dp),
+        text = text,
+        style = MaterialTheme.typography.bodySmall,
+        fontSize = 12.5.sp,
+        color = MaterialTheme.colorScheme.outline,
+    )
+}
+
+@Composable
 private fun SettingsCard(rows: List<SettingsRow>) {
     Surface(
         modifier = Modifier.fillMaxWidth(),

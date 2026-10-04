@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
@@ -12,18 +13,22 @@ import androidx.compose.ui.res.stringResource
 import kg.timmitof.core.ui.components.color.ColorPickerDialog
 import kg.timmitof.core.ui.components.settings.SettingsSection
 import kg.timmitof.core.ui.components.settings.SettingsSectionAction
+import kg.timmitof.core.ui.components.settings.SettingsSectionFooter
 import kg.timmitof.core.ui.components.settings.SettingsSectionHeader
 import kg.timmitof.feature_settings.presentation.R
 import kg.timmitof.feature_settings.presentation.components.ClipboardPins
-import kg.timmitof.feature_settings.presentation.components.FontChips
+import kg.timmitof.feature_settings.presentation.components.FontItem
+import kg.timmitof.feature_settings.presentation.components.HiddenFontsList
 import kg.timmitof.feature_settings.presentation.components.ThemeTile
 import kg.timmitof.feature_settings.presentation.components.ThemeTiles
+import kg.timmitof.feature_settings.presentation.components.VisibleFontsList
 import kg.timmitof.keyboard.clipboard.domain.model.ClipboardBoard
 import kg.timmitof.keyboard.domain.model.KeyboardHeight
 import kg.timmitof.keyboard.domain.model.KeyboardLanguage
 import kg.timmitof.keyboard.domain.model.KeyboardSettings
 import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
 import kg.timmitof.keyboard.domain.model.KeyboardToggle
+import kg.timmitof.keyboard.font.domain.model.FontPanel
 import kg.timmitof.keyboard.font.domain.model.KeyboardFont
 
 /** Ресурсы читаются до DSL: сборщик строк намеренно не композабельный. */
@@ -87,9 +92,10 @@ internal fun ThemePane(
 @Composable
 internal fun FontsPane(
     settings: KeyboardSettings,
-    fonts: List<KeyboardFont>,
-    selectedFont: KeyboardFont,
+    panel: FontPanel,
     onToggle: (KeyboardToggle, Boolean) -> Unit,
+    onPanelFonts: (List<String>) -> Unit,
+    onReset: () -> Unit,
 ) {
     val isPanelOn = settings[KeyboardToggle.STYLED_FONTS]
 
@@ -97,7 +103,9 @@ internal fun FontsPane(
     val panelDescription = stringResource(R.string.fonts_panel_description)
     val rememberTitle = stringResource(R.string.fonts_remember_title)
     val rememberDescription = stringResource(R.string.fonts_remember_description)
-    val catalogHeader = stringResource(R.string.fonts_catalog_header, fonts.size)
+    val visible = panel.visible.map { fontItem(it) }
+    val hidden = panel.hidden.map { fontItem(it) }
+    val visibleIds = visible.map(FontItem::id)
 
     SettingsSection {
         toggle(
@@ -116,13 +124,72 @@ internal fun FontsPane(
         )
     }
 
-    if (fonts.isNotEmpty()) {
+    if (visible.isNotEmpty()) {
         Column {
-            SettingsSectionHeader(title = catalogHeader)
-            FontChips(fonts = fonts, selected = selectedFont)
+            SettingsSectionHeader(
+                title = stringResource(R.string.fonts_catalog_header, visible.size),
+                action = SettingsSectionAction(
+                    label = stringResource(R.string.fonts_reset),
+                    isEnabled = panel.isCustom,
+                    onClick = onReset,
+                ),
+            )
+            // Последний шрифт не прячем: иначе панель над клавишами опустеет.
+            VisibleFontsList(
+                fonts = visible,
+                canHide = visible.size > 1,
+                onHide = { font -> onPanelFonts(visibleIds - font.id) },
+                onReorder = { fonts -> onPanelFonts(fonts.map(FontItem::id)) },
+            )
+            if (visible.size > 1) {
+                SettingsSectionFooter(text = stringResource(R.string.fonts_reorder_hint))
+            }
+        }
+    }
+
+    if (hidden.isNotEmpty()) {
+        Column {
+            SettingsSectionHeader(title = stringResource(R.string.fonts_hidden_header, hidden.size))
+            HiddenFontsList(
+                fonts = hidden,
+                onShow = { font -> onPanelFonts(visibleIds + font.id) },
+            )
         }
     }
 }
+
+@Composable
+private fun fontItem(font: KeyboardFont) = FontItem(
+    id = font.id,
+    name = font.nameRes?.let { stringResource(it) } ?: font.id,
+    sample = remember(font) { font.apply(FontSample) },
+)
+
+private const val FontSample = "Abc"
+
+private val KeyboardFont.nameRes: Int?
+    get() = when (id) {
+        KeyboardFont.DEFAULT_ID -> R.string.font_name_default
+        "script" -> R.string.font_name_script
+        "bold_script" -> R.string.font_name_bold_script
+        "fraktur" -> R.string.font_name_fraktur
+        "bold_fraktur" -> R.string.font_name_bold_fraktur
+        "double_struck" -> R.string.font_name_double_struck
+        "circled" -> R.string.font_name_circled
+        "squared" -> R.string.font_name_squared
+        "small_caps" -> R.string.font_name_small_caps
+        "bold" -> R.string.font_name_bold
+        "italic" -> R.string.font_name_italic
+        "bold_italic" -> R.string.font_name_bold_italic
+        "sans" -> R.string.font_name_sans
+        "sans_bold" -> R.string.font_name_sans_bold
+        "sans_italic" -> R.string.font_name_sans_italic
+        "sans_bold_italic" -> R.string.font_name_sans_bold_italic
+        "monospace" -> R.string.font_name_monospace
+        "underline" -> R.string.font_name_underline
+        "strikethrough" -> R.string.font_name_strikethrough
+        else -> null
+    }
 
 @Composable
 internal fun InputPane(

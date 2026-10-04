@@ -19,6 +19,7 @@ class SettingsViewModel @Inject constructor(
 
     init {
         observeSettings()
+        observeFontPanel()
         observeClipboard()
     }
 
@@ -28,6 +29,8 @@ class SettingsViewModel @Inject constructor(
             is SettingsEvent.ThemeChanged -> setTheme(event.mode)
             is SettingsEvent.HeightChanged -> setHeight(event.height)
             is SettingsEvent.EnterColorChanged -> setEnterColor(event.argb)
+            is SettingsEvent.PanelFontsChanged -> setPanelFonts(event.ids)
+            is SettingsEvent.ResetFontPanelClicked -> resetFontPanel()
             is SettingsEvent.TabSelected -> selectTab(event.tab)
             is SettingsEvent.ClearRecentClipboardClicked -> clearRecentClipboard()
             is SettingsEvent.ScreenResumed -> loadSummary()
@@ -51,6 +54,20 @@ class SettingsViewModel @Inject constructor(
         settingsInteractor.observeClipboard().collect { board ->
             reduce { state.copy(clipboard = board) }
         }
+    }
+
+    private fun observeFontPanel() = intent {
+        settingsInteractor.observeFontPanel().collect { panel ->
+            reduce { state.copy(fontPanel = panel) }
+        }
+    }
+
+    private fun setPanelFonts(ids: List<String>) = intent {
+        settingsInteractor.setPanelFonts(ids)
+    }
+
+    private fun resetFontPanel() = intent {
+        settingsInteractor.resetFontPanel()
     }
 
     private fun setToggle(toggle: KeyboardToggle, enabled: Boolean) = intent {

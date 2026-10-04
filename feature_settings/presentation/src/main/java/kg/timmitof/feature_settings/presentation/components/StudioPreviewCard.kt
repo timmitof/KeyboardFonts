@@ -33,12 +33,14 @@ import androidx.compose.ui.unit.sp
 import kg.timmitof.core.ui.theme.appColors
 import kg.timmitof.feature_settings.domain.model.SettingsSummary
 import kg.timmitof.keyboard.domain.model.KeyboardSettings
+import kg.timmitof.keyboard.font.domain.model.KeyboardFont
 import kg.timmitof.keyboard.presentation.preview.KeyboardPreview
 
 @Composable
 internal fun StudioPreviewCard(
     settings: KeyboardSettings,
     summary: SettingsSummary,
+    fonts: List<KeyboardFont>,
     sample: String,
     checkLabel: String,
     modifier: Modifier = Modifier,
@@ -61,7 +63,7 @@ internal fun StudioPreviewCard(
         KeyboardPreview(
             layout = summary.previewLayout,
             settings = settings,
-            fonts = summary.fonts,
+            fonts = fonts,
             selectedFont = summary.selectedFont,
             languageName = summary.selectedLanguage?.displayName.orEmpty(),
         )

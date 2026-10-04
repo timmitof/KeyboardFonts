@@ -6,6 +6,7 @@ import kg.timmitof.keyboard.domain.model.KeyboardHeight
 import kg.timmitof.keyboard.domain.model.KeyboardSettings
 import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
 import kg.timmitof.keyboard.domain.model.KeyboardToggle
+import kg.timmitof.keyboard.font.domain.model.FontPanel
 import kotlinx.coroutines.flow.Flow
 
 interface SettingsInteractor {
@@ -21,6 +22,12 @@ interface SettingsInteractor {
     suspend fun setEnterColor(argb: Long?)
 
     suspend fun getSummary(): SettingsSummary
+
+    fun observeFontPanel(): Flow<FontPanel>
+
+    suspend fun setPanelFonts(ids: List<String>)
+
+    suspend fun resetFontPanel()
 
     fun observeClipboard(): Flow<ClipboardBoard>
 

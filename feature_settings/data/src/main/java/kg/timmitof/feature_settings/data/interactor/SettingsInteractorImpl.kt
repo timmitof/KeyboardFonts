@@ -11,6 +11,7 @@ import kg.timmitof.keyboard.domain.model.KeyboardToggle
 import kg.timmitof.keyboard.domain.repository.KeyboardLayoutRepository
 import kg.timmitof.keyboard.domain.repository.KeyboardSettingsRepository
 import kg.timmitof.keyboard.domain.repository.LanguageRepository
+import kg.timmitof.keyboard.font.domain.model.FontPanel
 import kg.timmitof.keyboard.font.domain.repository.FontRepository
 import kg.timmitof.keyboard.integration.KeyboardContract
 import kotlinx.coroutines.flow.Flow
@@ -47,12 +48,20 @@ class SettingsInteractorImpl @Inject constructor(
         return SettingsSummary(
             languages = languageRepository.getLanguages(),
             selectedLanguage = selectedLanguage,
-            fonts = fontRepository.getFonts(),
             selectedFont = fontRepository.getSelectedFont(),
             previewLayout = keyboardLayoutRepository.getLayout(selectedLanguage.code),
             isKeyboardReady = keyboardState.isEnabled && keyboardState.isSelected,
         )
     }
+
+    override fun observeFontPanel(): Flow<FontPanel> =
+        fontRepository.observePanel()
+
+    override suspend fun setPanelFonts(ids: List<String>) =
+        fontRepository.setPanelFonts(ids)
+
+    override suspend fun resetFontPanel() =
+        fontRepository.resetPanel()
 
     override fun observeClipboard(): Flow<ClipboardBoard> =
         clipboardRepository.observeBoard()

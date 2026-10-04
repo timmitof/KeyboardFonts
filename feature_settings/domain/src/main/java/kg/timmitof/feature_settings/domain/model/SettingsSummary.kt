@@ -7,7 +7,6 @@ import kg.timmitof.keyboard.font.domain.model.KeyboardFont
 data class SettingsSummary(
     val languages: List<KeyboardLanguage> = emptyList(),
     val selectedLanguage: KeyboardLanguage? = null,
-    val fonts: List<KeyboardFont> = emptyList(),
     val selectedFont: KeyboardFont = KeyboardFont.Default,
     val previewLayout: KeyboardLayout? = null,
     val isKeyboardReady: Boolean = false,

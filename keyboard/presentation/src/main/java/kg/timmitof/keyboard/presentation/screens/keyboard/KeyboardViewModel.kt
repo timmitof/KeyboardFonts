@@ -125,6 +125,7 @@ internal class KeyboardViewModel(
         layerDelegate.preloadLayouts(state.languages.map { it.code })
         observeSuggestions()
         observeSettings()
+        observeFontPanel()
         observeClipboard()
 
         val languageCode = state.activeLanguage?.code
@@ -144,6 +145,12 @@ internal class KeyboardViewModel(
     private fun observeClipboard() {
         clipboardDelegate.board
             .onEach { board -> intent { with(clipboardDelegate) { applyBoard(board) } } }
+            .launchIn(viewModelScope)
+    }
+
+    private fun observeFontPanel() {
+        fontDelegate.panel
+            .onEach { panel -> intent { with(fontDelegate) { applyPanel(panel) } } }
             .launchIn(viewModelScope)
     }
 

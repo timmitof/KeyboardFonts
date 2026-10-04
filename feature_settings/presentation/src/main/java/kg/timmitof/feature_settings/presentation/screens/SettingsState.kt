@@ -11,12 +11,14 @@ import kg.timmitof.keyboard.domain.model.KeyboardHeight
 import kg.timmitof.keyboard.domain.model.KeyboardSettings
 import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
 import kg.timmitof.keyboard.domain.model.KeyboardToggle
+import kg.timmitof.keyboard.font.domain.model.FontPanel
 
 @Immutable
 data class SettingsState(
     val settings: KeyboardSettings = KeyboardSettings(),
     val summary: SettingsSummary = SettingsSummary(),
     val clipboard: ClipboardBoard = ClipboardBoard(),
+    val fontPanel: FontPanel = FontPanel(),
     val selectedTab: StudioTab = StudioTab.Default,
 ) : BaseState()
 
@@ -31,6 +33,10 @@ sealed class SettingsEvent : BaseEvent.UiEvent() {
     data class HeightChanged(val height: KeyboardHeight) : SettingsEvent()
 
     data class EnterColorChanged(val argb: Long?) : SettingsEvent()
+
+    data class PanelFontsChanged(val ids: List<String>) : SettingsEvent()
+
+    data object ResetFontPanelClicked : SettingsEvent()
 
     data class TabSelected(val tab: StudioTab) : SettingsEvent()
 
