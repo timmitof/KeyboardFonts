@@ -6,6 +6,7 @@ import kg.timmitof.keyboard.clipboard.domain.model.ClipboardBoard
 import kg.timmitof.keyboard.clipboard.domain.repository.ClipboardRepository
 import kg.timmitof.keyboard.domain.model.KeyboardHeight
 import kg.timmitof.keyboard.domain.model.KeyboardSettings
+import kg.timmitof.keyboard.domain.model.KeyboardSoundPack
 import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
 import kg.timmitof.keyboard.domain.model.KeyboardToggle
 import kg.timmitof.keyboard.domain.repository.KeyboardLayoutRepository
@@ -40,6 +41,12 @@ class SettingsInteractorImpl @Inject constructor(
 
     override suspend fun setEnterColor(argb: Long?) =
         keyboardSettingsRepository.setEnterColor(argb)
+
+    override suspend fun setSoundPack(pack: KeyboardSoundPack) =
+        keyboardSettingsRepository.setSoundPack(pack)
+
+    override suspend fun setSoundVolume(volume: Float) =
+        keyboardSettingsRepository.setSoundVolume(volume)
 
     override suspend fun getSummary(): SettingsSummary {
         val keyboardState = keyboardContract.getKeyboardState()

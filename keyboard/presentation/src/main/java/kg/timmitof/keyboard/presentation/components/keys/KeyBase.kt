@@ -32,6 +32,7 @@ import kg.timmitof.keyboard.presentation.components.KeyCornerRadius
 import kg.timmitof.keyboard.presentation.components.KeyRowSpacing
 import kg.timmitof.keyboard.presentation.components.KeySpacing
 import kg.timmitof.keyboard.presentation.components.KeySupport
+import kg.timmitof.keyboard.presentation.sound.KeySound
 import kg.timmitof.keyboard.presentation.theme.KFTheme
 
 @Composable
@@ -40,6 +41,7 @@ internal fun KeyBase(
     background: Color,
     shadowColor: Color,
     pressedBackground: Color = KFTheme.color.keyButtonPressedBackground,
+    sound: KeySound = KeySound.STANDARD,
     interactionSource: MutableInteractionSource? = null,
     customGestures: ((MutableInteractionSource) -> Modifier)? = null,
     onClick: () -> Unit,
@@ -51,7 +53,7 @@ internal fun KeyBase(
     // Вибрация и звук — на касание, а не на ввод: отклик должен опережать символ.
     val feedback = LocalKeyFeedback.current
     LaunchedEffect(isPressed) {
-        if (isPressed) feedback.onKeyPress()
+        if (isPressed) feedback.onKeyPress(sound)
     }
 
     val scale by animateFloatAsState(

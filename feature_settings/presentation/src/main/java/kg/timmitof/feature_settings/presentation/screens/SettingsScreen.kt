@@ -37,6 +37,7 @@ import kg.timmitof.feature_settings.presentation.studio.StudioTab
 import kg.timmitof.feature_settings.presentation.studio.StudioTabs
 import kg.timmitof.feature_settings.presentation.studio.ThemePane
 import kg.timmitof.keyboard.domain.model.KeyboardHeight
+import kg.timmitof.keyboard.domain.model.KeyboardSoundPack
 import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
 import kg.timmitof.keyboard.domain.model.KeyboardToggle
 
@@ -85,6 +86,12 @@ internal fun ContainerDSLBuilder<SettingsSideEffect, SettingsEvent>.SettingsCont
         { ids -> sendEvent(SettingsEvent.PanelFontsChanged(ids)) }
     }
     val onResetFonts = remember { { sendEvent(SettingsEvent.ResetFontPanelClicked) } }
+    val onSoundPack = remember<(KeyboardSoundPack) -> Unit> {
+        { pack -> sendEvent(SettingsEvent.SoundPackChanged(pack)) }
+    }
+    val onSoundVolume = remember<(Float) -> Unit> {
+        { volume -> sendEvent(SettingsEvent.SoundVolumeChanged(volume)) }
+    }
     val onTab = remember<(StudioTab) -> Unit> {
         { tab -> sendEvent(SettingsEvent.TabSelected(tab)) }
     }
@@ -155,7 +162,12 @@ internal fun ContainerDSLBuilder<SettingsSideEffect, SettingsEvent>.SettingsCont
                     SizePane(settings = settings, onHeight = onHeight, onToggle = onToggle)
                 }
                 tab(StudioTab.SOUND) {
-                    SoundPane(settings = settings, onToggle = onToggle)
+                    SoundPane(
+                        settings = settings,
+                        onToggle = onToggle,
+                        onSoundPack = onSoundPack,
+                        onSoundVolume = onSoundVolume,
+                    )
                 }
                 tab(StudioTab.CLIPBOARD) {
                     ClipboardPane(board = state.value.clipboard, onClearRecent = onClearClipboard)

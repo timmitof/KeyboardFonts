@@ -60,6 +60,7 @@ sealed interface SettingsRow {
         val steps: Int = 0,
         val valueLabel: String? = null,
         val onValueChange: (Float) -> Unit,
+        val onValueChangeFinished: (() -> Unit)? = null,
     ) : SettingsRow
 
     /** [onPickCustom] = `null` — только готовые цвета, без своего. */

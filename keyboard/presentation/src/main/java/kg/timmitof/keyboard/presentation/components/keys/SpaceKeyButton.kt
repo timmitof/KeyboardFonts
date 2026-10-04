@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kg.timmitof.core.ui.spaceCursorClickable
 import kg.timmitof.keyboard.domain.model.KeyboardLanguage
+import kg.timmitof.keyboard.presentation.sound.KeySound
 import kg.timmitof.keyboard.presentation.theme.KFTheme
 import kotlin.math.roundToInt
 
@@ -64,6 +65,7 @@ internal fun RowScope.SpaceKeyButton(
             .onSizeChanged { keyWidthPx = it.width },
         background = KFTheme.color.keyButtonBackground,
         shadowColor = KFTheme.color.keyButtonShadow,
+        sound = KeySound.SPACE,
         customGestures = { interactionSource ->
             Modifier.spaceCursorClickable(
                 interactionSource = interactionSource,

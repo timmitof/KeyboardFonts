@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import kg.timmitof.core.ui.backspaceHoldSlideClickable
+import kg.timmitof.keyboard.presentation.sound.KeySound
 import kg.timmitof.keyboard.presentation.theme.KFTheme
 
 @Composable
@@ -24,6 +25,7 @@ internal fun RowScope.BackspaceKeyButton(
         modifier = modifier.weight(weight).fillMaxHeight(),
         background = KFTheme.color.keySpecialButtonBackground,
         shadowColor = KFTheme.color.keyButtonShadow,
+        sound = KeySound.DELETE,
         customGestures = { interactionSource ->
             Modifier.backspaceHoldSlideClickable(
                 interactionSource = interactionSource,

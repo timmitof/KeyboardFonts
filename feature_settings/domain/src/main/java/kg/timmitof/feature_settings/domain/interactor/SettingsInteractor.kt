@@ -4,6 +4,7 @@ import kg.timmitof.feature_settings.domain.model.SettingsSummary
 import kg.timmitof.keyboard.clipboard.domain.model.ClipboardBoard
 import kg.timmitof.keyboard.domain.model.KeyboardHeight
 import kg.timmitof.keyboard.domain.model.KeyboardSettings
+import kg.timmitof.keyboard.domain.model.KeyboardSoundPack
 import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
 import kg.timmitof.keyboard.domain.model.KeyboardToggle
 import kg.timmitof.keyboard.font.domain.model.FontPanel
@@ -20,6 +21,10 @@ interface SettingsInteractor {
     suspend fun setHeight(height: KeyboardHeight)
 
     suspend fun setEnterColor(argb: Long?)
+
+    suspend fun setSoundPack(pack: KeyboardSoundPack)
+
+    suspend fun setSoundVolume(volume: Float)
 
     suspend fun getSummary(): SettingsSummary
 

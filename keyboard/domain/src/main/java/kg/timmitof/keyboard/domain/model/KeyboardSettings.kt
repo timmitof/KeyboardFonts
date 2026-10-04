@@ -56,12 +56,28 @@ enum class KeyboardHeight(val key: String, val scale: Float) {
     }
 }
 
+enum class KeyboardSoundPack(val key: String) {
+    SYSTEM("system"),
+    MECHANICAL("mechanical"),
+    BUBBLE("bubble"),
+    TYPEWRITER("typewriter");
+
+    companion object {
+        val Default = SYSTEM
+
+        fun of(key: String?): KeyboardSoundPack = entries.firstOrNull { it.key == key } ?: Default
+    }
+}
+
 data class KeyboardSettings(
     private val flags: Map<KeyboardToggle, Boolean> = emptyMap(),
     val theme: KeyboardThemeMode = KeyboardThemeMode.Default,
     val height: KeyboardHeight = KeyboardHeight.Default,
     /** ARGB; `null` — серый, как у остальных служебных клавиш. */
     val enterColor: Long? = null,
+    val soundPack: KeyboardSoundPack = KeyboardSoundPack.Default,
+    /** 0..1, доля от системной громкости. */
+    val soundVolume: Float = DEFAULT_SOUND_VOLUME,
 ) {
 
     operator fun get(toggle: KeyboardToggle): Boolean = flags[toggle] ?: toggle.default
@@ -93,4 +109,8 @@ data class KeyboardSettings(
     val isKeyPreviewEnabled: Boolean get() = isOn(KeyboardToggle.KEY_PREVIEW)
 
     val isKeyOutlineEnabled: Boolean get() = isOn(KeyboardToggle.KEY_OUTLINE)
+
+    companion object {
+        const val DEFAULT_SOUND_VOLUME = 0.6f
+    }
 }

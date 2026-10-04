@@ -9,6 +9,7 @@ import kg.timmitof.feature_settings.presentation.studio.StudioTab
 import kg.timmitof.keyboard.clipboard.domain.model.ClipboardBoard
 import kg.timmitof.keyboard.domain.model.KeyboardHeight
 import kg.timmitof.keyboard.domain.model.KeyboardSettings
+import kg.timmitof.keyboard.domain.model.KeyboardSoundPack
 import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
 import kg.timmitof.keyboard.domain.model.KeyboardToggle
 import kg.timmitof.keyboard.font.domain.model.FontPanel
@@ -33,6 +34,10 @@ sealed class SettingsEvent : BaseEvent.UiEvent() {
     data class HeightChanged(val height: KeyboardHeight) : SettingsEvent()
 
     data class EnterColorChanged(val argb: Long?) : SettingsEvent()
+
+    data class SoundPackChanged(val pack: KeyboardSoundPack) : SettingsEvent()
+
+    data class SoundVolumeChanged(val volume: Float) : SettingsEvent()
 
     data class PanelFontsChanged(val ids: List<String>) : SettingsEvent()
 

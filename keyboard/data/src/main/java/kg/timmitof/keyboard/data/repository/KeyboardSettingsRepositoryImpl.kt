@@ -3,6 +3,7 @@ package kg.timmitof.keyboard.data.repository
 import kg.timmitof.keyboard.data.settings.KeyboardSettingsDataSource
 import kg.timmitof.keyboard.domain.model.KeyboardHeight
 import kg.timmitof.keyboard.domain.model.KeyboardSettings
+import kg.timmitof.keyboard.domain.model.KeyboardSoundPack
 import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
 import kg.timmitof.keyboard.domain.model.KeyboardToggle
 import kg.timmitof.keyboard.domain.repository.KeyboardSettingsRepository
@@ -28,4 +29,8 @@ class KeyboardSettingsRepositoryImpl @Inject constructor(
     override suspend fun setHeight(height: KeyboardHeight) = dataSource.setHeight(height)
 
     override suspend fun setEnterColor(argb: Long?) = dataSource.setEnterColor(argb)
+
+    override suspend fun setSoundPack(pack: KeyboardSoundPack) = dataSource.setSoundPack(pack)
+
+    override suspend fun setSoundVolume(volume: Float) = dataSource.setSoundVolume(volume)
 }

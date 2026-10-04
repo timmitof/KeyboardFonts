@@ -2,6 +2,7 @@ package kg.timmitof.keyboard.domain.repository
 
 import kg.timmitof.keyboard.domain.model.KeyboardHeight
 import kg.timmitof.keyboard.domain.model.KeyboardSettings
+import kg.timmitof.keyboard.domain.model.KeyboardSoundPack
 import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
 import kg.timmitof.keyboard.domain.model.KeyboardToggle
 import kotlinx.coroutines.flow.Flow
@@ -20,4 +21,8 @@ interface KeyboardSettingsRepository {
     suspend fun setHeight(height: KeyboardHeight)
 
     suspend fun setEnterColor(argb: Long?)
+
+    suspend fun setSoundPack(pack: KeyboardSoundPack)
+
+    suspend fun setSoundVolume(volume: Float)
 }

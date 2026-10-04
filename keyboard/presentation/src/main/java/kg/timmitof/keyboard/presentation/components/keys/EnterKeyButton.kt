@@ -18,6 +18,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import kg.timmitof.keyboard.presentation.R
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.EnterAction
+import kg.timmitof.keyboard.presentation.sound.KeySound
 import kg.timmitof.keyboard.presentation.theme.KFTheme
 
 @Composable
@@ -32,6 +33,7 @@ internal fun RowScope.EnterKeyButton(
         background = KFTheme.color.keyEnterBackground,
         shadowColor = KFTheme.color.keyButtonShadow,
         pressedBackground = KFTheme.color.keyEnterPressedBackground,
+        sound = KeySound.ENTER,
         onClick = onClick
     ) {
         AnimatedContent(

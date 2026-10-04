@@ -1,17 +1,24 @@
 package kg.timmitof.feature_settings.presentation.studio
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import kg.timmitof.core.ui.components.color.ColorPickerDialog
 import kg.timmitof.core.ui.components.settings.SettingsSection
+import kg.timmitof.core.ui.components.tabs.ChipTab
+import kg.timmitof.core.ui.components.tabs.ChipTabs
+import kg.timmitof.core.ui.theme.AccentRole
 import kg.timmitof.core.ui.components.settings.SettingsSectionAction
 import kg.timmitof.core.ui.components.settings.SettingsSectionFooter
 import kg.timmitof.core.ui.components.settings.SettingsSectionHeader
@@ -26,10 +33,14 @@ import kg.timmitof.keyboard.clipboard.domain.model.ClipboardBoard
 import kg.timmitof.keyboard.domain.model.KeyboardHeight
 import kg.timmitof.keyboard.domain.model.KeyboardLanguage
 import kg.timmitof.keyboard.domain.model.KeyboardSettings
+import kg.timmitof.keyboard.domain.model.KeyboardSoundPack
 import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
 import kg.timmitof.keyboard.domain.model.KeyboardToggle
 import kg.timmitof.keyboard.font.domain.model.FontPanel
 import kg.timmitof.keyboard.font.domain.model.KeyboardFont
+import kg.timmitof.keyboard.presentation.sound.KeySound
+import kg.timmitof.keyboard.presentation.sound.rememberKeySoundPlayer
+import kotlin.math.roundToInt
 
 /** Ресурсы читаются до DSL: сборщик строк намеренно не композабельный. */
 @Composable
@@ -307,9 +318,27 @@ internal fun SizePane(
 internal fun SoundPane(
     settings: KeyboardSettings,
     onToggle: (KeyboardToggle, Boolean) -> Unit,
+    onSoundPack: (KeyboardSoundPack) -> Unit,
+    onSoundVolume: (Float) -> Unit,
 ) {
+    val player = rememberKeySoundPlayer()
+    val isSoundOn = settings[KeyboardToggle.SOUND]
+
+    // Пока тянут ползунок, громкость живёт локально, в хранилище — по отпусканию.
+    var volume by remember(settings.soundVolume) { mutableFloatStateOf(settings.soundVolume) }
+
     val vibrationTitle = stringResource(R.string.sound_vibration_title)
     val soundTitle = stringResource(R.string.sound_click_title)
+    val volumeTitle = stringResource(R.string.sound_volume_title)
+    val volumeLabel = stringResource(R.string.sound_volume_value, (volume * 100).roundToInt())
+    val packs = KeyboardSoundPack.entries.map { pack ->
+        ChipTab(
+            key = pack,
+            label = stringResource(pack.labelRes),
+            icon = painterResource(pack.iconRes),
+            role = AccentRole.HINT,
+        )
+    }
     val keyPreviewTitle = stringResource(R.string.sound_key_preview_title)
     val keyPreviewDescription = stringResource(R.string.sound_key_preview_description)
 
@@ -321,8 +350,20 @@ internal fun SoundPane(
         )
         toggle(
             title = soundTitle,
-            checked = settings[KeyboardToggle.SOUND],
+            checked = isSoundOn,
             onCheckedChange = { onToggle(KeyboardToggle.SOUND, it) },
+        )
+        slider(
+            title = volumeTitle,
+            value = volume,
+            valueLabel = volumeLabel,
+            isNested = true,
+            isEnabled = isSoundOn,
+            onValueChangeFinished = {
+                onSoundVolume(volume)
+                player.play(KeySound.STANDARD, settings.soundPack, volume)
+            },
+            onValueChange = { volume = it },
         )
         toggle(
             title = keyPreviewTitle,
@@ -330,6 +371,21 @@ internal fun SoundPane(
             checked = settings[KeyboardToggle.KEY_PREVIEW],
             onCheckedChange = { onToggle(KeyboardToggle.KEY_PREVIEW, it) },
         )
+    }
+
+    if (isSoundOn) {
+        Column {
+            SettingsSectionHeader(title = stringResource(R.string.sound_pack_header))
+            ChipTabs(
+                tabs = packs,
+                selected = settings.soundPack,
+                onSelect = { pack ->
+                    onSoundPack(pack)
+                    player.play(KeySound.STANDARD, pack, volume)
+                },
+                contentPadding = PaddingValues(0.dp),
+            )
+        }
     }
 }
 
@@ -364,6 +420,22 @@ internal fun ClipboardPane(
         )
     }
 }
+
+private val KeyboardSoundPack.labelRes: Int
+    get() = when (this) {
+        KeyboardSoundPack.SYSTEM -> R.string.sound_pack_system
+        KeyboardSoundPack.MECHANICAL -> R.string.sound_pack_mechanical
+        KeyboardSoundPack.BUBBLE -> R.string.sound_pack_bubble
+        KeyboardSoundPack.TYPEWRITER -> R.string.sound_pack_typewriter
+    }
+
+private val KeyboardSoundPack.iconRes: Int
+    get() = when (this) {
+        KeyboardSoundPack.SYSTEM -> R.drawable.ic_sound_system
+        KeyboardSoundPack.MECHANICAL -> R.drawable.ic_sound_mechanical
+        KeyboardSoundPack.BUBBLE -> R.drawable.ic_sound_bubble
+        KeyboardSoundPack.TYPEWRITER -> R.drawable.ic_sound_typewriter
+    }
 
 private val DefaultEnterColor = Color(0xFFBFC4CB)
 

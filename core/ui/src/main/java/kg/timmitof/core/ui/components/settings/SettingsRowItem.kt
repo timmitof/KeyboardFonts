@@ -95,6 +95,7 @@ internal fun SettingsRowItem(row: SettingsRow) {
                 Slider(
                     value = slider.value,
                     onValueChange = slider.onValueChange,
+                    onValueChangeFinished = slider.onValueChangeFinished,
                     valueRange = slider.valueRange,
                     steps = slider.steps,
                     enabled = slider.isEnabled,
@@ -212,7 +213,19 @@ private fun RowScope.RowControl(row: SettingsRow, alpha: () -> Float) {
             modifier = Modifier.graphicsLayer { this.alpha = alpha() },
         )
 
-        is SettingsRow.Slider, is SettingsRow.Info -> Unit
+        is SettingsRow.Slider -> row.valueLabel?.let { label ->
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Normal,
+                color = MaterialTheme.colorScheme.outline,
+                modifier = Modifier
+                    .align(Alignment.Top)
+                    .graphicsLayer { this.alpha = alpha() },
+            )
+        }
+
+        is SettingsRow.Info -> Unit
     }
 }
 

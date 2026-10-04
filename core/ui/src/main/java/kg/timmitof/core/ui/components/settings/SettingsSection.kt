@@ -110,6 +110,7 @@ class SettingsSectionScope internal constructor() {
         valueLabel: String? = null,
         isNested: Boolean = false,
         isEnabled: Boolean = true,
+        onValueChangeFinished: (() -> Unit)? = null,
         onValueChange: (Float) -> Unit,
     ) = row(
         SettingsRow.Slider(
@@ -123,6 +124,7 @@ class SettingsSectionScope internal constructor() {
             steps = steps,
             valueLabel = valueLabel,
             onValueChange = onValueChange,
+            onValueChangeFinished = onValueChangeFinished,
         )
     )
 

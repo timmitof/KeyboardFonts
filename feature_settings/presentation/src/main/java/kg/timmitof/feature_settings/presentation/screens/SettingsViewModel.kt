@@ -7,6 +7,7 @@ import kg.timmitof.core.ui.base.BaseViewModel
 import kg.timmitof.feature_settings.domain.interactor.SettingsInteractor
 import kg.timmitof.feature_settings.presentation.studio.StudioTab
 import kg.timmitof.keyboard.domain.model.KeyboardHeight
+import kg.timmitof.keyboard.domain.model.KeyboardSoundPack
 import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
 import kg.timmitof.keyboard.domain.model.KeyboardToggle
 import org.orbitmvi.orbit.syntax.Syntax
@@ -29,6 +30,8 @@ class SettingsViewModel @Inject constructor(
             is SettingsEvent.ThemeChanged -> setTheme(event.mode)
             is SettingsEvent.HeightChanged -> setHeight(event.height)
             is SettingsEvent.EnterColorChanged -> setEnterColor(event.argb)
+            is SettingsEvent.SoundPackChanged -> setSoundPack(event.pack)
+            is SettingsEvent.SoundVolumeChanged -> setSoundVolume(event.volume)
             is SettingsEvent.PanelFontsChanged -> setPanelFonts(event.ids)
             is SettingsEvent.ResetFontPanelClicked -> resetFontPanel()
             is SettingsEvent.TabSelected -> selectTab(event.tab)
@@ -84,6 +87,14 @@ class SettingsViewModel @Inject constructor(
 
     private fun setEnterColor(argb: Long?) = intent {
         settingsInteractor.setEnterColor(argb)
+    }
+
+    private fun setSoundPack(pack: KeyboardSoundPack) = intent {
+        settingsInteractor.setSoundPack(pack)
+    }
+
+    private fun setSoundVolume(volume: Float) = intent {
+        settingsInteractor.setSoundVolume(volume)
     }
 
     private fun selectTab(tab: StudioTab) = intent {

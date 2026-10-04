@@ -5,12 +5,14 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
+import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kg.timmitof.keyboard.data.language.keyboardPreferences
 import kg.timmitof.keyboard.domain.model.KeyboardHeight
 import kg.timmitof.keyboard.domain.model.KeyboardSettings
+import kg.timmitof.keyboard.domain.model.KeyboardSoundPack
 import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
 import kg.timmitof.keyboard.domain.model.KeyboardToggle
 import kotlinx.coroutines.flow.Flow
@@ -59,6 +61,14 @@ class KeyboardSettingsDataSource @Inject constructor(
         }
     }
 
+    suspend fun setSoundPack(pack: KeyboardSoundPack) {
+        context.keyboardPreferences.edit { prefs -> prefs[SOUND_PACK_KEY] = pack.key }
+    }
+
+    suspend fun setSoundVolume(volume: Float) {
+        context.keyboardPreferences.edit { prefs -> prefs[SOUND_VOLUME_KEY] = volume.coerceIn(0f, 1f) }
+    }
+
     private fun toSettings(prefs: Preferences) = KeyboardSettings(
         flags = KeyboardToggle.entries.associateWith { toggle ->
             prefs[toggleKeys.getValue(toggle)] ?: toggle.default
@@ -66,6 +76,8 @@ class KeyboardSettingsDataSource @Inject constructor(
         theme = KeyboardThemeMode.of(prefs[THEME_KEY]),
         height = KeyboardHeight.of(prefs[HEIGHT_KEY]),
         enterColor = prefs[ENTER_COLOR_KEY],
+        soundPack = KeyboardSoundPack.of(prefs[SOUND_PACK_KEY]),
+        soundVolume = prefs[SOUND_VOLUME_KEY] ?: KeyboardSettings.DEFAULT_SOUND_VOLUME,
     )
 
     private companion object {
@@ -74,5 +86,9 @@ class KeyboardSettingsDataSource @Inject constructor(
         val HEIGHT_KEY = stringPreferencesKey("keyboard_height")
 
         val ENTER_COLOR_KEY = longPreferencesKey("enter_key_color")
+
+        val SOUND_PACK_KEY = stringPreferencesKey("key_sound_pack")
+
+        val SOUND_VOLUME_KEY = floatPreferencesKey("key_sound_volume")
     }
 }
