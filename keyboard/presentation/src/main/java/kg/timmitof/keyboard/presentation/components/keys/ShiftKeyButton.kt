@@ -27,8 +27,8 @@ internal fun RowScope.ShiftKeyButton(
 
     val iconTint = animateColorAsState(
         targetValue =
-            if (shiftState.isUpperCase()) KFTheme.color.keyTextColor
-            else KFTheme.color.keySpecialTextColor
+            if (shiftState.isUpperCase()) KFTheme.color.keyLabelColor
+            else KFTheme.color.keySpecialLabelColor
     )
 
     KeyBase(

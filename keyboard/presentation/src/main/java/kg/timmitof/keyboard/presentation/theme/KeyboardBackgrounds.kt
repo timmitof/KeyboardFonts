@@ -20,7 +20,7 @@ import kg.timmitof.keyboard.domain.model.KeyboardBackground
 import java.io.File
 import kotlin.math.hypot
 
-/** Рисуется поверх цвета темы: у [KeyboardBackground.None] своего слоя нет. */
+/** Рисуется поверх цвета темы: у [KeyboardBackground.None] своего слоя нет. Фото не задаёт размер — только обрезается под клавиатуру. */
 @Composable
 fun Modifier.keyboardBackground(background: KeyboardBackground): Modifier = when (background) {
     KeyboardBackground.None -> this
@@ -28,6 +28,7 @@ fun Modifier.keyboardBackground(background: KeyboardBackground): Modifier = when
     is KeyboardBackground.Pattern -> clipToBounds().drawBehind { drawBackgroundPattern(background.pattern) }
     is KeyboardBackground.Photo -> paint(
         painter = rememberAsyncImagePainter(File(background.path)),
+        sizeToIntrinsics = false,
         contentScale = ContentScale.Crop,
     )
 }

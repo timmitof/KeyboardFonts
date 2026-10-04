@@ -65,7 +65,7 @@ internal fun LongPressSymbolsPicker(
                         text = symbol,
                         fontSize = if (symbol.isWordLabel()) 13.sp else 28.sp,
                         fontWeight = FontWeight.Medium,
-                        color = KFTheme.color.keyTextColor,
+                        color = KFTheme.color.keyLabelColor,
                         maxLines = 1
                     )
                 }

@@ -9,8 +9,8 @@ sealed interface KeyboardBackground {
 
     data class Pattern(val pattern: BackgroundPattern) : KeyboardBackground
 
-    /** [path] — копия картинки во внутренней папке приложения: клавиатура читает её из своего процесса. */
-    data class Photo(val path: String) : KeyboardBackground
+    /** [path] — обрезанная копия во внутренней папке приложения; [tone] — средний цвет, под него подбираются клавиши. */
+    data class Photo(val path: String, val tone: Long) : KeyboardBackground
 
     companion object {
         val Default: KeyboardBackground = None
@@ -22,7 +22,9 @@ sealed interface KeyboardBackground {
             return when (type) {
                 SOLID -> value.toLongOrNull(16)?.let(::Solid)
                 PATTERN -> BackgroundPattern.entries.firstOrNull { it.key == value }?.let(::Pattern)
-                PHOTO -> Photo(value)
+                PHOTO -> value.split(SEPARATOR, limit = 2).takeIf { it.size == 2 }?.let { (tone, path) ->
+                    tone.toLongOrNull(16)?.let { Photo(path, it) }
+                }
                 else -> null
             } ?: Default
         }
@@ -33,7 +35,7 @@ fun KeyboardBackground.toKey(): String? = when (this) {
     KeyboardBackground.None -> null
     is KeyboardBackground.Solid -> "$SOLID$SEPARATOR${argb.toString(16)}"
     is KeyboardBackground.Pattern -> "$PATTERN$SEPARATOR${pattern.key}"
-    is KeyboardBackground.Photo -> "$PHOTO$SEPARATOR$path"
+    is KeyboardBackground.Photo -> "$PHOTO$SEPARATOR${tone.toString(16)}$SEPARATOR$path"
 }
 
 private const val SEPARATOR = ":"
@@ -49,3 +51,11 @@ enum class BackgroundPattern(val key: String) {
     WAVES("waves"),
     NIGHT("night"),
 }
+
+/** Доли от сторон исходной картинки (0..1): какой кусок фото пойдёт на фон. */
+data class PhotoCrop(
+    val left: Float,
+    val top: Float,
+    val right: Float,
+    val bottom: Float,
+)

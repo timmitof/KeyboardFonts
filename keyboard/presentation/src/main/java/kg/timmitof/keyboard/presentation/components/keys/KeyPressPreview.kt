@@ -67,7 +67,7 @@ internal fun BoxScope.KeyPressPreview(label: String) {
             text = label,
             fontSize = if (label.isWordLabel()) PreviewWordSize else PreviewGlyphSize,
             fontWeight = FontWeight.Medium,
-            color = KFTheme.color.keyTextColor,
+            color = KFTheme.color.keyLabelColor,
             maxLines = 1
         )
     }

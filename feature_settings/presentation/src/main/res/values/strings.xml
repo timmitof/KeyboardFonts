@@ -35,13 +35,26 @@
     <string name="background_custom_tone">Свой оттенок</string>
     <string name="background_cancel">Отмена</string>
     <string name="background_apply">Применить</string>
+    <string name="background_colors_hint">Цвета клавиш подобрались под фон сами. Если хочется по-другому — поменяй их ниже, а кружок «А» вернёт подобранные.</string>
+    <string name="background_crop_title">Фото для фона</string>
+    <string name="background_crop_hint">Двигай фото пальцем и приближай двумя пальцами. Что видно в рамке — то и будет на клавиатуре.</string>
+    <string name="background_crop_done">Готово</string>
+    <string name="background_crop_another">Другое фото</string>
+    <string name="background_crop_error">Не получилось открыть фото. Попробуй выбрать другое.</string>
 
     <!-- Тема -->
     <string name="theme_light">Светлая</string>
     <string name="theme_dark">Тёмная</string>
     <string name="theme_auto">Как в системе</string>
-    <string name="theme_enter_color_title">Цвет клавиши Enter</string>
-    <string name="theme_enter_color_picker_title">Свой цвет Enter</string>
+    <string name="theme_overridden_by_background">Сейчас цвета задаёт фон. Тема снова заработает, если во вкладке «Фон» выбрать «Без фона».</string>
+    <string name="key_colors_header">Цвета клавиш</string>
+    <string name="key_color_auto">А</string>
+    <string name="key_color_letters">Буквы</string>
+    <string name="key_color_special">Служебные клавиши</string>
+    <string name="key_color_enter">Клавиша Enter</string>
+    <string name="key_color_letters_picker">Свой цвет букв</string>
+    <string name="key_color_special_picker">Свой цвет служебных клавиш</string>
+    <string name="key_color_enter_picker">Свой цвет Enter</string>
     <string name="theme_key_outline_title">Контур клавиш</string>
     <string name="theme_key_outline_description">Тонкая рамка вместо тени</string>
     <string name="color_picker_confirm">Готово</string>

@@ -2,10 +2,12 @@ package kg.timmitof.feature_settings.presentation.screens
 
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kg.timmitof.core.navigation.graphs.HomeGraph
+import kg.timmitof.core.navigation.graphs.SettingsGraph
 import kg.timmitof.core.ui.base.BaseSideEffect
 import kg.timmitof.core.ui.base.BaseViewModel
 import kg.timmitof.feature_settings.domain.interactor.SettingsInteractor
 import kg.timmitof.feature_settings.presentation.studio.StudioTab
+import kg.timmitof.keyboard.domain.model.KeyColorTarget
 import kg.timmitof.keyboard.domain.model.KeyboardBackground
 import kg.timmitof.keyboard.domain.model.KeyboardHeight
 import kg.timmitof.keyboard.domain.model.KeyboardSoundPack
@@ -30,9 +32,9 @@ class SettingsViewModel @Inject constructor(
             is SettingsEvent.ToggleChanged -> setToggle(event.toggle, event.enabled)
             is SettingsEvent.ThemeChanged -> setTheme(event.mode)
             is SettingsEvent.HeightChanged -> setHeight(event.height)
-            is SettingsEvent.EnterColorChanged -> setEnterColor(event.argb)
+            is SettingsEvent.KeyColorChanged -> setKeyColor(event.target, event.argb)
             is SettingsEvent.BackgroundSelected -> setBackground(event.background)
-            is SettingsEvent.BackgroundPhotoPicked -> importBackgroundPhoto(event.uri)
+            is SettingsEvent.BackgroundPhotoPicked -> navigateTo(SettingsGraph.BackgroundCropScreen(event.uri))
             is SettingsEvent.BackgroundColorClicked -> openBackgroundColor()
             is SettingsEvent.BackgroundDraftChanged -> changeBackgroundDraft(event.argb)
             is SettingsEvent.BackgroundDraftApplied -> applyBackgroundDraft()
@@ -92,16 +94,12 @@ class SettingsViewModel @Inject constructor(
         settingsInteractor.setHeight(height)
     }
 
-    private fun setEnterColor(argb: Long?) = intent {
-        settingsInteractor.setEnterColor(argb)
+    private fun setKeyColor(target: KeyColorTarget, argb: Long?) = intent {
+        settingsInteractor.setKeyColor(target, argb)
     }
 
     private fun setBackground(background: KeyboardBackground) = intent {
         settingsInteractor.setBackground(background)
-    }
-
-    private fun importBackgroundPhoto(uri: String) = intent {
-        runCatching { settingsInteractor.importBackgroundPhoto(uri) }
     }
 
     /** Шторка открывается с текущим цветом фона, а если фон не цветной — с первым из готовых. */

@@ -54,6 +54,8 @@ private const val SubLabelAlpha = 0.5f
 
 private val HintSize = 10.sp
 
+private const val HintAlpha = 0.6f
+
 internal fun String.isWordLabel(): Boolean = codePointCount(0, length) > 1
 
 /**
@@ -131,9 +133,9 @@ internal fun RowScope.KeyboardKeyButton(
             subLabel = key.subLabel ?: "".takeIf { hasSubLabels && !key.isSpecial },
             isLarge = isLargeLabel,
             color = if (key.isSpecial) {
-                KFTheme.color.keySpecialTextColor
+                KFTheme.color.keySpecialLabelColor
             } else {
-                KFTheme.color.keyTextColor
+                KFTheme.color.keyLabelColor
             }
         )
 
@@ -210,7 +212,7 @@ private fun BoxScope.KeyHint(hint: String) {
             .padding(top = 3.dp, end = 3.dp),
         text = hint,
         fontSize = HintSize,
-        color = KFTheme.color.keySpecialTextColor,
+        color = KFTheme.color.keyLabelColor.copy(alpha = HintAlpha),
         style = TextStyle(
             platformStyle = PlatformTextStyle(includeFontPadding = false),
             lineHeight = HintSize,

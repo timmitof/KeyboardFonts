@@ -144,7 +144,7 @@ private fun ClipboardCard(
                 text = entry.text,
                 fontSize = 12.sp,
                 lineHeight = 16.sp,
-                color = KFTheme.color.keyTextColor,
+                color = KFTheme.color.keyLabelColor,
                 maxLines = CardMaxLines,
                 overflow = TextOverflow.Ellipsis,
             )

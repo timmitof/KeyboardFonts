@@ -137,6 +137,9 @@ class SettingsSectionScope internal constructor() {
         isNested: Boolean = false,
         isEnabled: Boolean = true,
         onPickCustom: (() -> Unit)? = null,
+        autoColor: Color? = null,
+        autoLabel: String = "",
+        onAuto: () -> Unit = {},
         onSelect: (Color) -> Unit,
     ) = row(
         SettingsRow.Colors(
@@ -149,6 +152,9 @@ class SettingsSectionScope internal constructor() {
             selected = selected,
             onSelect = onSelect,
             onPickCustom = onPickCustom,
+            autoColor = autoColor,
+            autoLabel = autoLabel,
+            onAuto = onAuto,
         )
     )
 

@@ -30,6 +30,7 @@ import kg.timmitof.feature_settings.presentation.components.ThemeTile
 import kg.timmitof.feature_settings.presentation.components.ThemeTiles
 import kg.timmitof.feature_settings.presentation.components.VisibleFontsList
 import kg.timmitof.keyboard.clipboard.domain.model.ClipboardBoard
+import kg.timmitof.keyboard.domain.model.KeyColorTarget
 import kg.timmitof.keyboard.domain.model.KeyboardHeight
 import kg.timmitof.keyboard.domain.model.KeyboardLanguage
 import kg.timmitof.keyboard.domain.model.KeyboardSettings
@@ -39,6 +40,7 @@ import kg.timmitof.keyboard.domain.model.KeyboardToggle
 import kg.timmitof.keyboard.font.domain.model.FontPanel
 import kg.timmitof.keyboard.font.domain.model.KeyboardFont
 import kg.timmitof.keyboard.presentation.sound.KeySound
+import kg.timmitof.keyboard.presentation.theme.palette
 import kg.timmitof.keyboard.presentation.sound.rememberKeySoundPlayer
 import kotlin.math.roundToInt
 
@@ -47,57 +49,25 @@ import kotlin.math.roundToInt
 internal fun ThemePane(
     settings: KeyboardSettings,
     onTheme: (KeyboardThemeMode) -> Unit,
-    onEnterColor: (Long?) -> Unit,
+    onKeyColor: (KeyColorTarget, Long?) -> Unit,
     onToggle: (KeyboardToggle, Boolean) -> Unit,
 ) {
-    var isPickerOpen by rememberSaveable { mutableStateOf(false) }
-
     val tiles = listOf(
         ThemeTile(KeyboardThemeMode.LIGHT, stringResource(R.string.theme_light)),
         ThemeTile(KeyboardThemeMode.DARK, stringResource(R.string.theme_dark)),
         ThemeTile(KeyboardThemeMode.AUTO, stringResource(R.string.theme_auto)),
     )
-    val enterTitle = stringResource(R.string.theme_enter_color_title)
-    val outlineTitle = stringResource(R.string.theme_key_outline_title)
-    val outlineDescription = stringResource(R.string.theme_key_outline_description)
-    val enterColor = settings.enterColor?.let { Color(it.toInt()) } ?: DefaultEnterColor
+    // Фон с палитрой сам решает, светлая основа или тёмная, — говорим об этом прямо под плитками.
+    val hasBackgroundPalette = settings.background.palette() != null
 
-    // Первый кружок — серый Enter по умолчанию: он хранится как `null` и следует за темой.
-    val selectEnterColor = { color: Color ->
-        onEnterColor(color.takeIf { it != DefaultEnterColor }?.toArgb()?.toLong())
+    Column {
+        ThemeTiles(tiles = tiles, selected = settings.theme, onSelect = onTheme)
+        if (hasBackgroundPalette) {
+            SettingsSectionFooter(text = stringResource(R.string.theme_overridden_by_background))
+        }
     }
 
-    ThemeTiles(tiles = tiles, selected = settings.theme, onSelect = onTheme)
-
-    SettingsSection {
-        colors(
-            title = enterTitle,
-            colors = EnterColorPresets,
-            selected = enterColor,
-            onPickCustom = { isPickerOpen = true },
-            onSelect = selectEnterColor,
-        )
-        toggle(
-            title = outlineTitle,
-            description = outlineDescription,
-            checked = settings[KeyboardToggle.KEY_OUTLINE],
-            onCheckedChange = { onToggle(KeyboardToggle.KEY_OUTLINE, it) },
-        )
-    }
-
-    if (isPickerOpen) {
-        ColorPickerDialog(
-            initial = enterColor,
-            title = stringResource(R.string.theme_enter_color_picker_title),
-            confirmLabel = stringResource(R.string.color_picker_confirm),
-            dismissLabel = stringResource(R.string.color_picker_dismiss),
-            onConfirm = { color ->
-                isPickerOpen = false
-                selectEnterColor(color)
-            },
-            onDismiss = { isPickerOpen = false },
-        )
-    }
+    KeyColorsSection(settings = settings, onKeyColor = onKeyColor, onToggle = onToggle)
 }
 
 @Composable
@@ -436,14 +406,6 @@ private val KeyboardSoundPack.iconRes: Int
         KeyboardSoundPack.BUBBLE -> R.drawable.ic_sound_bubble
         KeyboardSoundPack.TYPEWRITER -> R.drawable.ic_sound_typewriter
     }
-
-private val DefaultEnterColor = Color(0xFFBFC4CB)
-
-private val EnterColorPresets = listOf(
-    DefaultEnterColor,
-    Color(0xFF6D4BD8),
-    Color(0xFF0F7B6C),
-)
 
 private val KeyboardHeight.labelRes: Int
     get() = when (this) {

@@ -9,6 +9,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import kg.timmitof.core.ui.components.settings.SettingsSectionFooter
 import kg.timmitof.core.ui.components.settings.SettingsSectionHeader
 import kg.timmitof.core.ui.theme.AccentRole
 import kg.timmitof.feature_settings.presentation.R
@@ -18,6 +19,7 @@ import kg.timmitof.feature_settings.presentation.components.BackgroundColorSheet
 import kg.timmitof.feature_settings.presentation.components.BackgroundTile
 import kg.timmitof.feature_settings.presentation.components.BackgroundTiles
 import kg.timmitof.keyboard.domain.model.BackgroundPattern
+import kg.timmitof.keyboard.domain.model.KeyColorTarget
 import kg.timmitof.keyboard.domain.model.KeyboardBackground
 import kg.timmitof.keyboard.domain.model.KeyboardSettings
 
@@ -31,6 +33,7 @@ internal fun BackgroundPane(
     onDraftChange: (Long) -> Unit,
     onDraftApply: () -> Unit,
     onDraftDismiss: () -> Unit,
+    onKeyColor: (KeyColorTarget, Long?) -> Unit,
 ) {
     val photoPicker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         uri?.let { onPhotoPicked(it.toString()) }
@@ -56,7 +59,7 @@ internal fun BackgroundPane(
     )
     val tiles = listOf(BackgroundTile(stringResource(R.string.background_none), KeyboardBackground.None)) +
         BackgroundPattern.entries.map { BackgroundTile(stringResource(it.labelRes), KeyboardBackground.Pattern(it)) } +
-        BackgroundTile(stringResource(R.string.background_photo), settings.backgroundPhoto?.let(KeyboardBackground::Photo))
+        BackgroundTile(stringResource(R.string.background_photo), settings.backgroundPhoto)
 
     BackgroundActions(actions = actions)
 
@@ -67,7 +70,12 @@ internal fun BackgroundPane(
             selected = settings.background,
             onClick = { tile -> tile.background?.let(onSelect) ?: pickPhoto() },
         )
+        if (settings.background != KeyboardBackground.None) {
+            SettingsSectionFooter(text = stringResource(R.string.background_colors_hint))
+        }
     }
+
+    KeyColorsSection(settings = settings, onKeyColor = onKeyColor)
 
     draft?.let {
         BackgroundColorSheet(

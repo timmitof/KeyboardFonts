@@ -7,6 +7,7 @@ import kg.timmitof.core.ui.base.BaseState
 import kg.timmitof.feature_settings.domain.model.SettingsSummary
 import kg.timmitof.feature_settings.presentation.studio.StudioTab
 import kg.timmitof.keyboard.clipboard.domain.model.ClipboardBoard
+import kg.timmitof.keyboard.domain.model.KeyColorTarget
 import kg.timmitof.keyboard.domain.model.KeyboardBackground
 import kg.timmitof.keyboard.domain.model.KeyboardHeight
 import kg.timmitof.keyboard.domain.model.KeyboardSettings
@@ -39,7 +40,7 @@ sealed class SettingsEvent : BaseEvent.UiEvent() {
 
     data class HeightChanged(val height: KeyboardHeight) : SettingsEvent()
 
-    data class EnterColorChanged(val argb: Long?) : SettingsEvent()
+    data class KeyColorChanged(val target: KeyColorTarget, val argb: Long?) : SettingsEvent()
 
     data class BackgroundSelected(val background: KeyboardBackground) : SettingsEvent()
 

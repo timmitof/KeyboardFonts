@@ -2,12 +2,14 @@ package kg.timmitof.feature_settings.domain.interactor
 
 import kg.timmitof.feature_settings.domain.model.SettingsSummary
 import kg.timmitof.keyboard.clipboard.domain.model.ClipboardBoard
+import kg.timmitof.keyboard.domain.model.KeyColorTarget
 import kg.timmitof.keyboard.domain.model.KeyboardBackground
 import kg.timmitof.keyboard.domain.model.KeyboardHeight
 import kg.timmitof.keyboard.domain.model.KeyboardSettings
 import kg.timmitof.keyboard.domain.model.KeyboardSoundPack
 import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
 import kg.timmitof.keyboard.domain.model.KeyboardToggle
+import kg.timmitof.keyboard.domain.model.PhotoCrop
 import kg.timmitof.keyboard.font.domain.model.FontPanel
 import kotlinx.coroutines.flow.Flow
 
@@ -21,7 +23,7 @@ interface SettingsInteractor {
 
     suspend fun setHeight(height: KeyboardHeight)
 
-    suspend fun setEnterColor(argb: Long?)
+    suspend fun setKeyColor(target: KeyColorTarget, argb: Long?)
 
     suspend fun setSoundPack(pack: KeyboardSoundPack)
 
@@ -29,7 +31,7 @@ interface SettingsInteractor {
 
     suspend fun setBackground(background: KeyboardBackground)
 
-    suspend fun importBackgroundPhoto(uri: String)
+    suspend fun importBackgroundPhoto(uri: String, crop: PhotoCrop)
 
     suspend fun getSummary(): SettingsSummary
 

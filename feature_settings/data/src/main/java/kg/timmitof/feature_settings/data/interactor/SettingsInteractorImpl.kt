@@ -4,12 +4,14 @@ import kg.timmitof.feature_settings.domain.interactor.SettingsInteractor
 import kg.timmitof.feature_settings.domain.model.SettingsSummary
 import kg.timmitof.keyboard.clipboard.domain.model.ClipboardBoard
 import kg.timmitof.keyboard.clipboard.domain.repository.ClipboardRepository
+import kg.timmitof.keyboard.domain.model.KeyColorTarget
 import kg.timmitof.keyboard.domain.model.KeyboardBackground
 import kg.timmitof.keyboard.domain.model.KeyboardHeight
 import kg.timmitof.keyboard.domain.model.KeyboardSettings
 import kg.timmitof.keyboard.domain.model.KeyboardSoundPack
 import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
 import kg.timmitof.keyboard.domain.model.KeyboardToggle
+import kg.timmitof.keyboard.domain.model.PhotoCrop
 import kg.timmitof.keyboard.domain.repository.KeyboardLayoutRepository
 import kg.timmitof.keyboard.domain.repository.KeyboardSettingsRepository
 import kg.timmitof.keyboard.domain.repository.LanguageRepository
@@ -40,8 +42,8 @@ class SettingsInteractorImpl @Inject constructor(
     override suspend fun setHeight(height: KeyboardHeight) =
         keyboardSettingsRepository.setHeight(height)
 
-    override suspend fun setEnterColor(argb: Long?) =
-        keyboardSettingsRepository.setEnterColor(argb)
+    override suspend fun setKeyColor(target: KeyColorTarget, argb: Long?) =
+        keyboardSettingsRepository.setKeyColor(target, argb)
 
     override suspend fun setSoundPack(pack: KeyboardSoundPack) =
         keyboardSettingsRepository.setSoundPack(pack)
@@ -52,8 +54,8 @@ class SettingsInteractorImpl @Inject constructor(
     override suspend fun setBackground(background: KeyboardBackground) =
         keyboardSettingsRepository.setBackground(background)
 
-    override suspend fun importBackgroundPhoto(uri: String) =
-        keyboardSettingsRepository.importBackgroundPhoto(uri)
+    override suspend fun importBackgroundPhoto(uri: String, crop: PhotoCrop) =
+        keyboardSettingsRepository.importBackgroundPhoto(uri, crop)
 
     override suspend fun getSummary(): SettingsSummary {
         val keyboardState = keyboardContract.getKeyboardState()

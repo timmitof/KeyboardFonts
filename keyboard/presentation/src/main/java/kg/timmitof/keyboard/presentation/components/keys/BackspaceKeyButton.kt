@@ -40,7 +40,7 @@ internal fun RowScope.BackspaceKeyButton(
         Icon(
             imageVector = ImageVector.vectorResource(R.drawable.ic_backspace_key),
             contentDescription = "Backspace",
-            tint = KFTheme.color.keySpecialTextColor,
+            tint = KFTheme.color.keySpecialLabelColor,
         )
     }
 }

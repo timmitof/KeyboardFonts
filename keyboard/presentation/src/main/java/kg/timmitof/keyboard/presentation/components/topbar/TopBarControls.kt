@@ -68,13 +68,13 @@ internal fun FontToggleButton(
             text = preview,
             fontSize = 15.sp,
             fontWeight = FontWeight.Medium,
-            color = KFTheme.color.keyTextColor,
+            color = KFTheme.color.keyLabelColor,
             maxLines = 1
         )
         Text(
             text = "▾",
             fontSize = 11.sp,
-            color = KFTheme.color.keyTextColor.copy(alpha = 0.5f)
+            color = KFTheme.color.keyLabelColor.copy(alpha = 0.5f)
         )
     }
 }

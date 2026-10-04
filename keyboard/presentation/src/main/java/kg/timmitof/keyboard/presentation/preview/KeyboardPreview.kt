@@ -154,7 +154,7 @@ private fun PreviewFontChip(font: KeyboardFont, isSelected: Boolean) {
         modifier = Modifier
             .height(22.dp)
             .clip(CircleShape)
-            .background(if (isSelected) KFTheme.color.keyButtonPressedBackground else Color.Transparent)
+            .background(if (isSelected) KFTheme.color.keySpecialButtonBackground else Color.Transparent)
             .padding(horizontal = 7.dp),
         contentAlignment = Alignment.Center,
     ) {
@@ -162,7 +162,11 @@ private fun PreviewFontChip(font: KeyboardFont, isSelected: Boolean) {
             text = text,
             fontSize = 11.5.sp,
             fontWeight = FontWeight.Medium,
-            color = KFTheme.color.keyTextColor.copy(alpha = if (isSelected) 1f else 0.55f),
+            color = if (isSelected) {
+                KFTheme.color.keySpecialLabelColor
+            } else {
+                KFTheme.color.keyTextColor.copy(alpha = 0.55f)
+            },
             maxLines = 1,
         )
     }
@@ -221,7 +225,7 @@ private fun RowScope.PreviewIconKey(
     weight: Float,
     @DrawableRes iconRes: Int,
     background: Color = KFTheme.color.keySpecialButtonBackground,
-    tint: Color = KFTheme.color.keySpecialTextColor,
+    tint: Color = KFTheme.color.keySpecialLabelColor,
 ) {
     PreviewKeyCap(weight = weight, isSpecial = true, background = background) {
         Icon(
@@ -252,9 +256,9 @@ private fun PreviewLabel(
         fontSize = fontSize.sp,
         fontWeight = if (isSpecial) FontWeight.Medium else FontWeight.Normal,
         color = when {
-            isSpecial -> KFTheme.color.keySpecialTextColor
-            isMuted -> KFTheme.color.keyTextColor.copy(alpha = 0.55f)
-            else -> KFTheme.color.keyTextColor
+            isSpecial -> KFTheme.color.keySpecialLabelColor
+            isMuted -> KFTheme.color.keyLabelColor.copy(alpha = 0.55f)
+            else -> KFTheme.color.keyLabelColor
         },
         maxLines = 1,
     )

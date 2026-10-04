@@ -10,6 +10,7 @@ import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kg.timmitof.keyboard.data.language.keyboardPreferences
+import kg.timmitof.keyboard.domain.model.KeyColorTarget
 import kg.timmitof.keyboard.domain.model.KeyboardBackground
 import kg.timmitof.keyboard.domain.model.toKey
 import kg.timmitof.keyboard.domain.model.KeyboardHeight
@@ -57,9 +58,10 @@ class KeyboardSettingsDataSource @Inject constructor(
         context.keyboardPreferences.edit { prefs -> prefs[HEIGHT_KEY] = height.key }
     }
 
-    suspend fun setEnterColor(argb: Long?) {
+    suspend fun setKeyColor(target: KeyColorTarget, argb: Long?) {
+        val key = target.preferenceKey
         context.keyboardPreferences.edit { prefs ->
-            if (argb == null) prefs.remove(ENTER_COLOR_KEY) else prefs[ENTER_COLOR_KEY] = argb
+            if (argb == null) prefs.remove(key) else prefs[key] = argb
         }
     }
 
@@ -71,17 +73,13 @@ class KeyboardSettingsDataSource @Inject constructor(
         context.keyboardPreferences.edit { prefs -> prefs[SOUND_VOLUME_KEY] = volume.coerceIn(0f, 1f) }
     }
 
+    /** Одной записью с цветами клавиш: иначе клавиатура на кадр покажет новый фон со старыми клавишами. */
     suspend fun setBackground(background: KeyboardBackground) {
         context.keyboardPreferences.edit { prefs ->
             background.toKey()?.let { prefs[BACKGROUND_KEY] = it } ?: prefs.remove(BACKGROUND_KEY)
-        }
-    }
-
-    /** Фото запоминается отдельно и сразу становится фоном — одной записью, без промежуточного кадра. */
-    suspend fun setBackgroundPhoto(path: String) {
-        context.keyboardPreferences.edit { prefs ->
-            prefs[BACKGROUND_PHOTO_KEY] = path
-            KeyboardBackground.Photo(path).toKey()?.let { prefs[BACKGROUND_KEY] = it }
+            if (background is KeyboardBackground.Photo) prefs[BACKGROUND_PHOTO_KEY] = background.toKey().orEmpty()
+            prefs.remove(KEY_COLOR_KEY)
+            prefs.remove(SPECIAL_KEY_COLOR_KEY)
         }
     }
 
@@ -91,11 +89,13 @@ class KeyboardSettingsDataSource @Inject constructor(
         },
         theme = KeyboardThemeMode.of(prefs[THEME_KEY]),
         height = KeyboardHeight.of(prefs[HEIGHT_KEY]),
+        keyColor = prefs[KEY_COLOR_KEY],
+        specialKeyColor = prefs[SPECIAL_KEY_COLOR_KEY],
         enterColor = prefs[ENTER_COLOR_KEY],
         soundPack = KeyboardSoundPack.of(prefs[SOUND_PACK_KEY]),
         soundVolume = prefs[SOUND_VOLUME_KEY] ?: KeyboardSettings.DEFAULT_SOUND_VOLUME,
         background = KeyboardBackground.of(prefs[BACKGROUND_KEY]),
-        backgroundPhoto = prefs[BACKGROUND_PHOTO_KEY],
+        backgroundPhoto = KeyboardBackground.of(prefs[BACKGROUND_PHOTO_KEY]) as? KeyboardBackground.Photo,
     )
 
     private companion object {
@@ -105,12 +105,23 @@ class KeyboardSettingsDataSource @Inject constructor(
 
         val ENTER_COLOR_KEY = longPreferencesKey("enter_key_color")
 
+        val KEY_COLOR_KEY = longPreferencesKey("key_color")
+
+        val SPECIAL_KEY_COLOR_KEY = longPreferencesKey("special_key_color")
+
         val SOUND_PACK_KEY = stringPreferencesKey("key_sound_pack")
 
         val SOUND_VOLUME_KEY = floatPreferencesKey("key_sound_volume")
 
         val BACKGROUND_KEY = stringPreferencesKey("keyboard_background")
 
-        val BACKGROUND_PHOTO_KEY = stringPreferencesKey("keyboard_background_photo")
+        val BACKGROUND_PHOTO_KEY = stringPreferencesKey("keyboard_background_last_photo")
+
+        val KeyColorTarget.preferenceKey
+            get() = when (this) {
+                KeyColorTarget.KEY -> KEY_COLOR_KEY
+                KeyColorTarget.SPECIAL -> SPECIAL_KEY_COLOR_KEY
+                KeyColorTarget.ENTER -> ENTER_COLOR_KEY
+            }
     }
 }

@@ -2,12 +2,14 @@ package kg.timmitof.keyboard.data.repository
 
 import kg.timmitof.keyboard.data.settings.BackgroundPhotoStorage
 import kg.timmitof.keyboard.data.settings.KeyboardSettingsDataSource
+import kg.timmitof.keyboard.domain.model.KeyColorTarget
 import kg.timmitof.keyboard.domain.model.KeyboardBackground
 import kg.timmitof.keyboard.domain.model.KeyboardHeight
 import kg.timmitof.keyboard.domain.model.KeyboardSettings
 import kg.timmitof.keyboard.domain.model.KeyboardSoundPack
 import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
 import kg.timmitof.keyboard.domain.model.KeyboardToggle
+import kg.timmitof.keyboard.domain.model.PhotoCrop
 import kg.timmitof.keyboard.domain.repository.KeyboardSettingsRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -31,7 +33,7 @@ class KeyboardSettingsRepositoryImpl @Inject constructor(
 
     override suspend fun setHeight(height: KeyboardHeight) = dataSource.setHeight(height)
 
-    override suspend fun setEnterColor(argb: Long?) = dataSource.setEnterColor(argb)
+    override suspend fun setKeyColor(target: KeyColorTarget, argb: Long?) = dataSource.setKeyColor(target, argb)
 
     override suspend fun setSoundPack(pack: KeyboardSoundPack) = dataSource.setSoundPack(pack)
 
@@ -39,6 +41,6 @@ class KeyboardSettingsRepositoryImpl @Inject constructor(
 
     override suspend fun setBackground(background: KeyboardBackground) = dataSource.setBackground(background)
 
-    override suspend fun importBackgroundPhoto(uri: String) =
-        dataSource.setBackgroundPhoto(photoStorage.import(uri))
+    override suspend fun importBackgroundPhoto(uri: String, crop: PhotoCrop) =
+        dataSource.setBackground(photoStorage.import(uri, crop))
 }

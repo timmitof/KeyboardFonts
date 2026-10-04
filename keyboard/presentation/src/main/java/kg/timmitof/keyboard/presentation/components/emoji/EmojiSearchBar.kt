@@ -80,7 +80,7 @@ internal fun EmojiSearchBar(
                     text = "✕",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
-                    color = KFTheme.color.keySpecialTextColor
+                    color = KFTheme.color.keySpecialLabelColor
                 )
             }
         }
@@ -106,7 +106,7 @@ private fun SearchQueryField(
     modifier: Modifier = Modifier,
     selectionChars: Int = 0,
 ) {
-    val textColor = KFTheme.color.keyTextColor
+    val textColor = KFTheme.color.keyLabelColor
     val hasSelection = selectionChars in 1..query.length
 
     Row(
@@ -118,7 +118,7 @@ private fun SearchQueryField(
         Icon(
             imageVector = ImageVector.vectorResource(R.drawable.ic_search_key),
             contentDescription = null,
-            tint = KFTheme.color.keySpecialTextColor,
+            tint = KFTheme.color.keyLabelColor.copy(alpha = MutedAlpha),
             modifier = Modifier.size(15.dp)
         )
 
@@ -134,7 +134,7 @@ private fun SearchQueryField(
                     Text(
                         text = stringResource(R.string.emoji_search_hint),
                         fontSize = 14.sp,
-                        color = KFTheme.color.keySpecialTextColor
+                        color = KFTheme.color.keyLabelColor.copy(alpha = MutedAlpha)
                     )
                 }
 
@@ -189,6 +189,8 @@ private fun BlinkingCaret(
 }
 
 private const val CaretBlinkMillis = 500L
+
+private const val MutedAlpha = 0.6f
 
 @Composable
 private fun SearchResultsRow(

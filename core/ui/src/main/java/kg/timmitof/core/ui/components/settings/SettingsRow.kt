@@ -63,7 +63,7 @@ sealed interface SettingsRow {
         val onValueChangeFinished: (() -> Unit)? = null,
     ) : SettingsRow
 
-    /** [onPickCustom] = `null` — только готовые цвета, без своего. */
+    /** [onPickCustom] = `null` — только готовые цвета, без своего; [autoColor] — кружок «Авто» первым, выбран при [selected] = `null`. */
     @Immutable
     data class Colors(
         override val title: String,
@@ -75,6 +75,9 @@ sealed interface SettingsRow {
         val selected: Color?,
         val onSelect: (Color) -> Unit,
         val onPickCustom: (() -> Unit)? = null,
+        val autoColor: Color? = null,
+        val autoLabel: String = "",
+        val onAuto: () -> Unit = {},
     ) : SettingsRow
 
     /** Строка-справка без контрола; [badge] — метка слева, например код языка «RU». */

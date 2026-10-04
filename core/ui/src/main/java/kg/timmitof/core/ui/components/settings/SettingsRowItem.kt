@@ -50,6 +50,8 @@ private const val ConnectorAlpha = 0.28f
 
 private const val DisabledAlpha = 0.4f
 
+private val ColorSwatchSize = 30.dp
+
 private val BadgeShape = RoundedCornerShape(8.dp)
 
 @Composable
@@ -90,7 +92,22 @@ internal fun SettingsRowItem(row: SettingsRow) {
         Column(modifier = Modifier.weight(1f)) {
             RowTitles(row = row, alpha = { alpha })
 
-            // Ползунок не помещается в строку — он занимает вторую строку под заголовком.
+            // Ползунок и кружки цветов не помещаются в строку — они занимают вторую строку под заголовком.
+            (row as? SettingsRow.Colors)?.let { colors ->
+                ColorSwatches(
+                    colors = colors.colors,
+                    selected = colors.selected,
+                    onSelect = colors.onSelect,
+                    onPickCustom = colors.onPickCustom,
+                    autoColor = colors.autoColor,
+                    autoLabel = colors.autoLabel,
+                    onAuto = colors.onAuto,
+                    swatchSize = ColorSwatchSize,
+                    modifier = Modifier
+                        .padding(top = 8.dp)
+                        .graphicsLayer { this.alpha = alpha },
+                )
+            }
             (row as? SettingsRow.Slider)?.let { slider ->
                 Slider(
                     value = slider.value,
@@ -205,14 +222,6 @@ private fun RowScope.RowControl(row: SettingsRow, alpha: () -> Float) {
 
         is SettingsRow.Soon -> SettingsSoonBadge(text = row.badge)
 
-        is SettingsRow.Colors -> ColorSwatches(
-            colors = row.colors,
-            selected = row.selected,
-            onSelect = row.onSelect,
-            onPickCustom = row.onPickCustom,
-            modifier = Modifier.graphicsLayer { this.alpha = alpha() },
-        )
-
         is SettingsRow.Slider -> row.valueLabel?.let { label ->
             Text(
                 text = label,
@@ -225,7 +234,7 @@ private fun RowScope.RowControl(row: SettingsRow, alpha: () -> Float) {
             )
         }
 
-        is SettingsRow.Info -> Unit
+        is SettingsRow.Info, is SettingsRow.Colors -> Unit
     }
 }
 

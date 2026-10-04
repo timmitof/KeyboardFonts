@@ -69,19 +69,29 @@ enum class KeyboardSoundPack(val key: String) {
     }
 }
 
+enum class KeyColorTarget { KEY, SPECIAL, ENTER }
+
 data class KeyboardSettings(
     private val flags: Map<KeyboardToggle, Boolean> = emptyMap(),
     val theme: KeyboardThemeMode = KeyboardThemeMode.Default,
     val height: KeyboardHeight = KeyboardHeight.Default,
-    /** ARGB; `null` — серый, как у остальных служебных клавиш. */
+    /** Цвета клавиш, ARGB; `null` — «Авто»: из палитры фона, а без фона — из темы. */
+    val keyColor: Long? = null,
+    val specialKeyColor: Long? = null,
     val enterColor: Long? = null,
     val soundPack: KeyboardSoundPack = KeyboardSoundPack.Default,
     /** 0..1, доля от системной громкости. */
     val soundVolume: Float = DEFAULT_SOUND_VOLUME,
     val background: KeyboardBackground = KeyboardBackground.Default,
     /** Последнее загруженное фото — плитка «Моё фото» остаётся, даже когда выбран другой фон. */
-    val backgroundPhoto: String? = null,
+    val backgroundPhoto: KeyboardBackground.Photo? = null,
 ) {
+
+    fun keyColor(target: KeyColorTarget): Long? = when (target) {
+        KeyColorTarget.KEY -> keyColor
+        KeyColorTarget.SPECIAL -> specialKeyColor
+        KeyColorTarget.ENTER -> enterColor
+    }
 
     operator fun get(toggle: KeyboardToggle): Boolean = flags[toggle] ?: toggle.default
 

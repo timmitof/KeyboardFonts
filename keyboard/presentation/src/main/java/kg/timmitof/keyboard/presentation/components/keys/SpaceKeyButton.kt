@@ -126,7 +126,7 @@ private fun LanguageLabel(
             text = selectedLanguage.displayName,
             fontSize = 12.sp,
             fontWeight = FontWeight.Medium,
-            color = KFTheme.color.keyTextColor,
+            color = KFTheme.color.keyLabelColor,
             letterSpacing = 0.5.sp
         )
 
@@ -140,7 +140,7 @@ private fun LanguageArrows(label: String) {
         text = label,
         fontSize = 22.sp,
         fontWeight = FontWeight.Medium,
-        color = KFTheme.color.keyTextColor.copy(alpha = 0.5f),
+        color = KFTheme.color.keyLabelColor.copy(alpha = 0.5f),
         letterSpacing = 0.sp
     )
 }

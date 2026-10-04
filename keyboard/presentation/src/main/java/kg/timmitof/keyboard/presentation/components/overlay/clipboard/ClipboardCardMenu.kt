@@ -104,7 +104,7 @@ private fun MenuItem(
         Text(
             text = label,
             fontSize = 13.sp,
-            color = KFTheme.color.keyTextColor,
+            color = KFTheme.color.keyLabelColor,
             maxLines = 1,
         )
     }

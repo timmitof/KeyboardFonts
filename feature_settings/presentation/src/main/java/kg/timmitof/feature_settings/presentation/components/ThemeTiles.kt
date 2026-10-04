@@ -27,8 +27,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.clipRect
@@ -41,6 +39,7 @@ import androidx.compose.ui.unit.sp
 import kg.timmitof.core.ui.R as UiR
 import kg.timmitof.core.ui.theme.appColors
 import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
+import kg.timmitof.keyboard.presentation.preview.drawKeyboardSilhouette
 import kg.timmitof.keyboard.presentation.theme.KeyboardColorScheme
 import kg.timmitof.keyboard.presentation.theme.KeyboardDarkColor
 import kg.timmitof.keyboard.presentation.theme.KeyboardLightColor
@@ -161,53 +160,10 @@ private fun KeyboardThumbnail(mode: KeyboardThemeMode, modifier: Modifier = Modi
 
 private fun DrawScope.drawThumbnail(colors: KeyboardColorScheme) {
     drawRect(colors.keyboardBackground)
-
-    val padding = 5.dp.toPx()
-    val gap = 2.dp.toPx()
-    val rows = ThumbnailRows.size
-    val keyHeight = (size.height - padding * 2 - gap * (rows - 1)) / rows
-    val column = (size.width - padding * 2 - gap * (ThumbnailColumns - 1)) / ThumbnailColumns
-    val radius = CornerRadius(2.dp.toPx())
-
-    ThumbnailRows.forEachIndexed { rowIndex, row ->
-        var x = padding
-        val y = padding + rowIndex * (keyHeight + gap)
-        row.forEach { key ->
-            val width = column * key.span + gap * (key.span - 1)
-            drawRoundRect(
-                color = when (key.kind) {
-                    ThumbKey.Kind.LETTER -> colors.keyButtonBackground
-                    ThumbKey.Kind.SPECIAL -> colors.keySpecialButtonBackground
-                    ThumbKey.Kind.ACCENT -> colors.keyAccentBackground
-                },
-                topLeft = Offset(x, y),
-                size = Size(width, keyHeight),
-                cornerRadius = radius,
-            )
-            x += width + gap
-        }
-    }
+    drawKeyboardSilhouette(colors = colors, padding = 5.dp, gap = 2.dp, radius = 2.dp)
 }
 
-private class ThumbKey(val span: Int, val kind: Kind) {
-    enum class Kind { LETTER, SPECIAL, ACCENT }
-}
-
-private const val ThumbnailColumns = 10
 private const val ThumbnailRatio = 1.45f
-
-private val ThumbnailRows: List<List<ThumbKey>> = listOf(
-    List(10) { ThumbKey(1, ThumbKey.Kind.LETTER) },
-    List(10) { ThumbKey(1, ThumbKey.Kind.LETTER) },
-    listOf(ThumbKey(1, ThumbKey.Kind.SPECIAL)) +
-        List(8) { ThumbKey(1, ThumbKey.Kind.LETTER) } +
-        ThumbKey(1, ThumbKey.Kind.SPECIAL),
-    listOf(
-        ThumbKey(2, ThumbKey.Kind.SPECIAL),
-        ThumbKey(6, ThumbKey.Kind.LETTER),
-        ThumbKey(2, ThumbKey.Kind.ACCENT),
-    ),
-)
 
 private val LightColors: KeyboardColorScheme = KeyboardLightColor()
 private val DarkColors: KeyboardColorScheme = KeyboardDarkColor()

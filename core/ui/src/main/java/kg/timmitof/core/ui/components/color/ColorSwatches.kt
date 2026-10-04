@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -22,11 +23,16 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import kg.timmitof.core.ui.R
 
-/** [onPickCustom] = `null` — без кружка «свой цвет»; цвет не из [colors] показывается в нём. [columns] переносит кружки сеткой. */
+/**
+ * [autoColor] — первый кружок «Авто» с буквой: выбран, пока [selected] = `null`.
+ * [onPickCustom] = `null` — без кружка «свой цвет»; цвет не из [colors] показывается в нём. [columns] переносит кружки сеткой.
+ */
 @Composable
 fun ColorSwatches(
     colors: List<Color>,
@@ -37,6 +43,9 @@ fun ColorSwatches(
     swatchSize: Dp = SwatchSize,
     columns: Int = Int.MAX_VALUE,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(SwatchGap),
+    autoColor: Color? = null,
+    autoLabel: String = "",
+    onAuto: () -> Unit = {},
 ) {
     val custom = selected?.takeIf { it !in colors }
 
@@ -46,6 +55,22 @@ fun ColorSwatches(
         verticalArrangement = Arrangement.spacedBy(SwatchGap),
         maxItemsInEachRow = columns,
     ) {
+        autoColor?.let { color ->
+            Swatch(
+                fill = { drawCircle(color) },
+                diameter = swatchSize,
+                isSelected = selected == null,
+                onClick = onAuto,
+            ) {
+                Text(
+                    text = autoLabel,
+                    fontSize = (swatchSize.value * AutoLabelScale).sp,
+                    fontWeight = FontWeight.Bold,
+                    color = if (color.luminance() > 0.5f) Color.Black else Color.White,
+                )
+            }
+        }
+
         colors.forEach { color ->
             Swatch(
                 fill = { drawCircle(color) },
@@ -140,3 +165,4 @@ private val RingWidth = 2.dp
 private val SwatchGap = 4.dp
 private val RainbowRim = 3.dp
 private const val EdgeAlpha = 0.08f
+private const val AutoLabelScale = 0.45f

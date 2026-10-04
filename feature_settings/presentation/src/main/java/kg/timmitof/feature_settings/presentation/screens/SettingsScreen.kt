@@ -37,6 +37,7 @@ import kg.timmitof.feature_settings.presentation.studio.SoundPane
 import kg.timmitof.feature_settings.presentation.studio.StudioTab
 import kg.timmitof.feature_settings.presentation.studio.StudioTabs
 import kg.timmitof.feature_settings.presentation.studio.ThemePane
+import kg.timmitof.keyboard.domain.model.KeyColorTarget
 import kg.timmitof.keyboard.domain.model.KeyboardBackground
 import kg.timmitof.keyboard.domain.model.KeyboardHeight
 import kg.timmitof.keyboard.domain.model.KeyboardSoundPack
@@ -81,8 +82,8 @@ internal fun ContainerDSLBuilder<SettingsSideEffect, SettingsEvent>.SettingsCont
     val onHeight = remember<(KeyboardHeight) -> Unit> {
         { height -> sendEvent(SettingsEvent.HeightChanged(height)) }
     }
-    val onEnterColor = remember<(Long?) -> Unit> {
-        { argb -> sendEvent(SettingsEvent.EnterColorChanged(argb)) }
+    val onKeyColor = remember<(KeyColorTarget, Long?) -> Unit> {
+        { target, argb -> sendEvent(SettingsEvent.KeyColorChanged(target, argb)) }
     }
     val onPanelFonts = remember<(List<String>) -> Unit> {
         { ids -> sendEvent(SettingsEvent.PanelFontsChanged(ids)) }
@@ -158,13 +159,14 @@ internal fun ContainerDSLBuilder<SettingsSideEffect, SettingsEvent>.SettingsCont
                         onDraftChange = onBackgroundDraft,
                         onDraftApply = onBackgroundDraftApply,
                         onDraftDismiss = onBackgroundDraftDismiss,
+                        onKeyColor = onKeyColor,
                     )
                 }
                 tab(StudioTab.THEME) {
                     ThemePane(
                         settings = settings,
                         onTheme = onTheme,
-                        onEnterColor = onEnterColor,
+                        onKeyColor = onKeyColor,
                         onToggle = onToggle,
                     )
                 }

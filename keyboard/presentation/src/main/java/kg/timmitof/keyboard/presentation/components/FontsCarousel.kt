@@ -85,12 +85,17 @@ private fun FontPill(
     modifier: Modifier = Modifier,
 ) {
     val shape = RoundedCornerShape(FontPillHeight / 2)
+    // Выбранный шрифт — плашка цвета служебных клавиш; остальные — текст прямо на фоне.
     val background by animateColorAsState(
-        targetValue = if (isSelected) KFTheme.color.keyButtonPressedBackground else Color.Transparent,
+        targetValue = if (isSelected) KFTheme.color.keySpecialButtonBackground else Color.Transparent,
         animationSpec = tween(200),
     )
     val textColor by animateColorAsState(
-        targetValue = KFTheme.color.keyTextColor.copy(alpha = if (isSelected) 1f else 0.55f),
+        targetValue = if (isSelected) {
+            KFTheme.color.keySpecialLabelColor
+        } else {
+            KFTheme.color.keyTextColor.copy(alpha = UnselectedAlpha)
+        },
         animationSpec = tween(200),
     )
 
@@ -130,6 +135,8 @@ private fun FontPill(
         }
     }
 }
+
+private const val UnselectedAlpha = 0.55f
 
 private val ResetEnterTransition =
     fadeIn(tween(180)) + expandHorizontally(

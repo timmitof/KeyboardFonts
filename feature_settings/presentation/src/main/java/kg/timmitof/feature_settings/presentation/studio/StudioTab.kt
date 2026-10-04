@@ -21,6 +21,6 @@ enum class StudioTab(
     CLIPBOARD(R.string.studio_tab_clipboard, R.drawable.ic_tab_clipboard, AccentRole.SUCCESS);
 
     companion object {
-        val Default = THEME
+        val Default = BACKGROUND
     }
 }
