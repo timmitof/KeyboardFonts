@@ -5,20 +5,27 @@ import kg.timmitof.core.ui.base.BaseEvent
 import kg.timmitof.core.ui.base.BaseSideEffect
 import kg.timmitof.core.ui.base.BaseState
 import kg.timmitof.feature_settings.domain.model.SettingsSummary
+import kg.timmitof.feature_settings.presentation.studio.StudioTab
+import kg.timmitof.keyboard.clipboard.domain.model.ClipboardBoard
+import kg.timmitof.keyboard.domain.model.KeyboardHeight
 import kg.timmitof.keyboard.domain.model.KeyboardSettings
 import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
 import kg.timmitof.keyboard.domain.model.KeyboardToggle
 
 /**
- * Состояние экрана настроек.
+ * Состояние «Студии» — корневого экрана настроек.
  *
- * @property settings положение всех переключателей и выбранная тема.
- * @property summary значения строк-переходов: раскладки, шрифты, статус клавиатуры.
+ * @property settings положение всех переключателей, тема и высота.
+ * @property summary языки, шрифты, статус клавиатуры и раскладка предпросмотра.
+ * @property clipboard история буфера для вкладки «Буфер».
+ * @property selectedTab открытая вкладка под предпросмотром.
  */
 @Immutable
 data class SettingsState(
     val settings: KeyboardSettings = KeyboardSettings(),
     val summary: SettingsSummary = SettingsSummary(),
+    val clipboard: ClipboardBoard = ClipboardBoard(),
+    val selectedTab: StudioTab = StudioTab.Default,
 ) : BaseState()
 
 /** Screen-specific one-off effects */
@@ -33,9 +40,18 @@ sealed class SettingsEvent : BaseEvent.UiEvent() {
     /** Выбрана тема клавиатуры. */
     data class ThemeChanged(val mode: KeyboardThemeMode) : SettingsEvent()
 
-    /** Экран вернулся на передний план — статус клавиатуры мог измениться в системе. */
+    /** Выбрана высота клавиатуры. */
+    data class HeightChanged(val height: KeyboardHeight) : SettingsEvent()
+
+    /** Открыта другая вкладка. */
+    data class TabSelected(val tab: StudioTab) : SettingsEvent()
+
+    /** «Очистить недавние» во вкладке «Буфер». */
+    data object ClearRecentClipboardClicked : SettingsEvent()
+
+    /** Экран вернулся на передний план — статус клавиатуры, язык и шрифт могли измениться. */
     data object ScreenResumed : SettingsEvent()
 
-    /** Переход на экран проверки клавиатуры. */
-    data object CheckKeyboardClicked : SettingsEvent()
+    /** Пилюля «Не подключена» — ведёт к подключению клавиатуры. */
+    data object ConnectKeyboardClicked : SettingsEvent()
 }

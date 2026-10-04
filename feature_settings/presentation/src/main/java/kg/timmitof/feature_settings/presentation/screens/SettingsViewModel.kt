@@ -5,6 +5,8 @@ import kg.timmitof.core.navigation.graphs.HomeGraph
 import kg.timmitof.core.ui.base.BaseSideEffect
 import kg.timmitof.core.ui.base.BaseViewModel
 import kg.timmitof.feature_settings.domain.interactor.SettingsInteractor
+import kg.timmitof.feature_settings.presentation.studio.StudioTab
+import kg.timmitof.keyboard.domain.model.KeyboardHeight
 import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
 import kg.timmitof.keyboard.domain.model.KeyboardToggle
 import org.orbitmvi.orbit.syntax.Syntax
@@ -17,14 +19,18 @@ class SettingsViewModel @Inject constructor(
 
     init {
         observeSettings()
+        observeClipboard()
     }
 
     override fun onEvent(event: SettingsEvent) {
         when (event) {
             is SettingsEvent.ToggleChanged -> setToggle(event.toggle, event.enabled)
             is SettingsEvent.ThemeChanged -> setTheme(event.mode)
+            is SettingsEvent.HeightChanged -> setHeight(event.height)
+            is SettingsEvent.TabSelected -> selectTab(event.tab)
+            is SettingsEvent.ClearRecentClipboardClicked -> clearRecentClipboard()
             is SettingsEvent.ScreenResumed -> loadSummary()
-            is SettingsEvent.CheckKeyboardClicked -> navigateTo(HomeGraph.CheckKeyboardScreen)
+            is SettingsEvent.ConnectKeyboardClicked -> navigateTo(HomeGraph.OnboardingScreen(isFromSettings = true))
         }
     }
 
@@ -39,12 +45,31 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    /** Записи в буфер добавляет клавиатура — вкладка видит их сразу. */
+    private fun observeClipboard() = intent {
+        settingsInteractor.observeClipboard().collect { board ->
+            reduce { state.copy(clipboard = board) }
+        }
+    }
+
     private fun setToggle(toggle: KeyboardToggle, enabled: Boolean) = intent {
         settingsInteractor.setToggle(toggle, enabled)
     }
 
     private fun setTheme(mode: KeyboardThemeMode) = intent {
         settingsInteractor.setTheme(mode)
+    }
+
+    private fun setHeight(height: KeyboardHeight) = intent {
+        settingsInteractor.setHeight(height)
+    }
+
+    private fun selectTab(tab: StudioTab) = intent {
+        if (tab != state.selectedTab) reduce { state.copy(selectedTab = tab) }
+    }
+
+    private fun clearRecentClipboard() = intent {
+        settingsInteractor.clearRecentClipboard()
     }
 
     private fun loadSummary() = intent {

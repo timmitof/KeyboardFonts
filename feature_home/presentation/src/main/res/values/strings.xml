@@ -2,7 +2,6 @@
 <resources>
 
     <string name="app_title">Keyboard Fonts</string>
-    <string name="check_keyboard_title">Проверить клавиатуру</string>
 
     <string name="content_description_keyboard_off">Открыть панель для включения клавиатуры</string>
     <string name="content_description_keyboard_on">Клавиатура подключена</string>
@@ -10,35 +9,49 @@
     <string name="backgrounds">Шаблоны</string>
     <string name="create_background">Создать картинку</string>
 
-    <!-- Инструкция по подключению клавиатуры -->
-    <string name="setup_title">Подключите клавиатуру</string>
-    <string name="setup_subtitle">Два коротких шага — и красивые шрифты будут доступны в любом приложении</string>
-    <string name="setup_title_ready">Всё готово!</string>
-    <string name="setup_subtitle_ready">Keyboard Fonts подключена и выбрана основной клавиатурой</string>
+    <!-- Подключение: заголовки по текущему шагу -->
+    <string name="onboarding_status_connected">Подключена</string>
+    <string name="onboarding_enable_title">Подключим клавиатуру</string>
+    <string name="onboarding_enable_lead">Два шага в настройках Android — около 20 секунд. Потом сразу попробуете шрифты.</string>
+    <string name="onboarding_select_title">Ещё один шаг</string>
+    <string name="onboarding_select_lead">Клавиатура включена. Осталось выбрать её для ввода текста.</string>
+    <string name="onboarding_try_title">Попробуйте</string>
+    <string name="onboarding_try_lead">Нажимайте на стили над клавишами — текст меняется сразу.</string>
 
-    <string name="setup_step_enable_title">Включите Keyboard Fonts</string>
-    <string name="setup_step_enable_description">Откроется список клавиатур — найдите «Keyboard Fonts», переведите переключатель и вернитесь назад</string>
-    <string name="setup_step_enable_action">Открыть настройки</string>
+    <!-- Шаг 1 -->
+    <string name="step_enable_title">Включите Keyboard Fonts</string>
+    <string name="step_enable_subtitle">В списке клавиатур Android</string>
+    <string name="step_enable_done_title">Keyboard Fonts включена</string>
+    <string name="step_enable_done_subtitle">Готово</string>
+    <string name="step_enable_mock_caption">Настройки › Экранная клавиатура</string>
+    <string name="step_enable_mock_poke">нажмите</string>
+    <string name="step_enable_action">Открыть настройки</string>
 
-    <string name="setup_step_select_title">Сделайте её основной</string>
-    <string name="setup_step_select_description">В появившемся окне выберите «Keyboard Fonts» текущей клавиатурой</string>
-    <string name="setup_step_select_action">Выбрать клавиатуру</string>
+    <!-- Шаг 2 -->
+    <string name="step_select_title">Сделайте её основной</string>
+    <string name="step_select_subtitle">Выбор в системном окне</string>
+    <string name="step_select_subtitle_active">Откроется системное окно выбора</string>
+    <string name="step_select_mock_caption">Выбор способа ввода</string>
+    <string name="step_select_mock_poke">выберите</string>
+    <string name="step_select_action">Выбрать клавиатуру</string>
 
-    <string name="setup_step_done">Шаг выполнен</string>
+    <!-- Шаг 3 -->
+    <string name="step_try_title">Попробуйте шрифты</string>
+    <string name="step_try_subtitle">Прямо здесь, в приложении</string>
 
-    <string name="setup_done_title">Клавиатура готова к работе</string>
-    <string name="setup_done_description">Откройте любое приложение и меняйте шрифт прямо на клавиатуре</string>
+    <!-- Мини-копия системного экрана: соседняя клавиатура для узнаваемости -->
+    <string name="mock_other_keyboard">Gboard</string>
+    <string name="mock_our_keyboard">Keyboard Fonts</string>
 
-    <string name="setup_try_title">Проверьте прямо здесь</string>
-    <string name="setup_try_placeholder">Напишите что-нибудь…</string>
+    <!-- Подсказки -->
+    <string name="hint_warning_title">Почему Android предупреждает?</string>
+    <string name="hint_warning_body">Система показывает это сообщение для любой сторонней клавиатуры. Его можно смело подтвердить.</string>
+    <string name="hint_switch_back_title">Переключаться обратно легко</string>
+    <string name="hint_switch_back_body">Значок клавиатуры внизу экрана открывает этот же выбор в любом приложении.</string>
 
-    <!-- Тестовые поля: разные типы клавиатуры и действия Enter -->
-    <string name="try_field_text">Текст · Enter = Готово</string>
-    <string name="try_field_email">Email · Enter = Далее</string>
-    <string name="try_field_password">Пароль · Enter = Перейти</string>
-    <string name="try_field_number">Число · Enter = Готово</string>
-    <string name="try_field_phone">Телефон · Enter = Назад</string>
-    <string name="try_field_search">Поиск · Enter = Найти</string>
-    <string name="try_field_message">Сообщение · Enter = Отправить</string>
-    <string name="try_field_multiline">Многострочное · Enter = перенос</string>
+    <!-- Проба -->
+    <string name="try_placeholder">Напишите что-нибудь…</string>
+    <string name="try_done">Готово, к настройке</string>
+    <string name="coach_title">Шрифт выбирается здесь</string>
+    <string name="coach_body">Стиль применяется к следующим буквам</string>
 </resources>

@@ -24,6 +24,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.Dp
 import kg.timmitof.core.ui.keyClickable
 import kg.timmitof.keyboard.presentation.components.KeyCornerRadius
 import kg.timmitof.keyboard.presentation.components.KeyRowSpacing
@@ -92,12 +93,17 @@ internal fun KeyBase(
     }
 }
 
-private fun Modifier.keySurface(
+/**
+ * Видимая «шапка» клавиши с опорой снизу. Общая для живых клавиш и предпросмотра
+ * в приложении — клавиша выглядит одинаково везде.
+ */
+internal fun Modifier.keySurface(
     surface: () -> Color,
     support: () -> Color,
+    cornerRadius: Dp = KeyCornerRadius,
 ): Modifier = drawBehind {
     val supportPx = KeySupport.toPx()
-    val radius = CornerRadius(KeyCornerRadius.toPx())
+    val radius = CornerRadius(cornerRadius.toPx())
     val capSize = Size(size.width, size.height - supportPx)
 
     drawRoundRect(

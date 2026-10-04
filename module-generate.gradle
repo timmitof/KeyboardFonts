@@ -57,17 +57,17 @@ abstract class RepositoryModule {}""".stripIndent()
                 )
 
                 writeFileIfNotExists(
-                    new File(packagePath, "UseCaseModule.kt"),
+                    new File(packagePath, "InteractorModule.kt"),
                     """package ${namespace}
 
+import dagger.Binds
 import dagger.Module
-import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
+import dagger.hilt.components.SingletonComponent
 
 @Module
-@InstallIn(ViewModelComponent::class)
-object UseCaseModule {}""".stripIndent()
+@InstallIn(SingletonComponent::class)
+abstract class InteractorModule {}""".stripIndent()
                 )
             }
 

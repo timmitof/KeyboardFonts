@@ -1,0 +1,270 @@
+package kg.timmitof.feature_settings.presentation.studio
+
+import androidx.compose.foundation.layout.Column
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import kg.timmitof.core.ui.components.settings.SettingsSection
+import kg.timmitof.core.ui.components.settings.SettingsSectionAction
+import kg.timmitof.core.ui.components.settings.SettingsSectionHeader
+import kg.timmitof.feature_settings.presentation.R
+import kg.timmitof.feature_settings.presentation.components.ClipboardPins
+import kg.timmitof.feature_settings.presentation.components.FontChips
+import kg.timmitof.feature_settings.presentation.components.ThemeTile
+import kg.timmitof.feature_settings.presentation.components.ThemeTiles
+import kg.timmitof.keyboard.clipboard.domain.model.ClipboardBoard
+import kg.timmitof.keyboard.domain.model.KeyboardHeight
+import kg.timmitof.keyboard.domain.model.KeyboardLanguage
+import kg.timmitof.keyboard.domain.model.KeyboardSettings
+import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
+import kg.timmitof.keyboard.domain.model.KeyboardToggle
+import kg.timmitof.keyboard.font.domain.model.KeyboardFont
+
+/**
+ * Содержимое вкладок «Студии».
+ *
+ * Ресурсы читаются до DSL: сборщик строк намеренно не композабельный, чтобы
+ * список строк собирался одинаково при любой рекомпозиции.
+ */
+
+/** Тема: светлая, тёмная или как в системе. */
+@Composable
+internal fun ThemePane(
+    selected: KeyboardThemeMode,
+    onSelect: (KeyboardThemeMode) -> Unit,
+) {
+    val tiles = listOf(
+        ThemeTile(KeyboardThemeMode.LIGHT, stringResource(R.string.theme_light)),
+        ThemeTile(KeyboardThemeMode.DARK, stringResource(R.string.theme_dark)),
+        ThemeTile(KeyboardThemeMode.AUTO, stringResource(R.string.theme_auto)),
+    )
+
+    ThemeTiles(tiles = tiles, selected = selected, onSelect = onSelect)
+}
+
+/** Шрифты: панель над клавишами и её содержимое. */
+@Composable
+internal fun FontsPane(
+    settings: KeyboardSettings,
+    fonts: List<KeyboardFont>,
+    selectedFont: KeyboardFont,
+    onToggle: (KeyboardToggle, Boolean) -> Unit,
+) {
+    val isPanelOn = settings[KeyboardToggle.STYLED_FONTS]
+
+    val panelTitle = stringResource(R.string.fonts_panel_title)
+    val panelDescription = stringResource(R.string.fonts_panel_description)
+    val rememberTitle = stringResource(R.string.fonts_remember_title)
+    val rememberDescription = stringResource(R.string.fonts_remember_description)
+    val catalogHeader = stringResource(R.string.fonts_catalog_header, fonts.size)
+
+    SettingsSection {
+        toggle(
+            title = panelTitle,
+            description = panelDescription,
+            checked = isPanelOn,
+            onCheckedChange = { onToggle(KeyboardToggle.STYLED_FONTS, it) },
+        )
+        toggle(
+            title = rememberTitle,
+            description = rememberDescription,
+            isNested = true,
+            isEnabled = isPanelOn,
+            checked = settings[KeyboardToggle.REMEMBER_FONT],
+            onCheckedChange = { onToggle(KeyboardToggle.REMEMBER_FONT, it) },
+        )
+    }
+
+    if (fonts.isNotEmpty()) {
+        Column {
+            SettingsSectionHeader(title = catalogHeader)
+            FontChips(fonts = fonts, selected = selectedFont)
+        }
+    }
+}
+
+/** Ввод: Т9 и всё, что от него зависит. */
+@Composable
+internal fun InputPane(
+    settings: KeyboardSettings,
+    onToggle: (KeyboardToggle, Boolean) -> Unit,
+) {
+    val isSuggestionsOn = settings[KeyboardToggle.SUGGESTIONS]
+
+    val suggestionsTitle = stringResource(R.string.input_suggestions_title)
+    val suggestionsDescription = stringResource(
+        if (isSuggestionsOn) {
+            R.string.input_suggestions_description
+        } else {
+            R.string.input_suggestions_description_off
+        }
+    )
+    val autoCorrectTitle = stringResource(R.string.input_autocorrect_title)
+    val autoCorrectDescription = stringResource(R.string.input_autocorrect_description)
+    val spaceCommitTitle = stringResource(R.string.input_space_commit_title)
+    val spaceCommitDescription = stringResource(R.string.input_space_commit_description)
+    val nextWordTitle = stringResource(R.string.input_next_word_title)
+    val nextWordDescription = stringResource(R.string.input_next_word_description)
+    val learnTitle = stringResource(R.string.input_learn_title)
+    val learnDescription = stringResource(R.string.input_learn_description)
+
+    SettingsSection {
+        toggle(
+            title = suggestionsTitle,
+            description = suggestionsDescription,
+            checked = isSuggestionsOn,
+            onCheckedChange = { onToggle(KeyboardToggle.SUGGESTIONS, it) },
+        )
+        toggle(
+            title = autoCorrectTitle,
+            description = autoCorrectDescription,
+            isNested = true,
+            isEnabled = isSuggestionsOn,
+            checked = settings[KeyboardToggle.AUTO_CORRECT],
+            onCheckedChange = { onToggle(KeyboardToggle.AUTO_CORRECT, it) },
+        )
+        toggle(
+            title = spaceCommitTitle,
+            description = spaceCommitDescription,
+            isNested = true,
+            isEnabled = isSuggestionsOn,
+            checked = settings[KeyboardToggle.SPACE_COMMITS],
+            onCheckedChange = { onToggle(KeyboardToggle.SPACE_COMMITS, it) },
+        )
+        toggle(
+            title = nextWordTitle,
+            description = nextWordDescription,
+            isNested = true,
+            isEnabled = isSuggestionsOn,
+            checked = settings[KeyboardToggle.NEXT_WORD_PREDICTION],
+            onCheckedChange = { onToggle(KeyboardToggle.NEXT_WORD_PREDICTION, it) },
+        )
+        toggle(
+            title = learnTitle,
+            description = learnDescription,
+            isNested = true,
+            isEnabled = isSuggestionsOn,
+            checked = settings[KeyboardToggle.LEARN_FROM_INPUT],
+            onCheckedChange = { onToggle(KeyboardToggle.LEARN_FROM_INPUT, it) },
+        )
+    }
+}
+
+/** Языки: порядок раскладок — это порядок переключения пробелом. */
+@Composable
+internal fun LanguagesPane(
+    languages: List<KeyboardLanguage>,
+    selected: KeyboardLanguage?,
+) {
+    val header = stringResource(R.string.languages_header)
+    val current = stringResource(R.string.languages_current)
+
+    SettingsSection(title = header) {
+        languages.forEach { language ->
+            info(
+                title = language.displayName,
+                badge = language.shortName,
+                description = current.takeIf { language.code == selected?.code },
+            )
+        }
+    }
+}
+
+/** Размер: высота рядов и цифровой ряд. */
+@Composable
+internal fun SizePane(
+    settings: KeyboardSettings,
+    onHeight: (KeyboardHeight) -> Unit,
+    onToggle: (KeyboardToggle, Boolean) -> Unit,
+) {
+    val heightTitle = stringResource(R.string.size_height_title)
+    val heightOptions = KeyboardHeight.entries.map { stringResource(it.labelRes) }
+    val digitsTitle = stringResource(R.string.size_digits_row_title)
+    val digitsDescription = stringResource(R.string.size_digits_row_description)
+
+    SettingsSection {
+        segmented(
+            title = heightTitle,
+            options = heightOptions,
+            selectedIndex = settings.height.ordinal,
+            onSelect = { onHeight(KeyboardHeight.entries[it]) },
+        )
+        toggle(
+            title = digitsTitle,
+            description = digitsDescription,
+            checked = settings[KeyboardToggle.DIGITS_ROW],
+            onCheckedChange = { onToggle(KeyboardToggle.DIGITS_ROW, it) },
+        )
+    }
+}
+
+/** Звук: отклик клавиш на нажатие. */
+@Composable
+internal fun SoundPane(
+    settings: KeyboardSettings,
+    onToggle: (KeyboardToggle, Boolean) -> Unit,
+) {
+    val vibrationTitle = stringResource(R.string.sound_vibration_title)
+    val soundTitle = stringResource(R.string.sound_click_title)
+    val keyPreviewTitle = stringResource(R.string.sound_key_preview_title)
+    val keyPreviewDescription = stringResource(R.string.sound_key_preview_description)
+
+    SettingsSection {
+        toggle(
+            title = vibrationTitle,
+            checked = settings[KeyboardToggle.VIBRATION],
+            onCheckedChange = { onToggle(KeyboardToggle.VIBRATION, it) },
+        )
+        toggle(
+            title = soundTitle,
+            checked = settings[KeyboardToggle.SOUND],
+            onCheckedChange = { onToggle(KeyboardToggle.SOUND, it) },
+        )
+        toggle(
+            title = keyPreviewTitle,
+            description = keyPreviewDescription,
+            checked = settings[KeyboardToggle.KEY_PREVIEW],
+            onCheckedChange = { onToggle(KeyboardToggle.KEY_PREVIEW, it) },
+        )
+    }
+}
+
+/** Буфер: закреплённые записи видны сразу, недавние можно очистить. */
+@Composable
+internal fun ClipboardPane(
+    board: ClipboardBoard,
+    onClearRecent: () -> Unit,
+) {
+    val pinnedHeader = stringResource(R.string.clipboard_pinned_header)
+    val clearLabel = stringResource(R.string.clipboard_clear_recent)
+    val emptyText = stringResource(R.string.clipboard_pinned_empty)
+    val recentTitle = stringResource(R.string.clipboard_recent_title)
+    val recentDescription = stringResource(R.string.clipboard_recent_description)
+
+    Column {
+        SettingsSectionHeader(
+            title = pinnedHeader,
+            action = SettingsSectionAction(
+                label = clearLabel,
+                isEnabled = board.hasClearable,
+                onClick = onClearRecent,
+            ),
+        )
+        ClipboardPins(entries = board.pinned, emptyText = emptyText)
+    }
+
+    SettingsSection {
+        info(
+            title = recentTitle,
+            description = recentDescription,
+            badge = board.recent.size.toString(),
+        )
+    }
+}
+
+private val KeyboardHeight.labelRes: Int
+    get() = when (this) {
+        KeyboardHeight.S -> R.string.size_height_s
+        KeyboardHeight.M -> R.string.size_height_m
+        KeyboardHeight.L -> R.string.size_height_l
+        KeyboardHeight.XL -> R.string.size_height_xl
+    }

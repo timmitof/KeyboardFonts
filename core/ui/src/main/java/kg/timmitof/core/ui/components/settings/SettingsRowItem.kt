@@ -2,8 +2,10 @@ package kg.timmitof.core.ui.components.settings
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -11,8 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
@@ -22,36 +23,42 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kg.timmitof.core.ui.R
+import kg.timmitof.core.ui.theme.appColors
 
 /** Минимальная высота строки — палец попадает без прицеливания. */
-private val RowMinHeight = 56.dp
+private val RowMinHeight = 54.dp
 
 /** Отступ вложенной строки: она сдвинута под родителя, а не просто подписана к нему. */
-private val NestedStartPadding = 52.dp
-private val RowStartPadding = 16.dp
-private val RowEndPadding = 16.dp
+private val NestedStartPadding = 44.dp
+private val RowHorizontalPadding = 14.dp
 
 /** Линия связи вложенной строки с родителем. */
-private val ConnectorOffset = 30.dp
+private val ConnectorOffset = 24.dp
 private val ConnectorWidth = 2.dp
 private const val ConnectorAlpha = 0.28f
 
 /** Насколько гаснет строка, отключённая родителем: видно, но трогать нечего. */
 private const val DisabledAlpha = 0.4f
 
+private val BadgeShape = RoundedCornerShape(8.dp)
+
 /**
  * Отрисовка одной [SettingsRow].
  *
- * Все пять типов делят общий каркас — иконка, текст, контрол справа, — поэтому
+ * Все типы делят общий каркас — иконка или метка, текст, контрол справа, — поэтому
  * строки выглядят одинаково независимо от того, что стоит в конце.
  */
 @Composable
@@ -78,15 +85,16 @@ internal fun SettingsRowItem(row: SettingsRow) {
             .nestedConnector(row.isNested) { connectorColor }
             .heightIn(min = RowMinHeight)
             .padding(
-                start = if (row.isNested) NestedStartPadding else RowStartPadding,
-                end = RowEndPadding,
-                top = 11.dp,
-                bottom = 11.dp,
+                start = if (row.isNested) NestedStartPadding else RowHorizontalPadding,
+                end = RowHorizontalPadding,
+                top = 9.dp,
+                bottom = 9.dp,
             ),
-        horizontalArrangement = Arrangement.spacedBy(14.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         row.icon?.let { icon -> RowIcon(icon = icon, alpha = { alpha }) }
+        (row as? SettingsRow.Info)?.badge?.let { badge -> RowBadge(text = badge) }
 
         Column(modifier = Modifier.weight(1f)) {
             RowTitles(row = row, alpha = { alpha })
@@ -115,9 +123,32 @@ private fun RowIcon(icon: Painter, alpha: () -> Float) {
         contentDescription = null,
         tint = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier
-            .size(24.dp)
+            .size(22.dp)
             .graphicsLayer { this.alpha = alpha() },
     )
+}
+
+/** Короткая метка слева — код языка и подобное: моноширинная, чтобы метки стояли ровно. */
+@Composable
+private fun RowBadge(text: String) {
+    val tones = MaterialTheme.appColors.hint
+
+    Box(
+        modifier = Modifier
+            .size(width = 34.dp, height = 28.dp)
+            .clip(BadgeShape)
+            .background(tones.container),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = text,
+            fontFamily = FontFamily.Monospace,
+            fontWeight = FontWeight.Medium,
+            fontSize = 12.sp,
+            color = tones.onContainer,
+            maxLines = 1,
+        )
+    }
 }
 
 @Composable
@@ -126,7 +157,7 @@ private fun RowTitles(row: SettingsRow, alpha: () -> Float) {
         text = row.title,
         style = MaterialTheme.typography.bodyLarge,
         fontSize = 15.sp,
-        fontWeight = FontWeight.Normal,
+        fontWeight = FontWeight.Medium,
         color = MaterialTheme.colorScheme.onBackground,
         modifier = Modifier.graphicsLayer { this.alpha = alpha() },
     )
@@ -135,10 +166,11 @@ private fun RowTitles(row: SettingsRow, alpha: () -> Float) {
         Text(
             text = description,
             style = MaterialTheme.typography.bodySmall,
+            fontSize = 12.5.sp,
             fontWeight = FontWeight.Normal,
             color = MaterialTheme.colorScheme.outline,
             modifier = Modifier
-                .padding(top = 2.dp)
+                .padding(top = 1.dp)
                 .graphicsLayer { this.alpha = alpha() },
         )
     }
@@ -165,7 +197,7 @@ private fun RowScope.RowControl(row: SettingsRow, alpha: () -> Float) {
                 )
             }
             Icon(
-                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                painter = painterResource(R.drawable.ic_chevron_right),
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.outline,
                 modifier = Modifier
@@ -183,7 +215,7 @@ private fun RowScope.RowControl(row: SettingsRow, alpha: () -> Float) {
 
         is SettingsRow.Soon -> SettingsSoonBadge(text = row.badge)
 
-        is SettingsRow.Slider -> Unit
+        is SettingsRow.Slider, is SettingsRow.Info -> Unit
     }
 }
 

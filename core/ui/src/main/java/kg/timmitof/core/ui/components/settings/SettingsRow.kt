@@ -6,8 +6,8 @@ import androidx.compose.ui.graphics.painter.Painter
 /**
  * Строка настроек — кирпич, из которого собирается любая секция.
  *
- * Типов ровно пять: переключатель, переход, выбор из нескольких вариантов,
- * число в диапазоне и заглушка «Скоро». Новая функция описывается ими же,
+ * Типы: переключатель, переход, выбор из нескольких вариантов, число в диапазоне,
+ * строка-справка и заглушка «Скоро». Новая функция описывается ими же,
  * поэтому экран настроек растёт без правок разметки.
  *
  * @property title заголовок строки.
@@ -75,6 +75,21 @@ sealed interface SettingsRow {
         val steps: Int = 0,
         val valueLabel: String? = null,
         val onValueChange: (Float) -> Unit,
+    ) : SettingsRow
+
+    /**
+     * Строка-справка без контрола: что уже выбрано, с короткой меткой слева.
+     *
+     * @property badge метка в плашке слева, например код языка «RU».
+     */
+    @Immutable
+    data class Info(
+        override val title: String,
+        override val description: String? = null,
+        override val icon: Painter? = null,
+        override val isNested: Boolean = false,
+        override val isEnabled: Boolean = true,
+        val badge: String? = null,
     ) : SettingsRow
 
     /**
