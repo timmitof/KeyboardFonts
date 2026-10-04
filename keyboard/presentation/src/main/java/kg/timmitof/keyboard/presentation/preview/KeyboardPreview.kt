@@ -52,6 +52,7 @@ import kg.timmitof.keyboard.presentation.components.keys.keySurface
 import kg.timmitof.keyboard.presentation.theme.KFTheme
 import kg.timmitof.keyboard.presentation.theme.KeyboardTheme
 import kg.timmitof.keyboard.presentation.theme.appearance
+import kg.timmitof.keyboard.presentation.theme.keyboardBackground
 
 /** Уменьшенная копия клавиатуры для приложения: те же цвета, раскладка и клавиши, но без ввода. */
 @Composable
@@ -84,6 +85,7 @@ fun KeyboardPreview(
                 .fillMaxWidth()
                 .clip(shape)
                 .background(KFTheme.color.keyboardBackground)
+                .keyboardBackground(settings.background)
                 .padding(horizontal = 2.dp, vertical = 5.dp),
         ) {
             PreviewTopBar(

@@ -35,6 +35,7 @@ import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardLayer
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardOverlay
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardState
 import kg.timmitof.keyboard.presentation.theme.KFTheme
+import kg.timmitof.keyboard.presentation.theme.keyboardBackground
 import org.orbitmvi.orbit.compose.collectAsState
 
 @Composable
@@ -61,6 +62,7 @@ private fun KeyboardContent(
 ) {
     val insets = LocalKeyboardInsets.current
     val overlay = state.value.keyboardOverlay
+    val background = state.value.settings.background
 
     BackHandler(enabled = overlay != null) {
         onEvent(KeyboardEvent.OnOverlayChange(null))
@@ -70,6 +72,7 @@ private fun KeyboardContent(
         modifier = Modifier
             .fillMaxWidth()
             .background(KFTheme.color.keyboardBackground)
+            .keyboardBackground(background)
             .padding(start = insets.left, end = insets.right, bottom = insets.bottom)
     ) {
         Box(modifier = Modifier.padding(horizontal = 3.dp, vertical = 8.dp)) {

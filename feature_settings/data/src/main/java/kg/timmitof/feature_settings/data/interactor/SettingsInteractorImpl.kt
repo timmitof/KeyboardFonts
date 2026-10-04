@@ -4,6 +4,7 @@ import kg.timmitof.feature_settings.domain.interactor.SettingsInteractor
 import kg.timmitof.feature_settings.domain.model.SettingsSummary
 import kg.timmitof.keyboard.clipboard.domain.model.ClipboardBoard
 import kg.timmitof.keyboard.clipboard.domain.repository.ClipboardRepository
+import kg.timmitof.keyboard.domain.model.KeyboardBackground
 import kg.timmitof.keyboard.domain.model.KeyboardHeight
 import kg.timmitof.keyboard.domain.model.KeyboardSettings
 import kg.timmitof.keyboard.domain.model.KeyboardSoundPack
@@ -47,6 +48,12 @@ class SettingsInteractorImpl @Inject constructor(
 
     override suspend fun setSoundVolume(volume: Float) =
         keyboardSettingsRepository.setSoundVolume(volume)
+
+    override suspend fun setBackground(background: KeyboardBackground) =
+        keyboardSettingsRepository.setBackground(background)
+
+    override suspend fun importBackgroundPhoto(uri: String) =
+        keyboardSettingsRepository.importBackgroundPhoto(uri)
 
     override suspend fun getSummary(): SettingsSummary {
         val keyboardState = keyboardContract.getKeyboardState()

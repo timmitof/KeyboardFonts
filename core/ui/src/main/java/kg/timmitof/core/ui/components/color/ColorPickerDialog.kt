@@ -21,6 +21,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -77,7 +78,7 @@ fun ColorPickerDialog(
                         value = v
                     },
                 )
-                HueBar(hue = { hue }, onChange = { hue = it })
+                HueSlider(hue = { hue }, onChange = { hue = it })
                 ColorPreview(color = { color })
             }
         },
@@ -113,14 +114,21 @@ private fun SaturationValuePanel(
     )
 }
 
+/** [hue] — 0..360; читается в draw-фазе, поэтому движение ползунка не вызывает рекомпозиций. */
 @Composable
-private fun HueBar(hue: () -> Float, onChange: (Float) -> Unit) {
+fun HueSlider(
+    hue: () -> Float,
+    onChange: (Float) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val currentOnChange by rememberUpdatedState(onChange)
+
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(BarHeight)
             .trackDrag { position, size ->
-                onChange((position.x / size.width).coerceIn(0f, 1f) * MaxHue)
+                currentOnChange((position.x / size.width).coerceIn(0f, 1f) * MaxHue)
             }
             .drawBehind {
                 val radius = size.height / 2

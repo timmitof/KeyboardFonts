@@ -78,6 +78,9 @@ data class KeyboardSettings(
     val soundPack: KeyboardSoundPack = KeyboardSoundPack.Default,
     /** 0..1, доля от системной громкости. */
     val soundVolume: Float = DEFAULT_SOUND_VOLUME,
+    val background: KeyboardBackground = KeyboardBackground.Default,
+    /** Последнее загруженное фото — плитка «Моё фото» остаётся, даже когда выбран другой фон. */
+    val backgroundPhoto: String? = null,
 ) {
 
     operator fun get(toggle: KeyboardToggle): Boolean = flags[toggle] ?: toggle.default

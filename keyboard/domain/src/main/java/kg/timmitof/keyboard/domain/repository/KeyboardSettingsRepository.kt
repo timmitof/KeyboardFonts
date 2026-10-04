@@ -1,5 +1,6 @@
 package kg.timmitof.keyboard.domain.repository
 
+import kg.timmitof.keyboard.domain.model.KeyboardBackground
 import kg.timmitof.keyboard.domain.model.KeyboardHeight
 import kg.timmitof.keyboard.domain.model.KeyboardSettings
 import kg.timmitof.keyboard.domain.model.KeyboardSoundPack
@@ -25,4 +26,9 @@ interface KeyboardSettingsRepository {
     suspend fun setSoundPack(pack: KeyboardSoundPack)
 
     suspend fun setSoundVolume(volume: Float)
+
+    suspend fun setBackground(background: KeyboardBackground)
+
+    /** [uri] — content:// из системного выбора фото; копия становится фоном. */
+    suspend fun importBackgroundPhoto(uri: String)
 }

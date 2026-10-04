@@ -5,7 +5,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
@@ -22,10 +22,11 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kg.timmitof.core.ui.R
 
-/** [onPickCustom] = `null` — без кружка «свой цвет»; цвет не из [colors] показывается в нём. */
+/** [onPickCustom] = `null` — без кружка «свой цвет»; цвет не из [colors] показывается в нём. [columns] переносит кружки сеткой. */
 @Composable
 fun ColorSwatches(
     colors: List<Color>,
@@ -33,31 +34,37 @@ fun ColorSwatches(
     onSelect: (Color) -> Unit,
     modifier: Modifier = Modifier,
     onPickCustom: (() -> Unit)? = null,
+    swatchSize: Dp = SwatchSize,
+    columns: Int = Int.MAX_VALUE,
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(SwatchGap),
 ) {
     val custom = selected?.takeIf { it !in colors }
 
-    Row(
+    FlowRow(
         modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(SwatchGap),
-        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = horizontalArrangement,
+        verticalArrangement = Arrangement.spacedBy(SwatchGap),
+        maxItemsInEachRow = columns,
     ) {
         colors.forEach { color ->
             Swatch(
                 fill = { drawCircle(color) },
+                diameter = swatchSize,
                 isSelected = color == selected,
                 onClick = { onSelect(color) },
             )
         }
 
         onPickCustom?.let { onClick ->
-            CustomSwatch(color = custom, onClick = onClick)
+            CustomSwatch(color = custom, diameter = swatchSize, onClick = onClick)
         }
     }
 }
 
 @Composable
-private fun CustomSwatch(color: Color?, onClick: () -> Unit) {
+private fun CustomSwatch(color: Color?, diameter: Dp, onClick: () -> Unit) {
     Swatch(
+        diameter = diameter,
         fill = {
             drawCircle(Brush.sweepGradient(HueColors))
             color?.let { drawCircle(it, radius = size.minDimension / 2 - RainbowRim.toPx()) }
@@ -77,6 +84,7 @@ private fun CustomSwatch(color: Color?, onClick: () -> Unit) {
 @Composable
 private fun Swatch(
     fill: DrawScope.() -> Unit,
+    diameter: Dp,
     isSelected: Boolean,
     onClick: () -> Unit,
     content: @Composable () -> Unit = {},
@@ -87,11 +95,12 @@ private fun Swatch(
         label = "swatchRing",
     )
     val ringColor = MaterialTheme.colorScheme.onBackground
+    val edgeColor = MaterialTheme.colorScheme.onBackground.copy(alpha = EdgeAlpha)
 
     // Кольцо рисуется в draw-фазе вокруг кружка: выбор не меняет размеры и не вызывает рекомпозиций.
     Box(
         modifier = Modifier
-            .size(SwatchSize + RingSpace * 2)
+            .size(diameter + RingSpace * 2)
             .drawBehind {
                 if (ring > 0f) {
                     val width = RingWidth.toPx() * ring
@@ -108,8 +117,12 @@ private fun Swatch(
     ) {
         Box(
             modifier = Modifier
-                .size(SwatchSize)
-                .drawBehind(fill),
+                .size(diameter)
+                .drawBehind {
+                    fill()
+                    // Тонкий край, чтобы светлый кружок не растворялся в светлой карточке.
+                    drawCircle(edgeColor, style = Stroke(width = 1.dp.toPx()))
+                },
             contentAlignment = Alignment.Center,
         ) {
             content()
@@ -126,3 +139,4 @@ private val RingSpace = 4.dp
 private val RingWidth = 2.dp
 private val SwatchGap = 4.dp
 private val RainbowRim = 3.dp
+private const val EdgeAlpha = 0.08f

@@ -1,6 +1,8 @@
 package kg.timmitof.keyboard.data.repository
 
+import kg.timmitof.keyboard.data.settings.BackgroundPhotoStorage
 import kg.timmitof.keyboard.data.settings.KeyboardSettingsDataSource
+import kg.timmitof.keyboard.domain.model.KeyboardBackground
 import kg.timmitof.keyboard.domain.model.KeyboardHeight
 import kg.timmitof.keyboard.domain.model.KeyboardSettings
 import kg.timmitof.keyboard.domain.model.KeyboardSoundPack
@@ -13,6 +15,7 @@ import javax.inject.Inject
 
 class KeyboardSettingsRepositoryImpl @Inject constructor(
     private val dataSource: KeyboardSettingsDataSource,
+    private val photoStorage: BackgroundPhotoStorage,
 ) : KeyboardSettingsRepository {
 
     /** DataStore шлёт набор на любую правку (в т.ч. смену шрифта) — [distinctUntilChanged] отсекает повторы. */
@@ -33,4 +36,9 @@ class KeyboardSettingsRepositoryImpl @Inject constructor(
     override suspend fun setSoundPack(pack: KeyboardSoundPack) = dataSource.setSoundPack(pack)
 
     override suspend fun setSoundVolume(volume: Float) = dataSource.setSoundVolume(volume)
+
+    override suspend fun setBackground(background: KeyboardBackground) = dataSource.setBackground(background)
+
+    override suspend fun importBackgroundPhoto(uri: String) =
+        dataSource.setBackgroundPhoto(photoStorage.import(uri))
 }

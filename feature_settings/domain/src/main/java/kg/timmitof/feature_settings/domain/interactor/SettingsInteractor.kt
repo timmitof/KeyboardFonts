@@ -2,6 +2,7 @@ package kg.timmitof.feature_settings.domain.interactor
 
 import kg.timmitof.feature_settings.domain.model.SettingsSummary
 import kg.timmitof.keyboard.clipboard.domain.model.ClipboardBoard
+import kg.timmitof.keyboard.domain.model.KeyboardBackground
 import kg.timmitof.keyboard.domain.model.KeyboardHeight
 import kg.timmitof.keyboard.domain.model.KeyboardSettings
 import kg.timmitof.keyboard.domain.model.KeyboardSoundPack
@@ -25,6 +26,10 @@ interface SettingsInteractor {
     suspend fun setSoundPack(pack: KeyboardSoundPack)
 
     suspend fun setSoundVolume(volume: Float)
+
+    suspend fun setBackground(background: KeyboardBackground)
+
+    suspend fun importBackgroundPhoto(uri: String)
 
     suspend fun getSummary(): SettingsSummary
 

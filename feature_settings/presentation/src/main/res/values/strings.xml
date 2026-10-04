@@ -19,6 +19,23 @@
     <string name="studio_tab_sound">Звук</string>
     <string name="studio_tab_clipboard">Буфер</string>
 
+    <!-- Фон -->
+    <string name="background_from_gallery">Из галереи</string>
+    <string name="background_color">Цвет</string>
+    <string name="background_presets_header">Готовые</string>
+    <string name="background_none">Без фона</string>
+    <string name="background_mint">Мята</string>
+    <string name="background_stripes">Полоски</string>
+    <string name="background_bubbles">Пузыри</string>
+    <string name="background_grid">Клетка</string>
+    <string name="background_waves">Волны</string>
+    <string name="background_night">Ночь</string>
+    <string name="background_photo">Моё фото</string>
+    <string name="background_color_title">Цвет фона</string>
+    <string name="background_custom_tone">Свой оттенок</string>
+    <string name="background_cancel">Отмена</string>
+    <string name="background_apply">Применить</string>
+
     <!-- Тема -->
     <string name="theme_light">Светлая</string>
     <string name="theme_dark">Тёмная</string>

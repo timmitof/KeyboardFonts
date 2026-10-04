@@ -10,6 +10,8 @@ import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kg.timmitof.keyboard.data.language.keyboardPreferences
+import kg.timmitof.keyboard.domain.model.KeyboardBackground
+import kg.timmitof.keyboard.domain.model.toKey
 import kg.timmitof.keyboard.domain.model.KeyboardHeight
 import kg.timmitof.keyboard.domain.model.KeyboardSettings
 import kg.timmitof.keyboard.domain.model.KeyboardSoundPack
@@ -69,6 +71,20 @@ class KeyboardSettingsDataSource @Inject constructor(
         context.keyboardPreferences.edit { prefs -> prefs[SOUND_VOLUME_KEY] = volume.coerceIn(0f, 1f) }
     }
 
+    suspend fun setBackground(background: KeyboardBackground) {
+        context.keyboardPreferences.edit { prefs ->
+            background.toKey()?.let { prefs[BACKGROUND_KEY] = it } ?: prefs.remove(BACKGROUND_KEY)
+        }
+    }
+
+    /** Фото запоминается отдельно и сразу становится фоном — одной записью, без промежуточного кадра. */
+    suspend fun setBackgroundPhoto(path: String) {
+        context.keyboardPreferences.edit { prefs ->
+            prefs[BACKGROUND_PHOTO_KEY] = path
+            KeyboardBackground.Photo(path).toKey()?.let { prefs[BACKGROUND_KEY] = it }
+        }
+    }
+
     private fun toSettings(prefs: Preferences) = KeyboardSettings(
         flags = KeyboardToggle.entries.associateWith { toggle ->
             prefs[toggleKeys.getValue(toggle)] ?: toggle.default
@@ -78,6 +94,8 @@ class KeyboardSettingsDataSource @Inject constructor(
         enterColor = prefs[ENTER_COLOR_KEY],
         soundPack = KeyboardSoundPack.of(prefs[SOUND_PACK_KEY]),
         soundVolume = prefs[SOUND_VOLUME_KEY] ?: KeyboardSettings.DEFAULT_SOUND_VOLUME,
+        background = KeyboardBackground.of(prefs[BACKGROUND_KEY]),
+        backgroundPhoto = prefs[BACKGROUND_PHOTO_KEY],
     )
 
     private companion object {
@@ -90,5 +108,9 @@ class KeyboardSettingsDataSource @Inject constructor(
         val SOUND_PACK_KEY = stringPreferencesKey("key_sound_pack")
 
         val SOUND_VOLUME_KEY = floatPreferencesKey("key_sound_volume")
+
+        val BACKGROUND_KEY = stringPreferencesKey("keyboard_background")
+
+        val BACKGROUND_PHOTO_KEY = stringPreferencesKey("keyboard_background_photo")
     }
 }

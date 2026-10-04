@@ -7,6 +7,7 @@ import kg.timmitof.core.ui.base.BaseState
 import kg.timmitof.feature_settings.domain.model.SettingsSummary
 import kg.timmitof.feature_settings.presentation.studio.StudioTab
 import kg.timmitof.keyboard.clipboard.domain.model.ClipboardBoard
+import kg.timmitof.keyboard.domain.model.KeyboardBackground
 import kg.timmitof.keyboard.domain.model.KeyboardHeight
 import kg.timmitof.keyboard.domain.model.KeyboardSettings
 import kg.timmitof.keyboard.domain.model.KeyboardSoundPack
@@ -21,7 +22,12 @@ data class SettingsState(
     val clipboard: ClipboardBoard = ClipboardBoard(),
     val fontPanel: FontPanel = FontPanel(),
     val selectedTab: StudioTab = StudioTab.Default,
-) : BaseState()
+    val backgroundDraft: KeyboardBackground.Solid? = null,
+) : BaseState() {
+
+    val previewSettings: KeyboardSettings
+        get() = backgroundDraft?.let { settings.copy(background = it) } ?: settings
+}
 
 sealed class SettingsSideEffect : BaseSideEffect.UiSideEffect()
 
@@ -34,6 +40,18 @@ sealed class SettingsEvent : BaseEvent.UiEvent() {
     data class HeightChanged(val height: KeyboardHeight) : SettingsEvent()
 
     data class EnterColorChanged(val argb: Long?) : SettingsEvent()
+
+    data class BackgroundSelected(val background: KeyboardBackground) : SettingsEvent()
+
+    data class BackgroundPhotoPicked(val uri: String) : SettingsEvent()
+
+    data object BackgroundColorClicked : SettingsEvent()
+
+    data class BackgroundDraftChanged(val argb: Long) : SettingsEvent()
+
+    data object BackgroundDraftApplied : SettingsEvent()
+
+    data object BackgroundDraftDismissed : SettingsEvent()
 
     data class SoundPackChanged(val pack: KeyboardSoundPack) : SettingsEvent()
 

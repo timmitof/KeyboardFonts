@@ -6,6 +6,7 @@ import kg.timmitof.core.ui.base.BaseSideEffect
 import kg.timmitof.core.ui.base.BaseViewModel
 import kg.timmitof.feature_settings.domain.interactor.SettingsInteractor
 import kg.timmitof.feature_settings.presentation.studio.StudioTab
+import kg.timmitof.keyboard.domain.model.KeyboardBackground
 import kg.timmitof.keyboard.domain.model.KeyboardHeight
 import kg.timmitof.keyboard.domain.model.KeyboardSoundPack
 import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
@@ -30,6 +31,12 @@ class SettingsViewModel @Inject constructor(
             is SettingsEvent.ThemeChanged -> setTheme(event.mode)
             is SettingsEvent.HeightChanged -> setHeight(event.height)
             is SettingsEvent.EnterColorChanged -> setEnterColor(event.argb)
+            is SettingsEvent.BackgroundSelected -> setBackground(event.background)
+            is SettingsEvent.BackgroundPhotoPicked -> importBackgroundPhoto(event.uri)
+            is SettingsEvent.BackgroundColorClicked -> openBackgroundColor()
+            is SettingsEvent.BackgroundDraftChanged -> changeBackgroundDraft(event.argb)
+            is SettingsEvent.BackgroundDraftApplied -> applyBackgroundDraft()
+            is SettingsEvent.BackgroundDraftDismissed -> dismissBackgroundDraft()
             is SettingsEvent.SoundPackChanged -> setSoundPack(event.pack)
             is SettingsEvent.SoundVolumeChanged -> setSoundVolume(event.volume)
             is SettingsEvent.PanelFontsChanged -> setPanelFonts(event.ids)
@@ -89,6 +96,36 @@ class SettingsViewModel @Inject constructor(
         settingsInteractor.setEnterColor(argb)
     }
 
+    private fun setBackground(background: KeyboardBackground) = intent {
+        settingsInteractor.setBackground(background)
+    }
+
+    private fun importBackgroundPhoto(uri: String) = intent {
+        runCatching { settingsInteractor.importBackgroundPhoto(uri) }
+    }
+
+    /** Шторка открывается с текущим цветом фона, а если фон не цветной — с первым из готовых. */
+    private fun openBackgroundColor() = intent {
+        val current = state.settings.background as? KeyboardBackground.Solid
+        reduce { state.copy(backgroundDraft = current ?: KeyboardBackground.Solid(DEFAULT_BACKGROUND_COLOR)) }
+    }
+
+    private fun changeBackgroundDraft(argb: Long) = intent {
+        if (state.backgroundDraft != null) {
+            reduce { state.copy(backgroundDraft = KeyboardBackground.Solid(argb)) }
+        }
+    }
+
+    private fun applyBackgroundDraft() = intent {
+        val draft = state.backgroundDraft ?: return@intent
+        settingsInteractor.setBackground(draft)
+        reduce { state.copy(backgroundDraft = null) }
+    }
+
+    private fun dismissBackgroundDraft() = intent {
+        reduce { state.copy(backgroundDraft = null) }
+    }
+
     private fun setSoundPack(pack: KeyboardSoundPack) = intent {
         settingsInteractor.setSoundPack(pack)
     }
@@ -110,5 +147,9 @@ class SettingsViewModel @Inject constructor(
         if (summary != state.summary) {
             reduce { state.copy(summary = summary) }
         }
+    }
+
+    private companion object {
+        const val DEFAULT_BACKGROUND_COLOR = 0xFFCDEFE7L
     }
 }

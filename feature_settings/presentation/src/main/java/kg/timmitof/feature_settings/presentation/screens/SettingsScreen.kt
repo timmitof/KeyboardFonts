@@ -27,6 +27,7 @@ import kg.timmitof.core.ui.theme.AccentRole
 import kg.timmitof.core.ui.theme.KeyboardFontsTheme
 import kg.timmitof.feature_settings.presentation.R
 import kg.timmitof.feature_settings.presentation.components.StudioPreviewCard
+import kg.timmitof.feature_settings.presentation.studio.BackgroundPane
 import kg.timmitof.feature_settings.presentation.studio.ClipboardPane
 import kg.timmitof.feature_settings.presentation.studio.FontsPane
 import kg.timmitof.feature_settings.presentation.studio.InputPane
@@ -36,6 +37,7 @@ import kg.timmitof.feature_settings.presentation.studio.SoundPane
 import kg.timmitof.feature_settings.presentation.studio.StudioTab
 import kg.timmitof.feature_settings.presentation.studio.StudioTabs
 import kg.timmitof.feature_settings.presentation.studio.ThemePane
+import kg.timmitof.keyboard.domain.model.KeyboardBackground
 import kg.timmitof.keyboard.domain.model.KeyboardHeight
 import kg.timmitof.keyboard.domain.model.KeyboardSoundPack
 import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
@@ -92,6 +94,18 @@ internal fun ContainerDSLBuilder<SettingsSideEffect, SettingsEvent>.SettingsCont
     val onSoundVolume = remember<(Float) -> Unit> {
         { volume -> sendEvent(SettingsEvent.SoundVolumeChanged(volume)) }
     }
+    val onBackground = remember<(KeyboardBackground) -> Unit> {
+        { background -> sendEvent(SettingsEvent.BackgroundSelected(background)) }
+    }
+    val onBackgroundPhoto = remember<(String) -> Unit> {
+        { uri -> sendEvent(SettingsEvent.BackgroundPhotoPicked(uri)) }
+    }
+    val onBackgroundDraft = remember<(Long) -> Unit> {
+        { argb -> sendEvent(SettingsEvent.BackgroundDraftChanged(argb)) }
+    }
+    val onBackgroundColor = remember { { sendEvent(SettingsEvent.BackgroundColorClicked) } }
+    val onBackgroundDraftApply = remember { { sendEvent(SettingsEvent.BackgroundDraftApplied) } }
+    val onBackgroundDraftDismiss = remember { { sendEvent(SettingsEvent.BackgroundDraftDismissed) } }
     val onTab = remember<(StudioTab) -> Unit> {
         { tab -> sendEvent(SettingsEvent.TabSelected(tab)) }
     }
@@ -116,7 +130,7 @@ internal fun ContainerDSLBuilder<SettingsSideEffect, SettingsEvent>.SettingsCont
 
         StudioPreviewCard(
             modifier = Modifier.padding(horizontal = HorizontalPadding),
-            settings = settings,
+            settings = state.value.previewSettings,
             summary = summary,
             fonts = state.value.fontPanel.visible,
             sample = stringResource(R.string.studio_preview_sample),
@@ -134,7 +148,18 @@ internal fun ContainerDSLBuilder<SettingsSideEffect, SettingsEvent>.SettingsCont
                 selected = state.value.selectedTab,
                 onSelect = onTab,
             ) {
-                // «Фон» не зарегистрирован, пока нет редактора фона, — чипа нет.
+                tab(StudioTab.BACKGROUND) {
+                    BackgroundPane(
+                        settings = settings,
+                        draft = state.value.backgroundDraft,
+                        onSelect = onBackground,
+                        onPhotoPicked = onBackgroundPhoto,
+                        onColorClick = onBackgroundColor,
+                        onDraftChange = onBackgroundDraft,
+                        onDraftApply = onBackgroundDraftApply,
+                        onDraftDismiss = onBackgroundDraftDismiss,
+                    )
+                }
                 tab(StudioTab.THEME) {
                     ThemePane(
                         settings = settings,
