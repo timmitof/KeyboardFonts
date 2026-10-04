@@ -4,12 +4,13 @@ import androidx.compose.runtime.Immutable
 import kg.timmitof.core.ui.base.BaseEvent
 import kg.timmitof.core.ui.base.BaseSideEffect
 import kg.timmitof.core.ui.base.BaseState
+import kg.timmitof.keyboard.domain.model.BackgroundPhoto
 import kg.timmitof.keyboard.domain.model.KeyboardSettings
 import kg.timmitof.keyboard.domain.model.PhotoCrop
 
 @Immutable
 data class BackgroundCropState(
-    val uri: String = "",
+    val photo: BackgroundPhoto? = null,
     val settings: KeyboardSettings = KeyboardSettings(),
     val isSaving: Boolean = false,
 ) : BaseState()
@@ -20,7 +21,7 @@ sealed class BackgroundCropEvent : BaseEvent.UiEvent() {
 
     data class DoneClicked(val crop: PhotoCrop) : BackgroundCropEvent()
 
-    data class AnotherPhotoPicked(val uri: String) : BackgroundCropEvent()
+    data object DeleteClicked : BackgroundCropEvent()
 
     data object BackClicked : BackgroundCropEvent()
 }

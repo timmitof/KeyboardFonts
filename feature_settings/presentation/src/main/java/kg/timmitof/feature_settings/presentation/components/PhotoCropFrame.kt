@@ -1,6 +1,5 @@
 package kg.timmitof.feature_settings.presentation.components
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
@@ -15,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -25,9 +25,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.isUnspecified
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.scale
+import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -35,10 +39,13 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import coil3.compose.AsyncImagePainter
+import coil3.compose.LocalPlatformContext
 import coil3.compose.rememberAsyncImagePainter
+import coil3.request.ImageRequest
 import kg.timmitof.keyboard.domain.model.PhotoCrop
 import kg.timmitof.keyboard.presentation.preview.drawKeyboardSilhouette
 import kg.timmitof.keyboard.presentation.theme.KeyboardColorScheme
+import java.io.File
 import kotlin.math.max
 
 /** Положение фото в рамке; пересчитывается в долю картинки только по «Готово». */
@@ -51,7 +58,17 @@ class PhotoCropState {
         private set
 
     internal var frame = Size.Zero
+        set(value) {
+            field = value
+            restorePending()
+        }
     internal var image = Size.Zero
+        set(value) {
+            field = value
+            restorePending()
+        }
+
+    private var pendingCrop: PhotoCrop? = null
 
     /** Фото всегда закрывает рамку целиком: ни приблизить меньше рамки, ни увести край внутрь. */
     internal fun transform(pan: Offset, zoom: Float) {
@@ -63,9 +80,32 @@ class PhotoCropState {
         )
     }
 
-    internal fun reset() {
+    /** Сохранённый кадр восстанавливается, как только известны и рамка, и картинка. */
+    internal fun restore(crop: PhotoCrop) {
         scale = 1f
         offset = Offset.Zero
+        pendingCrop = crop
+        restorePending()
+    }
+
+    private fun restorePending() {
+        val crop = pendingCrop ?: return
+        if (frame.isEmpty() || image.isEmpty()) return
+        pendingCrop = null
+
+        val cover = coverScale()
+        val window = Size((crop.right - crop.left) * image.width, (crop.bottom - crop.top) * image.height)
+        if (window.isEmpty()) return
+
+        scale = (max(frame.width / window.width, frame.height / window.height) / cover).coerceIn(1f, MaxZoom)
+
+        val center = Offset(frame.width / 2, frame.height / 2)
+        val windowCenter = Offset(
+            (frame.width - image.width * cover) / 2 + (crop.left + crop.right) / 2 * image.width * cover,
+            (frame.height - image.height * cover) / 2 + (crop.top + crop.bottom) / 2 * image.height * cover,
+        )
+        offset = (center - windowCenter) * scale
+        transform(pan = Offset.Zero, zoom = 1f)
     }
 
     fun crop(): PhotoCrop? {
@@ -92,6 +132,25 @@ class PhotoCropState {
         )
     }
 
+    /**
+     * Рисует фото целиком, без предварительной обрезки по рамке, по той же формуле, что и [crop]:
+     * что видно в рамке — ровно то, что окажется на клавиатуре.
+     */
+    internal fun DrawScope.drawPhoto(painter: Painter) {
+        val source = painter.intrinsicSize
+        if (source.isUnspecified || source.isEmpty()) return
+
+        val zoom = max(size.width / source.width, size.height / source.height) * scale
+        val left = size.width / 2 + offset.x - source.width * zoom / 2
+        val top = size.height / 2 + offset.y - source.height * zoom / 2
+
+        translate(left = left, top = top) {
+            scale(zoom, pivot = Offset.Zero) {
+                with(painter) { draw(source) }
+            }
+        }
+    }
+
     private fun coverScale() = max(frame.width / image.width, frame.height / image.height)
 
     private fun overflow(): Size {
@@ -114,7 +173,8 @@ class PhotoCropState {
  */
 @Composable
 internal fun PhotoCropFrame(
-    uri: String,
+    path: String,
+    initialCrop: PhotoCrop,
     state: PhotoCropState,
     keyboardHeight: Dp,
     screenWidth: Dp,
@@ -122,11 +182,13 @@ internal fun PhotoCropFrame(
     errorText: String,
     modifier: Modifier = Modifier,
 ) {
-    val painter = rememberAsyncImagePainter(uri)
+    val context = LocalPlatformContext.current
+    val request = remember(path) { ImageRequest.Builder(context).data(File(path)).size(MaxDecodeSide).build() }
+    val painter = rememberAsyncImagePainter(request)
     val painterState by painter.state.collectAsState()
     val ratio = screenWidth / keyboardHeight
 
-    LaunchedEffect(uri) { state.reset() }
+    LaunchedEffect(path, initialCrop) { state.restore(initialCrop) }
     (painterState as? AsyncImagePainter.State.Success)?.let { state.image = painter.intrinsicSize }
 
     Box(
@@ -140,18 +202,10 @@ internal fun PhotoCropFrame(
             },
         contentAlignment = Alignment.Center,
     ) {
-        Image(
-            painter = painter,
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .graphicsLayer {
-                    scaleX = state.scale
-                    scaleY = state.scale
-                    translationX = state.offset.x
-                    translationY = state.offset.y
-                },
+                .drawBehind { with(state) { drawPhoto(painter) } },
         )
 
         Box(
@@ -184,6 +238,7 @@ internal fun PhotoCropFrame(
 }
 
 private val FrameShape = RoundedCornerShape(14.dp)
+private const val MaxDecodeSide = 2048
 
 private val SilhouettePadding = 8.dp
 private val SilhouetteGap = 6.dp

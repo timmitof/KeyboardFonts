@@ -9,7 +9,9 @@ import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kg.timmitof.core.data.local.dao.BackgroundPhotoDao
 import kg.timmitof.keyboard.data.language.keyboardPreferences
+import kg.timmitof.keyboard.domain.model.BackgroundPhoto
 import kg.timmitof.keyboard.domain.model.KeyColorTarget
 import kg.timmitof.keyboard.domain.model.KeyboardBackground
 import kg.timmitof.keyboard.domain.model.toKey
@@ -20,6 +22,7 @@ import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
 import kg.timmitof.keyboard.domain.model.KeyboardToggle
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import java.io.IOException
@@ -29,7 +32,8 @@ import javax.inject.Singleton
 /** Ключи берутся из [KeyboardToggle] — новая настройка не требует правок хранилища. */
 @Singleton
 class KeyboardSettingsDataSource @Inject constructor(
-    @param:ApplicationContext private val context: Context
+    @param:ApplicationContext private val context: Context,
+    private val photoDao: BackgroundPhotoDao,
 ) {
 
     /** Ключи считаются один раз: `booleanPreferencesKey` на каждое чтение — лишняя работа. */
@@ -40,9 +44,13 @@ class KeyboardSettingsDataSource @Inject constructor(
     private val preferences: Flow<Preferences> = context.keyboardPreferences.data
         .catch { error -> if (error is IOException) emit(emptyPreferences()) else throw error }
 
-    fun observe(): Flow<KeyboardSettings> = preferences.map(::toSettings)
+    /** Фон-фото хранится ссылкой: сам кадр берём из базы, правка кадра приходит этим же потоком. */
+    private val photos: Flow<Map<Long, BackgroundPhoto>> = photoDao.observeAll()
+        .map { entities -> entities.associate { it.id to it.toDomain() } }
 
-    suspend fun get(): KeyboardSettings = toSettings(preferences.first())
+    fun observe(): Flow<KeyboardSettings> = combine(preferences, photos, ::toSettings)
+
+    suspend fun get(): KeyboardSettings = toSettings(preferences.first(), photos.first())
 
     suspend fun setToggle(toggle: KeyboardToggle, enabled: Boolean) {
         context.keyboardPreferences.edit { prefs ->
@@ -73,17 +81,21 @@ class KeyboardSettingsDataSource @Inject constructor(
         context.keyboardPreferences.edit { prefs -> prefs[SOUND_VOLUME_KEY] = volume.coerceIn(0f, 1f) }
     }
 
-    /** Одной записью с цветами клавиш: иначе клавиатура на кадр покажет новый фон со старыми клавишами. */
+    /**
+     * Одной записью с цветами клавиш: иначе клавиатура на кадр покажет новый фон со старыми клавишами.
+     * Тот же фон (например, подвинули выбранное фото) свои цвета пользователя не сбрасывает.
+     */
     suspend fun setBackground(background: KeyboardBackground) {
+        val key = background.toKey()
         context.keyboardPreferences.edit { prefs ->
-            background.toKey()?.let { prefs[BACKGROUND_KEY] = it } ?: prefs.remove(BACKGROUND_KEY)
-            if (background is KeyboardBackground.Photo) prefs[BACKGROUND_PHOTO_KEY] = background.toKey().orEmpty()
+            if (prefs[BACKGROUND_KEY] == key) return@edit
+            key?.let { prefs[BACKGROUND_KEY] = it } ?: prefs.remove(BACKGROUND_KEY)
             prefs.remove(KEY_COLOR_KEY)
             prefs.remove(SPECIAL_KEY_COLOR_KEY)
         }
     }
 
-    private fun toSettings(prefs: Preferences) = KeyboardSettings(
+    private fun toSettings(prefs: Preferences, photos: Map<Long, BackgroundPhoto>) = KeyboardSettings(
         flags = KeyboardToggle.entries.associateWith { toggle ->
             prefs[toggleKeys.getValue(toggle)] ?: toggle.default
         },
@@ -94,8 +106,7 @@ class KeyboardSettingsDataSource @Inject constructor(
         enterColor = prefs[ENTER_COLOR_KEY],
         soundPack = KeyboardSoundPack.of(prefs[SOUND_PACK_KEY]),
         soundVolume = prefs[SOUND_VOLUME_KEY] ?: KeyboardSettings.DEFAULT_SOUND_VOLUME,
-        background = KeyboardBackground.of(prefs[BACKGROUND_KEY]),
-        backgroundPhoto = KeyboardBackground.of(prefs[BACKGROUND_PHOTO_KEY]) as? KeyboardBackground.Photo,
+        background = KeyboardBackground.of(prefs[BACKGROUND_KEY], photos::get),
     )
 
     private companion object {
@@ -114,8 +125,6 @@ class KeyboardSettingsDataSource @Inject constructor(
         val SOUND_VOLUME_KEY = floatPreferencesKey("key_sound_volume")
 
         val BACKGROUND_KEY = stringPreferencesKey("keyboard_background")
-
-        val BACKGROUND_PHOTO_KEY = stringPreferencesKey("keyboard_background_last_photo")
 
         val KeyColorTarget.preferenceKey
             get() = when (this) {

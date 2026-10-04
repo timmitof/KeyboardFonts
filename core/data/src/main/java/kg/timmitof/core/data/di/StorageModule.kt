@@ -9,9 +9,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kg.timmitof.core.data.local.AppDatabase
 import kg.timmitof.core.data.local.Migrations
+import kg.timmitof.core.data.local.dao.BackgroundPhotoDao
 import kg.timmitof.core.data.local.dao.ClipboardDao
-import kg.timmitof.core.data.local.dao.ProjectDao
-import kg.timmitof.core.data.local.dao.TemplateDao
 import javax.inject.Singleton
 
 @Module
@@ -23,17 +22,14 @@ object StorageModule {
     fun provideDatabase(@ApplicationContext context: Context): AppDatabase =
         Room.databaseBuilder(context, AppDatabase::class.java, AppDatabase.TAG)
             .addMigrations(*Migrations.all)
+            .enableMultiInstanceInvalidation()
             .build()
 
     @Singleton
     @Provides
-    fun provideUserProjectDao(database: AppDatabase): ProjectDao = database.projectDao()
-
-    @Singleton
-    @Provides
-    fun provideTemplateDao(database: AppDatabase): TemplateDao = database.templateDao()
-
-    @Singleton
-    @Provides
     fun provideClipboardDao(database: AppDatabase): ClipboardDao = database.clipboardDao()
+
+    @Singleton
+    @Provides
+    fun provideBackgroundPhotoDao(database: AppDatabase): BackgroundPhotoDao = database.backgroundPhotoDao()
 }

@@ -2,35 +2,76 @@ package kg.timmitof.keyboard.presentation.theme
 
 import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.draw.paint
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.isUnspecified
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.clipRect
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.graphics.drawscope.scale
+import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.unit.dp
+import coil3.compose.LocalPlatformContext
 import coil3.compose.rememberAsyncImagePainter
+import coil3.request.ImageRequest
+import kg.timmitof.keyboard.domain.model.BackgroundPhoto
 import kg.timmitof.keyboard.domain.model.BackgroundPattern
 import kg.timmitof.keyboard.domain.model.KeyboardBackground
+import kg.timmitof.keyboard.domain.model.PhotoCrop
 import java.io.File
 import kotlin.math.hypot
+import kotlin.math.max
 
-/** Рисуется поверх цвета темы: у [KeyboardBackground.None] своего слоя нет. Фото не задаёт размер — только обрезается под клавиатуру. */
+/**
+ * Рисуется поверх цвета темы: у [KeyboardBackground.None] своего слоя нет.
+ * Фото только рисуется — размер клавиатуры от него не зависит; [maxPhotoSide] ограничивает декодирование.
+ */
 @Composable
-fun Modifier.keyboardBackground(background: KeyboardBackground): Modifier = when (background) {
+fun Modifier.keyboardBackground(
+    background: KeyboardBackground,
+    maxPhotoSide: Int = DefaultPhotoSide,
+): Modifier = when (background) {
     KeyboardBackground.None -> this
     is KeyboardBackground.Solid -> background(Color(background.argb.toInt()))
     is KeyboardBackground.Pattern -> clipToBounds().drawBehind { drawBackgroundPattern(background.pattern) }
-    is KeyboardBackground.Photo -> paint(
-        painter = rememberAsyncImagePainter(File(background.path)),
-        sizeToIntrinsics = false,
-        contentScale = ContentScale.Crop,
-    )
+    is KeyboardBackground.Photo -> photoBackground(background.photo, maxPhotoSide)
+}
+
+@Composable
+private fun Modifier.photoBackground(photo: BackgroundPhoto, maxSide: Int): Modifier {
+    val context = LocalPlatformContext.current
+    val request = remember(photo.path, maxSide) {
+        ImageRequest.Builder(context).data(File(photo.path)).size(maxSide).build()
+    }
+    val painter = rememberAsyncImagePainter(request)
+    return clipToBounds().drawBehind { drawPhoto(painter, photo.crop) }
+}
+
+/**
+ * Кадр [crop] закрывает область целиком при равном масштабе по осям: фото не растягивается,
+ * а при другой высоте клавиатуры лишнее по краям кадра просто обрезается.
+ */
+fun DrawScope.drawPhoto(painter: Painter, crop: PhotoCrop) {
+    val image = painter.intrinsicSize
+    if (image.isUnspecified || image.isEmpty()) return
+
+    val window = Size((crop.right - crop.left) * image.width, (crop.bottom - crop.top) * image.height)
+    if (window.isEmpty()) return
+
+    val scale = max(size.width / window.width, size.height / window.height)
+    val center = Offset((crop.left + crop.right) / 2 * image.width, (crop.top + crop.bottom) / 2 * image.height)
+
+    translate(left = size.width / 2 - center.x * scale, top = size.height / 2 - center.y * scale) {
+        scale(scale, pivot = Offset.Zero) {
+            with(painter) { draw(image) }
+        }
+    }
 }
 
 fun DrawScope.drawBackgroundPattern(pattern: BackgroundPattern) {
@@ -135,3 +176,5 @@ private fun DrawScope.drawWaves() {
         }
     }
 }
+
+private const val DefaultPhotoSide = 2048

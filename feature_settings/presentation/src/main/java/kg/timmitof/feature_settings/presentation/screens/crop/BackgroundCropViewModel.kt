@@ -1,25 +1,23 @@
 package kg.timmitof.feature_settings.presentation.screens.crop
 
-import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.toRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kg.timmitof.core.navigation.graphs.SettingsGraph
+import kg.timmitof.core.ui.base.BaseSideEffect
 import kg.timmitof.core.ui.base.BaseViewModel
 import kg.timmitof.feature_settings.domain.interactor.SettingsInteractor
-import kg.timmitof.feature_settings.presentation.R
 import kg.timmitof.keyboard.domain.model.PhotoCrop
+import org.orbitmvi.orbit.syntax.Syntax
 import javax.inject.Inject
 
 @HiltViewModel
 class BackgroundCropViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val settingsInteractor: SettingsInteractor,
-    @param:ApplicationContext private val context: Context,
-) : BaseViewModel<BackgroundCropState, BackgroundCropSideEffect, BackgroundCropEvent>(
-    BackgroundCropState(uri = savedStateHandle.toRoute<SettingsGraph.BackgroundCropScreen>().uri)
-) {
+) : BaseViewModel<BackgroundCropState, BackgroundCropSideEffect, BackgroundCropEvent>(BackgroundCropState()) {
+
+    private val photoId = savedStateHandle.toRoute<SettingsGraph.BackgroundCropScreen>().photoId
 
     init {
         observeSettings()
@@ -28,9 +26,14 @@ class BackgroundCropViewModel @Inject constructor(
     override fun onEvent(event: BackgroundCropEvent) {
         when (event) {
             is BackgroundCropEvent.DoneClicked -> save(event.crop)
-            is BackgroundCropEvent.AnotherPhotoPicked -> intent { reduce { state.copy(uri = event.uri) } }
+            is BackgroundCropEvent.DeleteClicked -> delete()
             is BackgroundCropEvent.BackClicked -> navigateBack()
         }
+    }
+
+    override suspend fun Syntax<BackgroundCropState, BaseSideEffect>.onBootstrap() {
+        val photo = settingsInteractor.getPhoto(photoId)
+        if (photo == null) navigateBack() else reduce { state.copy(photo = photo) }
     }
 
     /** Рамка повторяет высоту клавиатуры из настроек, поэтому следим за ними. */
@@ -41,14 +44,16 @@ class BackgroundCropViewModel @Inject constructor(
     }
 
     private fun save(crop: PhotoCrop) = intent {
+        val photo = state.photo ?: return@intent
         if (state.isSaving) return@intent
-        reduce { state.copy(isSaving = true) }
 
-        runCatching { settingsInteractor.importBackgroundPhoto(state.uri, crop) }
-            .onSuccess { navigateBack() }
-            .onFailure {
-                reduce { state.copy(isSaving = false) }
-                showToast(context.getString(R.string.background_crop_error))
-            }
+        reduce { state.copy(isSaving = true) }
+        settingsInteractor.applyPhoto(photo, crop)
+        navigateBack()
+    }
+
+    private fun delete() = intent {
+        settingsInteractor.deletePhoto(photoId)
+        navigateBack()
     }
 }

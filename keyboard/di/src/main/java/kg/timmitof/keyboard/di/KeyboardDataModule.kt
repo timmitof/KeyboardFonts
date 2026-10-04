@@ -10,10 +10,12 @@ import kg.timmitof.keyboard.data.AssetTextLoaderImpl
 import kg.timmitof.keyboard.data.JsonKeyboardLayoutLoader
 import kg.timmitof.keyboard.data.repository.EmojiRepositoryImpl
 import kg.timmitof.keyboard.data.repository.KeyboardLayoutRepositoryImpl
+import kg.timmitof.keyboard.data.repository.BackgroundPhotoRepositoryImpl
 import kg.timmitof.keyboard.data.repository.KeyboardSettingsRepositoryImpl
 import kg.timmitof.keyboard.data.repository.LanguageRepositoryImpl
 import kg.timmitof.keyboard.domain.repository.EmojiRepository
 import kg.timmitof.keyboard.domain.repository.KeyboardLayoutRepository
+import kg.timmitof.keyboard.domain.repository.BackgroundPhotoRepository
 import kg.timmitof.keyboard.domain.repository.KeyboardSettingsRepository
 import kg.timmitof.keyboard.domain.repository.LanguageRepository
 import javax.inject.Singleton
@@ -47,4 +49,10 @@ abstract class KeyboardDataModule {
     abstract fun bindKeyboardSettingsRepository(
         impl: KeyboardSettingsRepositoryImpl
     ): KeyboardSettingsRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindBackgroundPhotoRepository(
+        impl: BackgroundPhotoRepositoryImpl
+    ): BackgroundPhotoRepository
 }

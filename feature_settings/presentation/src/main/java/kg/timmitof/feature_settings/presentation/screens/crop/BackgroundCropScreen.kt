@@ -1,8 +1,5 @@
 package kg.timmitof.feature_settings.presentation.screens.crop
 
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -14,15 +11,21 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
@@ -64,9 +67,8 @@ internal fun ContainerDSLBuilder<BackgroundCropSideEffect, BackgroundCropEvent>.
     onBack { sendEvent(BackgroundCropEvent.BackClicked) }
 
     val cropState = remember { PhotoCropState() }
-    val photoPicker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-        uri?.let { sendEvent(BackgroundCropEvent.AnotherPhotoPicked(it.toString())) }
-    }
+    var isDeleteAsked by rememberSaveable { mutableStateOf(false) }
+    val photo = state.value.photo
 
     val settings = state.value.settings
     val isSystemDark = isSystemInDarkTheme()
@@ -100,14 +102,17 @@ internal fun ContainerDSLBuilder<BackgroundCropSideEffect, BackgroundCropEvent>.
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
 
-            PhotoCropFrame(
-                uri = state.value.uri,
-                state = cropState,
-                keyboardHeight = settings.keyboardHeight(),
-                screenWidth = LocalConfiguration.current.screenWidthDp.dp,
-                keyColors = keyColors,
-                errorText = stringResource(R.string.background_crop_error),
-            )
+            photo?.let {
+                PhotoCropFrame(
+                    path = it.path,
+                    initialCrop = it.crop,
+                    state = cropState,
+                    keyboardHeight = settings.keyboardHeight(),
+                    screenWidth = LocalConfiguration.current.screenWidthDp.dp,
+                    keyColors = keyColors,
+                    errorText = stringResource(R.string.background_crop_error),
+                )
+            }
         }
 
         Row(
@@ -120,18 +125,16 @@ internal fun ContainerDSLBuilder<BackgroundCropSideEffect, BackgroundCropEvent>.
                 modifier = Modifier
                     .weight(1f)
                     .height(ButtonHeight),
-                enabled = !state.value.isSaving,
-                onClick = {
-                    photoPicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                },
+                enabled = !state.value.isSaving && photo != null,
+                onClick = { isDeleteAsked = true },
             ) {
-                Text(text = stringResource(R.string.background_crop_another))
+                Text(text = stringResource(R.string.background_crop_delete))
             }
             Button(
                 modifier = Modifier
                     .weight(1f)
                     .height(ButtonHeight),
-                enabled = !state.value.isSaving,
+                enabled = !state.value.isSaving && photo != null,
                 onClick = { cropState.crop()?.let { sendEvent(BackgroundCropEvent.DoneClicked(it)) } },
             ) {
                 if (state.value.isSaving) {
@@ -147,6 +150,28 @@ internal fun ContainerDSLBuilder<BackgroundCropSideEffect, BackgroundCropEvent>.
         }
 
         Spacer(modifier = Modifier.height(4.dp))
+    }
+
+    if (isDeleteAsked) {
+        AlertDialog(
+            onDismissRequest = { isDeleteAsked = false },
+            text = { Text(text = stringResource(R.string.background_crop_delete_question)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        isDeleteAsked = false
+                        sendEvent(BackgroundCropEvent.DeleteClicked)
+                    },
+                ) {
+                    Text(text = stringResource(R.string.background_crop_delete_confirm))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { isDeleteAsked = false }) {
+                    Text(text = stringResource(R.string.color_picker_dismiss))
+                }
+            },
+        )
     }
 }
 

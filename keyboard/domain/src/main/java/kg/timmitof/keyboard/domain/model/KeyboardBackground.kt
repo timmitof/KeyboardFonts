@@ -9,22 +9,20 @@ sealed interface KeyboardBackground {
 
     data class Pattern(val pattern: BackgroundPattern) : KeyboardBackground
 
-    /** [path] — обрезанная копия во внутренней папке приложения; [tone] — средний цвет, под него подбираются клавиши. */
-    data class Photo(val path: String, val tone: Long) : KeyboardBackground
+    data class Photo(val photo: BackgroundPhoto) : KeyboardBackground
 
     companion object {
         val Default: KeyboardBackground = None
 
-        fun of(key: String?): KeyboardBackground {
+        /** Фото хранится ссылкой на id: сами фото со своим кадром живут в базе, [photo] достаёт их оттуда. */
+        fun of(key: String?, photo: (id: Long) -> BackgroundPhoto? = { null }): KeyboardBackground {
             val (type, value) = key?.split(SEPARATOR, limit = 2)?.takeIf { it.size == 2 }
                 ?: return Default
 
             return when (type) {
                 SOLID -> value.toLongOrNull(16)?.let(::Solid)
                 PATTERN -> BackgroundPattern.entries.firstOrNull { it.key == value }?.let(::Pattern)
-                PHOTO -> value.split(SEPARATOR, limit = 2).takeIf { it.size == 2 }?.let { (tone, path) ->
-                    tone.toLongOrNull(16)?.let { Photo(path, it) }
-                }
+                PHOTO -> value.toLongOrNull()?.let(photo)?.let(::Photo)
                 else -> null
             } ?: Default
         }
@@ -35,7 +33,7 @@ fun KeyboardBackground.toKey(): String? = when (this) {
     KeyboardBackground.None -> null
     is KeyboardBackground.Solid -> "$SOLID$SEPARATOR${argb.toString(16)}"
     is KeyboardBackground.Pattern -> "$PATTERN$SEPARATOR${pattern.key}"
-    is KeyboardBackground.Photo -> "$PHOTO$SEPARATOR${tone.toString(16)}$SEPARATOR$path"
+    is KeyboardBackground.Photo -> "$PHOTO$SEPARATOR${photo.id}"
 }
 
 private const val SEPARATOR = ":"
@@ -52,10 +50,22 @@ enum class BackgroundPattern(val key: String) {
     NIGHT("night"),
 }
 
-/** Доли от сторон исходной картинки (0..1): какой кусок фото пойдёт на фон. */
+/** Фото из галереи: [path] — полная копия в папке приложения, [tone] — средний цвет для палитры клавиш. */
+data class BackgroundPhoto(
+    val id: Long,
+    val path: String,
+    val tone: Long,
+    val crop: PhotoCrop = PhotoCrop.Full,
+)
+
+/** Доли от сторон исходной картинки (0..1): какой кусок фото виден на фоне. Файл при этом не обрезается. */
 data class PhotoCrop(
     val left: Float,
     val top: Float,
     val right: Float,
     val bottom: Float,
-)
+) {
+    companion object {
+        val Full = PhotoCrop(0f, 0f, 1f, 1f)
+    }
+}

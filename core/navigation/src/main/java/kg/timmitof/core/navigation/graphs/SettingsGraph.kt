@@ -8,7 +8,7 @@ data object SettingsGraph {
     @Serializable
     data object SettingsScreen
 
-    /** [uri] — content:// из системного выбора фото. */
+    /** [photoId] — фото из базы; экран выставляет, какая его часть видна на клавиатуре. */
     @Serializable
-    data class BackgroundCropScreen(val uri: String)
+    data class BackgroundCropScreen(val photoId: Long)
 }

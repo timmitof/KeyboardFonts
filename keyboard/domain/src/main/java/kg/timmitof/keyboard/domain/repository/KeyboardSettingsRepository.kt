@@ -7,7 +7,6 @@ import kg.timmitof.keyboard.domain.model.KeyboardSettings
 import kg.timmitof.keyboard.domain.model.KeyboardSoundPack
 import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
 import kg.timmitof.keyboard.domain.model.KeyboardToggle
-import kg.timmitof.keyboard.domain.model.PhotoCrop
 import kotlinx.coroutines.flow.Flow
 
 /** Поток, а не разовое чтение: клавиатура живёт в другом процессе и должна подхватывать правки сразу. */
@@ -31,7 +30,4 @@ interface KeyboardSettingsRepository {
 
     /** Новый фон приносит свою палитру, поэтому обычные и служебные клавиши возвращаются к «Авто»; Enter пользователя остаётся. */
     suspend fun setBackground(background: KeyboardBackground)
-
-    /** [uri] — content:// из системного выбора фото; обрезанная по [crop] копия становится фоном. */
-    suspend fun importBackgroundPhoto(uri: String, crop: PhotoCrop)
 }

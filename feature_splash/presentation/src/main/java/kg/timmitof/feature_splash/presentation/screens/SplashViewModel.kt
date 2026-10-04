@@ -25,7 +25,6 @@ class SplashViewModel @Inject constructor(
     }
 
     override suspend fun Syntax<SplashState, BaseSideEffect>.onBootstrap() {
-        splashInteractor.loadTemplates()
         reduce { state.copy(isLoading = false) }
     }
 }

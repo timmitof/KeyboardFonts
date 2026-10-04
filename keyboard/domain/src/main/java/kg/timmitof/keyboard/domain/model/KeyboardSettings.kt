@@ -83,8 +83,6 @@ data class KeyboardSettings(
     /** 0..1, доля от системной громкости. */
     val soundVolume: Float = DEFAULT_SOUND_VOLUME,
     val background: KeyboardBackground = KeyboardBackground.Default,
-    /** Последнее загруженное фото — плитка «Моё фото» остаётся, даже когда выбран другой фон. */
-    val backgroundPhoto: KeyboardBackground.Photo? = null,
 ) {
 
     fun keyColor(target: KeyColorTarget): Long? = when (target) {

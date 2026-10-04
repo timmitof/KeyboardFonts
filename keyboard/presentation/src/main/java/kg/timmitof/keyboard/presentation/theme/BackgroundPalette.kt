@@ -20,7 +20,7 @@ data class BackgroundPalette(
 fun KeyboardBackground.palette(): BackgroundPalette? = when (this) {
     KeyboardBackground.None -> null
     is KeyboardBackground.Solid -> paletteFromTone(Color(argb.toInt()))
-    is KeyboardBackground.Photo -> paletteFromTone(Color(tone.toInt()))
+    is KeyboardBackground.Photo -> paletteFromTone(Color(photo.tone.toInt()))
     is KeyboardBackground.Pattern -> pattern.palette
 }
 

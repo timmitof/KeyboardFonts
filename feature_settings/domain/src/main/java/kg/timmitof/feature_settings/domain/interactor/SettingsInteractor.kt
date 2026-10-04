@@ -2,6 +2,7 @@ package kg.timmitof.feature_settings.domain.interactor
 
 import kg.timmitof.feature_settings.domain.model.SettingsSummary
 import kg.timmitof.keyboard.clipboard.domain.model.ClipboardBoard
+import kg.timmitof.keyboard.domain.model.BackgroundPhoto
 import kg.timmitof.keyboard.domain.model.KeyColorTarget
 import kg.timmitof.keyboard.domain.model.KeyboardBackground
 import kg.timmitof.keyboard.domain.model.KeyboardHeight
@@ -31,7 +32,17 @@ interface SettingsInteractor {
 
     suspend fun setBackground(background: KeyboardBackground)
 
-    suspend fun importBackgroundPhoto(uri: String, crop: PhotoCrop)
+    fun observePhotos(): Flow<List<BackgroundPhoto>>
+
+    suspend fun getPhoto(id: Long): BackgroundPhoto?
+
+    suspend fun addPhoto(uri: String): BackgroundPhoto
+
+    /** Сохраняет кадр и сразу делает фото фоном. */
+    suspend fun applyPhoto(photo: BackgroundPhoto, crop: PhotoCrop)
+
+    /** Если удаляют фото, которое стоит фоном, клавиатура возвращается к фону темы. */
+    suspend fun deletePhoto(id: Long)
 
     suspend fun getSummary(): SettingsSummary
 

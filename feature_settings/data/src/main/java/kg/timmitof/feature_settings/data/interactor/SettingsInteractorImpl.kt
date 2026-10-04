@@ -4,6 +4,7 @@ import kg.timmitof.feature_settings.domain.interactor.SettingsInteractor
 import kg.timmitof.feature_settings.domain.model.SettingsSummary
 import kg.timmitof.keyboard.clipboard.domain.model.ClipboardBoard
 import kg.timmitof.keyboard.clipboard.domain.repository.ClipboardRepository
+import kg.timmitof.keyboard.domain.model.BackgroundPhoto
 import kg.timmitof.keyboard.domain.model.KeyColorTarget
 import kg.timmitof.keyboard.domain.model.KeyboardBackground
 import kg.timmitof.keyboard.domain.model.KeyboardHeight
@@ -12,6 +13,7 @@ import kg.timmitof.keyboard.domain.model.KeyboardSoundPack
 import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
 import kg.timmitof.keyboard.domain.model.KeyboardToggle
 import kg.timmitof.keyboard.domain.model.PhotoCrop
+import kg.timmitof.keyboard.domain.repository.BackgroundPhotoRepository
 import kg.timmitof.keyboard.domain.repository.KeyboardLayoutRepository
 import kg.timmitof.keyboard.domain.repository.KeyboardSettingsRepository
 import kg.timmitof.keyboard.domain.repository.LanguageRepository
@@ -28,6 +30,7 @@ class SettingsInteractorImpl @Inject constructor(
     private val keyboardLayoutRepository: KeyboardLayoutRepository,
     private val clipboardRepository: ClipboardRepository,
     private val keyboardContract: KeyboardContract,
+    private val photoRepository: BackgroundPhotoRepository,
 ) : SettingsInteractor {
 
     override fun observeSettings(): Flow<KeyboardSettings> =
@@ -54,8 +57,24 @@ class SettingsInteractorImpl @Inject constructor(
     override suspend fun setBackground(background: KeyboardBackground) =
         keyboardSettingsRepository.setBackground(background)
 
-    override suspend fun importBackgroundPhoto(uri: String, crop: PhotoCrop) =
-        keyboardSettingsRepository.importBackgroundPhoto(uri, crop)
+    override fun observePhotos(): Flow<List<BackgroundPhoto>> = photoRepository.observePhotos()
+
+    override suspend fun getPhoto(id: Long): BackgroundPhoto? = photoRepository.getPhoto(id)
+
+    override suspend fun addPhoto(uri: String): BackgroundPhoto = photoRepository.addPhoto(uri)
+
+    override suspend fun applyPhoto(photo: BackgroundPhoto, crop: PhotoCrop) {
+        photoRepository.setCrop(photo.id, crop)
+        keyboardSettingsRepository.setBackground(KeyboardBackground.Photo(photo.copy(crop = crop)))
+    }
+
+    override suspend fun deletePhoto(id: Long) {
+        val current = keyboardSettingsRepository.getSettings().background
+        if ((current as? KeyboardBackground.Photo)?.photo?.id == id) {
+            keyboardSettingsRepository.setBackground(KeyboardBackground.None)
+        }
+        photoRepository.deletePhoto(id)
+    }
 
     override suspend fun getSummary(): SettingsSummary {
         val keyboardState = keyboardContract.getKeyboardState()

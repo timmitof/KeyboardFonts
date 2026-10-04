@@ -101,6 +101,9 @@ internal fun ContainerDSLBuilder<SettingsSideEffect, SettingsEvent>.SettingsCont
     val onBackgroundPhoto = remember<(String) -> Unit> {
         { uri -> sendEvent(SettingsEvent.BackgroundPhotoPicked(uri)) }
     }
+    val onEditPhoto = remember<(Long) -> Unit> {
+        { id -> sendEvent(SettingsEvent.EditPhotoClicked(id)) }
+    }
     val onBackgroundDraft = remember<(Long) -> Unit> {
         { argb -> sendEvent(SettingsEvent.BackgroundDraftChanged(argb)) }
     }
@@ -152,9 +155,11 @@ internal fun ContainerDSLBuilder<SettingsSideEffect, SettingsEvent>.SettingsCont
                 tab(StudioTab.BACKGROUND) {
                     BackgroundPane(
                         settings = settings,
+                        photos = state.value.photos,
                         draft = state.value.backgroundDraft,
                         onSelect = onBackground,
                         onPhotoPicked = onBackgroundPhoto,
+                        onEditPhoto = onEditPhoto,
                         onColorClick = onBackgroundColor,
                         onDraftChange = onBackgroundDraft,
                         onDraftApply = onBackgroundDraftApply,

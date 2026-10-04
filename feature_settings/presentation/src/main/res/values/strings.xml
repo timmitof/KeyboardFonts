@@ -30,7 +30,9 @@
     <string name="background_grid">Клетка</string>
     <string name="background_waves">Волны</string>
     <string name="background_night">Ночь</string>
-    <string name="background_photo">Моё фото</string>
+    <string name="background_my_photos">Мои фото</string>
+    <string name="background_add_photo">Добавить</string>
+    <string name="background_photos_hint">Нажми на выбранное фото ещё раз — и сможешь его подвинуть.</string>
     <string name="background_color_title">Цвет фона</string>
     <string name="background_custom_tone">Свой оттенок</string>
     <string name="background_cancel">Отмена</string>
@@ -39,7 +41,9 @@
     <string name="background_crop_title">Фото для фона</string>
     <string name="background_crop_hint">Двигай фото пальцем и приближай двумя пальцами. Что видно в рамке — то и будет на клавиатуре.</string>
     <string name="background_crop_done">Готово</string>
-    <string name="background_crop_another">Другое фото</string>
+    <string name="background_crop_delete">Удалить фото</string>
+    <string name="background_crop_delete_question">Удалить это фото из фонов? В галерее телефона оно останется.</string>
+    <string name="background_crop_delete_confirm">Удалить</string>
     <string name="background_crop_error">Не получилось открыть фото. Попробуй выбрать другое.</string>
 
     <!-- Тема -->

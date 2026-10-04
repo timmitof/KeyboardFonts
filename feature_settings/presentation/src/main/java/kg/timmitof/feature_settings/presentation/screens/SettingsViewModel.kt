@@ -24,6 +24,7 @@ class SettingsViewModel @Inject constructor(
     init {
         observeSettings()
         observeFontPanel()
+        observePhotos()
         observeClipboard()
     }
 
@@ -34,7 +35,8 @@ class SettingsViewModel @Inject constructor(
             is SettingsEvent.HeightChanged -> setHeight(event.height)
             is SettingsEvent.KeyColorChanged -> setKeyColor(event.target, event.argb)
             is SettingsEvent.BackgroundSelected -> setBackground(event.background)
-            is SettingsEvent.BackgroundPhotoPicked -> navigateTo(SettingsGraph.BackgroundCropScreen(event.uri))
+            is SettingsEvent.BackgroundPhotoPicked -> addPhoto(event.uri)
+            is SettingsEvent.EditPhotoClicked -> navigateTo(SettingsGraph.BackgroundCropScreen(event.photoId))
             is SettingsEvent.BackgroundColorClicked -> openBackgroundColor()
             is SettingsEvent.BackgroundDraftChanged -> changeBackgroundDraft(event.argb)
             is SettingsEvent.BackgroundDraftApplied -> applyBackgroundDraft()
@@ -96,6 +98,18 @@ class SettingsViewModel @Inject constructor(
 
     private fun setKeyColor(target: KeyColorTarget, argb: Long?) = intent {
         settingsInteractor.setKeyColor(target, argb)
+    }
+
+    private fun observePhotos() = intent {
+        settingsInteractor.observePhotos().collect { photos ->
+            reduce { state.copy(photos = photos) }
+        }
+    }
+
+    /** Фото копируется к нам целиком и сразу открывается настройка, какая его часть будет видна. */
+    private fun addPhoto(uri: String) = intent {
+        runCatching { settingsInteractor.addPhoto(uri) }
+            .onSuccess { photo -> navigateTo(SettingsGraph.BackgroundCropScreen(photo.id)) }
     }
 
     private fun setBackground(background: KeyboardBackground) = intent {

@@ -1,5 +1,6 @@
 package kg.timmitof.feature_settings.presentation.components
 
+import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
@@ -41,10 +42,10 @@ import kg.timmitof.keyboard.domain.model.KeyboardBackground
 import kg.timmitof.keyboard.presentation.theme.KeyboardLightColor
 import kg.timmitof.keyboard.presentation.theme.keyboardBackground
 
-/** [background] = `null` — фото ещё не загружено: плитка открывает выбор картинки. */
+/** [background] = `null` — плитка «Добавить»: открывает выбор фото. [label] = `null` — без подписи. */
 @Immutable
 data class BackgroundTile(
-    val label: String,
+    val label: String?,
     val background: KeyboardBackground?,
 )
 
@@ -64,7 +65,7 @@ internal fun BackgroundTiles(
                 row.forEach { tile ->
                     BackgroundTileItem(
                         tile = tile,
-                        isSelected = tile.background == selected,
+                        isSelected = tile.background?.isSameAs(selected) == true,
                         onClick = { onClick(tile) },
                         modifier = Modifier.weight(1f),
                     )
@@ -124,7 +125,7 @@ private fun BackgroundTileItem(
             ) {
                 if (tile.background == null) {
                     Icon(
-                        painter = painterResource(R.drawable.ic_background_gallery),
+                        painter = painterResource(UiR.drawable.ic_plus),
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.outline,
                         modifier = Modifier.size(18.dp),
@@ -132,7 +133,9 @@ private fun BackgroundTileItem(
                 }
             }
 
-            CheckBadge(
+            // У выбранного фото вместо галочки карандаш: повторное касание открывает настройку положения.
+            SelectionBadge(
+                iconRes = if (tile.background is KeyboardBackground.Photo) R.drawable.ic_edit else UiR.drawable.ic_check,
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .offset(x = 5.dp, y = (-5).dp)
@@ -143,12 +146,14 @@ private fun BackgroundTileItem(
             )
         }
 
-        Text(
-            text = tile.label,
-            fontSize = 11.sp,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            maxLines = 1,
-        )
+        tile.label?.let { label ->
+            Text(
+                text = label,
+                fontSize = 11.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+            )
+        }
     }
 }
 
@@ -156,11 +161,15 @@ private fun BackgroundTileItem(
 private fun Modifier.tileFill(fill: KeyboardBackground?): Modifier = when (fill) {
     null -> background(MaterialTheme.colorScheme.surfaceVariant)
     KeyboardBackground.None -> background(ThemeBackground)
-    else -> keyboardBackground(fill)
+    else -> keyboardBackground(fill, maxPhotoSide = TilePhotoSide)
 }
 
+/** Фото сравниваем по id: кадр мог поменяться, а фото то же. */
+private fun KeyboardBackground.isSameAs(other: KeyboardBackground): Boolean =
+    if (this is KeyboardBackground.Photo && other is KeyboardBackground.Photo) photo.id == other.photo.id else this == other
+
 @Composable
-private fun CheckBadge(modifier: Modifier = Modifier) {
+private fun SelectionBadge(@DrawableRes iconRes: Int, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .size(20.dp)
@@ -169,7 +178,7 @@ private fun CheckBadge(modifier: Modifier = Modifier) {
         contentAlignment = Alignment.Center,
     ) {
         Icon(
-            painter = painterResource(UiR.drawable.ic_check),
+            painter = painterResource(iconRes),
             contentDescription = null,
             tint = MaterialTheme.colorScheme.background,
             modifier = Modifier.size(11.dp),
@@ -178,6 +187,7 @@ private fun CheckBadge(modifier: Modifier = Modifier) {
 }
 
 private const val Columns = 4
+private const val TilePhotoSide = 384
 private const val EdgeAlpha = 0.06f
 
 private val TileHeight = 50.dp

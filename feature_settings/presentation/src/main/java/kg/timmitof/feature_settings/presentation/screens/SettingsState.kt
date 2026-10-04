@@ -7,6 +7,7 @@ import kg.timmitof.core.ui.base.BaseState
 import kg.timmitof.feature_settings.domain.model.SettingsSummary
 import kg.timmitof.feature_settings.presentation.studio.StudioTab
 import kg.timmitof.keyboard.clipboard.domain.model.ClipboardBoard
+import kg.timmitof.keyboard.domain.model.BackgroundPhoto
 import kg.timmitof.keyboard.domain.model.KeyColorTarget
 import kg.timmitof.keyboard.domain.model.KeyboardBackground
 import kg.timmitof.keyboard.domain.model.KeyboardHeight
@@ -24,6 +25,7 @@ data class SettingsState(
     val fontPanel: FontPanel = FontPanel(),
     val selectedTab: StudioTab = StudioTab.Default,
     val backgroundDraft: KeyboardBackground.Solid? = null,
+    val photos: List<BackgroundPhoto> = emptyList(),
 ) : BaseState() {
 
     val previewSettings: KeyboardSettings
@@ -45,6 +47,8 @@ sealed class SettingsEvent : BaseEvent.UiEvent() {
     data class BackgroundSelected(val background: KeyboardBackground) : SettingsEvent()
 
     data class BackgroundPhotoPicked(val uri: String) : SettingsEvent()
+
+    data class EditPhotoClicked(val photoId: Long) : SettingsEvent()
 
     data object BackgroundColorClicked : SettingsEvent()
 
