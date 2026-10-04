@@ -25,11 +25,6 @@ import kg.timmitof.core.ui.R as UiR
 import kg.timmitof.core.ui.theme.appColors
 import kg.timmitof.keyboard.clipboard.domain.model.ClipboardEntry
 
-/**
- * Закреплённые записи буфера карточками в две колонки.
- *
- * @param emptyText подсказка, как закрепить запись, — вместо пустого места.
- */
 @Composable
 internal fun ClipboardPins(
     entries: List<ClipboardEntry>,

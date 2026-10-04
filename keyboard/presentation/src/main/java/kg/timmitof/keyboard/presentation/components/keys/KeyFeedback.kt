@@ -11,24 +11,16 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import kg.timmitof.keyboard.domain.model.KeyboardSettings
 
-/**
- * Отклик клавиатуры на нажатие: вибрация, звук и всплывающая шапка над клавишей.
- *
- * Настройки не тянутся в каждую клавишу через параметры — они лежат в
- * [LocalKeyFeedback]: отклик нужен всем клавишам сразу и не влияет на то,
- * что клавиша вводит.
- */
+/** Настройки отклика лежат в [LocalKeyFeedback], а не в параметрах каждой клавиши. */
 @Immutable
 internal class KeyFeedback(
     private val view: View? = null,
     private val audioManager: AudioManager? = null,
     private val isVibrationEnabled: Boolean = false,
     private val isSoundEnabled: Boolean = false,
-    /** Показывать ли шапку над нажатой клавишей. */
     val isPreviewEnabled: Boolean = true,
 ) {
 
-    /** Клавишу нажали — отзываемся до того, как символ уйдёт в поле. */
     fun onKeyPress() {
         if (isVibrationEnabled) {
             view?.performHapticFeedback(
@@ -42,7 +34,6 @@ internal class KeyFeedback(
     }
 }
 
-/** Отклик по умолчанию — молчаливый: без него превью клавиш всё равно работает. */
 internal val LocalKeyFeedback = staticCompositionLocalOf { KeyFeedback() }
 
 @Composable

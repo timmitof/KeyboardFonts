@@ -2,9 +2,6 @@ package kg.timmitof.keyboard.data.font
 
 import kg.timmitof.keyboard.font.domain.model.KeyboardFont
 
-/**
- * Каталог шрифтов: строит Unicode-карты стилизации.
- */
 object FontCatalog {
 
     val fonts: List<KeyboardFont> by lazy { buildFonts() }
@@ -12,7 +9,6 @@ object FontCatalog {
     private fun buildFonts(): List<KeyboardFont> = listOf(
         KeyboardFont(KeyboardFont.DEFAULT_ID, emptyMap()),
 
-        // Script
         KeyboardFont(
             "script",
             math(upper = 0x1D49C, lower = 0x1D4B6).override(
@@ -23,7 +19,6 @@ object FontCatalog {
         ),
         KeyboardFont("bold_script", math(upper = 0x1D4D0, lower = 0x1D4EA)),
 
-        // Fraktur / gothic
         KeyboardFont(
             "fraktur",
             math(upper = 0x1D504, lower = 0x1D51E).override(
@@ -32,7 +27,6 @@ object FontCatalog {
         ),
         KeyboardFont("bold_fraktur", math(upper = 0x1D56C, lower = 0x1D586)),
 
-        // Double-struck
         KeyboardFont(
             "double_struck",
             math(upper = 0x1D538, lower = 0x1D552, digit = 0x1D7D8).override(
@@ -45,28 +39,21 @@ object FontCatalog {
         KeyboardFont("squared", squared()),
         KeyboardFont("small_caps", smallCaps()),
 
-        // Serif
         KeyboardFont("bold", math(upper = 0x1D400, lower = 0x1D41A, digit = 0x1D7CE)),
         KeyboardFont("italic", math(upper = 0x1D434, lower = 0x1D44E).override('h' to 0x210E)),
         KeyboardFont("bold_italic", math(upper = 0x1D468, lower = 0x1D482)),
 
-        // Sans-serif
         KeyboardFont("sans", math(upper = 0x1D5A0, lower = 0x1D5BA, digit = 0x1D7E2)),
         KeyboardFont("sans_bold", math(upper = 0x1D5D4, lower = 0x1D5EE, digit = 0x1D7EC)),
         KeyboardFont("sans_italic", math(upper = 0x1D608, lower = 0x1D622)),
         KeyboardFont("sans_bold_italic", math(upper = 0x1D63C, lower = 0x1D656)),
 
-        // Monospace
         KeyboardFont("monospace", math(upper = 0x1D670, lower = 0x1D68A, digit = 0x1D7F6)),
 
-        // Декораторы поверх обычных букв
         KeyboardFont("underline", combining(0x0332)),
         KeyboardFont("strikethrough", combining(0x0336)),
     )
 
-    /**
-     * Регулярное семейство: буквы идут подряд от [upper]/[lower], цифры — от [digit].
-     */
     private fun math(upper: Int, lower: Int, digit: Int = ABSENT): MutableMap<Char, String> {
         val map = HashMap<Char, String>(72)
         for (i in 0..25) {
@@ -77,13 +64,11 @@ object FontCatalog {
         return map
     }
 
-    /** Переопределяет отдельные буквы (для семейств с «дырами» в блоке). */
     private fun MutableMap<Char, String>.override(vararg pairs: Pair<Char, Int>): MutableMap<Char, String> {
         pairs.forEach { (char, cp) -> this[char] = codePoint(cp) }
         return this
     }
 
-    /** Декоратор: добавляет комбинируемый знак после каждой буквы и цифры. */
     private fun combining(mark: Int): Map<Char, String> {
         val suffix = codePoint(mark)
         val map = HashMap<Char, String>(72)
@@ -93,7 +78,6 @@ object FontCatalog {
         return map
     }
 
-    /** Малые капители: и строчные, и заглавные превращаются в small caps. */
     private fun smallCaps(): Map<Char, String> {
         // -1 — буква без small-cap формы, остаётся как есть.
         val targets = intArrayOf(
@@ -110,7 +94,6 @@ object FontCatalog {
         return map
     }
 
-    /** Буквы в кружках */
     private fun circled(): Map<Char, String> {
         val map = math(upper = 0x24B6, lower = 0x24D0)
         map['0'] = codePoint(0x24EA)
@@ -118,7 +101,6 @@ object FontCatalog {
         return map
     }
 
-    /** Буквы в квадратах */
     private fun squared(): Map<Char, String> {
         val map = HashMap<Char, String>(64)
         for (i in 0..25) {

@@ -16,7 +16,6 @@ class SplashViewModel @Inject constructor(
 ): BaseViewModel<SplashState, SplashSideEffect, SplashEvent>(SplashState()) {
     override fun onEvent(event: SplashEvent) {
         when (event) {
-            // Пока клавиатура не подключена, первым экраном идёт подключение, а не настройки.
             SplashEvent.AnimationFinished -> navigateTo(
                 destination = if (splashInteractor.isKeyboardReady()) SettingsGraph else HomeGraph,
                 popUpTo = SplashGraph,

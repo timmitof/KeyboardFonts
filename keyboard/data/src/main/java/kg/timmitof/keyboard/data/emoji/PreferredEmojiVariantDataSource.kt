@@ -8,9 +8,6 @@ import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/**
- * Хранилище выбранных пользователем вариантов тона кожи поверх DataStore Preferences.
- */
 @Singleton
 class PreferredEmojiVariantDataSource @Inject constructor(
     @param:ApplicationContext private val context: Context
@@ -19,10 +16,7 @@ class PreferredEmojiVariantDataSource @Inject constructor(
     suspend fun getAll(): Map<String, String> =
         context.emojiPreferences.data.first()[VARIANTS_KEY].toVariantMap()
 
-    /**
-     * Запоминает выбранный вариант; выбор базового эмодзи сбрасывает предпочтение.
-     * Возвращает обновлённую мапу.
-     */
+    /** Выбор базового эмодзи сбрасывает предпочтение. */
     suspend fun setPreferred(base: String, variant: String): Map<String, String> {
         var updated: Map<String, String> = emptyMap()
         context.emojiPreferences.edit { prefs ->
@@ -46,10 +40,8 @@ class PreferredEmojiVariantDataSource @Inject constructor(
     companion object {
         private val VARIANTS_KEY = stringPreferencesKey("preferred_emoji_variants")
 
-        /** Несимвольный разделитель пар. */
         private const val ENTRY_SEPARATOR = "\u0001"
 
-        /** Несимвольный разделитель базы и варианта внутри пары. */
         private const val PAIR_SEPARATOR = "\u0002"
     }
 }

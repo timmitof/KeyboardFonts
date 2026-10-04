@@ -20,9 +20,6 @@ import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardEvent
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardState
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.QuickSetting
 
-/**
- * Быстрые настройки
- */
 @Composable
 internal fun ColumnScope.QuickSettingsOverlay(
     state: State<KeyboardState>,

@@ -20,23 +20,17 @@ import kg.timmitof.keyboard.presentation.components.KeyCornerRadius
 import kg.timmitof.keyboard.presentation.components.KeySupport
 import kg.timmitof.keyboard.presentation.theme.KFTheme
 
-/** Размер «шапки», которая всплывает над нажатой клавишей. */
 private val PreviewWidth = 44.dp
 private val PreviewHeight = 50.dp
 
-/** Зазор между клавишей и шапкой. */
 private val PreviewGap = 4.dp
 
 private val PreviewGlyphSize = 26.sp
 private val PreviewWordSize = 15.sp
 
 /**
- * Подсказка над нажатой клавишей.
- *
- * Рисуется прямо в иерархии клавиатуры, а не в отдельном окне: `Popup` — это
- * настоящее окно системы, и создавать его на каждое нажатие клавиши слишком дорого,
- * чтобы набор оставался плавным. Чтобы шапку не перекрыл сосед справа,
- * нажатая клавиша поднимается по `zIndex`.
+ * Рисуется в иерархии клавиатуры, а не в `Popup`: окно на каждое нажатие слишком дорого для плавного набора.
+ * Чтобы шапку не перекрыл правый сосед, нажатая клавиша поднимается по `zIndex`.
  */
 @Composable
 internal fun BoxScope.KeyPressPreview(label: String) {

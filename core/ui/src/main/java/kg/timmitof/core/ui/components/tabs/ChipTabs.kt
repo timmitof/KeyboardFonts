@@ -40,12 +40,6 @@ import androidx.compose.ui.unit.sp
 import kg.timmitof.core.ui.theme.AccentRole
 import kg.timmitof.core.ui.theme.appColors
 
-/**
- * Вкладка-чип: подпись и иконка в кружке цвета своей роли.
- *
- * @property key идентификатор вкладки — по нему и выбирается.
- * @property role цвет кружка: вкладки одной темы окрашены одинаково.
- */
 @Immutable
 data class ChipTab<K>(
     val key: K,
@@ -54,13 +48,6 @@ data class ChipTab<K>(
     val role: AccentRole,
 )
 
-/**
- * Прокручиваемый ряд вкладок-чипов.
- *
- * Новый раздел — ещё один чип, экран при этом не перестраивается. Правый край
- * гаснет, пока есть что прокручивать: видно, что вкладки не кончились.
- * Выбранная вкладка сама подъезжает в видимую область.
- */
 @Composable
 fun <K> ChipTabs(
     tabs: List<ChipTab<K>>,
@@ -148,10 +135,7 @@ private fun <K> ChipTabItem(
     }
 }
 
-/**
- * Гасит правый край, пока [isActive] — условие читается на этапе отрисовки,
- * поэтому прокрутка не вызывает рекомпозиций.
- */
+/** Гасит правый край, пока [isActive]; условие читается в draw-фазе, поэтому прокрутка не вызывает рекомпозиций. */
 private fun Modifier.fadingEnd(isActive: () -> Boolean): Modifier = this
     .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
     .drawWithContent {
@@ -167,5 +151,4 @@ private fun Modifier.fadingEnd(isActive: () -> Boolean): Modifier = this
         }
     }
 
-/** Доля ширины, после которой край начинает гаснуть. */
 private const val FadeStart = 0.82f

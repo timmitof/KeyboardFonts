@@ -15,52 +15,7 @@ import kg.timmitof.core.ui.showToast
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
 
-/**
- * Контейнер компонент для UI, с MVI-архитектурой, связывающий [BaseViewModel] с Compose-UI.
- *
- * Основные задачи:
- * 1. **Состояние (State)** — собирает текущее состояние из [viewModel] и передаёт его в [content].
- * 2. **Сайд-эффекты (Side-effects)** — обрабатывает глобальные эффекты (навигация, тосты и пр.)
- *  и проксирует локальные UI-эффекты в зарегистрированный обработчик через [ContainerDSLBuilder.handleSideEffect].
- * 3. **Назад (Back)** — перехватывает системную кнопку «Назад»; если пользователь не задал
- *  собственный обработчик через [ContainerDSLBuilder.onBack], то во [viewModel] отправляется [BaseEvent.OnBack].
- * 4. **UI-обвязка** — предоставляет стандартный [Scaffold] с topBar, bottomBar и FAB.
- *
- * ### Пример использования:
- * ```
- * Container(
- *     viewModel = myViewModel,
- *     topBar = { MyTopBar() },
- * ) { state ->
- *     handleSideEffect { effect ->
- *         when (effect) {
- *             MySideEffect.ShowDialog -> showDialog = true
- *         }
- *     }
- *
- *     onBack { navController.popBackStack() }
- *
- *     MyScreenContent(state)
- * }
- * ```
- *
- * @param STATE тип состояния экрана, расширяющий [BaseState].
- * @param SIDE_EFFECT тип локальных сайд-эффектов, расширяющий [BaseSideEffect.UiSideEffect].
- * @param EVENT тип UI-событий, расширяющий [BaseEvent.UiEvent].
- * @param viewModel экземпляр [BaseViewModel], обеспечивающий MVI-взаимодействие.
- * @param modifier необязательный [Modifier] для настройки внешнего вида контейнера.
- * @param topBar верхняя панель (опционально).
- * @param bottomBar нижняя панель (опционально).
- * @param floatingActionButton плавающая кнопка действия (опционально).
- * @param content тело экрана, получающее текущее состояние [STATE] и DSL-контекст
- * [ContainerDSLBuilder] для регистрации обработчиков и отправки событий.
- *
- * ### Особенности реализации:
- * - Использует `rememberContainerDSL` для сохранения стабильного DSL между рекомпозициями.
- * - Автоматически обрабатывает навигационные эффекты через [BaseSideEffect.Navigate].
- * - Отображает тосты при получении [BaseSideEffect.ShowToast].
- * - Поддерживает безопасное расширение для добавления собственных SideEffect-типов.
- */
+/** Экран MVI: связывает [viewModel] с Compose (state, side effects, «Назад»); без своего onBack шлёт [BaseEvent.OnBack]. */
 @Composable
 fun <STATE: BaseState, SIDE_EFFECT: BaseSideEffect.UiSideEffect, EVENT: BaseEvent.UiEvent> Container(
     viewModel: BaseViewModel<STATE, SIDE_EFFECT, EVENT>,

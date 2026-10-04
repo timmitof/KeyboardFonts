@@ -24,7 +24,6 @@ fun includeFeature(name: String) {
     val featurePrefix = "feature_$name"
     val featureDir = file(featurePrefix)
 
-    // Слои feature-модуля
     val layers = listOf("data", "domain", "di", "presentation")
 
     layers.forEach { layer ->
@@ -44,7 +43,6 @@ rootProject.name = "KeyboardFonts"
 
 include(":app")
 
-//Include Core
 include(
     ":core:common",
     ":core:data",
@@ -52,7 +50,6 @@ include(
     ":core:ui",
 )
 
-//Include Keyboard
 include(
     ":keyboard:integration",
     ":keyboard:engine",

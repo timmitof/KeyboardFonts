@@ -17,13 +17,7 @@ internal class TextInputDelegate(
     private val suggestionsDelegate: SuggestionsDelegate,
 ) {
 
-    /**
-     * Ввод символа с клавиши.
-     *
-     * Регистр выбирается здесь, а не при отрисовке клавиши: при нескольких
-     * одновременных нажатиях кнопки успевают захватить состояние Shift,
-     * которое к моменту ввода уже устарело — и всё слово уходило заглавными.
-     */
+    /** Регистр выбирается здесь, а не при отрисовке: при нескольких одновременных нажатиях Shift в клавише устаревает. */
     suspend fun KeyboardSyntax.typeCharacter(character: KeyCharacter) {
         val char = character.text(state.shiftState.isUpperCase())
 
@@ -43,12 +37,7 @@ internal class TextInputDelegate(
         with(suggestionsDelegate) { applyLocalEdit { it.appending(styled) } }
     }
 
-    /**
-     * Буква либо продолжает черновик, либо вписывается начисто.
-     *
-     * Черновик отправляется целиком: `setComposingText` заменяет всю область
-     * компоновки, поэтому досылать один символ нельзя.
-     */
+    /** `setComposingText` заменяет всю область компоновки, поэтому черновик шлём целиком. */
     private suspend fun KeyboardSyntax.typeEffect(styled: String): KeyboardSideEffect.Input {
         if (!state.canStartComposing || !styled.isWordText()) {
             closeComposing()
@@ -61,9 +50,6 @@ internal class TextInputDelegate(
         return KeyboardSideEffect.Input.SetComposingText(composing.text, composing.hasCorrection)
     }
 
-    /**
-     * Подставляет подсказку вместо набранного слова.
-     */
     suspend fun KeyboardSyntax.applySuggestion(suggestion: WordSuggestion) {
         val styled = state.activeFont.apply(suggestion.text)
         replaceWord("$styled ")
@@ -74,12 +60,6 @@ internal class TextInputDelegate(
 
     suspend fun KeyboardSyntax.typeSpace() = finishWord(" ")
 
-    /**
-     * Завершение слова: при необходимости исправляет набранное и запоминает его.
-     *
-     * Момент, ради которого Т9 и существует — здесь текст в поле становится
-     * правильным сам, а клавиатура запоминает пару «предыдущее слово → слово».
-     */
     private suspend fun KeyboardSyntax.finishWord(separator: String) {
         if (state.layer == KeyboardLayer.EMOJI_SEARCH) {
             with(emojiDelegate) { updateSearchQuery(state.emojiSearchQuery + separator) }
@@ -119,13 +99,7 @@ internal class TextInputDelegate(
         }
     }
 
-    /**
-     * Меняет набранное слово на [replacement].
-     *
-     * Черновик заменяется целиком одним вызовом. Без него остаётся прежний путь
-     * с чтением поля: черновика нет как раз тогда, когда курсор поставили посреди
-     * чужого текста, и границы слова лучше спросить у самого поля.
-     */
+    /** Без черновика границы слова спрашиваем у поля: курсор могли поставить посреди чужого текста. */
     private suspend fun KeyboardSyntax.replaceWord(replacement: String) {
         if (state.composing.isActive) {
             postSideEffect(KeyboardSideEffect.Input.SetComposingText(replacement))
@@ -135,20 +109,13 @@ internal class TextInputDelegate(
         }
     }
 
-    /**
-     * Сверяет черновик с тем, что реально в поле.
-     *
-     * Текст меняет не только набор: пользователь ставит курсор в другое место,
-     * приложение подставляет своё. Как только слово перестало совпадать
-     * с черновиком, область компоновки уже не наша — забываем про неё.
-     */
+    /** Как только слово перестало совпадать с черновиком, область компоновки уже не наша — забываем её. */
     suspend fun KeyboardSyntax.reconcileComposing(context: TextContext) {
         if (!state.composing.isActive || context.composingWord == state.composing.text) return
 
         closeComposing()
     }
 
-    /** Закрывает черновик, если он открыт: дальше текст правится не им. */
     suspend fun KeyboardSyntax.closeComposing() {
         if (!state.composing.isActive) return
 
@@ -184,7 +151,6 @@ internal class TextInputDelegate(
         }
     }
 
-    // region Shift
     suspend fun KeyboardSyntax.toggleShift() {
         reduce {
             when (state.shiftState) {
@@ -195,22 +161,18 @@ internal class TextInputDelegate(
         }
     }
 
-    /** Сбрасывает одноразовый shift после ввода символа (caps lock не трогаем). */
     private suspend fun KeyboardSyntax.releaseOneShotShift() {
         if (state.shiftState == ShiftState.ACTIVE) {
             reduce { state.copy(shiftState = ShiftState.DISABLED) }
         }
     }
 
-    /** Полный сброс shift, включая caps lock. */
     suspend fun KeyboardSyntax.resetShift() {
         if (state.shiftState != ShiftState.DISABLED) {
             reduce { state.copy(shiftState = ShiftState.DISABLED) }
         }
     }
-    // endregion
 
-    // region Backspace
     suspend fun KeyboardSyntax.deleteBackward() {
         if (undoAutoCorrection()) return
         if (shrinkComposing()) return
@@ -220,10 +182,7 @@ internal class TextInputDelegate(
         }
     }
 
-    /**
-     * Backspace внутри черновика сокращает его целиком, а не удаляет символ в поле:
-     * область компоновки правится только заменой, иначе она разъедется с текстом.
-     */
+    /** Область компоновки правится только заменой, иначе она разъедется с текстом. */
     private suspend fun KeyboardSyntax.shrinkComposing(): Boolean {
         val composing = state.composing
         if (!composing.isActive) return false
@@ -249,12 +208,7 @@ internal class TextInputDelegate(
         }
     }
 
-    /**
-     * Backspace сразу после автозамены возвращает то, что было набрано.
-     *
-     * Без этого исправление нечем отменить: слово уже заменено, и пользователю
-     * пришлось бы стирать его целиком.
-     */
+    /** Backspace сразу после автозамены возвращает набранное, иначе исправление нечем отменить. */
     private suspend fun KeyboardSyntax.undoAutoCorrection(): Boolean {
         if (state.layer == KeyboardLayer.EMOJI_SEARCH) return false
 
@@ -304,9 +258,7 @@ internal class TextInputDelegate(
             postSideEffect(KeyboardSideEffect.Input.DeleteSelection)
         }
     }
-    // endregion
 
-    /** Маршрутизация правки: поисковый запрос эмодзи или side effect в поле ввода. */
     private suspend fun KeyboardSyntax.editText(
         fieldEffect: KeyboardSideEffect,
         editQuery: (String) -> String?,
@@ -321,14 +273,12 @@ internal class TextInputDelegate(
     private fun String.dropLastWord(): String =
         trimEnd().dropLastWhile { !it.isWhitespace() }
 
-    /** Убирает последний символ целиком: стилизованные буквы — суррогатные пары. */
+    /** Стилизованные буквы — суррогатные пары, поэтому убираем символ целиком. */
     private fun String.dropLastCodePoint(): String =
         if (isEmpty()) this else dropLast(Character.charCount(codePointBefore(length)))
 
-    /** Продолжает ли текст слово — правило то же, что у снимка вокруг курсора. */
     private fun String.isWordText(): Boolean = all(TextContext.Companion::isWordChar)
 
-    /** Знаки, после которых слово считается законченным. */
     private fun String.isSeparator(): Boolean = length == 1 && this[0] in WORD_SEPARATORS
 
     private companion object {

@@ -5,9 +5,6 @@ import androidx.compose.runtime.Immutable
 import kg.timmitof.keyboard.domain.model.EmojiCategory
 import kg.timmitof.keyboard.presentation.R
 
-/**
- * Секция сплошной сетки эмодзи.
- */
 @Immutable
 internal data class EmojiSection(
     val id: String,
@@ -16,7 +13,6 @@ internal data class EmojiSection(
     val emojis: List<String>,
 )
 
-/** Собирает секции панели. */
 internal fun buildEmojiSections(
     categories: List<EmojiCategory>,
     recentEmojis: List<String>,

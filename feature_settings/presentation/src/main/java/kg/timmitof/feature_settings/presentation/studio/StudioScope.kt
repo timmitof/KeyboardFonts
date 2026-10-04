@@ -20,25 +20,10 @@ import androidx.compose.ui.unit.dp
 import kg.timmitof.core.ui.components.tabs.ChipTab
 import kg.timmitof.core.ui.components.tabs.ChipTabs
 
-/** Ограничивает область видимости DSL «Студии». */
 @DslMarker
 annotation class StudioDsl
 
-/**
- * Сборщик «Студии»: вкладка = запись [StudioTab] + её содержимое.
- *
- * Сборщик намеренно не композабельный — он только запоминает, какие вкладки
- * готовы и что в них рисовать. Чипы строятся по зарегистрированным вкладкам
- * в порядке [StudioTab], поэтому незарегистрированная вкладка на экран не попадает.
- *
- * ```
- * StudioTabs(selected, onSelect) {
- *     tab(StudioTab.THEME) { ThemePane(…) }
- *     tab(StudioTab.FONTS) { FontsPane(…) }
- *     // tab(StudioTab.BACKGROUND) { BackgroundPane(…) } — когда появится редактор фона
- * }
- * ```
- */
+/** Сборщик не композабельный: чипы строятся по зарегистрированным вкладкам в порядке [StudioTab]. */
 @StudioDsl
 class StudioScope internal constructor() {
 
@@ -46,18 +31,11 @@ class StudioScope internal constructor() {
 
     internal fun panes(): Map<StudioTab, @Composable ColumnScope.() -> Unit> = panes
 
-    /** Зарегистрировать вкладку и её содержимое. */
     fun tab(tab: StudioTab, content: @Composable ColumnScope.() -> Unit) {
         panes[tab] = content
     }
 }
 
-/**
- * Ряд вкладок и содержимое выбранной: «как в фоторедакторе» — под закреплённым
- * предпросмотром меняется только содержимое вкладки.
- *
- * Если выбранная вкладка не зарегистрирована (её убрали из сборщика), показывается первая.
- */
 @Composable
 fun StudioTabs(
     selected: StudioTab,
@@ -94,7 +72,6 @@ fun StudioTabs(
             targetState = current,
             contentAlignment = Alignment.TopCenter,
             transitionSpec = {
-                // Содержимое въезжает со стороны выбранного чипа.
                 val direction = if (targetState.ordinal > initialState.ordinal) 1 else -1
                 (fadeIn(spring(stiffness = 500f)) +
                     slideInHorizontally(spring(dampingRatio = 0.9f, stiffness = 500f)) { it / 8 * direction })

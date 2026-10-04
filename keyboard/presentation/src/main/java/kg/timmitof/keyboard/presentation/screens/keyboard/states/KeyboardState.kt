@@ -52,21 +52,9 @@ internal data class KeyboardState(
 
     val fieldType: KeyboardFieldType get() = fieldContext.type
 
-    /**
-     * Раскладка, которой набирают прямо сейчас.
-     *
-     * В адресе почты и пароле клавиатура сама встаёт на латиницу, но выбор
-     * пользователя главнее: как только он сменит язык руками, [fieldLanguage]
-     * сбрасывается и снова действует [selectedLanguage].
-     */
+    /** Выбор пользователя главнее автоподмены на латиницу (адрес, пароль): при смене языка [fieldLanguage] сбрасывается. */
     val activeLanguage: KeyboardLanguage? get() = fieldLanguage ?: selectedLanguage
 
-    /**
-     * Латинская раскладка, которой поле [type] нужно открыть вместо выбранной.
-     *
-     * `null` — подмена не нужна: поле принимает любой алфавит либо пользователь
-     * и так набирает латиницей.
-     */
     fun latinLanguageFor(type: KeyboardFieldType): KeyboardLanguage? {
         if (!type.requiresLatinLayout || selectedLanguage?.isLatin != false) return null
 
@@ -75,9 +63,6 @@ internal data class KeyboardState(
 
     val enterAction: EnterAction get() = fieldContext.enterAction
 
-    /**
-     * Действие на клавише Enter.
-     */
     val displayedEnterAction: EnterAction
         get() = when {
             layer == KeyboardLayer.EMOJI_SEARCH -> EnterAction.DONE
@@ -85,60 +70,37 @@ internal data class KeyboardState(
             else -> enterAction
         }
 
-    /**
-     * Нужна ли панель шрифтов: её убирают и настройки, и само поле —
-     * в адресах, паролях и цифрах стилизация только мешает.
-     */
+    /** Панель убирают и настройки, и поле: в адресах, паролях и цифрах стилизация мешает. */
     val allowsFonts: Boolean
         get() = settings.isFontsPanelEnabled && fieldType.allowsFonts
 
-    /** Шрифт, который реально применяется: там, где панели нет, ввод остаётся обычным. */
     val activeFont: KeyboardFont
         get() = if (allowsFonts) selectedFont else KeyboardFont.Default
 
-    /** Работает ли Т9 прямо сейчас: его разрешают настройки, поле и слой. */
     val allowsSuggestions: Boolean
         get() = settings.isSuggestionsEnabled && fieldType.allowsSuggestions && layer.showsSuggestions
 
-    /** Показывать ли подсказки слов вместо шрифтов. */
     val hasSuggestions: Boolean
         get() = suggestions.isNotEmpty() && allowsSuggestions
 
-    /** Подсказка, которой пробел заменит набранное слово (если исправление нашлось). */
     val pendingAutoCorrect: WordSuggestion?
         get() = suggestions.firstOrNull { it.isAutoCorrect }.takeIf { allowsSuggestions }
 
-    /**
-     * Можно ли вести слово черновиком — подчёркнутым и заменяемым целиком.
-     */
     val allowsComposing: Boolean get() = allowsSuggestions
 
-    /**
-     * Продолжает ли следующая буква текущий черновик.
-     */
     val canStartComposing: Boolean
         get() = allowsComposing && (composing.isActive || textContext.composingWord.isEmpty())
 
-    /**
-     * Посчитаны ли подсказки именно для того слова, которое сейчас набрано.
-     *
-     * Расчёт идёт в фоне с небольшой паузой, и при быстром наборе пробел легко
-     * обгоняет его — тогда автозамену нужно досчитать на месте, а не пропускать.
-     */
+    /** Расчёт идёт в фоне, и пробел может его обогнать — тогда автозамену досчитываем на месте. */
     val hasFreshSuggestions: Boolean
         get() = suggestionsWord == textContext.composingWord
 
-    /** Плашка-пояснение в верхней панели: почему клавиатура ведёт себя иначе. */
     @get:StringRes
     val noticeRes: Int?
         get() = fieldType.noticeRes
             ?: R.string.field_notice_multiline.takeIf { fieldContext.isMultiLine }
 
-    /**
-     * Вариант нижнего ряда для текущего поля.
-     *
-     * Тип поля важнее действия Enter: в адресе нужен `@`, даже если поле просит «Найти».
-     */
+    /** Тип поля важнее Enter: в адресе нужен `@`, даже если поле просит «Найти». */
     val bottomRowVariant: String?
         get() = fieldType.bottomRowVariant ?: when (enterAction) {
             EnterAction.SEARCH -> "search"
@@ -147,25 +109,18 @@ internal data class KeyboardState(
         }
 }
 
-/** Действия строки настроек, которые правит сама клавиатура. */
 internal sealed class QuickSetting {
     data class Toggle(val toggle: KeyboardToggle, val isEnabled: Boolean) : QuickSetting()
     data class Height(val height: KeyboardHeight) : QuickSetting()
     data class Theme(val theme: KeyboardThemeMode) : QuickSetting()
 }
 
-/** Правки карточки буфера — всё, кроме вставки. */
 internal sealed class ClipboardAction {
     data class Pin(val entry: ClipboardEntry, val isPinned: Boolean) : ClipboardAction()
     data class Remove(val entry: ClipboardEntry) : ClipboardAction()
     data object ClearRecent : ClipboardAction()
 }
 
-/**
- * Черновик — слово, которое сейчас держит поле в области компоновки.
- *
- * @property hasCorrection слово уже помечено как «будет исправлено».
- */
 @Stable
 internal data class ComposingText(
     val text: String = "",
@@ -174,9 +129,6 @@ internal data class ComposingText(
     val isActive: Boolean get() = text.isNotEmpty()
 }
 
-/**
- * Автозамена, которую применил пробел.
- */
 @Stable
 internal data class AutoCorrection(
     val original: String,
@@ -185,22 +137,14 @@ internal data class AutoCorrection(
 
 sealed class KeyboardSideEffect : BaseSideEffect.UiSideEffect() {
 
-    /** Правки поля — единственное, что уходит в `InputConnection`. */
     sealed class Input : KeyboardSideEffect() {
         data class CommitText(val char: CharSequence) : Input()
 
-        /**
-         * Черновик: слово, которое поле подчёркивает и готово заменить целиком.
-         *
-         * @param hasCorrection слово будет исправлено — поле помечает это своим
-         * стилем подсказки, а не просто подчёркиванием.
-         */
         data class SetComposingText(
             val text: CharSequence,
             val hasCorrection: Boolean = false,
         ) : Input()
 
-        /** Закрывает черновик: подчёркивание уходит, текст становится обычным. */
         data object FinishComposing : Input()
         data class SelectBeforeCursor(val chars: Int) : Input()
         data class MoveCursor(val horizontal: Int, val vertical: Int) : Input()
@@ -212,7 +156,6 @@ sealed class KeyboardSideEffect : BaseSideEffect.UiSideEffect() {
         data object DeleteSelection : Input()
     }
 
-    /** Уводит из клавиатуры в приложение — единственное действие мимо поля ввода. */
     data object OpenApp : KeyboardSideEffect()
 }
 

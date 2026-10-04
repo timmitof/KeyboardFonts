@@ -5,9 +5,6 @@ import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardFieldCo
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardLayer
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.ShiftState
 
-/**
- * Подстраивает клавиатуру под поле ввода: раскладка, нижний ряд, шрифты, Shift.
- */
 internal class FieldContextDelegate(
     private val layerDelegate: LayerDelegate,
 ) {

@@ -4,9 +4,6 @@ import android.graphics.Paint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-/**
- * Каталог вариантов тона кожи для эмодзи из [EmojiCatalog].
- */
 internal object EmojiVariantCatalog {
 
     @Volatile

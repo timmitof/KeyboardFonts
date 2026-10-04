@@ -9,9 +9,6 @@ import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/**
- * Загружает языковые модели из ассетов `dictionaries/` и держит их в памяти.
- */
 @Singleton
 class LanguageModelLoader @Inject constructor(
     private val assetTextLoader: AssetTextLoader,

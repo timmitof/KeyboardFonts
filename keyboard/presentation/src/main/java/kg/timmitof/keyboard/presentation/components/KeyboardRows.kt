@@ -24,10 +24,6 @@ import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardEvent
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardState
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.isUpperCase
 
-/**
- * Ряды клавиш раскладки: чистая разметка, каждая клавиша
- * маппится на свою кнопку в [KeyboardKeySlot].
- */
 @Composable
 internal fun KeyboardRows(
     layout: KeyboardLayout,
@@ -61,7 +57,6 @@ internal fun KeyboardRows(
     }
 }
 
-/** Маппинг [KeyboardKey] → соответствующая кнопка из components. */
 @Composable
 private fun RowScope.KeyboardKeySlot(
     key: KeyboardKey,
@@ -132,7 +127,6 @@ private fun RowScope.KeyboardKeySlot(
     }
 }
 
-/** Label и событие для клавиш-переключателей слоёв; null для остальных клавиш. */
 private fun KeyboardKey.switchAction(): Pair<String, KeyboardEvent>? = when (this) {
     is KeyboardKey.SymbolsSwitch -> "123" to KeyboardEvent.OnSymbolsSwitch
     is KeyboardKey.SymbolsAltSwitch -> label to KeyboardEvent.OnSymbolsAltSwitch

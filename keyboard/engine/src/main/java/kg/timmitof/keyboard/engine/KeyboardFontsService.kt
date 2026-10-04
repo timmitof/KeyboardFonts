@@ -81,9 +81,6 @@ internal class KeyboardFontsService : ComposeInputMethodService() {
         syncTextContext()
     }
 
-    /**
-     * Поле сообщило о новой позиции курсора — значит, изменился и контекст подсказок.
-     */
     override fun onUpdateSelection(
         oldSelStart: Int,
         oldSelEnd: Int,
@@ -98,13 +95,7 @@ internal class KeyboardFontsService : ComposeInputMethodService() {
         scheduleTextSync()
     }
 
-    /**
-     * Откладывает чтение поля до паузы в наборе.
-     *
-     * Во время быстрого набора поле присылает событие на каждый символ, а свой
-     * снимок клавиатура и так ведёт сама — читать чужой процесс по десять раз
-     * в секунду незачем.
-     */
+    /** Читаем поле после паузы в наборе: свой снимок ведём сами, а чтение чужого процесса на каждый символ дорого. */
     private fun scheduleTextSync() {
         textSyncHandler.removeCallbacks(textSyncTask)
         textSyncHandler.postDelayed(textSyncTask, TEXT_SYNC_DELAY_MILLIS)
@@ -117,15 +108,8 @@ internal class KeyboardFontsService : ComposeInputMethodService() {
     }
 
     /**
-     * Применяет действие к полю.
-     *
-     * После обычного ввода поле не перечитывается: клавиатура сама знает, что
-     * напечатала, и обновляет свой снимок текста мгновенно. Чтение через
-     * `InputConnection` — это блокирующий вызов в чужой процесс, и на каждом
-     * нажатии он превращается в заметную задержку.
-     *
-     * Перечитываем только после правок, результат которых клавиатуре
-     * неизвестен: удаление слова, работа с выделением, движение курсора.
+     * После обычного ввода поле не перечитываем: `InputConnection` — блокирующий вызов
+     * в чужой процесс, на каждом нажатии это задержка. Только после правок с неизвестным результатом.
      */
     private fun applyAction(action: KeyboardSideEffect) {
         when (action) {
@@ -138,7 +122,6 @@ internal class KeyboardFontsService : ComposeInputMethodService() {
         }
     }
 
-    /** Правки, после которых снимок текста надо перечитать из поля. */
     private val KeyboardSideEffect.Input.needsTextResync: Boolean
         get() = when (this) {
             is KeyboardSideEffect.Input.CommitText,
@@ -150,7 +133,6 @@ internal class KeyboardFontsService : ComposeInputMethodService() {
             else -> true
         }
 
-    /** Переход в приложение из листа настроек или буфера. */
     private fun openApp() {
         val intent = packageManager.getLaunchIntentForPackage(packageName)
             ?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -163,7 +145,6 @@ internal class KeyboardFontsService : ComposeInputMethodService() {
         keyboardView?.updateFieldContext(currentInputEditorInfo.toFieldContext())
     }
 
-    /** Снимает окно текста вокруг курсора — вход Т9. */
     private fun syncTextContext() {
         val view = keyboardView ?: return
         val connection = currentInputConnection
@@ -188,13 +169,10 @@ internal class KeyboardFontsService : ComposeInputMethodService() {
     }
 
     private companion object {
-        /** Окно текста до курсора: хватает и на слово, и на лексику сообщения. */
         const val BEFORE_LENGTH = TextContext.MAX_BEFORE_LENGTH
 
-        /** Пауза в наборе, после которой снимок текста сверяется с полем. */
         const val TEXT_SYNC_DELAY_MILLIS = 60L
 
-        /** После курсора важно лишь то, стоит ли он внутри слова. */
         const val AFTER_LENGTH = 32
     }
 }

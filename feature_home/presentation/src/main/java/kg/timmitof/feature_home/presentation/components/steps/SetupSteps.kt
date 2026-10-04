@@ -40,18 +40,11 @@ import androidx.compose.ui.unit.sp
 import kg.timmitof.core.ui.R as UiR
 import kg.timmitof.core.ui.theme.appColors
 
-/** Ограничивает область видимости DSL шагов подключения. */
 @DslMarker
 annotation class SetupDsl
 
-/** Состояние шага: пройден, текущий или ещё впереди. */
 enum class SetupStepStatus { DONE, ACTIVE, PENDING }
 
-/**
- * Шаг подключения.
- *
- * @property content раскрытая часть текущего шага: мини-копия системного экрана и кнопка.
- */
 @Immutable
 internal class SetupStep(
     val number: Int,
@@ -61,19 +54,6 @@ internal class SetupStep(
     val content: (@Composable ColumnScope.() -> Unit)?,
 )
 
-/**
- * Сборщик шагов: номера расставляются сами по порядку объявления.
- *
- * ```
- * SetupSteps {
- *     step(title = "Включите…", subtitle = "…", status = SetupStepStatus.ACTIVE) {
- *         SystemMock(caption = "…") { toggle("Keyboard Fonts", checked = false, poke = "нажмите") }
- *         Button(onClick = …) { Text("Открыть настройки") }
- *     }
- *     step(title = "Сделайте её основной", subtitle = "…", status = SetupStepStatus.PENDING)
- * }
- * ```
- */
 @SetupDsl
 class SetupStepsScope internal constructor() {
 
@@ -97,12 +77,6 @@ class SetupStepsScope internal constructor() {
     }
 }
 
-/**
- * Весь путь подключения на одном экране: сразу видно, сколько шагов и сколько осталось.
- *
- * Текущий шаг раскрыт и обведён, пройденный становится бирюзовым сам —
- * без кнопки «Я сделал».
- */
 @Composable
 fun SetupSteps(
     modifier: Modifier = Modifier,
@@ -209,7 +183,6 @@ private fun StepHeader(step: SetupStep) {
     }
 }
 
-/** Кружок с номером: у пройденного шага номер сменяется галочкой. */
 @Composable
 private fun StepBadge(number: Int, status: SetupStepStatus) {
     val colors = MaterialTheme.appColors
@@ -258,5 +231,4 @@ private val StepRadius = 20.dp
 private val StepShape = RoundedCornerShape(StepRadius)
 private val OutlineWidth = 2.dp
 
-/** Жёсткость пружин шага: перекраска и раскрытие идут одним темпом. */
 private const val StepStiffness = 500f

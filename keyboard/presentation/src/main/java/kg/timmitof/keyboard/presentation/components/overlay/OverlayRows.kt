@@ -17,6 +17,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ComposableTarget
+import androidx.compose.runtime.ComposableTargetMarker
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -54,9 +56,6 @@ internal sealed interface OverlayRow {
     ) : OverlayRow
 }
 
-/**
- * Сборщик строк окна.
- */
 @KeyboardOverlayDsl
 internal class OverlayRowsScope {
 
@@ -85,16 +84,6 @@ internal class OverlayRowsScope {
     }
 }
 
-/**
- * Список строк окна.
- *
- * ```
- * OverlayRows {
- *     toggle(iconRes = R.drawable.ic_quick_fonts, title = "Шрифты", isChecked = true) { … }
- *     segmented(iconRes = R.drawable.ic_quick_height, title = "Высота", options = sizes, selectedIndex = 1) { … }
- * }
- * ```
- */
 @Composable
 internal fun OverlayRows(
     modifier: Modifier = Modifier,

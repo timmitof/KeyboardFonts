@@ -22,9 +22,6 @@ import androidx.compose.ui.unit.sp
 import kg.timmitof.keyboard.suggestion.domain.model.WordSuggestion
 import kg.timmitof.keyboard.presentation.theme.KFTheme
 
-/**
- * Строка подсказок слов.
- */
 @Composable
 internal fun SuggestionsRow(
     suggestions: List<WordSuggestion>,

@@ -6,9 +6,6 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/**
- * Поиск эмодзи по ключевым словам из ассета `emoji/annotations.tsv`.
- */
 @Singleton
 class EmojiSearchIndex @Inject constructor(
     private val assetTextLoader: AssetTextLoader,
@@ -27,16 +24,12 @@ class EmojiSearchIndex @Inject constructor(
             .map { (entry, _) -> entry.emoji }
     }
 
-    /** Готовит индекс заранее, чтобы первый запрос не ждал разбора ассета. */
     suspend fun prefetch() {
         withContext(Dispatchers.Default) { index() }
     }
 
     private suspend fun index(): List<Entry> = entries ?: load().also { entries = it }
 
-    /**
-     * Читает словарь и оставляет только эмодзи, которые устройство умеет рисовать.
-     */
     private suspend fun load(): List<Entry> {
         val supported = EmojiCatalog.getCategories().flatMapTo(mutableSetOf()) { it.emojis }
         val text = assetTextLoader.loadText(ANNOTATIONS_PATH).orEmpty()
@@ -66,9 +59,6 @@ class EmojiSearchIndex @Inject constructor(
         }.toList()
     }
 
-    /**
-     * Совпадение эмодзи с запросом или `null`, если хотя бы одно слово не найдено.
-     */
     private fun Entry.score(words: List<String>): Int? {
         val total = words.fold(0) { sum, word ->
             val best = matchScore(word)
@@ -78,9 +68,6 @@ class EmojiSearchIndex @Inject constructor(
         return if (isPopular) total + POPULAR_BONUS else total
     }
 
-    /**
-     * Лучшее совпадение слова запроса с ключевыми словами эмодзи.
-     */
     private fun Entry.matchScore(word: String): Int {
         var best = 0
         var index = keywords.indexOf(word)
@@ -111,18 +98,12 @@ class EmojiSearchIndex @Inject constructor(
 
     private fun String.normalize(): String = lowercase().replace('ё', 'е')
 
-    /**
-     * Запрос: слова в нижнем регистре, с заменой народных названий на словарные.
-     */
     private fun String.toQueryWords(): List<String> = normalize()
         .split(*WORD_SEPARATORS)
         .filter { it.length >= MIN_WORD_LENGTH }
         .map { EmojiPopularity.aliases[it] ?: it }
 
-    /**
-     * @param keywords все ключевые слова через [KEYWORD]; названия идут первыми.
-     * @param nameEnd граница названий внутри [keywords].
-     */
+    /** [keywords] — все слова через [KEYWORD], названия первыми; [nameEnd] — граница названий. */
     private data class Entry(
         val emoji: String,
         val keywords: String,

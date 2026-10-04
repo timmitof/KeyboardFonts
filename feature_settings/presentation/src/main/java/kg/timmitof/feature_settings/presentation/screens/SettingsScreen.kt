@@ -40,13 +40,6 @@ import kg.timmitof.keyboard.domain.model.KeyboardHeight
 import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
 import kg.timmitof.keyboard.domain.model.KeyboardToggle
 
-/**
- * «Студия» — корневой экран приложения.
- *
- * Как в фоторедакторе: предпросмотр клавиатуры закреплён сверху, под ним
- * вкладки, и любое касание тут же видно на клавиатуре. «Все настройки» не нужны —
- * каждая вкладка собирает свои настройки целиком.
- */
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel()
@@ -160,7 +153,6 @@ internal fun ContainerDSLBuilder<SettingsSideEffect, SettingsEvent>.SettingsCont
     }
 }
 
-/** Шапка: иконка, название и статус клавиатуры; «Не подключена» ведёт к подключению. */
 @Composable
 private fun StudioHeader(
     isKeyboardReady: Boolean,
@@ -185,7 +177,6 @@ private fun StudioHeader(
     }
 }
 
-/** Советы про жесты клавиатуры — только те, что уже работают. */
 @Composable
 private fun StudioTips(modifier: Modifier = Modifier) {
     val tips = StudioTipsRes.map { stringResource(it) }
@@ -209,7 +200,6 @@ private val StudioTipsRes = listOf(
 
 private val HorizontalPadding = 16.dp
 
-/** Последний блок не должен упираться в край экрана. */
 private val BottomPadding = 12.dp
 
 @Preview(showBackground = true)

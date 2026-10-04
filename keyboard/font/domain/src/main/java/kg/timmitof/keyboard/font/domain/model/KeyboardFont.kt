@@ -1,14 +1,10 @@
 package kg.timmitof.keyboard.font.domain.model
 
-/**
- * Шрифт клавиатуры — Unicode-стилизация вводимых букв и цифр.
- */
 data class KeyboardFont(
     val id: String,
     val charMap: Map<Char, String>,
 ) {
 
-    /** Обычный шрифт без стилизации. */
     val isDefault: Boolean get() = charMap.isEmpty()
 
     fun apply(text: String): String =

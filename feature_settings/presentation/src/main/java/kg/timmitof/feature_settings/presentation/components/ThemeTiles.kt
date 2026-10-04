@@ -45,25 +45,13 @@ import kg.timmitof.keyboard.presentation.theme.KeyboardColorScheme
 import kg.timmitof.keyboard.presentation.theme.KeyboardDarkColor
 import kg.timmitof.keyboard.presentation.theme.KeyboardLightColor
 
-/**
- * Плитка темы: миниатюра клавиатуры и подпись.
- *
- * @property mode тема, которую выбирает плитка.
- * @property label подпись под миниатюрой.
- */
 @Immutable
 data class ThemeTile(
     val mode: KeyboardThemeMode,
     val label: String,
 )
 
-/**
- * Выбор темы плитками: каждая — миниатюра клавиатуры в цветах этой темы.
- *
- * Миниатюра рисуется цветами живой клавиатуры, поэтому плитка не расходится
- * с тем, что пользователь увидит при наборе. «Как в системе» — половина светлой,
- * половина тёмной.
- */
+/** Миниатюра рисуется цветами живой клавиатуры, чтобы плитка не расходилась с ней. */
 @Composable
 internal fun ThemeTiles(
     tiles: List<ThemeTile>,
@@ -157,7 +145,6 @@ private fun ThemeTileItem(
     }
 }
 
-/** Миниатюра клавиатуры: три ряда букв и нижний ряд с пробелом и Enter. */
 @Composable
 private fun KeyboardThumbnail(mode: KeyboardThemeMode, modifier: Modifier = Modifier) {
     Canvas(modifier = modifier.clip(ThumbnailShape)) {
@@ -202,7 +189,6 @@ private fun DrawScope.drawThumbnail(colors: KeyboardColorScheme) {
     }
 }
 
-/** Клавиша миниатюры: сколько колонок занимает и как окрашена. */
 private class ThumbKey(val span: Int, val kind: Kind) {
     enum class Kind { LETTER, SPECIAL, ACCENT }
 }

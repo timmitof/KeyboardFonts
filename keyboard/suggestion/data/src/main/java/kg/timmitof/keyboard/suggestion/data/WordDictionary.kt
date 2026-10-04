@@ -1,13 +1,8 @@
 package kg.timmitof.keyboard.suggestion.data
 
 /**
- * Словарь языка в компактном виде: все слова лежат в одной строке через `\n`,
- * позиции — в [starts], частоты — в [scores].
- *
- * Так словарь на 40 000 слов не превращается в 40 000 объектов `String`, а поиск
- * по префиксу сводится к бинарному поиску по отсортированному массиву.
- * Сравнения идут прямо по региону строки, без выделения подстрок —
- * подсказки пересчитываются на каждое нажатие, и мусор здесь недопустим.
+ * Компактный словарь: слова одной строкой через `\n`, бинарный поиск по отсортированным позициям.
+ * Сравнение идёт по региону строки без подстрок — подсказки пересчитываются на каждое нажатие.
  *
  * @param words слова через `\n`, отсортированные лексикографически.
  * @param starts начало каждого слова в [words]; размер — `size + 1`.
@@ -29,7 +24,6 @@ internal class WordDictionary(
 
     fun charAt(index: Int, offset: Int): Char = words[starts[index] + offset]
 
-    /** Индекс слова или -1, если слова нет в словаре. */
     fun indexOf(word: String): Int {
         val index = lowerBound(word)
         return if (index < size && compareAt(index, word) == 0) index else -1
@@ -39,9 +33,6 @@ internal class WordDictionary(
 
     fun scoreOf(word: String): Int = indexOf(word).takeIf { it >= 0 }?.let(scores::get) ?: 0
 
-    /**
-     * Диапазон слов, начинающихся с [prefix] (пустой, если таких нет).
-     */
     fun prefixRange(prefix: String): IntRange {
         val from = lowerBound(prefix)
         var to = from
@@ -49,9 +40,6 @@ internal class WordDictionary(
         return from until to
     }
 
-    /**
-     * Диапазон слов, начинающихся с буквы [char].
-     */
     fun rangeOf(char: Char): IntRange {
         val from = lowerBound(char.toString())
         var to = from
@@ -66,7 +54,6 @@ internal class WordDictionary(
         return words.startsWith(prefix, starts[index])
     }
 
-    /** Первое слово, которое не меньше [word]. */
     private fun lowerBound(word: String): Int {
         var low = 0
         var high = size
@@ -90,13 +77,7 @@ internal class WordDictionary(
 
     companion object {
 
-        /**
-         * Разбирает ассет формата `слово<TAB>частота` (уже отсортированный).
-         *
-         * Идём по исходному тексту вручную, без `split` и списков `Int`: разбор
-         * сорока тысяч строк — первое, что делает клавиатура после запуска,
-         * и лишние объекты здесь превращаются в задержку перед первой подсказкой.
-         */
+        /** Формат ассета: `слово<TAB>частота`, отсортирован. Разбор вручную без `split` — это задержка до первой подсказки. */
         fun parse(text: String): WordDictionary {
             val words = StringBuilder(text.length)
             var starts = IntArray(INITIAL_CAPACITY)
@@ -125,7 +106,6 @@ internal class WordDictionary(
                 lineStart = lineEnd + 1
             }
 
-            // Замыкающая граница: конец последнего слова + разделитель.
             val bounds = starts.copyOf(count + 1)
             bounds[count] = words.length
 
@@ -136,7 +116,6 @@ internal class WordDictionary(
             )
         }
 
-        /** Целое число из диапазона строки; 0 — если там не число. */
         private fun String.parseScore(from: Int, to: Int): Int {
             var value = 0
             for (index in from until to) {

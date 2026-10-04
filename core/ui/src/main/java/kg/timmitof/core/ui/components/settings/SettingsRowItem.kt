@@ -38,29 +38,19 @@ import androidx.compose.ui.unit.sp
 import kg.timmitof.core.ui.R
 import kg.timmitof.core.ui.theme.appColors
 
-/** Минимальная высота строки — палец попадает без прицеливания. */
 private val RowMinHeight = 54.dp
 
-/** Отступ вложенной строки: она сдвинута под родителя, а не просто подписана к нему. */
 private val NestedStartPadding = 44.dp
 private val RowHorizontalPadding = 14.dp
 
-/** Линия связи вложенной строки с родителем. */
 private val ConnectorOffset = 24.dp
 private val ConnectorWidth = 2.dp
 private const val ConnectorAlpha = 0.28f
 
-/** Насколько гаснет строка, отключённая родителем: видно, но трогать нечего. */
 private const val DisabledAlpha = 0.4f
 
 private val BadgeShape = RoundedCornerShape(8.dp)
 
-/**
- * Отрисовка одной [SettingsRow].
- *
- * Все типы делят общий каркас — иконка или метка, текст, контрол справа, — поэтому
- * строки выглядят одинаково независимо от того, что стоит в конце.
- */
 @Composable
 internal fun SettingsRowItem(row: SettingsRow) {
     val alpha by animateFloatAsState(
@@ -128,7 +118,6 @@ private fun RowIcon(icon: Painter, alpha: () -> Float) {
     )
 }
 
-/** Короткая метка слева — код языка и подобное: моноширинная, чтобы метки стояли ровно. */
 @Composable
 private fun RowBadge(text: String) {
     val tones = MaterialTheme.appColors.hint
@@ -176,7 +165,6 @@ private fun RowTitles(row: SettingsRow, alpha: () -> Float) {
     }
 }
 
-/** Контрол в конце строки — по нему и различаются типы. */
 @Composable
 private fun RowScope.RowControl(row: SettingsRow, alpha: () -> Float) {
     when (row) {
@@ -219,7 +207,6 @@ private fun RowScope.RowControl(row: SettingsRow, alpha: () -> Float) {
     }
 }
 
-/** Линия, связывающая вложенную строку с родительским переключателем. */
 private fun Modifier.nestedConnector(isNested: Boolean, color: () -> Color): Modifier =
     if (!isNested) this else drawBehind {
         drawRect(

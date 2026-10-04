@@ -9,10 +9,6 @@ import kg.timmitof.core.data.local.entities.ClipboardEntryEntity
 import kg.timmitof.core.data.local.entities.TemplateEntity
 import kg.timmitof.core.data.local.entities.UserProjectEntity
 
-/**
- * Класс с Room для работы с базой данных, включая сущность, версию, конвертеры и DAO.
- * Константа [TAG] для идентификации базы.
- */
 @Database(
     entities = [TemplateEntity::class, UserProjectEntity::class, ClipboardEntryEntity::class],
     version = 2,

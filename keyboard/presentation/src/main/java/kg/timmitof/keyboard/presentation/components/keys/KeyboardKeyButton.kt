@@ -39,39 +39,26 @@ import kg.timmitof.keyboard.domain.model.LongPressAction
 import kg.timmitof.keyboard.presentation.theme.KFTheme
 import kotlin.math.roundToInt
 
-/** Кегль основной метки: одиночный символ и слово вроде `.com` или `пауза`. */
 private val SingleGlyphSize = 23.sp
 private val WordLabelSize = 15.sp
 
-/**
- * Кегль меток телефонной раскладки.
- */
 private val LargeLabelSize = 26.sp
 private val LargeWordLabelSize = 19.sp
 private val SubLabelSize = 11.5.sp
 
-/** Зазор между меткой и подписью. */
 private val SubLabelSpacing = 4.dp
 
-/** Отступ пары цифра + буквы от краёв клавиши. */
 private val KeyLabelPadding = 6.dp
 
-/** Подпись приглушена — она подсказка, а не то, что вводится. */
 private const val SubLabelAlpha = 0.5f
 
-/** Кегль подсказки в углу клавиши. */
 private val HintSize = 10.sp
 
 internal fun String.isWordLabel(): Boolean = codePointCount(0, length) > 1
 
 /**
- * Клавиша с символом.
- *
- * Наверх уходит [KeyCharacter] в обоих регистрах, а не готовая строка: какой
- * регистр применить, решает ViewModel в момент ввода — состояние Shift к этому
- * моменту может уже измениться соседним нажатием.
- *
- * @param onInput символ введён: обычным нажатием или выбором из пикера.
+ * Наверх уходит [KeyCharacter] в обоих регистрах: регистр применяет ViewModel в момент ввода,
+ * а Shift к этому моменту мог измениться от соседнего нажатия.
  */
 @Composable
 internal fun RowScope.KeyboardKeyButton(

@@ -24,11 +24,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.syntax.Syntax
 
-/**
- * Orbit-синтаксис клавиатуры: даёт делегатам доступ к `state`, `reduce`
- * и `postSideEffect` — методы делегатов объявляются с этим ресивером
- * и вызываются из `intent {}` ViewModel через `with(delegate) { ... }`.
- */
+/** Orbit-синтаксис: делегаты получают `state`, `reduce` и `postSideEffect` через этот ресивер. */
 internal typealias KeyboardSyntax = Syntax<KeyboardState, BaseSideEffect>
 
 internal class KeyboardViewModel(
@@ -151,7 +147,6 @@ internal class KeyboardViewModel(
             .launchIn(viewModelScope)
     }
 
-    /** Готовые подсказки приходят из фонового расчёта и попадают в состояние. */
     private fun observeSuggestions() {
         suggestionsDelegate.suggestions
             .onEach { (request, suggestions) ->
@@ -160,12 +155,7 @@ internal class KeyboardViewModel(
             .launchIn(viewModelScope)
     }
 
-    /**
-     * Настройки правит другой процесс — приложение.
-     *
-     * Раскладка пересобирается вместе с ними: цифровой ряд появляется и исчезает
-     * сразу, не дожидаясь следующего открытия клавиатуры.
-     */
+    /** Раскладка пересобирается вместе с настройками: цифровой ряд появляется сразу. */
     private fun observeSettings() {
         settingsDelegate.settings
             .onEach { settings ->
@@ -182,12 +172,6 @@ internal class KeyboardViewModel(
         emojiDelegate.prefetchSearchIndex()
     }
 
-    /**
-     * Новая сессия ввода: карусель шрифтов снова открыта, подсказки сброшены.
-     *
-     * Карусель — лицо клавиатуры, поэтому при каждом её открытии она на месте,
-     * а свернётся сама, как только пользователь начнёт набирать слово.
-     */
     private fun resetInputSession() = intent {
         with(textInputDelegate) { resetShift() }
         with(fontDelegate) { forgetFontIfNeeded() }

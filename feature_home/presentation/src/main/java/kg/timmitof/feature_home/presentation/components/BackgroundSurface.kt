@@ -34,9 +34,6 @@ import coil3.request.crossfade
 
 private const val A4_ASPECT_RATIO = 210f / 297f
 
-/**
- * Универсальный элемент для списка в формате A4 листа
- */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun ScalableSurface(

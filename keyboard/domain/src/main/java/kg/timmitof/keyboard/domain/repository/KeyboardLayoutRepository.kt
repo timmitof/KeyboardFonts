@@ -7,10 +7,6 @@ interface KeyboardLayoutRepository {
 
     suspend fun getLayout(language: String): KeyboardLayout
 
-    /**
-     * Нижний ряд под тип поля ввода (`email`, `password`, `search`, `message`).
-     *
-     * null — варианта нет, раскладка остаётся со своим рядом.
-     */
+    /** Нижний ряд под тип поля (`email`, `password`, `search`, `message`); null — остаётся свой. */
     suspend fun getBottomRow(variant: String): List<KeyboardKey>?
 }

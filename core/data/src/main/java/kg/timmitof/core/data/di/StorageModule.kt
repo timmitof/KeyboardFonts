@@ -14,9 +14,6 @@ import kg.timmitof.core.data.local.dao.ProjectDao
 import kg.timmitof.core.data.local.dao.TemplateDao
 import javax.inject.Singleton
 
-/**
- * DI модуль для работы с базой данных
- */
 @Module
 @InstallIn(SingletonComponent::class)
 object StorageModule {

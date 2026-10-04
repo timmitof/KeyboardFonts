@@ -36,12 +36,10 @@ class ClipboardRepositoryImpl @Inject constructor(
     override suspend fun clearRecent() = clipboardDao.deleteRecent()
 
     private companion object {
-        /** Столько незакреплённых записей держим: дальше карточки уже не листают. */
         const val MAX_RECENT = 20
     }
 }
 
-/** Список уже отсортирован запросом — остаётся разделить его на секции листа. */
 private fun List<ClipboardEntryEntity>.toBoard(): ClipboardBoard {
     val (pinned, recent) = map(ClipboardEntryEntity::toDomain).partition(ClipboardEntry::isPinned)
 

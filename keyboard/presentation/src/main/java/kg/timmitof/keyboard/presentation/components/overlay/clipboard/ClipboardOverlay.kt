@@ -45,7 +45,6 @@ import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardEvent
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardState
 import kg.timmitof.keyboard.presentation.theme.KFTheme
 
-/** Буфер обмена — то же окно, что и быстрые настройки, отличается только содержимым. */
 @Composable
 internal fun ColumnScope.ClipboardOverlay(
     state: State<KeyboardState>,
@@ -87,13 +86,6 @@ internal fun ColumnScope.ClipboardOverlay(
         }
     }
 
-//    OverlayActionRow(
-//        label = stringResource(R.string.clipboard_open_app),
-//        onClick = { onEvent(KeyboardEvent.OnOpenApp) },
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .padding(horizontal = 12.dp, vertical = 3.dp),
-//    )
 }
 
 private fun LazyGridScope.section(
@@ -123,7 +115,6 @@ private fun SectionHeader(title: String) {
     )
 }
 
-/** Карточка буфера: тап вставляет и закрывает окно, долгое нажатие открывает меню. */
 @Composable
 private fun ClipboardCard(
     entry: ClipboardEntry,
@@ -205,5 +196,4 @@ private fun EmptyClipboard(modifier: Modifier = Modifier) {
 
 private const val ClipboardColumns = 2
 
-/** Сколько строк текста помещается в карточку — дальше многоточие. */
 private const val CardMaxLines = 3

@@ -23,12 +23,6 @@ import androidx.compose.ui.unit.sp
 import kg.timmitof.core.ui.theme.appColors
 import kg.timmitof.keyboard.font.domain.model.KeyboardFont
 
-/**
- * Шрифты панели одним взглядом: каждый подписан самим собой.
- *
- * Выбирается шрифт на клавиатуре, здесь подсвечен текущий. Когда появится
- * настройка состава панели, чипы станут переключателями.
- */
 @Composable
 internal fun FontChips(
     fonts: List<KeyboardFont>,

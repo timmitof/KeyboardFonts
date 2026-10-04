@@ -26,7 +26,6 @@ import kg.timmitof.keyboard.domain.model.KeyboardLanguage
 import kg.timmitof.keyboard.presentation.theme.KFTheme
 import kotlin.math.roundToInt
 
-/** Смещение пальца, за которое слайд по пробелу переключает один язык. */
 private val LanguageSlideStep = 80.dp
 
 @Composable

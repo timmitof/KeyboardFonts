@@ -1,20 +1,12 @@
 package kg.timmitof.keyboard.suggestion.data
 
 /**
- * Статистика пар слов языка: что обычно идёт после слова.
+ * Пары слов: что обычно идёт после слова. Все продолжения лежат одной строкой
+ * блоками через пробел (чтобы не плодить сотни тысяч мелких объектов).
  *
- * Даёт клавиатуре предсказание следующего слова ещё до того,
- * как она чему-то научилась у пользователя.
- *
- * Хранится компактно, как и словарь: все продолжения лежат в одной строке
- * блоками через пробел, а [blocks] переводит первое слово в номер блока.
- * Иначе полсотни тысяч пар превратились бы в сотни тысяч мелких объектов —
- * при том, что за один запрос читается один блок.
- *
- * @param blocks первое слово пары → номер его блока продолжений.
+ * @param blocks первое слово пары → номер его блока.
  * @param bounds границы блоков в [followers]; размер — `blocks.size + 1`.
- * @param followers продолжения через пробел, блоки идут подряд и внутри
- * отсортированы по убыванию частоты.
+ * @param followers продолжения через пробел, внутри блока по убыванию частоты.
  */
 internal class BigramTable(
     private val blocks: Map<String, Int>,
@@ -22,17 +14,12 @@ internal class BigramTable(
     private val followers: String,
 ) {
 
-    /**
-     * @param word слово-продолжение.
-     * @param score сила связи (100..1000), выведенная из места в блоке.
-     */
+    /** [score] (100..1000) выводится из места слова в блоке. */
     class Follower(val word: String, val score: Int)
 
-    /** Продолжения слова, самые частые первыми. */
     fun after(word: String, limit: Int = Int.MAX_VALUE): List<Follower> =
         collect(word, limit) { _, _ -> true }
 
-    /** Продолжения, начинающиеся с [prefix] — то, что человек уже начал набирать. */
     fun followersWithPrefix(word: String, prefix: String): List<Follower> =
         collect(word, Int.MAX_VALUE) { start, end ->
             end - start > prefix.length && followers.startsWith(prefix, start)
@@ -62,7 +49,6 @@ internal class BigramTable(
         return result
     }
 
-    /** Обходит блок слова, отдавая границы каждого продолжения и его место в блоке. */
     private inline fun forEachFollower(word: String, action: (Int, Int, Int) -> Unit) {
         val block = blocks[word] ?: return
         val blockEnd = bounds[block + 1]
@@ -81,10 +67,7 @@ internal class BigramTable(
 
     companion object {
 
-        /**
-         * Разбирает ассет формата `слово<TAB>продолжение продолжение ...`,
-         * где продолжения отсортированы по убыванию частоты.
-         */
+        /** Формат ассета: `слово<TAB>продолжение продолжение ...`, по убыванию частоты. */
         fun parse(text: String): BigramTable {
             val blocks = HashMap<String, Int>(INITIAL_CAPACITY)
             var bounds = IntArray(INITIAL_CAPACITY)
@@ -107,7 +90,6 @@ internal class BigramTable(
                 lineStart = lineEnd + 1
             }
 
-            // Замыкающая граница: конец последнего блока.
             val closed = bounds.copyOf(blocks.size + 1)
             closed[blocks.size] = followers.length
 
@@ -116,13 +98,7 @@ internal class BigramTable(
 
         val Empty = BigramTable(emptyMap(), intArrayOf(0), "")
 
-        /**
-         * Сила связи по месту в блоке.
-         *
-         * Даже последнее продолжение остаётся весомым: раз пара попала в словарь,
-         * она встречается в живой речи, и это важнее словарной частоты самого слова —
-         * иначе после «как» вместо «дела» будет побеждать частотное «два».
-         */
+        /** Даже последнее продолжение весомо: пара важнее частоты слова (после «как» «дела» должно обгонять «два»). */
         private fun scoreOfRank(rank: Int): Int =
             maxOf(MIN_SCORE, MAX_SCORE - rank * RANK_STEP)
 

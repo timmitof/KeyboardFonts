@@ -25,9 +25,6 @@ internal class LayerDelegate(
         applyLayer(next)
     }
 
-    /**
-     * Раскладка слоя для текущего поля.
-     */
     private suspend fun KeyboardState.resolveLayout(layer: KeyboardLayer): KeyboardLayout? {
         fieldType.layoutName
             ?.takeIf { layer == KeyboardLayer.LETTERS }
@@ -44,7 +41,6 @@ internal class LayerDelegate(
         return if (settings.isDigitsRowEnabled) letters.withDigitsRow() else letters
     }
 
-    /** Прогревает кэш раскладок (языковых и фиксированных), чтобы переключение было мгновенным. */
     suspend fun preloadLayouts(languageCodes: List<String>) {
         (languageCodes + KeyboardLayer.entries.mapNotNull { it.fixedLayoutName })
             .distinct()

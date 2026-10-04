@@ -35,15 +35,6 @@ import kg.timmitof.feature_settings.domain.model.SettingsSummary
 import kg.timmitof.keyboard.domain.model.KeyboardSettings
 import kg.timmitof.keyboard.presentation.preview.KeyboardPreview
 
-/**
- * Закреплённый сверху предпросмотр: поле для пробы и уменьшенная клавиатура.
- *
- * Поле настоящее — «Проверить» ставит в него фокус, и снизу открывается
- * живая клавиатура. Пока поле пустое, в нём пример текущим шрифтом.
- *
- * @param sample слово-пример, например «Hello»: подписывается выбранным шрифтом.
- * @param checkLabel подпись ссылки справа в поле.
- */
 @Composable
 internal fun StudioPreviewCard(
     settings: KeyboardSettings,

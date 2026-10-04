@@ -5,9 +5,6 @@ import androidx.room.Insert
 import androidx.room.Query
 import kg.timmitof.core.data.local.entities.UserProjectEntity
 
-/**
- * Запросы по проектам в БД
- */
 @Dao
 interface ProjectDao {
 

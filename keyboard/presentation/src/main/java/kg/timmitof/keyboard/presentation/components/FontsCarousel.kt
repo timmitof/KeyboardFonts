@@ -38,12 +38,8 @@ import androidx.compose.ui.unit.sp
 import kg.timmitof.keyboard.font.domain.model.KeyboardFont
 import kg.timmitof.keyboard.presentation.theme.KFTheme
 
-/** Высота таблетки шрифта в раскрытой карусели. */
 private val FontPillHeight = 32.dp
 
-/**
- * Горизонтальная карусель шрифтов в верхней панели.
- */
 @Composable
 internal fun FontsCarousel(
     fonts: List<KeyboardFont>,

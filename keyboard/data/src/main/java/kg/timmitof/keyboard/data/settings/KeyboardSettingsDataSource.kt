@@ -20,12 +20,7 @@ import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/**
- * Настройки клавиатуры поверх того же DataStore, где лежат выбранный шрифт и язык.
- *
- * Ключи не перечисляются руками: каждый переключатель знает своё имя, поэтому
- * новая настройка появляется в хранилище вместе с записью в [KeyboardToggle].
- */
+/** Ключи берутся из [KeyboardToggle] — новая настройка не требует правок хранилища. */
 @Singleton
 class KeyboardSettingsDataSource @Inject constructor(
     @param:ApplicationContext private val context: Context
@@ -35,10 +30,7 @@ class KeyboardSettingsDataSource @Inject constructor(
     private val toggleKeys: Map<KeyboardToggle, Preferences.Key<Boolean>> =
         KeyboardToggle.entries.associateWith { booleanPreferencesKey(it.key) }
 
-    /**
-     * Сбойное чтение хранилища не должно валить клавиатуру: она откатывается
-     * к значениям по умолчанию и продолжает работать.
-     */
+    /** Сбойное чтение не должно валить клавиатуру — откатываемся к значениям по умолчанию. */
     private val preferences: Flow<Preferences> = context.keyboardPreferences.data
         .catch { error -> if (error is IOException) emit(emptyPreferences()) else throw error }
 

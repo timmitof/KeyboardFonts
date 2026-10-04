@@ -1,11 +1,7 @@
 package kg.timmitof.keyboard.suggestion.data
 
-/**
- * Соседство клавиш на раскладке.
- */
 internal object KeyProximity {
 
-    /** Ряды букв так, как они стоят на клавиатуре (см. `assets/layouts`). */
     private val LAYOUTS = listOf(
         listOf("qwertyuiop", "asdfghjkl", "zxcvbnm"),
         listOf("йцукенгшщзх", "фывапролджэ", "ячсмитьбю"),
@@ -16,10 +12,6 @@ internal object KeyProximity {
     fun areAdjacent(first: Char, second: Char): Boolean =
         first != second && neighbors[first]?.contains(second) == true
 
-    /**
-     * Буквы, с которых слово может начинаться, если пользователь промахнулся
-     * по первой клавише: сама буква и её соседи.
-     */
     fun withNeighbors(char: Char): Set<Char> =
         neighbors[char]?.let { it + char } ?: setOf(char)
 

@@ -20,12 +20,7 @@ import kg.timmitof.core.ui.theme.appColors
 private val SegmentedShape = RoundedCornerShape(14.dp)
 private val SegmentShape = RoundedCornerShape(11.dp)
 
-/**
- * Выбор из двух-трёх вариантов.
- *
- * Вместо ползущего индикатора анимируются цвета самих сегментов: варианты
- * разной ширины, и перекрашивание не требует ни измерений, ни лишнего слоя.
- */
+/** Вместо ползущего индикатора анимируются цвета сегментов: варианты разной ширины, измерений не нужно. */
 @Composable
 fun SettingsSegmentedControl(
     options: List<String>,

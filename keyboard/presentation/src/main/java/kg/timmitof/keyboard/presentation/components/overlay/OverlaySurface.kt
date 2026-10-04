@@ -23,9 +23,6 @@ import kg.timmitof.core.ui.consumeTouches
 import kg.timmitof.keyboard.presentation.R
 import kg.timmitof.keyboard.presentation.theme.KFTheme
 
-/**
- * Подложка окна поверх клавиатуры.
- */
 @Composable
 internal fun BoxScope.OverlaySurface(
     content: @Composable ColumnScope.() -> Unit,
@@ -40,7 +37,6 @@ internal fun BoxScope.OverlaySurface(
     )
 }
 
-/** Шапка окна: название слева, кнопки действий и крестик справа. */
 @Composable
 internal fun OverlayHeader(
     title: String,
@@ -75,7 +71,6 @@ internal fun OverlayHeader(
     }
 }
 
-/** Разделитель между переключателями и ярлыками. */
 @Composable
 internal fun OverlayDivider() {
     Box(

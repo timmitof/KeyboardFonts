@@ -10,12 +10,7 @@ import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/**
- * Хранит выученные слова и пары слов в личных файлах приложения.
- *
- * Файл на язык, запись — во временный файл с последующим переименованием:
- * клавиатуру могут убить в любой момент, и недописанный словарь недопустим.
- */
+/** Файл на язык. Запись через временный файл и переименование: IME могут убить в любой момент. */
 @Singleton
 class UserDictionaryStore @Inject constructor(
     @param:ApplicationContext private val context: Context,

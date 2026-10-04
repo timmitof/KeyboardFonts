@@ -122,7 +122,6 @@ private fun LettersLayer(
     }
 }
 
-/** Слой эмодзи */
 @Composable
 private fun EmojiLayer(
     state: State<KeyboardState>,
@@ -138,7 +137,6 @@ private fun EmojiLayer(
     )
 }
 
-/** Слой поиска эмодзи */
 @Composable
 private fun EmojiSearchLayer(
     layout: KeyboardLayout,

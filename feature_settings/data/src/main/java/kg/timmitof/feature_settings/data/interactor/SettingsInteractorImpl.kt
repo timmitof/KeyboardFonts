@@ -16,9 +16,6 @@ import kg.timmitof.keyboard.integration.KeyboardContract
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-/**
- * Настройки хранит клавиатура — фича только показывает их и правит через её репозитории.
- */
 class SettingsInteractorImpl @Inject constructor(
     private val keyboardSettingsRepository: KeyboardSettingsRepository,
     private val languageRepository: LanguageRepository,

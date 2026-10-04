@@ -26,12 +26,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kg.timmitof.core.ui.theme.appColors
 
-/** Строка мини-копии системного экрана: переключатель из списка клавиатур или вариант выбора. */
 @Immutable
 internal sealed interface MockRow {
     val label: String
 
-    /** Подсказка «куда нажать» — строка с ней обведена. */
     val poke: String?
 
     data class Toggle(override val label: String, val checked: Boolean, override val poke: String?) : MockRow
@@ -39,7 +37,6 @@ internal sealed interface MockRow {
     data class Radio(override val label: String, val selected: Boolean, override val poke: String?) : MockRow
 }
 
-/** Сборщик строк мини-копии системного экрана. */
 @SetupDsl
 class SystemMockScope internal constructor() {
 
@@ -47,24 +44,16 @@ class SystemMockScope internal constructor() {
 
     internal fun rows(): List<MockRow> = rows
 
-    /** Строка с переключателем — как в списке «Экранная клавиатура». */
     fun toggle(label: String, checked: Boolean, poke: String? = null) {
         rows += MockRow.Toggle(label, checked, poke)
     }
 
-    /** Строка с кружком выбора — как в системном окне «Выбор способа ввода». */
     fun radio(label: String, selected: Boolean, poke: String? = null) {
         rows += MockRow.Radio(label, selected, poke)
     }
 }
 
-/**
- * Мини-копия системного экрана: показывает, куда именно нажать, ещё до перехода.
- *
- * Это картинка, а не контролы — строки не нажимаются, нажимать нужно в системе.
- *
- * @param caption путь к экрану в системе, например «Настройки › Экранная клавиатура».
- */
+/** Картинка, а не контролы: строки не нажимаются, нажимать нужно в системе. */
 @Composable
 fun SystemMock(
     caption: String,
@@ -128,7 +117,6 @@ private fun MockRowItem(row: MockRow) {
     }
 }
 
-/** Метка «нажмите» / «выберите» рядом с нужной строкой. */
 @Composable
 private fun PokeChip(text: String) {
     val tones = MaterialTheme.appColors.brand
@@ -145,7 +133,6 @@ private fun PokeChip(text: String) {
     )
 }
 
-/** Переключатель-картинка в стиле системного: нарисован, а не интерактивен. */
 @Composable
 private fun MockSwitch(checked: Boolean) {
     val scheme = MaterialTheme.colorScheme
@@ -170,7 +157,6 @@ private fun MockSwitch(checked: Boolean) {
     }
 }
 
-/** Кружок выбора-картинка. */
 @Composable
 private fun MockRadio(selected: Boolean) {
     val scheme = MaterialTheme.colorScheme

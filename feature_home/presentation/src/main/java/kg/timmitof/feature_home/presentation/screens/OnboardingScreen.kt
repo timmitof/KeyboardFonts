@@ -59,12 +59,6 @@ import kg.timmitof.feature_home.presentation.components.steps.SetupStepStatus
 import kg.timmitof.feature_home.presentation.components.steps.SetupSteps
 import kg.timmitof.feature_home.presentation.components.steps.SystemMock
 
-/**
- * Первый запуск: весь путь подключения на одном экране, затем проба шрифтов.
- *
- * Шаги засчитываются сами при возврате из системных настроек. Когда клавиатура
- * подключена, экран превращается в пробу: поле в фокусе, живая клавиатура открыта.
- */
 @Composable
 fun OnboardingScreen(
     viewModel: OnboardingViewModel = hiltViewModel()
@@ -139,7 +133,6 @@ internal fun ContainerDSLBuilder<OnboardingSideEffect, OnboardingEvent>.Onboardi
     }
 }
 
-/** Шаги подключения и янтарная подсказка к текущему шагу. */
 @Composable
 private fun SetupContent(
     setup: KeyboardSetupModel,
@@ -222,7 +215,6 @@ private fun SetupContent(
             }
         }
 
-        // Янтарные карточки отвечают на главные причины бросить настройку.
         AnimatedContent(
             modifier = Modifier.padding(bottom = 16.dp),
             targetState = isEnableStep,
@@ -246,7 +238,6 @@ private fun SetupContent(
     }
 }
 
-/** Проба: поле в фокусе, клавиатура открыта, подсказка показывает на строку шрифтов. */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun TryContent(onDone: () -> Unit) {

@@ -3,19 +3,7 @@ package kg.timmitof.core.ui.components.settings
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.painter.Painter
 
-/**
- * Строка настроек — кирпич, из которого собирается любая секция.
- *
- * Типы: переключатель, переход, выбор из нескольких вариантов, число в диапазоне,
- * строка-справка и заглушка «Скоро». Новая функция описывается ими же,
- * поэтому экран настроек растёт без правок разметки.
- *
- * @property title заголовок строки.
- * @property description пояснение под заголовком — только там, где без него непонятно.
- * @property icon иконка темы; ставится **только первой строке секции**, иначе список рябит.
- * @property isNested строка зависит от переключателя выше — рисуется с отступом и линией связи.
- * @property isEnabled родитель включён; выключенная строка гаснет, но остаётся видимой.
- */
+/** Строка настроек — кирпич любой секции; [icon] ставится только первой строке секции, иначе список рябит. */
 @Immutable
 sealed interface SettingsRow {
 
@@ -25,7 +13,6 @@ sealed interface SettingsRow {
     val isNested: Boolean
     val isEnabled: Boolean
 
-    /** Переключатель: единственное значение — да/нет. */
     @Immutable
     data class Toggle(
         override val title: String,
@@ -37,7 +24,6 @@ sealed interface SettingsRow {
         val onCheckedChange: (Boolean) -> Unit,
     ) : SettingsRow
 
-    /** Переход на подэкран; [value] показывает текущий выбор, не заходя внутрь. */
     @Immutable
     data class Navigation(
         override val title: String,
@@ -49,7 +35,6 @@ sealed interface SettingsRow {
         val onClick: () -> Unit,
     ) : SettingsRow
 
-    /** Выбор из двух-трёх вариантов — сегменты помещаются в строку целиком. */
     @Immutable
     data class Segmented(
         override val title: String,
@@ -62,7 +47,6 @@ sealed interface SettingsRow {
         val onSelect: (Int) -> Unit,
     ) : SettingsRow
 
-    /** Число в диапазоне: ползунок занимает вторую строку под заголовком. */
     @Immutable
     data class Slider(
         override val title: String,
@@ -77,11 +61,7 @@ sealed interface SettingsRow {
         val onValueChange: (Float) -> Unit,
     ) : SettingsRow
 
-    /**
-     * Строка-справка без контрола: что уже выбрано, с короткой меткой слева.
-     *
-     * @property badge метка в плашке слева, например код языка «RU».
-     */
+    /** Строка-справка без контрола; [badge] — метка слева, например код языка «RU». */
     @Immutable
     data class Info(
         override val title: String,
@@ -92,12 +72,7 @@ sealed interface SettingsRow {
         val badge: String? = null,
     ) : SettingsRow
 
-    /**
-     * Функция в разработке: вместо контрола — плашка.
-     *
-     * Своя секция «Скоро» позволяет показать план, не перестраивая экран,
-     * когда функция наконец появится.
-     */
+    /** Функция в разработке: вместо контрола — плашка. */
     @Immutable
     data class Soon(
         override val title: String,

@@ -7,9 +7,6 @@ import androidx.room.Transaction
 import kg.timmitof.core.data.local.entities.ClipboardEntryEntity
 import kotlinx.coroutines.flow.Flow
 
-/**
- * Запросы по буферу обмена.
- */
 @Dao
 interface ClipboardDao {
 

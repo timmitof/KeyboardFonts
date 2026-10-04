@@ -14,16 +14,9 @@ import kg.timmitof.keyboard.domain.model.EmojiCategory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-/**
- * Статический каталог эмодзи, сгруппированный по категориям Unicode.
- *
- * Держим данные в Kotlin-объектах, а не в JSON-ассете: набор статичен,
- * парсинг не нужен, доступ мгновенный. Содержимое каждой категории —
- * в отдельном файле пакета `catalog`.
- */
+/** Данные в Kotlin-объектах, а не в JSON: набор статичен, парсинг не нужен. */
 internal object EmojiCatalog {
 
-    /** Полный каталог — без оглядки на то, что умеет шрифт устройства. */
     private val allCategories: List<EmojiCategory> by lazy {
         listOf(
             EmojiCategory(id = "smileys", icon = "😀", emojis = SmileysEmoji.emojis),
@@ -41,12 +34,7 @@ internal object EmojiCatalog {
     @Volatile
     private var supported: List<EmojiCategory>? = null
 
-    /**
-     * Категории без эмодзи, которых нет в шрифте устройства.
-     *
-     * Каталог собран по свежему Unicode, а старые прошивки часть символов
-     * не знают — без фильтра они превратились бы в пустые квадраты.
-     */
+    /** Каталог собран по свежему Unicode: старые прошивки не знают часть символов и рисуют пустые квадраты. */
     suspend fun getCategories(): List<EmojiCategory> = withContext(Dispatchers.Default) {
         supported ?: buildSupported().also { supported = it }
     }
@@ -59,12 +47,7 @@ internal object EmojiCatalog {
         }
     }
 
-    /**
-     * Умеет ли шрифт нарисовать эмодзи.
-     *
-     * Вариационный селектор — только пожелание «рисуй как эмодзи», и часть
-     * шрифтов из-за него отвечает отказом, поэтому пробуем ещё раз без него.
-     */
+    /** Вариационный селектор часть шрифтов отвергает, поэтому пробуем ещё раз без него. */
     private fun Paint.canRender(emoji: String): Boolean =
         hasGlyph(emoji) || hasGlyph(emoji.withoutVariationSelectors())
 

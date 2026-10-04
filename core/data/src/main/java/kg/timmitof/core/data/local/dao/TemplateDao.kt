@@ -6,9 +6,6 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import kg.timmitof.core.data.local.entities.TemplateEntity
 
-/**
- * Запросы по шаблонам в БД
- */
 @Dao
 interface TemplateDao {
 

@@ -32,14 +32,6 @@ import kg.timmitof.keyboard.presentation.components.KeySpacing
 import kg.timmitof.keyboard.presentation.components.KeySupport
 import kg.timmitof.keyboard.presentation.theme.KFTheme
 
-/**
- * Основа любой клавиши: зона нажатия во всю ячейку ряда и видимая «шапка»
- * с опорой снизу вместо размытой тени.
- *
- * @param background цвет клавиши в покое.
- * @param pressedBackground цвет во время нажатия; по умолчанию — общая заливка нажатия темы.
- * @param customGestures свой набор жестов вместо обычного тапа (слайд по пробелу, пикер долгого нажатия).
- */
 @Composable
 internal fun KeyBase(
     modifier: Modifier = Modifier,
@@ -93,10 +85,6 @@ internal fun KeyBase(
     }
 }
 
-/**
- * Видимая «шапка» клавиши с опорой снизу. Общая для живых клавиш и предпросмотра
- * в приложении — клавиша выглядит одинаково везде.
- */
 internal fun Modifier.keySurface(
     surface: () -> Color,
     support: () -> Color,

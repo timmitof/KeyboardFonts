@@ -3,16 +3,10 @@ package kg.timmitof.keyboard.suggestion.data
 import java.util.concurrent.ConcurrentHashMap
 
 /**
- * То, чему клавиатура научилась у пользователя на одном языке.
+ * Что клавиатура выучила у пользователя: частоты слов, частоты пар и недавние слова
+ * (последние живут только до перезапуска).
  *
- * Три слоя памяти, от самого долгого к самому короткому:
- * 1. частота слов — что этот человек вообще пишет;
- * 2. частота пар слов — его обороты речи («буду через», «всё ок»);
- * 3. недавние слова — лексика текущего разговора, живёт только до перезапуска.
- *
- * Структуры конкурентные: подсказки считаются в фоне, а обучение идёт
- * из другой корутины — потеря одного счётчика в гонке ничего не портит,
- * а блокировки на пути ввода недопустимы.
+ * Структуры конкурентные: потеря счётчика в гонке не страшна, а блокировки на пути ввода недопустимы.
  */
 internal class UserLanguageModel {
 
@@ -22,7 +16,6 @@ internal class UserLanguageModel {
 
     private val recent = ArrayDeque<String>()
 
-    /** Запоминает слово и его связь с предыдущим. */
     fun learn(previous: String, word: String) {
         words[word] = (words[word] ?: 0) + 1
 
@@ -37,7 +30,6 @@ internal class UserLanguageModel {
 
     fun countOf(word: String): Int = words[word] ?: 0
 
-    /** Снимок частот для добавления личных слов в индекс исправления опечаток. */
     fun wordFrequencies(): Map<String, Int> = words.toMap()
 
     fun knows(word: String): Boolean = countOf(word) >= KNOWN_THRESHOLD
@@ -46,11 +38,9 @@ internal class UserLanguageModel {
 
     fun pairCount(previous: String, word: String): Int = pairs[previous]?.get(word) ?: 0
 
-    /** Слова пользователя, начинающиеся с [prefix]. */
     fun wordsWithPrefix(prefix: String): List<String> =
         words.keys.filter { it.length > prefix.length && it.startsWith(prefix) }
 
-    /** Самые частые слова — запасной вариант, когда контекста нет совсем. */
     fun frequentWords(limit: Int): List<String> =
         words.entries.sortedByDescending { it.value }.take(limit).map { it.key }
 
@@ -58,7 +48,6 @@ internal class UserLanguageModel {
 
     fun recentWords(): List<String> = synchronized(recent) { recent.toList() }
 
-    /** Строки для сохранения на диск. */
     fun export(): List<String> = buildList(words.size + pairs.size) {
         words.entries.forEach { (word, count) -> add("$WORD_MARK\t$word\t$count") }
         pairs.entries.forEach { (previous, followers) ->
@@ -66,7 +55,6 @@ internal class UserLanguageModel {
         }
     }
 
-    /** Восстанавливает модель из строк [export]. */
     fun restore(lines: Sequence<String>) {
         lines.forEach { line ->
             val columns = line.split('\t')
@@ -88,10 +76,7 @@ internal class UserLanguageModel {
         while (recent.size > MAX_RECENT) recent.removeLast()
     }
 
-    /**
-     * Держит модель в разумном размере: вместо выбрасывания «хвоста» делит
-     * все счётчики пополам — редкие слова отмирают, частые остаются.
-     */
+    /** Вместо выбрасывания «хвоста» делит счётчики пополам: редкие слова отмирают, частые остаются. */
     private fun trim() {
         if (words.size > MAX_WORDS) {
             words.entries.forEach { entry ->
@@ -111,7 +96,6 @@ internal class UserLanguageModel {
     }
 
     private companion object {
-        /** Со скольких повторов слово считается «своим» и не исправляется. */
         const val KNOWN_THRESHOLD = 2
 
         const val MAX_WORDS = 4000

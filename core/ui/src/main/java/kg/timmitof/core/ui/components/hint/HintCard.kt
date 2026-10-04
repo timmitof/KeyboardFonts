@@ -36,12 +36,6 @@ import kg.timmitof.core.ui.theme.appColors
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 
-/**
- * Янтарная карточка-объяснение: учит, а не требует действия.
- *
- * Отвечает на вопросы, из-за которых бросают настройку: почему Android
- * предупреждает, как вернуть прежнюю клавиатуру.
- */
 @Composable
 fun HintCard(
     title: String,
@@ -85,16 +79,6 @@ fun HintCard(
     }
 }
 
-/**
- * Плашка советов: по одному совету за раз, листается свайпом вверх и вниз,
- * касание открывает следующий.
- *
- * Точки справа показывают, сколько советов в колоде и какой сейчас открыт, —
- * они следуют за пальцем во время свайпа.
- *
- * @param tips тексты советов; пустой список — плашки нет.
- * @param counter подпись над советом по номеру и общему числу, например «Совет 2 из 6».
- */
 @Composable
 fun TipsCard(
     tips: List<String>,
@@ -113,7 +97,6 @@ fun TipsCard(
             .clip(TipsShape)
             .background(tones.container)
             .clickable {
-                // С последнего совета — снова к первому.
                 val next = (pagerState.currentPage + 1) % tips.size
                 scope.launch { pagerState.animateScrollToPage(next, animationSpec = TipSpring) }
             },
@@ -133,9 +116,7 @@ fun TipsCard(
                 .weight(1f)
                 .padding(horizontal = 12.dp),
         ) {
-            // Невидимая подложка из всех советов задаёт высоту по самому длинному:
-            // плашка не прыгает при листании, а пейджер получает конечную высоту
-            // внутри вертикально прокручиваемого экрана.
+            // Невидимая подложка из всех советов задаёт высоту по самому длинному: плашка не прыгает, пейджер получает конечную высоту.
             tips.forEachIndexed { index, tip ->
                 TipText(
                     counter = counter(index + 1, tips.size),
@@ -158,7 +139,6 @@ fun TipsCard(
                     tip = tips[page],
                     color = tones.onContainer,
                     modifier = Modifier.graphicsLayer {
-                        // Уходящий совет гаснет, приходящий проявляется — без резкого обреза у края.
                         alpha = 1f - pagerState.offsetFor(page).coerceIn(0f, 1f)
                     },
                 )
@@ -204,10 +184,7 @@ private fun TipText(
     }
 }
 
-/**
- * Точки-индикатор. Яркость считается из смещения страницы в draw-фазе,
- * поэтому свайп не вызывает рекомпозиций.
- */
+/** Яркость считается в draw-фазе из смещения страницы, поэтому свайп не вызывает рекомпозиций. */
 @Composable
 private fun TipDots(
     total: Int,
@@ -234,7 +211,6 @@ private fun TipDots(
     }
 }
 
-/** Насколько страница [page] ушла от центра: 0 — открыта, 1 и больше — за краем. */
 private fun PagerState.offsetFor(page: Int): Float =
     abs((currentPage - page) + currentPageOffsetFraction)
 

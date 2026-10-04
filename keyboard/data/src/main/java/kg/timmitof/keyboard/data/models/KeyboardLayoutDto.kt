@@ -1,9 +1,6 @@
 package kg.timmitof.keyboard.data.models
 
-/**
- * @param script письменность раскладки — по ней подбирается алфавит для полей,
- * которые латиницу требуют (адрес почты, пароль).
- */
+/** [script] — по нему подбирается алфавит для полей, требующих латиницу (почта, пароль). */
 data class KeyboardLayoutDto(
     val name: String,
     val script: String? = null,

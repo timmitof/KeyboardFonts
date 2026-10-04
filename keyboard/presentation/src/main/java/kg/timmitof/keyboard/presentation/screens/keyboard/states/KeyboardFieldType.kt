@@ -4,21 +4,9 @@ import androidx.annotation.StringRes
 import kg.timmitof.keyboard.presentation.R
 
 /**
- * Тип поля ввода — единственный источник правды о том, чем клавиатура отличается
- * от базовой в этом поле.
+ * Единственный источник правды о том, чем клавиатура в поле отличается от базовой.
  *
- * Всё, что меняется, объявлено здесь декларативно.
- *
- * @param layoutName собственная раскладка вместо буквенной (цифры, телефон).
- * @param bottomRowVariant вариант нижнего ряда из `layouts/bottom_rows.json`.
- * @param allowsFonts применять ли выбранный Unicode-шрифт к вводу.
- * @param allowsSuggestions разрешены ли подсказки слов (Т9).
- * @param allowsAutoCorrect можно ли исправлять слово при вводе пробела.
- * @param allowsLanguageSlide можно ли менять язык слайдом по пробелу.
- * @param requiresLatinLayout поле открывается на латинице, даже если выбрана другая
- * раскладка; сменить язык вручную при этом можно.
- * @param autoCapitalize поднимать ли Shift в начале ввода.
- * @param noticeRes плашка-пояснение в верхней панели.
+ * @param requiresLatinLayout поле открывается на латинице, даже если выбрана другая раскладка; язык можно сменить вручную.
  */
 enum class KeyboardFieldType(
     val layoutName: String? = null,
@@ -71,6 +59,5 @@ enum class KeyboardFieldType(
         autoCapitalize = false,
     );
 
-    /** Раскладка типа занимает всю клавиатуру. */
     val hasOwnLayout: Boolean get() = layoutName != null
 }

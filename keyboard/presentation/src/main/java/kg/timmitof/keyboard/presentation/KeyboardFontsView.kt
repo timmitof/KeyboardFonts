@@ -47,12 +47,10 @@ class KeyboardFontsView(
 
     private val insetsTracker = KeyboardInsetsTracker(this)
 
-    /** Сервис отдаёт сюда разобранный `EditorInfo` при каждой смене поля ввода. */
     fun updateFieldContext(context: KeyboardFieldContext) {
         fieldContext.value = context
     }
 
-    /** Сервис отдаёт сюда текст вокруг курсора при каждой правке поля — вход Т9. */
     fun updateTextContext(context: TextContext) {
         textContext.value = context
     }
@@ -105,12 +103,7 @@ class KeyboardFontsView(
     }
 }
 
-/**
- * Тема клавиатуры: следовать системе или держать выбранную в настройках.
- *
- * Состояние читается через `derivedStateOf`, чтобы поток нажатий не перекрашивал
- * клавиатуру: тему меняют раз в жизни, а состояние — на каждую букву.
- */
+/** Состояние читается через `derivedStateOf`, чтобы поток нажатий не перекрашивал клавиатуру. */
 @Composable
 private fun KeyboardViewModel.isDarkTheme(): Boolean {
     val isSystemDark = isSystemInDarkTheme()

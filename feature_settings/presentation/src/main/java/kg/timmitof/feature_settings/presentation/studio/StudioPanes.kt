@@ -19,14 +19,7 @@ import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
 import kg.timmitof.keyboard.domain.model.KeyboardToggle
 import kg.timmitof.keyboard.font.domain.model.KeyboardFont
 
-/**
- * Содержимое вкладок «Студии».
- *
- * Ресурсы читаются до DSL: сборщик строк намеренно не композабельный, чтобы
- * список строк собирался одинаково при любой рекомпозиции.
- */
-
-/** Тема: светлая, тёмная или как в системе. */
+/** Ресурсы читаются до DSL: сборщик строк намеренно не композабельный. */
 @Composable
 internal fun ThemePane(
     selected: KeyboardThemeMode,
@@ -41,7 +34,6 @@ internal fun ThemePane(
     ThemeTiles(tiles = tiles, selected = selected, onSelect = onSelect)
 }
 
-/** Шрифты: панель над клавишами и её содержимое. */
 @Composable
 internal fun FontsPane(
     settings: KeyboardSettings,
@@ -82,7 +74,6 @@ internal fun FontsPane(
     }
 }
 
-/** Ввод: Т9 и всё, что от него зависит. */
 @Composable
 internal fun InputPane(
     settings: KeyboardSettings,
@@ -149,7 +140,6 @@ internal fun InputPane(
     }
 }
 
-/** Языки: порядок раскладок — это порядок переключения пробелом. */
 @Composable
 internal fun LanguagesPane(
     languages: List<KeyboardLanguage>,
@@ -169,7 +159,6 @@ internal fun LanguagesPane(
     }
 }
 
-/** Размер: высота рядов и цифровой ряд. */
 @Composable
 internal fun SizePane(
     settings: KeyboardSettings,
@@ -197,7 +186,6 @@ internal fun SizePane(
     }
 }
 
-/** Звук: отклик клавиш на нажатие. */
 @Composable
 internal fun SoundPane(
     settings: KeyboardSettings,
@@ -228,7 +216,6 @@ internal fun SoundPane(
     }
 }
 
-/** Буфер: закреплённые записи видны сразу, недавние можно очистить. */
 @Composable
 internal fun ClipboardPane(
     board: ClipboardBoard,

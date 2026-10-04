@@ -14,11 +14,7 @@ class KeyboardSettingsRepositoryImpl @Inject constructor(
     private val dataSource: KeyboardSettingsDataSource,
 ) : KeyboardSettingsRepository {
 
-    /**
-     * DataStore присылает весь набор настроек на любую правку — в том числе на
-     * чужие ключи вроде выбранного шрифта. [distinctUntilChanged] отсекает
-     * повторы, чтобы клавиатура не пересобирала состояние из-за смены шрифта.
-     */
+    /** DataStore шлёт набор на любую правку (в т.ч. смену шрифта) — [distinctUntilChanged] отсекает повторы. */
     override fun observeSettings(): Flow<KeyboardSettings> =
         dataSource.observe().distinctUntilChanged()
 

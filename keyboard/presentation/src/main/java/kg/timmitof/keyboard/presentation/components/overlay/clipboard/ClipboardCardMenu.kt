@@ -33,7 +33,6 @@ import kg.timmitof.keyboard.presentation.screens.keyboard.states.ClipboardAction
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardEvent
 import kg.timmitof.keyboard.presentation.theme.KFTheme
 
-/** Выбор по долгому нажатию на карточку: закрепить или удалить. */
 @Composable
 internal fun ClipboardCardMenu(
     entry: ClipboardEntry,

@@ -11,9 +11,6 @@ import java.io.IOException
 import java.io.InputStream
 import javax.inject.Inject
 
-/**
- * Класс помощник для работы с ассетами
- */
 class AssetManager @Inject constructor(
     @param:ApplicationContext private val context: Context
 ) {

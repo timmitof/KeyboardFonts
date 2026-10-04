@@ -51,7 +51,6 @@ internal fun RowScope.EnterKeyButton(
     }
 }
 
-/** Иконка клавиши Enter для действия текущего поля ввода. */
 private val EnterAction.iconRes: Int
     @DrawableRes get() = when (this) {
         EnterAction.RETURN -> R.drawable.ic_enter_key

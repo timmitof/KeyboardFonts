@@ -4,7 +4,6 @@ import org.gradle.api.JavaVersion
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 object ProjectConfig {
-    /** Базовый префикс namespace всех модулей проекта. */
     const val BASE_NAMESPACE = "kg.timmitof"
 
     const val COMPILE_SDK = 36

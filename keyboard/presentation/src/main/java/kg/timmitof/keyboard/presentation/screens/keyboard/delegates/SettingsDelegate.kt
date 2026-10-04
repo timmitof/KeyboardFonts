@@ -8,28 +8,17 @@ import kg.timmitof.keyboard.domain.repository.KeyboardSettingsRepository
 import kg.timmitof.keyboard.presentation.screens.keyboard.KeyboardSyntax
 import kotlinx.coroutines.flow.Flow
 
-/**
- * Настройки клавиатуры внутри самой клавиатуры.
- *
- * Экран настроек живёт в другом процессе, поэтому значения не читаются один раз
- * на старте, а приходят потоком: переключатель сработал — клавиатура уже другая.
- */
+/** Экран настроек живёт в другом процессе, поэтому значения приходят потоком, а не читаются один раз. */
 internal class SettingsDelegate(
     private val keyboardSettingsRepository: KeyboardSettingsRepository,
 ) {
 
     val settings: Flow<KeyboardSettings> = keyboardSettingsRepository.observeSettings()
 
-    /** Первое чтение — до него клавиатура рисуется значениями по умолчанию. */
     suspend fun KeyboardSyntax.loadSettings() =
         applySettings(keyboardSettingsRepository.getSettings())
 
-    /**
-     * Кладёт настройки в состояние.
-     *
-     * Панель шрифтов при выключении сворачивается сразу: иначе она осталась бы
-     * висеть над клавишами до следующей сессии ввода.
-     */
+    /** Панель шрифтов при выключении сворачивается сразу, иначе висела бы до следующей сессии ввода. */
     suspend fun KeyboardSyntax.applySettings(settings: KeyboardSettings) {
         if (state.settings == settings) return
 
@@ -41,10 +30,6 @@ internal class SettingsDelegate(
         }
     }
 
-    /**
-     * Правки из листа быстрых настроек: значение уходит в хранилище и приходит
-     * обратно потоком — той же дорогой, что и правка с экрана приложения.
-     */
     suspend fun setToggle(toggle: KeyboardToggle, isEnabled: Boolean) =
         keyboardSettingsRepository.setToggle(toggle, isEnabled)
 

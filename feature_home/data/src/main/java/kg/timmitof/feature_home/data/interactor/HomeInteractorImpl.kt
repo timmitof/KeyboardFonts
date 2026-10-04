@@ -31,7 +31,6 @@ class HomeInteractorImpl @Inject constructor(
     override fun observeKeyboardSetup(): Flow<KeyboardSetupModel> =
         keyboardContract.observeKeyboardState().map { it.toDomain() }
 
-    /** Каждому шагу — свой системный экран. */
     override fun openKeyboardSetup(step: KeyboardSetupStep) = when (step) {
         KeyboardSetupStep.ENABLE -> keyboardContract.openKeyboardSettings()
         KeyboardSetupStep.SELECT -> keyboardContract.showKeyboardPicker()

@@ -17,7 +17,6 @@ internal class EmojiDelegate(
         reduce { state.copy(recentEmojis = updatedRecent) }
     }
 
-    /** Выбор варианта тона. */
     suspend fun KeyboardSyntax.selectVariant(base: String, variant: String) {
         postSideEffect(KeyboardSideEffect.Input.CommitText(variant))
 
@@ -31,7 +30,6 @@ internal class EmojiDelegate(
         }
     }
 
-    /** Открывает панель эмодзи, при первом входе подгружая каталог. */
     suspend fun KeyboardSyntax.openEmojiPanel() {
         if (state.emojiCategories.isEmpty()) {
             val categories = emojiRepository.getEmojiCategories()
@@ -51,13 +49,11 @@ internal class EmojiDelegate(
         with(layerDelegate) { applyLayer(KeyboardLayer.EMOJI) }
     }
 
-    /** Открывает поиск эмодзи с чистым запросом. */
     suspend fun KeyboardSyntax.openSearch() {
         reduce { state.copy(emojiSearchQuery = "", emojiSearchResults = emptyList()) }
         with(layerDelegate) { applyLayer(KeyboardLayer.EMOJI_SEARCH) }
     }
 
-    /** Обновляет поисковый запрос и результаты; используется и вводом текста на слое поиска. */
     suspend fun KeyboardSyntax.updateSearchQuery(query: String) {
         val results = emojiRepository.searchEmojis(query)
         reduce {
@@ -69,18 +65,11 @@ internal class EmojiDelegate(
         }
     }
 
-    /** Фоновый прогрев каталога вариантов тона. */
     suspend fun prefetchVariants() {
         emojiRepository.getEmojiVariants()
     }
 
-    /**
-     * Фоновый прогрев поискового индекса.
-     *
-     * Зовём при открытии панели: поиск начинается отсюда, и к первой набранной
-     * букве словарь уже разобран. При старте клавиатуры это было бы лишней
-     * работой для тех, кто эмодзи не открывает.
-     */
+    /** Зовём при открытии панели, а не на старте: не нагружаем тех, кто эмодзи не открывает. */
     suspend fun prefetchSearchIndex() {
         emojiRepository.prefetchSearchIndex()
     }

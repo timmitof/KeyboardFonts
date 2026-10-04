@@ -22,19 +22,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kg.timmitof.core.ui.theme.appColors
 
-/** Ограничивает область видимости DSL секции — чужие receiver'ы внутрь не протекают. */
 @DslMarker
 annotation class SettingsDsl
 
-/**
- * Сборщик строк секции.
- *
- * Строки описываются данными, а не разметкой: секция знает их порядок и сама
- * расставляет разделители, отступы вложенности и гашение выключенных веток.
- *
- * Иконки передаются готовыми ([Painter]) — DSL намеренно не композабельный,
- * чтобы список строк собирался одинаково при любой рекомпозиции.
- */
+/** Строки описываются данными; иконки — готовые [Painter]: DSL намеренно не композабельный. */
 @SettingsDsl
 class SettingsSectionScope internal constructor() {
 
@@ -42,7 +33,6 @@ class SettingsSectionScope internal constructor() {
 
     internal fun rows(): List<SettingsRow> = rows
 
-    /** Добавить готовую строку — точка расширения для нестандартных случаев. */
     fun row(row: SettingsRow) {
         rows += row
     }
@@ -170,9 +160,6 @@ class SettingsSectionScope internal constructor() {
     )
 }
 
-/**
- * Действие в заголовке секции — например, «Очистить недавние» справа от названия.
- */
 @Immutable
 data class SettingsSectionAction(
     val label: String,
@@ -180,21 +167,7 @@ data class SettingsSectionAction(
     val onClick: () -> Unit,
 )
 
-/**
- * Секция настроек: необязательный заголовок + карточка со строками.
- *
- * Порядок секций на экране можно менять свободно — каждая замкнута на себя.
- *
- * ```
- * SettingsSection(title = "Ввод текста") {
- *     toggle(title = "Подсказки слов", checked = state.t9, icon = icon) { … }
- *     toggle(title = "Автокоррекция", checked = state.autoCorrect, isNested = true) { … }
- * }
- * ```
- *
- * @param title подпись над карточкой; `null` — карточка без заголовка (внутри вкладки).
- * @param action действие справа от заголовка.
- */
+/** [title] = `null` — карточка без заголовка (внутри вкладки). */
 @Composable
 fun SettingsSection(
     modifier: Modifier = Modifier,
@@ -213,9 +186,6 @@ fun SettingsSection(
     }
 }
 
-/**
- * Заголовок над карточкой или произвольным блоком вкладки: метка темы, а не строка списка.
- */
 @Composable
 fun SettingsSectionHeader(
     title: String,
@@ -253,7 +223,6 @@ fun SettingsSectionHeader(
     }
 }
 
-/** Карточка секции: строки вплотную, между ними — тонкая линия. */
 @Composable
 private fun SettingsCard(rows: List<SettingsRow>) {
     Surface(
@@ -275,7 +244,6 @@ private fun SettingsCard(rows: List<SettingsRow>) {
     }
 }
 
-/** Скругление карточек вкладок — общее для строк настроек и плиток. */
 val SettingsCardShape = RoundedCornerShape(20.dp)
 
 private val ActionShape = RoundedCornerShape(8.dp)

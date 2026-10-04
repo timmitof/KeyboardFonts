@@ -20,10 +20,7 @@ fun KeyboardFontsTheme(
     dynamicTheme: Boolean = true,
     content: @Composable () -> Unit
 ) {
-//    val dynamicColor = dynamicTheme && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
-
     val colorScheme = when {
-//        dynamicColor -> getDynamicColorScheme(darkTheme)
         darkTheme -> AppDarkColorScheme
         else -> AppLightColorScheme
     }

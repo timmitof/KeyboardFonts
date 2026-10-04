@@ -32,9 +32,6 @@ import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardOverlay
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardState
 import kg.timmitof.keyboard.presentation.theme.KFTheme
 
-/**
- * Верхняя панель клавиатуры.
- */
 @Composable
 internal fun KeyboardTopBar(
     state: State<KeyboardState>,
@@ -73,9 +70,6 @@ internal fun KeyboardTopBar(
     }
 }
 
-/**
- * Правый край панели.
- */
 @Composable
 private fun TopBarAnchors(
     isCollapsible: Boolean,
@@ -172,7 +166,6 @@ private val KeyboardState.topBarMode: TopBarMode
         else -> TopBarMode.IDLE
     }
 
-/** Текст на кнопке шрифтов — показывает выбранный стиль. */
 private const val FontPreviewText = "Aa"
 
 @Composable

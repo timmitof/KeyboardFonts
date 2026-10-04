@@ -9,7 +9,6 @@ internal class LanguageDelegate(
     private val layerDelegate: LayerDelegate,
 ) {
 
-    /** Загружает локали и сохранённый выбор в состояние. */
     suspend fun KeyboardSyntax.loadLanguages() {
         val languages = languageRepository.getLanguages()
         val selected = languageRepository.getSelectedLanguage()
@@ -21,12 +20,7 @@ internal class LanguageDelegate(
         }
     }
 
-    /**
-     * Смена локали: сохраняет выбор и перезагружает раскладку языкозависимого слоя.
-     *
-     * Ручной выбор отменяет автоматическую подмену раскладки в поле (адрес, пароль) —
-     * пользователь сказал, каким алфавитом он тут пишет.
-     */
+    /** Ручной выбор отменяет автоматическую подмену раскладки в поле (адрес, пароль). */
     suspend fun KeyboardSyntax.selectLanguage(language: KeyboardLanguage) {
         if (language == state.activeLanguage || language !in state.languages) return
 

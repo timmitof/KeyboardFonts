@@ -31,15 +31,9 @@ import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.milliseconds
 
-/**
- * Функция расширяющая [Context], для показа тоста
- */
 fun Context.showToast(message: String) =
     Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
 
-/**
- * Метод предотвращающий множественное нажатие
- */
 fun Modifier.debounceClickable(
     debounceTime: Long = 1000L,
     onClick: () -> Unit
@@ -112,7 +106,6 @@ fun Modifier.backspaceHoldSlideClickable(
                 val holdJob = launch {
                     delay(holdDelayMillis)
                     holdFired = true
-                    // Повторяем срабатывание с ускорением, пока палец не отпущен
                     var interval = holdRepeatIntervalMillis
                     while (true) {
                         currentOnHold()
@@ -141,7 +134,6 @@ fun Modifier.backspaceHoldSlideClickable(
 
                     if (isSliding) {
                         change.consume()
-                        // Слайд влево увеличивает выделение назад от курсора
                         val steps = (-totalDx / stepPx).roundToInt().coerceAtLeast(0)
                         if (steps != slideSteps) {
                             slideSteps = steps
@@ -199,13 +191,11 @@ fun Modifier.spaceCursorClickable(
                 var isSliding = false
                 var cursorMode = false
 
-                // Точка отсчёта и последние испущенные шаги для режима курсора.
                 var anchorX = 0f
                 var anchorY = 0f
                 var lastStepX = 0
                 var lastStepY = 0
 
-                // Зажатие сразу включает режим курсора
                 val holdJob = launch {
                     delay(holdDelayMillis)
                     if (!isSliding) {
@@ -225,7 +215,6 @@ fun Modifier.spaceCursorClickable(
                     totalDx += delta.x
                     totalDy += delta.y
 
-                    // До зажатия горизонтальное движение переводит жест в выбор языка.
                     if (!cursorMode && !isSliding && abs(totalDx) > viewConfiguration.touchSlop) {
                         isSliding = true
                         holdJob.cancel()
@@ -267,12 +256,7 @@ fun Modifier.spaceCursorClickable(
     }
 }
 
-/**
- * Жест обычной клавиши
- *
- * @param onTap обычный ввод — при отпускании, если пикер не открывался.
- * @param onHoldStart открытие пикера; `null` — у клавиши нет вариантов и зажатие ничего не делает.
- */
+/** [onHoldStart] = `null` — у клавиши нет вариантов, зажатие ничего не делает. */
 fun Modifier.keyClickable(
     interactionSource: MutableInteractionSource,
     holdDelayMillis: Long = 350L,
@@ -388,9 +372,6 @@ fun Modifier.holdPickerClickable(
     }
 }
 
-/**
- * Гасит все касания, не пропуская их к тому, что лежит ниже.
- */
 fun Modifier.consumeTouches(): Modifier = pointerInput(Unit) {
     awaitPointerEventScope {
         while (true) {
@@ -399,9 +380,6 @@ fun Modifier.consumeTouches(): Modifier = pointerInput(Unit) {
     }
 }
 
-/**
- * Метод для задержки
- */
 @Composable
 inline fun debounced(crossinline onClick: () -> Unit, debounceTime: Long = 1000L): () -> Unit {
     var lastTimeClicked by remember { mutableLongStateOf(0L) }

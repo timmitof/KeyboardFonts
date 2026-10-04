@@ -1,8 +1,5 @@
 package kg.timmitof.keyboard.suggestion.data
 
-/**
- * Языковая модель раскладки: словарь слов, статистика пар и индекс опечаток.
- */
 internal class LanguageModel(
     val dictionary: WordDictionary,
     val bigrams: BigramTable,

@@ -7,10 +7,7 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 
-/**
- * Роль цвета-помощника. У каждого цвета палитры одна роль — так цвет сам
- * подсказывает, что перед пользователем, и фиолетового на экране остаётся мало.
- */
+/** Каждому цвету палитры — одна роль, чтобы цвет подсказывал смысл и фиолетового оставалось мало. */
 enum class AccentRole {
     /** Фиолетовый: главные кнопки, текущий шаг, шрифты. */
     BRAND,
@@ -25,14 +22,6 @@ enum class AccentRole {
     APPEARANCE,
 }
 
-/**
- * Тона одной роли.
- *
- * @property container мягкая заливка плашки.
- * @property onContainer текст и иконки на [container].
- * @property solid насыщенный тон: кружок иконки, номер шага.
- * @property onSolid содержимое поверх [solid].
- */
 @Immutable
 data class AccentTones(
     val container: Color,
@@ -41,15 +30,7 @@ data class AccentTones(
     val onSolid: Color,
 )
 
-/**
- * Цвета приложения сверх Material-схемы: роли-помощники и поверхности из дизайна.
- *
- * @property card карточки со строками настроек и активный шаг.
- * @property cardMuted приглушённые плашки: поле ввода, неактивные шаги, чипы.
- * @property selected выбранный чип или сегмент — контрастный, а не фиолетовый.
- * @property onSelected содержимое поверх [selected].
- * @property hintOnInverse янтарный акцент на инверсной поверхности — заголовок подсказки-пузыря.
- */
+/** [selected] — выбранный чип или сегмент: контрастный, а не фиолетовый. */
 @Immutable
 data class AppColors(
     val brand: AccentTones,
@@ -136,7 +117,6 @@ internal val AppDarkColors = AppColors(
 
 val LocalAppColors = staticCompositionLocalOf { AppLightColors }
 
-/** Цвета приложения сверх Material-схемы — рядом с привычным `colorScheme`. */
 val MaterialTheme.appColors: AppColors
     @Composable
     @ReadOnlyComposable

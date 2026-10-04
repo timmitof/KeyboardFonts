@@ -42,16 +42,6 @@ import kg.timmitof.keyboard.presentation.components.keys.KeyBase
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardEvent
 import kg.timmitof.keyboard.presentation.theme.KFTheme
 
-/**
- * Строка поиска эмодзи
- *
- * @param query текущий поисковый запрос.
- * @param results найденные эмодзи.
- * @param selectionChars сколько символов запроса выделено с конца (слайд по backspace).
- * @param onEvent проброс событий клавиатуры (запрос, выбор эмодзи, закрытие поиска).
- * @param emojiVariants варианты тона кожи по базовому эмодзи.
- * @param preferredVariants выбранные пользователем варианты (база → вариант).
- */
 @Composable
 internal fun EmojiSearchBar(
     modifier: Modifier = Modifier,

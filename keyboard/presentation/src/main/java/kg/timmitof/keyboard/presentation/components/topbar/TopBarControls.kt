@@ -38,17 +38,12 @@ import kg.timmitof.keyboard.presentation.R
 import kg.timmitof.keyboard.presentation.components.KeySupport
 import kg.timmitof.keyboard.presentation.theme.KFTheme
 
-/** Высота элементов верхней панели. */
 private val ControlHeight = 32.dp
 
 private val ControlShape = RoundedCornerShape(ControlHeight / 2)
 
-/** Сторона якоря справа: зона нажатия во всю высоту панели. */
 private val AnchorSize = 40.dp
 
-/**
- * Свёрнутая карусель шрифтов: кнопка с текущим стилем.
- */
 @Composable
 internal fun FontToggleButton(
     preview: String,
@@ -84,7 +79,6 @@ internal fun FontToggleButton(
     }
 }
 
-/** Якорь в правом краю панели: подсвечен, пока открыт его лист. */
 @Composable
 internal fun TopBarAnchorButton(
     @DrawableRes iconRes: Int,

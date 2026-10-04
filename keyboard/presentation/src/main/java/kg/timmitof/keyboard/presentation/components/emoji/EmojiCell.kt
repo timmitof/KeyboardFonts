@@ -25,18 +25,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kg.timmitof.keyboard.presentation.theme.KFTheme
 
-/** Размер уголка-индикатора наличия вариантов тона. */
 private val VariantIndicatorSize = 5.dp
 
-/** Масштаб ячейки в нажатом состоянии. */
 private const val PressedScale = 1.25f
 
-/** Спека анимации нажатия — общая на все ячейки. */
 private val PressAnimationSpec = tween<Float>(durationMillis = 80)
 
-/**
- * Ячейка с эмодзи.
- */
 @Composable
 internal fun EmojiCell(
     emoji: String,
@@ -100,7 +94,6 @@ internal fun EmojiCell(
     }
 }
 
-/** Треугольный уголок-индикатор наличия вариантов тона в правом нижнем углу. */
 @Composable
 private fun Modifier.variantIndicator(): Modifier {
     val color = KFTheme.color.keySpecialTextColor.copy(alpha = 0.4f)

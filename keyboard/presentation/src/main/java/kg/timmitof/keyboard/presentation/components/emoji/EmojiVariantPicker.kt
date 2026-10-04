@@ -17,9 +17,6 @@ import androidx.compose.ui.window.PopupProperties
 import kg.timmitof.keyboard.presentation.components.AboveAnchorPopupPositionProvider
 import kg.timmitof.keyboard.presentation.theme.KFTheme
 
-/**
- * Попап выбора варианта тона кожи эмодзи.
- */
 @Composable
 internal fun EmojiVariantPicker(
     variants: List<String>,

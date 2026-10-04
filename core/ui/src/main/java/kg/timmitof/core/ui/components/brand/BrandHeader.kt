@@ -19,11 +19,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kg.timmitof.core.common.R as CommonR
 
-/**
- * Шапка корневых экранов: иконка приложения, название и слот справа под статус.
- *
- * @param trailing содержимое справа — обычно [StatusPill]; прижимается к краю.
- */
 @Composable
 fun BrandHeader(
     title: String,

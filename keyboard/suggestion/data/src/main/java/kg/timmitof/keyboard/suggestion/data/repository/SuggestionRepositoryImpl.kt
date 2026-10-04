@@ -24,13 +24,6 @@ import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/**
- * Подсказки слов поверх словаря языка и личной модели пользователя.
- *
- * Личная модель живёт в памяти весь сеанс клавиатуры и сбрасывается на диск
- * с задержкой: обучение идёт на каждом пробеле, а запись файла — раз в несколько
- * секунд после того, как пользователь перестал печатать.
- */
 @Singleton
 class SuggestionRepositoryImpl @Inject constructor(
     private val languageModelLoader: LanguageModelLoader,
@@ -44,7 +37,7 @@ class SuggestionRepositoryImpl @Inject constructor(
 
     private val mutex = Mutex()
 
-    /** SymSpell — изменяемый индекс; личные слова добавляем в него один раз на язык. */
+    // SymSpell — изменяемый индекс; личные слова добавляем в него один раз на язык.
     private val modelMutex = Mutex()
 
     private val syncedUserModels = ConcurrentHashMap.newKeySet<String>()

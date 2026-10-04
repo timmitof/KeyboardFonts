@@ -4,12 +4,7 @@ import com.darkrockstudios.symspellkt.common.SpellCheckSettings
 import com.darkrockstudios.symspellkt.common.Verbosity
 import com.darkrockstudios.symspellkt.impl.SymSpell
 
-/**
- * Исправление опечаток через алгоритм SymSpell (symmetric delete).
- *
- * Вместо полного перебора словаря с Дамерау — Левенштейном заранее строит
- * индекс удалений: кандидаты находятся без линейного прохода по всему словарю.
- */
+/** SymSpell (symmetric delete): индекс удалений строится заранее, без линейного прохода по словарю. */
 internal class SpellCorrector private constructor(
     private val symSpell: SymSpell,
     private val dictionary: WordDictionary,

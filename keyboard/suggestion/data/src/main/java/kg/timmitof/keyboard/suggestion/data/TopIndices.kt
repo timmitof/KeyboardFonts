@@ -1,11 +1,6 @@
 package kg.timmitof.keyboard.suggestion.data
 
-/**
- * Отбор лучших слов словаря без единого выделения памяти.
- *
- * Кандидатов на одно нажатие бывают тысячи, а до подсказок доходят единицы,
- * поэтому строки не создаются — в отборе участвуют только индексы и очки.
- */
+/** Отбор лучших слов без выделения памяти: кандидатов на нажатие тысячи, поэтому только индексы и очки. */
 internal class TopIndices(private val capacity: Int) {
 
     private val indices = IntArray(capacity)
@@ -29,6 +24,5 @@ internal class TopIndices(private val capacity: Int) {
         if (size < capacity) size++
     }
 
-    /** Индексы по убыванию очков. */
     fun indices(): IntArray = indices.copyOf(size)
 }

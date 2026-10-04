@@ -41,10 +41,8 @@ private val SegmentedShape = RoundedCornerShape(14.dp)
 private val SegmentShape = RoundedCornerShape(11.dp)
 private val IconButtonSize = 32.dp
 
-/** Пружина, общая для всех переключений окна: одинаковый отклик на любую правку. */
 private val ControlSpring = spring<Color>(stiffness = Spring.StiffnessMediumLow)
 
-/** Переключатель строки окна: бегунок при включении не только едет, но и растёт. */
 @Composable
 internal fun OverlaySwitch(
     isChecked: Boolean,
@@ -90,7 +88,6 @@ internal fun OverlaySwitch(
     }
 }
 
-/** Выбор из нескольких коротких вариантов: перекрашиваются сами сегменты. */
 @Composable
 internal fun OverlaySegmentedControl(
     options: List<String>,
@@ -154,7 +151,6 @@ private fun Segment(
     )
 }
 
-/** Кнопка-иконка в шапке окна: крестик и корзина. */
 @Composable
 internal fun OverlayIconButton(
     @DrawableRes iconRes: Int,
@@ -182,7 +178,6 @@ internal fun OverlayIconButton(
     }
 }
 
-/** Строка выхода в приложение — единственная, что уводит из клавиатуры. */
 @Composable
 internal fun OverlayActionRow(
     label: String,

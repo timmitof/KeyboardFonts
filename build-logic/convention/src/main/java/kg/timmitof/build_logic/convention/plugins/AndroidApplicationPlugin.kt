@@ -6,28 +6,6 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
 
-/**
- * # `AndroidApplicationPlugin`
- *
- * `AndroidApplicationPlugin` is a Gradle plugin for Android projects that centralizes and simplifies the configuration of application modules.
- *
- * ## Purpose
- *
- * * **Simplified configuration**: a single point for core project settings.
- * * **Flexibility**: easy to extend and add new common settings and tasks.
- *
- * The plugin serves as a platform for further expansion and automation of tasks related to Android applications, keeping information accurate and up-to-date as it evolves.
- *
- * ## Usage
- *
- * Apply the plugin in your module's `build.gradle.kts`:
- *
- * ```
- * plugins {
- *     alias(libs.plugins.keyboardfonts.application)
- * }
- *  ```
-*/
 class AndroidApplicationPlugin : Plugin<Project> {
     override fun apply(target: Project) = with(target) {
         applyPlugins(target)

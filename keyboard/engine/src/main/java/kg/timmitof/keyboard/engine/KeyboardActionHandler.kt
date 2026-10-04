@@ -14,14 +14,8 @@ import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardSideEff
 import kotlin.math.abs
 
 /**
- * Применяет side effects клавиатуры к полю ввода
- *
- * [InputConnection] и [EditorInfo] запрашиваются через провайдеры на каждое действие,
- * потому что у IME они меняются при каждой смене поля ввода
- *
- * @param context нужен спану подсказки — по нему он берёт локаль
- * @param inputConnectionProvider доступ к актуальному [InputConnection]
- * @param editorInfoProvider доступ к актуальному [EditorInfo]
+ * Применяет side effects к полю ввода. [InputConnection] и [EditorInfo] берутся через провайдеры,
+ * потому что меняются при каждой смене поля. [context] нужен спану подсказки (локаль).
  */
 internal class KeyboardActionHandler(
     private val context: Context,
@@ -48,9 +42,6 @@ internal class KeyboardActionHandler(
         }
     }
 
-    /**
-     * Помечает черновик как «будет исправлен».
-     */
     private fun CharSequence.withCorrectionHint(hasCorrection: Boolean): CharSequence {
         if (!hasCorrection) return this
 
@@ -64,16 +55,12 @@ internal class KeyboardActionHandler(
         }
     }
 
-    /**
-     * Заменяет незаконченное слово перед курсором на [text].
-     */
     private fun InputConnection.replaceWordBeforeCursor(text: CharSequence) {
         val before = getTextBeforeCursor(WORD_LOOKUP_LENGTH, 0)?.toString().orEmpty()
         val typed = before.takeLastWhile { !it.isWordSeparator() }
         replaceBeforeCursor(typed.length, text)
     }
 
-    /** Меняет [chars] символов перед курсором на [text] одной правкой. */
     private fun InputConnection.replaceBeforeCursor(chars: Int, text: CharSequence) {
         beginBatchEdit()
         if (chars > 0) deleteSurroundingText(chars, 0)
@@ -81,7 +68,6 @@ internal class KeyboardActionHandler(
         endBatchEdit()
     }
 
-    /** Граница слова: пробелы и знаки препинания в подсказку не входят. */
     private fun Char.isWordSeparator(): Boolean = isWhitespace() || this in WORD_SEPARATORS
 
     private fun InputConnection.performEnter() {
@@ -99,9 +85,6 @@ internal class KeyboardActionHandler(
         sendKeyEvent(KeyEvent(now, now, KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER, 0))
     }
 
-    /**
-     * Двигает курсор: [horizontal] символов (+вправо/−влево) и [vertical] строк (+вниз/−вверх)
-     */
     private fun InputConnection.moveCursor(horizontal: Int, vertical: Int) {
         val horizontalKey = if (horizontal >= 0) KeyEvent.KEYCODE_DPAD_RIGHT else KeyEvent.KEYCODE_DPAD_LEFT
         repeat(abs(horizontal)) { sendKey(horizontalKey) }
@@ -116,9 +99,6 @@ internal class KeyboardActionHandler(
         sendKeyEvent(KeyEvent(now, now, KeyEvent.ACTION_UP, keyCode, 0))
     }
 
-    /**
-     * Удаляет последний графемный кластер перед курсором.
-     */
     private fun InputConnection.deleteLastGrapheme() {
         val before = getTextBeforeCursor(GRAPHEME_LOOKUP_LENGTH, 0)
         if (before.isNullOrEmpty()) return
@@ -131,7 +111,6 @@ internal class KeyboardActionHandler(
         deleteSurroundingText(end - start, 0)
     }
 
-    /** Удаляет слово перед курсором: хвостовые пробелы + текст до предыдущего пробела. */
     private fun InputConnection.deleteWordBeforeCursor() {
         val before = getTextBeforeCursor(WORD_LOOKUP_LENGTH, 0)
         if (before.isNullOrEmpty()) return
@@ -146,16 +125,14 @@ internal class KeyboardActionHandler(
         }
     }
 
-    /** Выделяет [chars] символов назад от курсора, не двигая его конец. */
     private fun InputConnection.selectBeforeCursor(chars: Int) {
         val extracted = getExtractedText(ExtractedTextRequest(), 0) ?: return
         val text = extracted.text?.toString() ?: return
 
-        // Якорь выделения - позиция курсора
         val anchor = extracted.selectionEnd
         var start = (anchor - chars).coerceAtLeast(0)
 
-        // Начало не должно попадать внутрь эмодзи - сдвигаем к границе графемы
+        // Начало не должно попадать внутрь эмодзи — сдвигаем к границе графемы.
         val iterator = BreakIterator.getCharacterInstance()
         iterator.setText(text)
         if (start in 1 until text.length && !iterator.isBoundary(start)) {
@@ -166,13 +143,11 @@ internal class KeyboardActionHandler(
     }
 
     private companion object {
-        /** Сколько символов перед курсором запрашивать для поиска границы слова. */
         const val WORD_LOOKUP_LENGTH = 64
 
-        /** Знаки, которые не входят в слово (совпадают с разбором в `TextContext`). */
+        // Совпадает с разбором в TextContext.
         const val WORD_SEPARATORS = ".,!?;:()[]{}<>\"«»„“”…—–-/\\|@#\$%^&*+=~`№"
 
-        /** Сколько символов хватает для поиска границы графемы. */
         const val GRAPHEME_LOOKUP_LENGTH = 32
     }
 }

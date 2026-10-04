@@ -25,9 +25,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kg.timmitof.keyboard.presentation.theme.KFTheme
 
-/**
- * Нижняя навигация по секциям эмодзи.
- */
 @Composable
 internal fun EmojiTabsBar(
     sections: List<EmojiSection>,

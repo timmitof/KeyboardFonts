@@ -1,17 +1,9 @@
 package kg.timmitof.keyboard.data.font
 
-/**
- * Возвращает стилизованный текст к обычным буквам.
- */
 object FontDecoder {
 
-    /** Код-поинт глифа → обычный символ. */
     private val plainByGlyph: Map<Int, Char> by lazy { buildIndex() }
 
-    /**
-     * Убирает стилизацию: глифы шрифтов заменяются обычными буквами,
-     * комбинируемые знаки (подчёркивание, зачёркивание) выбрасываются.
-     */
     fun decode(text: String): String {
         if (text.isEmpty() || text.none { it.needsDecoding() }) return text
 
@@ -38,9 +30,6 @@ object FontDecoder {
             it == Character.NON_SPACING_MARK.toInt() || it == Character.ENCLOSING_MARK.toInt()
         }
 
-    /**
-     * Строит индекс по всем шрифтам каталога.
-     */
     private fun buildIndex(): Map<Int, Char> {
         val index = HashMap<Int, Char>(1024)
 

@@ -25,10 +25,8 @@ import androidx.compose.ui.unit.sp
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardEvent
 import kg.timmitof.keyboard.presentation.theme.KFTheme
 
-/** Колонок в сетке. */
 internal const val EmojiGridColumns = 8
 
-/** Высота заголовка секции — закреплённый заголовок занимает её поверх сетки. */
 internal val EmojiSectionHeaderHeight = 28.dp
 
 @Immutable
@@ -41,10 +39,7 @@ internal data class EmojiGridIndex(
         sectionStarts.indexOfLast { it <= itemIndex }.coerceAtLeast(0)
 }
 
-/**
- * Строит индекс: заголовок занимает целую строку, но в плоском списке это один элемент,
- * поэтому смещение секции — заголовок плюс её эмодзи.
- */
+/** Заголовок в плоском списке — один элемент, поэтому смещение секции = заголовок + её эмодзи. */
 internal fun List<EmojiSection>.gridIndex(): EmojiGridIndex {
     var offset = 0
     val starts = map { section ->
@@ -55,9 +50,6 @@ internal fun List<EmojiSection>.gridIndex(): EmojiGridIndex {
     return EmojiGridIndex(starts)
 }
 
-/**
- * Сплошная сетка эмодзи с заголовками секций и закреплённым заголовком сверху.
- */
 @Composable
 internal fun EmojiSectionsGrid(
     sections: List<EmojiSection>,

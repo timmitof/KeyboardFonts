@@ -34,10 +34,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kg.timmitof.core.ui.theme.appColors
 
-/**
- * Поле пробы: фокус ставится сразу, поэтому живая клавиатура уже открыта —
- * остаётся нажимать на стили над клавишами.
- */
 @Composable
 internal fun TryFontsField(
     placeholder: String,
@@ -79,10 +75,6 @@ internal fun TryFontsField(
     }
 }
 
-/**
- * Подсказка над клавиатурой: стрелка указывает вниз, на строку шрифтов —
- * первое, что стоит попробовать.
- */
 @Composable
 internal fun CoachMark(
     title: String,

@@ -53,20 +53,7 @@ import kg.timmitof.keyboard.presentation.components.keys.keySurface
 import kg.timmitof.keyboard.presentation.theme.KFTheme
 import kg.timmitof.keyboard.presentation.theme.KeyboardTheme
 
-/**
- * Уменьшенная копия клавиатуры для приложения — «как в фоторедакторе»: любое
- * изменение настроек сразу видно сверху.
- *
- * Цвета, раскладка, клавиши и их «шапки» — те же, что у живой клавиатуры, поэтому
- * предпросмотр не расходится с тем, что пользователь увидит при наборе. Ввода нет:
- * это картинка, а не вторая клавиатура.
- *
- * @param layout буквенная раскладка выбранного языка; `null` — пока грузится, рисуется только фон.
- * @param settings настройки, которые влияют на вид: тема, высота, цифровой ряд, панель шрифтов.
- * @param fonts шрифты для панели над клавишами.
- * @param selectedFont шрифт, которым подписаны клавиши — как при наборе.
- * @param languageName подпись на пробеле.
- */
+/** Уменьшенная копия клавиатуры для приложения: те же цвета, раскладка и клавиши, но без ввода. */
 @Composable
 fun KeyboardPreview(
     layout: KeyboardLayout?,
@@ -84,7 +71,6 @@ fun KeyboardPreview(
         KeyboardThemeMode.DARK -> true
     }
 
-    // Высота меняется пружиной — ползунок «Размер» виден сразу, без скачка.
     val rowHeight by animateDpAsState(
         targetValue = KeyRowHeight * settings.height.scale * PreviewScale,
         animationSpec = spring(dampingRatio = 0.85f, stiffness = 380f),
@@ -130,7 +116,6 @@ fun KeyboardPreview(
     }
 }
 
-/** Верхняя панель: шрифты слева, якоря буфера и быстрых настроек справа — как над клавишами. */
 @Composable
 private fun PreviewTopBar(
     fonts: List<KeyboardFont>,
@@ -197,7 +182,6 @@ private fun PreviewAnchor(@DrawableRes iconRes: Int) {
     }
 }
 
-/** Клавиша раскладки без жестов: только вид, который ей дала бы живая клавиатура. */
 @Composable
 private fun RowScope.PreviewKey(
     key: KeyboardKey,
@@ -293,10 +277,8 @@ private fun RowScope.PreviewKeyCap(
     }
 }
 
-/** Во сколько раз предпросмотр меньше живой клавиатуры. */
 private const val PreviewScale = 0.66f
 
-/** Сколько шрифтов помещается в панели предпросмотра. */
 private const val PreviewFontsCount = 4
 
 private const val FontSample = "Abc"

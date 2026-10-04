@@ -18,9 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-/**
- * Компонент секции с заголовком и контентом
- */
 @Composable
 internal fun SectionDivider(
     title: String,

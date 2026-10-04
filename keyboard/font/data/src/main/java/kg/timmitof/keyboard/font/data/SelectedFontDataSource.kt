@@ -9,13 +9,11 @@ import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/** Хранилище id выбранного шрифта поверх DataStore Preferences. */
 @Singleton
 class SelectedFontDataSource @Inject constructor(
     @param:ApplicationContext private val context: Context
 ) {
 
-    /** Сохранённый id шрифта или null, если пользователь ещё не выбирал. */
     suspend fun get(): String? =
         context.keyboardPreferences.data.first()[SELECTED_FONT_KEY]
 

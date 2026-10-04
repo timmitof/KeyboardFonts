@@ -28,14 +28,7 @@ import kg.timmitof.core.ui.R
 import kg.timmitof.core.ui.theme.AccentRole
 import kg.timmitof.core.ui.theme.appColors
 
-/**
- * Пилюля статуса в шапке: «Активна», «Подключена», «Не подключена».
- *
- * Роль задаёт цвет: [AccentRole.SUCCESS] рисуется с галочкой, остальные — с точкой.
- * Смена статуса перекрашивает пилюлю плавно, без перестройки разметки.
- *
- * @param onClick `null` — пилюля только показывает статус.
- */
+/** Пилюля статуса в шапке; смена статуса перекрашивает её плавно, без перестройки разметки. */
 @Composable
 fun StatusPill(
     text: String,

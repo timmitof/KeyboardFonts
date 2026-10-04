@@ -8,12 +8,7 @@ import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/**
- * Хранилище недавно использованных эмодзи поверх DataStore Preferences.
- *
- * Список хранится одной строкой с несимвольным разделителем —
- * свежие эмодзи в начале, размер ограничен [MAX_RECENT].
- */
+/** Одна строка с несимвольным разделителем: свежие в начале, не больше [MAX_RECENT]. */
 @Singleton
 class RecentEmojiDataSource @Inject constructor(
     @param:ApplicationContext private val context: Context
