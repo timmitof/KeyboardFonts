@@ -3,15 +3,11 @@ package kg.timmitof.feature_settings.presentation.studio
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import kg.timmitof.core.ui.components.color.ColorPickerDialog
@@ -52,11 +48,16 @@ internal fun ThemePane(
     onKeyColor: (KeyColorTarget, Long?) -> Unit,
     onToggle: (KeyboardToggle, Boolean) -> Unit,
 ) {
-    val tiles = listOf(
-        ThemeTile(KeyboardThemeMode.LIGHT, stringResource(R.string.theme_light)),
-        ThemeTile(KeyboardThemeMode.DARK, stringResource(R.string.theme_dark)),
-        ThemeTile(KeyboardThemeMode.AUTO, stringResource(R.string.theme_auto)),
-    )
+    val lightLabel = stringResource(R.string.theme_light)
+    val darkLabel = stringResource(R.string.theme_dark)
+    val autoLabel = stringResource(R.string.theme_auto)
+    val tiles = remember(lightLabel, darkLabel, autoLabel) {
+        listOf(
+            ThemeTile(KeyboardThemeMode.LIGHT, lightLabel),
+            ThemeTile(KeyboardThemeMode.DARK, darkLabel),
+            ThemeTile(KeyboardThemeMode.AUTO, autoLabel),
+        )
+    }
     // Фон с палитрой сам решает, светлая основа или тёмная, — говорим об этом прямо под плитками.
     val hasBackgroundPalette = settings.background.palette() != null
 
@@ -84,9 +85,9 @@ internal fun FontsPane(
     val panelDescription = stringResource(R.string.fonts_panel_description)
     val rememberTitle = stringResource(R.string.fonts_remember_title)
     val rememberDescription = stringResource(R.string.fonts_remember_description)
-    val visible = panel.visible.map { fontItem(it) }
-    val hidden = panel.hidden.map { fontItem(it) }
-    val visibleIds = visible.map(FontItem::id)
+    val visible = fontItems(panel.visible)
+    val hidden = fontItems(panel.hidden)
+    val visibleIds = remember(visible) { visible.map(FontItem::id) }
 
     SettingsSection {
         toggle(
@@ -139,12 +140,14 @@ internal fun FontsPane(
     }
 }
 
+/** Список собирается один раз на смену набора шрифтов или языка, а не на каждую рекомпозицию. */
 @Composable
-private fun fontItem(font: KeyboardFont) = FontItem(
-    id = font.id,
-    name = font.nameRes?.let { stringResource(it) } ?: font.id,
-    sample = remember(font) { font.apply(FontSample) },
-)
+private fun fontItems(fonts: List<KeyboardFont>): List<FontItem> {
+    val names = fonts.map { font -> font.nameRes?.let { stringResource(it) } ?: font.id }
+    return remember(fonts, names) {
+        fonts.mapIndexed { index, font -> FontItem(font.id, names[index], font.apply(FontSample)) }
+    }
+}
 
 private const val FontSample = "Abc"
 
@@ -264,7 +267,8 @@ internal fun SizePane(
     onToggle: (KeyboardToggle, Boolean) -> Unit,
 ) {
     val heightTitle = stringResource(R.string.size_height_title)
-    val heightOptions = KeyboardHeight.entries.map { stringResource(it.labelRes) }
+    val heightLabels = KeyboardHeight.entries.map { stringResource(it.labelRes) }
+    val heightOptions = remember(heightLabels) { heightLabels }
     val digitsTitle = stringResource(R.string.size_digits_row_title)
     val digitsDescription = stringResource(R.string.size_digits_row_description)
 
@@ -295,19 +299,23 @@ internal fun SoundPane(
     val isSoundOn = settings[KeyboardToggle.SOUND]
 
     // Пока тянут ползунок, громкость живёт локально, в хранилище — по отпусканию.
-    var volume by remember(settings.soundVolume) { mutableFloatStateOf(settings.soundVolume) }
+    // Состояние читается только внутри строки-слайдера, поэтому панель не перекомпонуется на каждый кадр.
+    val volume = remember(settings.soundVolume) { mutableFloatStateOf(settings.soundVolume) }
+    val resources = LocalResources.current
 
     val vibrationTitle = stringResource(R.string.sound_vibration_title)
     val soundTitle = stringResource(R.string.sound_click_title)
     val volumeTitle = stringResource(R.string.sound_volume_title)
-    val volumeLabel = stringResource(R.string.sound_volume_value, (volume * 100).roundToInt())
-    val packs = KeyboardSoundPack.entries.map { pack ->
-        ChipTab(
-            key = pack,
-            label = stringResource(pack.labelRes),
-            icon = painterResource(pack.iconRes),
-            role = AccentRole.HINT,
-        )
+    val packLabels = KeyboardSoundPack.entries.map { stringResource(it.labelRes) }
+    val packs = remember(packLabels) {
+        KeyboardSoundPack.entries.mapIndexed { index, pack ->
+            ChipTab(
+                key = pack,
+                label = packLabels[index],
+                iconRes = pack.iconRes,
+                role = AccentRole.HINT,
+            )
+        }
     }
     val keyPreviewTitle = stringResource(R.string.sound_key_preview_title)
     val keyPreviewDescription = stringResource(R.string.sound_key_preview_description)
@@ -325,15 +333,15 @@ internal fun SoundPane(
         )
         slider(
             title = volumeTitle,
-            value = volume,
-            valueLabel = volumeLabel,
+            value = volume.floatValue,
+            valueLabel = resources.getString(R.string.sound_volume_value, (volume.floatValue * 100).roundToInt()),
             isNested = true,
             isEnabled = isSoundOn,
             onValueChangeFinished = {
-                onSoundVolume(volume)
-                player.play(KeySound.STANDARD, settings.soundPack, volume)
+                onSoundVolume(volume.floatValue)
+                player.play(KeySound.STANDARD, settings.soundPack, volume.floatValue)
             },
-            onValueChange = { volume = it },
+            onValueChange = { volume.floatValue = it },
         )
         toggle(
             title = keyPreviewTitle,
@@ -351,7 +359,7 @@ internal fun SoundPane(
                 selected = settings.soundPack,
                 onSelect = { pack ->
                     onSoundPack(pack)
-                    player.play(KeySound.STANDARD, pack, volume)
+                    player.play(KeySound.STANDARD, pack, volume.floatValue)
                 },
                 contentPadding = PaddingValues(0.dp),
             )

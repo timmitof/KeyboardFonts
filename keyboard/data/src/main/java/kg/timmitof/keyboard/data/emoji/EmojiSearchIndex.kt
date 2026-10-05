@@ -2,6 +2,8 @@ package kg.timmitof.keyboard.data.emoji
 
 import kg.timmitof.keyboard.data.AssetTextLoader
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -10,6 +12,8 @@ import javax.inject.Singleton
 class EmojiSearchIndex @Inject constructor(
     private val assetTextLoader: AssetTextLoader,
 ) {
+
+    private val mutex = Mutex()
 
     @Volatile
     private var entries: List<Entry>? = null
@@ -28,7 +32,9 @@ class EmojiSearchIndex @Inject constructor(
         withContext(Dispatchers.Default) { index() }
     }
 
-    private suspend fun index(): List<Entry> = entries ?: load().also { entries = it }
+    private suspend fun index(): List<Entry> = entries ?: mutex.withLock {
+        entries ?: load().also { entries = it }
+    }
 
     private suspend fun load(): List<Entry> {
         val supported = EmojiCatalog.getCategories().flatMapTo(mutableSetOf()) { it.emojis }

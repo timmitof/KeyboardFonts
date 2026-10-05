@@ -5,6 +5,11 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
@@ -28,42 +33,55 @@ import kg.timmitof.keyboard.domain.model.KeyboardSettings
 internal fun BackgroundPane(
     settings: KeyboardSettings,
     photos: List<BackgroundPhoto>,
-    draft: KeyboardBackground.Solid?,
     onSelect: (KeyboardBackground) -> Unit,
     onPhotoPicked: (String) -> Unit,
     onEditPhoto: (Long) -> Unit,
-    onColorClick: () -> Unit,
-    onDraftChange: (Long) -> Unit,
-    onDraftApply: () -> Unit,
-    onDraftDismiss: () -> Unit,
+    onDraftPreview: (KeyboardBackground.Solid?) -> Unit,
     onKeyColor: (KeyColorTarget, Long?) -> Unit,
 ) {
     val photoPicker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         uri?.let { onPhotoPicked(it.toString()) }
     }
-    val pickPhoto = {
-        photoPicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+    val pickPhoto = remember {
+        { photoPicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }
     }
+    var isColorSheetOpen by rememberSaveable { mutableStateOf(false) }
+    val openColorSheet = remember { { isColorSheetOpen = true } }
 
     // «Нарисовать» появится здесь вместе с редактором фона.
-    val actions = listOf(
-        BackgroundAction(
-            label = stringResource(R.string.background_from_gallery),
-            icon = painterResource(R.drawable.ic_background_gallery),
-            role = AccentRole.APPEARANCE,
-            onClick = pickPhoto,
-        ),
-        BackgroundAction(
-            label = stringResource(R.string.background_color),
-            icon = painterResource(R.drawable.ic_background_color),
-            role = AccentRole.SUCCESS,
-            onClick = onColorClick,
-        ),
-    )
-    val tiles = listOf(BackgroundTile(stringResource(R.string.background_none), KeyboardBackground.None)) +
-        BackgroundPattern.entries.map { BackgroundTile(stringResource(it.labelRes), KeyboardBackground.Pattern(it)) }
-    val photoTiles = listOf(BackgroundTile(stringResource(R.string.background_add_photo), null)) +
-        photos.map { BackgroundTile(label = null, background = KeyboardBackground.Photo(it)) }
+    val galleryLabel = stringResource(R.string.background_from_gallery)
+    val galleryIcon = painterResource(R.drawable.ic_background_gallery)
+    val colorLabel = stringResource(R.string.background_color)
+    val colorIcon = painterResource(R.drawable.ic_background_color)
+    val actions = remember(galleryLabel, galleryIcon, colorLabel, colorIcon) {
+        listOf(
+            BackgroundAction(
+                label = galleryLabel,
+                icon = galleryIcon,
+                role = AccentRole.APPEARANCE,
+                onClick = pickPhoto,
+            ),
+            BackgroundAction(
+                label = colorLabel,
+                icon = colorIcon,
+                role = AccentRole.SUCCESS,
+                onClick = openColorSheet,
+            ),
+        )
+    }
+    val noneLabel = stringResource(R.string.background_none)
+    val patternLabels = BackgroundPattern.entries.map { stringResource(it.labelRes) }
+    val tiles = remember(noneLabel, patternLabels) {
+        listOf(BackgroundTile(noneLabel, KeyboardBackground.None)) +
+            BackgroundPattern.entries.mapIndexed { index, pattern ->
+                BackgroundTile(patternLabels[index], KeyboardBackground.Pattern(pattern))
+            }
+    }
+    val addPhotoLabel = stringResource(R.string.background_add_photo)
+    val photoTiles = remember(addPhotoLabel, photos) {
+        listOf(BackgroundTile(addPhotoLabel, null)) +
+            photos.map { BackgroundTile(label = null, background = KeyboardBackground.Photo(it)) }
+    }
     val selectedPhotoId = (settings.background as? KeyboardBackground.Photo)?.photo?.id
 
     BackgroundActions(actions = actions)
@@ -101,19 +119,33 @@ internal fun BackgroundPane(
 
     KeyColorsSection(settings = settings, onKeyColor = onKeyColor)
 
-    draft?.let {
+    if (isColorSheetOpen) {
+        // Шторка открывается с текущим цветом фона, а если фон не цветной — с первого из готовых.
+        val initial = remember {
+            Color(((settings.background as? KeyboardBackground.Solid)?.argb ?: DefaultBackgroundColor).toInt())
+        }
         BackgroundColorSheet(
-            color = Color(it.argb.toInt()),
+            initial = initial,
             title = stringResource(R.string.background_color_title),
             toneLabel = stringResource(R.string.background_custom_tone),
             cancelLabel = stringResource(R.string.background_cancel),
             applyLabel = stringResource(R.string.background_apply),
-            onChange = { color -> onDraftChange(color.toArgb().toLong() and 0xFFFFFFFFL) },
-            onApply = onDraftApply,
-            onDismiss = onDraftDismiss,
+            onPreview = { color -> onDraftPreview(KeyboardBackground.Solid(color.toArgbLong())) },
+            onApply = { color ->
+                onSelect(KeyboardBackground.Solid(color.toArgbLong()))
+                isColorSheetOpen = false
+            },
+            onDismiss = {
+                isColorSheetOpen = false
+                onDraftPreview(null)
+            },
         )
     }
 }
+
+private fun Color.toArgbLong(): Long = toArgb().toLong() and 0xFFFFFFFFL
+
+private const val DefaultBackgroundColor = 0xFFCDEFE7L
 
 private val BackgroundPattern.labelRes: Int
     get() = when (this) {

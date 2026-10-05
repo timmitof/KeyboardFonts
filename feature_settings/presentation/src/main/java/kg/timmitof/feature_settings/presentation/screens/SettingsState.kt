@@ -24,12 +24,8 @@ data class SettingsState(
     val clipboard: ClipboardBoard = ClipboardBoard(),
     val fontPanel: FontPanel = FontPanel(),
     val selectedTab: StudioTab = StudioTab.Default,
-    val backgroundDraft: KeyboardBackground.Solid? = null,
     val photos: List<BackgroundPhoto> = emptyList(),
 ) : BaseState() {
-
-    val previewSettings: KeyboardSettings
-        get() = backgroundDraft?.let { settings.copy(background = it) } ?: settings
 }
 
 sealed class SettingsSideEffect : BaseSideEffect.UiSideEffect()
@@ -49,14 +45,6 @@ sealed class SettingsEvent : BaseEvent.UiEvent() {
     data class BackgroundPhotoPicked(val uri: String) : SettingsEvent()
 
     data class EditPhotoClicked(val photoId: Long) : SettingsEvent()
-
-    data object BackgroundColorClicked : SettingsEvent()
-
-    data class BackgroundDraftChanged(val argb: Long) : SettingsEvent()
-
-    data object BackgroundDraftApplied : SettingsEvent()
-
-    data object BackgroundDraftDismissed : SettingsEvent()
 
     data class SoundPackChanged(val pack: KeyboardSoundPack) : SettingsEvent()
 

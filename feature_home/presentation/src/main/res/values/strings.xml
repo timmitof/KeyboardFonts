@@ -3,11 +3,7 @@
 
     <string name="app_title">Keyboard Fonts</string>
 
-    <string name="content_description_keyboard_off">Открыть панель для включения клавиатуры</string>
-    <string name="content_description_keyboard_on">Клавиатура подключена</string>
-    <string name="your_works">Ваши работы</string>
     <string name="backgrounds">Шаблоны</string>
-    <string name="create_background">Создать картинку</string>
 
     <!-- Подключение: заголовки по текущему шагу -->
     <string name="onboarding_status_connected">Подключена</string>

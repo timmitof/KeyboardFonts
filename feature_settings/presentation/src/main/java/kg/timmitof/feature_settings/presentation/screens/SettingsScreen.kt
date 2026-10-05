@@ -9,7 +9,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -25,6 +29,7 @@ import kg.timmitof.core.ui.components.brand.StatusPill
 import kg.timmitof.core.ui.components.hint.TipsCard
 import kg.timmitof.core.ui.theme.AccentRole
 import kg.timmitof.core.ui.theme.KeyboardFontsTheme
+import kotlinx.coroutines.flow.drop
 import kg.timmitof.feature_settings.presentation.R
 import kg.timmitof.feature_settings.presentation.components.StudioPreviewCard
 import kg.timmitof.feature_settings.presentation.studio.BackgroundPane
@@ -104,20 +109,29 @@ internal fun ContainerDSLBuilder<SettingsSideEffect, SettingsEvent>.SettingsCont
     val onEditPhoto = remember<(Long) -> Unit> {
         { id -> sendEvent(SettingsEvent.EditPhotoClicked(id)) }
     }
-    val onBackgroundDraft = remember<(Long) -> Unit> {
-        { argb -> sendEvent(SettingsEvent.BackgroundDraftChanged(argb)) }
-    }
-    val onBackgroundColor = remember { { sendEvent(SettingsEvent.BackgroundColorClicked) } }
-    val onBackgroundDraftApply = remember { { sendEvent(SettingsEvent.BackgroundDraftApplied) } }
-    val onBackgroundDraftDismiss = remember { { sendEvent(SettingsEvent.BackgroundDraftDismissed) } }
     val onTab = remember<(StudioTab) -> Unit> {
         { tab -> sendEvent(SettingsEvent.TabSelected(tab)) }
     }
     val onClearClipboard = remember { { sendEvent(SettingsEvent.ClearRecentClipboardClicked) } }
     val onConnect = remember { { sendEvent(SettingsEvent.ConnectKeyboardClicked) } }
 
-    val settings = state.value.settings
-    val summary = state.value.summary
+    // Каждая панель читает только свой кусок состояния: derivedStateOf не будит остальных при чужих изменениях.
+    val settings = remember(state) { derivedStateOf { state.value.settings } }
+    val summary = remember(state) { derivedStateOf { state.value.summary } }
+    val fontPanel = remember(state) { derivedStateOf { state.value.fontPanel } }
+    val photos = remember(state) { derivedStateOf { state.value.photos } }
+    val clipboard = remember(state) { derivedStateOf { state.value.clipboard } }
+    val isKeyboardReady by remember(state) { derivedStateOf { state.value.summary.isKeyboardReady } }
+    val selectedTab = remember<() -> StudioTab>(state) { { state.value.selectedTab } }
+
+    // Черновик цвета фона живёт только здесь: превью клавиатуры видит его сразу, во ViewModel он уходит по «Применить».
+    val backgroundDraft = remember { mutableStateOf<KeyboardBackground.Solid?>(null) }
+    val onDraftPreview = remember<(KeyboardBackground.Solid?) -> Unit> { { draft -> backgroundDraft.value = draft } }
+    LaunchedEffect(settings) {
+        snapshotFlow { settings.value.background }
+            .drop(1)
+            .collect { backgroundDraft.value = null }
+    }
 
     Column(
         modifier = Modifier
@@ -128,17 +142,14 @@ internal fun ContainerDSLBuilder<SettingsSideEffect, SettingsEvent>.SettingsCont
             )
     ) {
         StudioHeader(
-            isKeyboardReady = summary.isKeyboardReady,
+            isKeyboardReady = isKeyboardReady,
             onConnect = onConnect,
         )
 
-        StudioPreviewCard(
+        StudioPreview(
+            state = state,
+            draft = backgroundDraft,
             modifier = Modifier.padding(horizontal = HorizontalPadding),
-            settings = state.value.previewSettings,
-            summary = summary,
-            fonts = state.value.fontPanel.visible,
-            sample = stringResource(R.string.studio_preview_sample),
-            checkLabel = stringResource(R.string.studio_preview_check),
         )
 
         Column(
@@ -149,27 +160,23 @@ internal fun ContainerDSLBuilder<SettingsSideEffect, SettingsEvent>.SettingsCont
                 .padding(top = 14.dp, bottom = BottomPadding)
         ) {
             StudioTabs(
-                selected = state.value.selectedTab,
+                selected = selectedTab,
                 onSelect = onTab,
             ) {
                 tab(StudioTab.BACKGROUND) {
                     BackgroundPane(
-                        settings = settings,
-                        photos = state.value.photos,
-                        draft = state.value.backgroundDraft,
+                        settings = settings.value,
+                        photos = photos.value,
                         onSelect = onBackground,
                         onPhotoPicked = onBackgroundPhoto,
                         onEditPhoto = onEditPhoto,
-                        onColorClick = onBackgroundColor,
-                        onDraftChange = onBackgroundDraft,
-                        onDraftApply = onBackgroundDraftApply,
-                        onDraftDismiss = onBackgroundDraftDismiss,
+                        onDraftPreview = onDraftPreview,
                         onKeyColor = onKeyColor,
                     )
                 }
                 tab(StudioTab.THEME) {
                     ThemePane(
-                        settings = settings,
+                        settings = settings.value,
                         onTheme = onTheme,
                         onKeyColor = onKeyColor,
                         onToggle = onToggle,
@@ -177,38 +184,57 @@ internal fun ContainerDSLBuilder<SettingsSideEffect, SettingsEvent>.SettingsCont
                 }
                 tab(StudioTab.FONTS) {
                     FontsPane(
-                        settings = settings,
-                        panel = state.value.fontPanel,
+                        settings = settings.value,
+                        panel = fontPanel.value,
                         onToggle = onToggle,
                         onPanelFonts = onPanelFonts,
                         onReset = onResetFonts,
                     )
                 }
                 tab(StudioTab.INPUT) {
-                    InputPane(settings = settings, onToggle = onToggle)
+                    InputPane(settings = settings.value, onToggle = onToggle)
                 }
                 tab(StudioTab.LANGUAGES) {
-                    LanguagesPane(languages = summary.languages, selected = summary.selectedLanguage)
+                    val current = summary.value
+                    LanguagesPane(languages = current.languages, selected = current.selectedLanguage)
                 }
                 tab(StudioTab.SIZE) {
-                    SizePane(settings = settings, onHeight = onHeight, onToggle = onToggle)
+                    SizePane(settings = settings.value, onHeight = onHeight, onToggle = onToggle)
                 }
                 tab(StudioTab.SOUND) {
                     SoundPane(
-                        settings = settings,
+                        settings = settings.value,
                         onToggle = onToggle,
                         onSoundPack = onSoundPack,
                         onSoundVolume = onSoundVolume,
                     )
                 }
                 tab(StudioTab.CLIPBOARD) {
-                    ClipboardPane(board = state.value.clipboard, onClearRecent = onClearClipboard)
+                    ClipboardPane(board = clipboard.value, onClearRecent = onClearClipboard)
                 }
             }
 
             StudioTips(modifier = Modifier.padding(horizontal = HorizontalPadding, vertical = 12.dp))
         }
     }
+}
+
+/** Читает состояние сам, чтобы рекомпозиция превью не задевала остальной экран. */
+@Composable
+private fun StudioPreview(
+    state: State<SettingsState>,
+    draft: State<KeyboardBackground.Solid?>,
+    modifier: Modifier = Modifier,
+) {
+    StudioPreviewCard(
+        modifier = modifier,
+        settings = state.value.settings,
+        draft = { draft.value },
+        summary = state.value.summary,
+        fonts = state.value.fontPanel.visible,
+        sample = stringResource(R.string.studio_preview_sample),
+        checkLabel = stringResource(R.string.studio_preview_check),
+    )
 }
 
 @Composable

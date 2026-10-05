@@ -14,6 +14,9 @@ sealed interface KeyboardBackground {
     companion object {
         val Default: KeyboardBackground = None
 
+        /** Нужна ли для этого ключа база с фото: для остальных фонов Room открывать незачем. */
+        fun isPhotoKey(key: String?): Boolean = key?.startsWith("$PHOTO$SEPARATOR") == true
+
         /** Фото хранится ссылкой на id: сами фото со своим кадром живут в базе, [photo] достаёт их оттуда. */
         fun of(key: String?, photo: (id: Long) -> BackgroundPhoto? = { null }): KeyboardBackground {
             val (type, value) = key?.split(SEPARATOR, limit = 2)?.takeIf { it.size == 2 }

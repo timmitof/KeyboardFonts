@@ -25,13 +25,26 @@ class BackgroundPhotoStorage @Inject constructor(
         directory.mkdirs()
 
         val file = File(directory, "photo_${System.currentTimeMillis()}.${extensionOf(source)}")
-        val input = context.contentResolver.openInputStream(source) ?: error("Не удалось открыть $uri")
-        input.use { stream -> file.outputStream().use { stream.copyTo(it) } }
+        try {
+            val input = context.contentResolver.openInputStream(source) ?: error("Не удалось открыть $uri")
+            input.use { stream -> file.outputStream().use { stream.copyTo(it) } }
 
-        StoredPhoto(path = file.absolutePath, tone = averageColor(file))
+            StoredPhoto(path = file.absolutePath, tone = averageColor(file))
+        } catch (error: Throwable) {
+            // Недокопированный файл никто не удалит — ссылки на него ещё нет.
+            file.delete()
+            throw error
+        }
     }
 
-    suspend fun delete(path: String) = withContext(Dispatchers.IO) {
+    /** `true`, если файла после вызова нет: по этому признаку вызывающий решает, можно ли забыть ссылку. */
+    suspend fun delete(path: String): Boolean = withContext(Dispatchers.IO) {
+        val file = File(path)
+        file.parentFile != directory || !file.exists() || file.delete()
+    }
+
+    /** Убирает файл, на который не осталось ссылки (например, не удалась запись в базу). */
+    fun discard(path: String) {
         File(path).takeIf { it.parentFile == directory }?.delete()
     }
 

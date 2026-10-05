@@ -23,6 +23,14 @@ internal class KeyboardActionHandler(
     private val editorInfoProvider: () -> EditorInfo?,
 ) {
 
+    /** Вызывается только с главного потока, поэтому один экземпляр на всё время жизни. */
+    private val graphemeIterator: BreakIterator by lazy { BreakIterator.getCharacterInstance() }
+
+    /** Подсказка автозамены одна на все символы: пересоздавать её на каждое нажатие незачем. */
+    private val autoCorrectionSpan by lazy {
+        SuggestionSpan(context, arrayOf(), SuggestionSpan.FLAG_AUTO_CORRECTION)
+    }
+
     fun handle(action: KeyboardSideEffect.Input) {
         val connection = inputConnectionProvider() ?: return
         when (action) {
@@ -47,7 +55,7 @@ internal class KeyboardActionHandler(
 
         return SpannableString(this).apply {
             setSpan(
-                SuggestionSpan(context, arrayOf(), SuggestionSpan.FLAG_AUTO_CORRECTION),
+                autoCorrectionSpan,
                 0,
                 length,
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
@@ -100,10 +108,18 @@ internal class KeyboardActionHandler(
     }
 
     private fun InputConnection.deleteLastGrapheme() {
+        // Быстрый путь: два последних символа простые — граница графемы между ними очевидна, разбор не нужен.
+        val tail = getTextBeforeCursor(FAST_DELETE_LOOKUP_LENGTH, 0)
+        if (tail.isNullOrEmpty()) return
+        if (tail.all { it.isPlainChar() }) {
+            deleteSurroundingText(1, 0)
+            return
+        }
+
         val before = getTextBeforeCursor(GRAPHEME_LOOKUP_LENGTH, 0)
         if (before.isNullOrEmpty()) return
 
-        val iterator = BreakIterator.getCharacterInstance()
+        val iterator = graphemeIterator
         iterator.setText(before.toString())
         val end = iterator.last()
         val start = iterator.previous().takeIf { it != BreakIterator.DONE } ?: 0
@@ -126,14 +142,18 @@ internal class KeyboardActionHandler(
     }
 
     private fun InputConnection.selectBeforeCursor(chars: Int) {
-        val extracted = getExtractedText(ExtractedTextRequest(), 0) ?: return
+        // Окно вокруг курсора вместо всего документа: длинный текст не гоняем через IPC.
+        val request = ExtractedTextRequest().apply {
+            hintMaxChars = (chars + SELECTION_LOOKUP_MARGIN).coerceAtLeast(MIN_SELECTION_LOOKUP)
+        }
+        val extracted = getExtractedText(request, 0) ?: return
         val text = extracted.text?.toString() ?: return
 
         val anchor = extracted.selectionEnd
         var start = (anchor - chars).coerceAtLeast(0)
 
         // Начало не должно попадать внутрь эмодзи — сдвигаем к границе графемы.
-        val iterator = BreakIterator.getCharacterInstance()
+        val iterator = graphemeIterator
         iterator.setText(text)
         if (start in 1 until text.length && !iterator.isBoundary(start)) {
             start = iterator.preceding(start).takeIf { it != BreakIterator.DONE } ?: 0
@@ -142,7 +162,34 @@ internal class KeyboardActionHandler(
         setSelection(extracted.startOffset + start, extracted.startOffset + anchor)
     }
 
+    /**
+     * «Простой» символ не склеивается с соседями в графему: не суррогат, не метка/формат-символ
+     * (ZWJ, вариационные селекторы, комбинируемые), не управляющий (CR+LF) и не хангыль-джамо.
+     */
+    private fun Char.isPlainChar(): Boolean {
+        if (isSurrogate() || this in HANGUL_JAMO) return false
+
+        return when (Character.getType(this).toByte()) {
+            Character.NON_SPACING_MARK,
+            Character.ENCLOSING_MARK,
+            Character.COMBINING_SPACING_MARK,
+            Character.FORMAT,
+            Character.CONTROL -> false
+
+            else -> true
+        }
+    }
+
     private companion object {
+        /** Достаточно двух символов: последний и тот, с которым он мог бы склеиться. */
+        const val FAST_DELETE_LOOKUP_LENGTH = 2
+
+        const val SELECTION_LOOKUP_MARGIN = 64
+
+        const val MIN_SELECTION_LOOKUP = 256
+
+        val HANGUL_JAMO = 'ᄀ'..'ᇿ'
+
         const val WORD_LOOKUP_LENGTH = 64
 
         // Совпадает с разбором в TextContext.

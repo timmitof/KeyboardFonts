@@ -7,6 +7,7 @@ import kg.timmitof.keyboard.clipboard.domain.model.ClipboardBoard
 import kg.timmitof.keyboard.clipboard.domain.model.ClipboardEntry
 import kg.timmitof.keyboard.clipboard.domain.repository.ClipboardRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
@@ -15,17 +16,24 @@ class ClipboardRepositoryImpl @Inject constructor(
     private val systemClipboard: SystemClipboardSource,
 ) : ClipboardRepository {
 
+    /** Последний захваченный текст: системный клип не меняется между открытиями клавиатуры, писать в БД заново незачем. */
+    @Volatile
+    private var lastCaptured: String? = null
+
     override fun observeBoard(): Flow<ClipboardBoard> = clipboardDao.observeAll()
         .map(List<ClipboardEntryEntity>::toBoard)
+        .distinctUntilChanged()
 
     override suspend fun captureSystemClip() {
         val text = systemClipboard.read() ?: return
+        if (text == lastCaptured) return
 
         clipboardDao.capture(
             text = text,
             copiedAt = System.currentTimeMillis(),
             recentLimit = MAX_RECENT,
         )
+        lastCaptured = text
     }
 
     override suspend fun setPinned(id: Long, isPinned: Boolean) =

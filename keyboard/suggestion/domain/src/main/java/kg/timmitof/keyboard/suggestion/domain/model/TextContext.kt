@@ -9,35 +9,39 @@ data class TextContext(
     val after: String = "",
 ) {
 
-    val composingWord: String
-        get() = if (after.firstOrNull()?.let(::isWordChar) == true) {
+    // Производные значения считаются один раз на снимок и не входят в equals/hashCode.
+    val composingWord: String by lazy(LazyThreadSafetyMode.NONE) {
+        if (after.firstOrNull()?.let(::isWordChar) == true) {
             ""
         } else {
             before.takeLastWhile { isWordChar(it) }
         }
+    }
 
-    private val beforeWord: String
-        get() = before.dropLast(composingWord.length)
+    private val beforeWord: String by lazy(LazyThreadSafetyMode.NONE) {
+        before.dropLast(composingWord.length)
+    }
 
     /** Левая часть биграммы. После конца предложения пусто. */
-    val previousWord: String
-        get() = if (isSentenceStart) {
+    val previousWord: String by lazy(LazyThreadSafetyMode.NONE) {
+        if (isSentenceStart) {
             ""
         } else {
             beforeWord.trimEnd { !isWordChar(it) }.takeLastWhile { isWordChar(it) }
         }
+    }
 
     /** Отступы обрезаются, перевод строки — нет: он сам конец предложения. */
-    val isSentenceStart: Boolean
-        get() {
-            val text = beforeWord.trimEnd { it in INDENTS }
-            return text.isEmpty() || text.last() in SENTENCE_END
-        }
+    val isSentenceStart: Boolean by lazy(LazyThreadSafetyMode.NONE) {
+        val text = beforeWord.trimEnd { it in INDENTS }
+        text.isEmpty() || text.last() in SENTENCE_END
+    }
 
-    val surroundingWords: List<String>
-        get() = (beforeWord + ' ' + after)
+    val surroundingWords: List<String> by lazy(LazyThreadSafetyMode.NONE) {
+        (beforeWord + ' ' + after)
             .split(*SEPARATOR_CHARS)
             .filter { it.length >= MIN_CONTEXT_WORD }
+    }
 
     /** Обновляет снимок сразу, не дожидаясь поля ввода, иначе подсказки и авто-Shift считаются по устаревшему тексту. */
     fun appending(text: String): TextContext =

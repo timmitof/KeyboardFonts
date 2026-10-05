@@ -37,10 +37,6 @@ class SettingsViewModel @Inject constructor(
             is SettingsEvent.BackgroundSelected -> setBackground(event.background)
             is SettingsEvent.BackgroundPhotoPicked -> addPhoto(event.uri)
             is SettingsEvent.EditPhotoClicked -> navigateTo(SettingsGraph.BackgroundCropScreen(event.photoId))
-            is SettingsEvent.BackgroundColorClicked -> openBackgroundColor()
-            is SettingsEvent.BackgroundDraftChanged -> changeBackgroundDraft(event.argb)
-            is SettingsEvent.BackgroundDraftApplied -> applyBackgroundDraft()
-            is SettingsEvent.BackgroundDraftDismissed -> dismissBackgroundDraft()
             is SettingsEvent.SoundPackChanged -> setSoundPack(event.pack)
             is SettingsEvent.SoundVolumeChanged -> setSoundVolume(event.volume)
             is SettingsEvent.PanelFontsChanged -> setPanelFonts(event.ids)
@@ -116,28 +112,6 @@ class SettingsViewModel @Inject constructor(
         settingsInteractor.setBackground(background)
     }
 
-    /** Шторка открывается с текущим цветом фона, а если фон не цветной — с первым из готовых. */
-    private fun openBackgroundColor() = intent {
-        val current = state.settings.background as? KeyboardBackground.Solid
-        reduce { state.copy(backgroundDraft = current ?: KeyboardBackground.Solid(DEFAULT_BACKGROUND_COLOR)) }
-    }
-
-    private fun changeBackgroundDraft(argb: Long) = intent {
-        if (state.backgroundDraft != null) {
-            reduce { state.copy(backgroundDraft = KeyboardBackground.Solid(argb)) }
-        }
-    }
-
-    private fun applyBackgroundDraft() = intent {
-        val draft = state.backgroundDraft ?: return@intent
-        settingsInteractor.setBackground(draft)
-        reduce { state.copy(backgroundDraft = null) }
-    }
-
-    private fun dismissBackgroundDraft() = intent {
-        reduce { state.copy(backgroundDraft = null) }
-    }
-
     private fun setSoundPack(pack: KeyboardSoundPack) = intent {
         settingsInteractor.setSoundPack(pack)
     }
@@ -159,9 +133,5 @@ class SettingsViewModel @Inject constructor(
         if (summary != state.summary) {
             reduce { state.copy(summary = summary) }
         }
-    }
-
-    private companion object {
-        const val DEFAULT_BACKGROUND_COLOR = 0xFFCDEFE7L
     }
 }

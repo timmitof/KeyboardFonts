@@ -22,7 +22,6 @@ object StorageModule {
     fun provideDatabase(@ApplicationContext context: Context): AppDatabase =
         Room.databaseBuilder(context, AppDatabase::class.java, AppDatabase.TAG)
             .addMigrations(*Migrations.all)
-            .enableMultiInstanceInvalidation()
             .build()
 
     @Singleton

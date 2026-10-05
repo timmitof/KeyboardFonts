@@ -52,7 +52,7 @@ class SuggestionEngine @Inject constructor() {
         }
 
         if (previous.isNotEmpty()) {
-            user.followersOf(previous).keys.forEach { word -> offer(word) }
+            boosts.followers.keys.forEach { word -> offer(word) }
             model.bigrams.after(previous, PREDICTION_FOLLOWERS).forEach { follower ->
                 offer(follower.word)
             }
@@ -98,10 +98,13 @@ class SuggestionEngine @Inject constructor() {
 
         if (!isKnown) {
             maxTypoDistance(query)?.let { maxDistance ->
-                model.spellCorrector.corrections(query, maxDistance).forEach { correction ->
+                // Индекс строится в фоне: пока не готов, обходимся без исправлений опечаток.
+                model.spellCorrector?.corrections(query, maxDistance)?.forEach { correction ->
+                    // Выученных слов нет в словаре (счёт 0) — берём оценку из личной частоты.
+                    val base = correction.score.takeIf { it > 0 } ?: personalScore(user.countOf(correction.word))
                     offer(
                         word = correction.word,
-                        score = correction.score - typoPenalty(correction.distance) + proximityBonus(query, correction.word),
+                        score = base - typoPenalty(correction.distance) + proximityBonus(query, correction.word),
                         distance = correction.distance,
                     )
                 }
@@ -111,7 +114,7 @@ class SuggestionEngine @Inject constructor() {
         user.wordsWithPrefix(query).forEach { word -> offer(word, USER_WORD_SCORE, distance = 0) }
         boosts.surroundingWithPrefix(query).forEach { word -> offer(word, USER_WORD_SCORE, distance = 0) }
 
-        val expected = expectedAfter(previous, query, model, user, ::offer)
+        val expected = expectedAfter(previous, query, model, user, boosts, ::offer)
 
         val ranked = candidates.values.sortedByDescending { it.score }
         val best = ranked.firstOrNull() ?: return emptyList()
@@ -142,6 +145,7 @@ class SuggestionEngine @Inject constructor() {
         query: String,
         model: LanguageModel,
         user: UserLanguageModel,
+        boosts: Boosts,
         offer: (word: String, score: Int, distance: Int) -> Unit,
     ): Set<String> {
         if (previous.isEmpty()) return emptySet()
@@ -152,7 +156,7 @@ class SuggestionEngine @Inject constructor() {
             expected += follower.word
             offer(follower.word, model.dictionary.scoreOf(follower.word), 0)
         }
-        user.followersOf(previous).keys.forEach { word ->
+        boosts.followers.keys.forEach { word ->
             if (word.length <= query.length || !word.startsWith(query)) return@forEach
             expected += word
             offer(word, maxOf(model.dictionary.scoreOf(word), USER_WORD_SCORE), 0)
@@ -220,11 +224,14 @@ class SuggestionEngine @Inject constructor() {
         private val surrounding: Set<String>,
     ) {
 
+        /** Живая карта выученных продолжений предыдущего слова: берём один раз на запрос. */
+        val followers: Map<String, Int> = if (previous.isEmpty()) emptyMap() else user.followersOf(previous)
+
         fun of(word: String): Int {
             var bonus = personalScore(user.countOf(word))
 
             if (previous.isNotEmpty()) {
-                bonus += learnedPairScore(user.pairCount(previous, word))
+                bonus += learnedPairScore(followers[word] ?: 0)
                 bonus += model.bigrams.scoreOf(previous, word) * DICTIONARY_PAIR_WEIGHT / WEIGHT_UNIT
             }
             if (word in surrounding) bonus += SURROUNDING_BONUS

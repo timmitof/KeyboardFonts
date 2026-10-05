@@ -1,10 +1,13 @@
 package kg.timmitof.keyboard.suggestion.data
 
 import kg.timmitof.keyboard.data.AssetTextLoader
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -18,22 +21,34 @@ class LanguageModelLoader @Inject constructor(
 
     private val mutex = Mutex()
 
+    private val indexScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
     internal suspend fun load(languageCode: String): LanguageModel =
         models[languageCode] ?: mutex.withLock {
             models[languageCode] ?: read(languageCode).also { models[languageCode] = it }
         }
 
-    private suspend fun read(languageCode: String): LanguageModel = withContext(Dispatchers.Default) {
-        val words = assetTextLoader.loadText("$DIRECTORY/$languageCode$DICTIONARY_EXTENSION")
-            ?: return@withContext LanguageModel.Empty
+    private suspend fun read(languageCode: String): LanguageModel = coroutineScope {
+        val wordsText = async(Dispatchers.IO) {
+            assetTextLoader.loadText("$DIRECTORY/$languageCode$DICTIONARY_EXTENSION")
+        }
+        val bigramsText = async(Dispatchers.IO) {
+            assetTextLoader.loadText("$DIRECTORY/$languageCode$BIGRAMS_EXTENSION")
+        }
 
-        val bigrams = assetTextLoader.loadText("$DIRECTORY/$languageCode$BIGRAMS_EXTENSION")
-        val dictionary = WordDictionary.parse(words)
+        val words = wordsText.await() ?: return@coroutineScope LanguageModel.Empty
+
+        val dictionary = async(Dispatchers.Default) { WordDictionary.parse(words) }
+        val bigrams = async(Dispatchers.Default) {
+            bigramsText.await()?.let(BigramTable::parse) ?: BigramTable.Empty
+        }
+        val parsed = dictionary.await()
 
         LanguageModel(
-            dictionary = dictionary,
-            bigrams = bigrams?.let(BigramTable::parse) ?: BigramTable.Empty,
-            spellCorrector = SpellCorrector.build(dictionary),
+            dictionary = parsed,
+            bigrams = bigrams.await(),
+            // Свой scope: индекс должен пережить вызвавшую корутину.
+            spellIndex = indexScope.async { SpellCorrector.build(parsed) },
         )
     }
 

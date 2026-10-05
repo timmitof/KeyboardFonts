@@ -1,8 +1,7 @@
 package kg.timmitof.keyboard.presentation.components.emoji
 
+import kg.timmitof.core.ui.plainClickable
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -166,11 +165,7 @@ private fun EmojiSearchField(
             .padding(horizontal = 3.dp)
             .height(SearchFieldHeight)
             .background(KFTheme.color.keyButtonBackground, KeyShape)
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-                onClick = onClick
-            )
+            .plainClickable(onClick)
             .padding(horizontal = 12.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically

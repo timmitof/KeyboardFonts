@@ -189,7 +189,12 @@ internal fun PhotoCropFrame(
     val ratio = screenWidth / keyboardHeight
 
     LaunchedEffect(path, initialCrop) { state.restore(initialCrop) }
-    (painterState as? AsyncImagePainter.State.Success)?.let { state.image = painter.intrinsicSize }
+    // Размер картинки сообщаем состоянию вне композиции — по факту загрузки.
+    LaunchedEffect(painter) {
+        painter.state.collect { loaded ->
+            if (loaded is AsyncImagePainter.State.Success) state.image = painter.intrinsicSize
+        }
+    }
 
     Box(
         modifier = modifier

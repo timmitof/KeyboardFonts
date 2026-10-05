@@ -25,20 +25,37 @@ internal class LayerDelegate(
         applyLayer(next)
     }
 
+    /** Собранные раскладки: нижний ряд и цифры доклеиваются при каждой смене слоя или настроек, а результат тот же. */
+    private val cache = HashMap<LayoutKey, KeyboardLayout>()
+
+    private data class LayoutKey(
+        val layoutName: String,
+        val bottomRowVariant: String?,
+        val hasDigitsRow: Boolean,
+    )
+
     private suspend fun KeyboardState.resolveLayout(layer: KeyboardLayer): KeyboardLayout? {
         fieldType.layoutName
             ?.takeIf { layer == KeyboardLayer.LETTERS }
             ?.let { return keyboardLayoutRepository.getLayout(it) }
 
-        val layoutName = if (layer.usesLanguageLayout) activeLanguage?.code else layer.fixedLayoutName
-        val layout = layoutName?.let { keyboardLayoutRepository.getLayout(it) } ?: return null
+        val layoutName = (if (layer.usesLanguageLayout) activeLanguage?.code else layer.fixedLayoutName)
+            ?: return null
+        val isLetters = layer == KeyboardLayer.LETTERS
+        val key = LayoutKey(
+            layoutName = layoutName,
+            bottomRowVariant = bottomRowVariant.takeIf { isLetters },
+            hasDigitsRow = isLetters && settings.isDigitsRowEnabled,
+        )
+        cache[key]?.let { return it }
 
-        if (layer != KeyboardLayer.LETTERS) return layout
+        val layout = keyboardLayoutRepository.getLayout(layoutName) ?: return null
+        if (!isLetters) return layout.also { cache[key] = it }
 
-        val bottomRow = bottomRowVariant?.let { keyboardLayoutRepository.getBottomRow(it) }
+        val bottomRow = key.bottomRowVariant?.let { keyboardLayoutRepository.getBottomRow(it) }
         val letters = bottomRow?.let(layout::withBottomRow) ?: layout
 
-        return if (settings.isDigitsRowEnabled) letters.withDigitsRow() else letters
+        return (if (key.hasDigitsRow) letters.withDigitsRow() else letters).also { cache[key] = it }
     }
 
     suspend fun preloadLayouts(languageCodes: List<String>) {

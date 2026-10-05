@@ -123,8 +123,11 @@ private fun InputSessionResetEffect(viewModel: KeyboardViewModel) {
 
     DisposableEffect(lifecycleOwner, viewModel) {
         val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME || event == Lifecycle.Event.ON_PAUSE) {
-                viewModel.onEvent(KeyboardEvent.OnInputSessionChange)
+            // Сброс — только на старте ввода: на паузе он дублировал бы ресет следующего ON_RESUME.
+            when (event) {
+                Lifecycle.Event.ON_RESUME -> viewModel.onEvent(KeyboardEvent.OnInputSessionChange)
+                Lifecycle.Event.ON_PAUSE -> viewModel.onEvent(KeyboardEvent.OnInputSessionFinish)
+                else -> Unit
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)

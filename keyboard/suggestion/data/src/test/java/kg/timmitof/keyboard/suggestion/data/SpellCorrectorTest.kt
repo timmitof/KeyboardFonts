@@ -2,6 +2,7 @@ package kg.timmitof.keyboard.suggestion.data
 
 import kg.timmitof.keyboard.suggestion.domain.model.SuggestionRequest
 import kg.timmitof.keyboard.suggestion.domain.model.TextContext
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -25,7 +26,7 @@ class SpellCorrectorTest {
         val model = LanguageModel(
             dictionary = dictionary,
             bigrams = BigramTable.Empty,
-            spellCorrector = SpellCorrector.build(dictionary),
+            spellIndex = CompletableDeferred(SpellCorrector.build(dictionary)),
         )
 
         val suggestions = SuggestionEngine().suggest(

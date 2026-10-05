@@ -1,16 +1,15 @@
 package kg.timmitof.keyboard.presentation.components.emoji
 
-import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.PressInteraction
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,16 +41,13 @@ internal fun EmojiCell(
     val interactionSource = remember { MutableInteractionSource() }
     var isPickerVisible by remember { mutableStateOf(false) }
 
-    val scale = remember { Animatable(1f) }
-    LaunchedEffect(interactionSource) {
-        interactionSource.interactions.collect { interaction ->
-            when (interaction) {
-                is PressInteraction.Press -> scale.animateTo(PressedScale, PressAnimationSpec)
-                is PressInteraction.Release,
-                is PressInteraction.Cancel -> scale.animateTo(1f, PressAnimationSpec)
-            }
-        }
-    }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    // Значение читается только в graphicsLayer: анимация не рекомпозирует ячейку.
+    val scale = animateFloatAsState(
+        targetValue = if (isPressed) PressedScale else 1f,
+        animationSpec = PressAnimationSpec,
+        label = "emojiScale"
+    )
 
     val hasVariants = variants.isNotEmpty()
 

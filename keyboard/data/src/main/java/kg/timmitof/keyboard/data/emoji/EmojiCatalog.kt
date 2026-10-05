@@ -12,6 +12,8 @@ import kg.timmitof.keyboard.data.emoji.catalog.SymbolsEmoji
 import kg.timmitof.keyboard.data.emoji.catalog.TravelEmoji
 import kg.timmitof.keyboard.domain.model.EmojiCategory
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 /** Данные в Kotlin-объектах, а не в JSON: набор статичен, парсинг не нужен. */
@@ -31,12 +33,15 @@ internal object EmojiCatalog {
         )
     }
 
+    private val mutex = Mutex()
+
     @Volatile
     private var supported: List<EmojiCategory>? = null
 
     /** Каталог собран по свежему Unicode: старые прошивки не знают часть символов и рисуют пустые квадраты. */
-    suspend fun getCategories(): List<EmojiCategory> = withContext(Dispatchers.Default) {
-        supported ?: buildSupported().also { supported = it }
+    suspend fun getCategories(): List<EmojiCategory> = supported ?: mutex.withLock {
+        // Второй вызов ждёт первый, а не гоняет hasGlyph по всему каталогу заново.
+        supported ?: withContext(Dispatchers.Default) { buildSupported() }.also { supported = it }
     }
 
     private fun buildSupported(): List<EmojiCategory> {

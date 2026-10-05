@@ -23,7 +23,27 @@ sealed interface SettingsRow {
         override val isEnabled: Boolean = true,
         val checked: Boolean,
         val onCheckedChange: (Boolean) -> Unit,
-    ) : SettingsRow
+    ) : SettingsRow {
+        /** Лямбды в сравнении не участвуют: строка пересобирается только при смене данных. */
+        override fun equals(other: Any?): Boolean =
+            this === other || (other is Toggle &&
+                title == other.title &&
+                description == other.description &&
+                icon == other.icon &&
+                isNested == other.isNested &&
+                isEnabled == other.isEnabled &&
+                checked == other.checked)
+
+        override fun hashCode(): Int {
+            var result = title.hashCode()
+            result = 31 * result + (description?.hashCode() ?: 0)
+            result = 31 * result + (icon?.hashCode() ?: 0)
+            result = 31 * result + isNested.hashCode()
+            result = 31 * result + isEnabled.hashCode()
+            result = 31 * result + checked.hashCode()
+            return result
+        }
+    }
 
     @Immutable
     data class Navigation(
@@ -34,7 +54,27 @@ sealed interface SettingsRow {
         override val isEnabled: Boolean = true,
         val value: String? = null,
         val onClick: () -> Unit,
-    ) : SettingsRow
+    ) : SettingsRow {
+        /** Лямбды в сравнении не участвуют: строка пересобирается только при смене данных. */
+        override fun equals(other: Any?): Boolean =
+            this === other || (other is Navigation &&
+                title == other.title &&
+                description == other.description &&
+                icon == other.icon &&
+                isNested == other.isNested &&
+                isEnabled == other.isEnabled &&
+                value == other.value)
+
+        override fun hashCode(): Int {
+            var result = title.hashCode()
+            result = 31 * result + (description?.hashCode() ?: 0)
+            result = 31 * result + (icon?.hashCode() ?: 0)
+            result = 31 * result + isNested.hashCode()
+            result = 31 * result + isEnabled.hashCode()
+            result = 31 * result + (value?.hashCode() ?: 0)
+            return result
+        }
+    }
 
     @Immutable
     data class Segmented(
@@ -46,7 +86,29 @@ sealed interface SettingsRow {
         val options: List<String>,
         val selectedIndex: Int,
         val onSelect: (Int) -> Unit,
-    ) : SettingsRow
+    ) : SettingsRow {
+        /** Лямбды в сравнении не участвуют: строка пересобирается только при смене данных. */
+        override fun equals(other: Any?): Boolean =
+            this === other || (other is Segmented &&
+                title == other.title &&
+                description == other.description &&
+                icon == other.icon &&
+                isNested == other.isNested &&
+                isEnabled == other.isEnabled &&
+                options == other.options &&
+                selectedIndex == other.selectedIndex)
+
+        override fun hashCode(): Int {
+            var result = title.hashCode()
+            result = 31 * result + (description?.hashCode() ?: 0)
+            result = 31 * result + (icon?.hashCode() ?: 0)
+            result = 31 * result + isNested.hashCode()
+            result = 31 * result + isEnabled.hashCode()
+            result = 31 * result + options.hashCode()
+            result = 31 * result + selectedIndex.hashCode()
+            return result
+        }
+    }
 
     @Immutable
     data class Slider(
@@ -61,7 +123,33 @@ sealed interface SettingsRow {
         val valueLabel: String? = null,
         val onValueChange: (Float) -> Unit,
         val onValueChangeFinished: (() -> Unit)? = null,
-    ) : SettingsRow
+    ) : SettingsRow {
+        /** Лямбды в сравнении не участвуют: строка пересобирается только при смене данных. */
+        override fun equals(other: Any?): Boolean =
+            this === other || (other is Slider &&
+                title == other.title &&
+                description == other.description &&
+                icon == other.icon &&
+                isNested == other.isNested &&
+                isEnabled == other.isEnabled &&
+                value == other.value &&
+                valueRange == other.valueRange &&
+                steps == other.steps &&
+                valueLabel == other.valueLabel)
+
+        override fun hashCode(): Int {
+            var result = title.hashCode()
+            result = 31 * result + (description?.hashCode() ?: 0)
+            result = 31 * result + (icon?.hashCode() ?: 0)
+            result = 31 * result + isNested.hashCode()
+            result = 31 * result + isEnabled.hashCode()
+            result = 31 * result + (value?.hashCode() ?: 0)
+            result = 31 * result + valueRange.hashCode()
+            result = 31 * result + steps.hashCode()
+            result = 31 * result + (valueLabel?.hashCode() ?: 0)
+            return result
+        }
+    }
 
     /** [onPickCustom] = `null` — только готовые цвета, без своего; [autoColor] — кружок «Авто» первым, выбран при [selected] = `null`. */
     @Immutable
@@ -78,7 +166,34 @@ sealed interface SettingsRow {
         val autoColor: Color? = null,
         val autoLabel: String = "",
         val onAuto: () -> Unit = {},
-    ) : SettingsRow
+    ) : SettingsRow {
+        /** Лямбды в сравнении не участвуют: строка пересобирается только при смене данных. */
+        override fun equals(other: Any?): Boolean =
+            this === other || (other is Colors &&
+                title == other.title &&
+                description == other.description &&
+                icon == other.icon &&
+                isNested == other.isNested &&
+                isEnabled == other.isEnabled &&
+                colors == other.colors &&
+                selected == other.selected &&
+                autoColor == other.autoColor &&
+                autoLabel == other.autoLabel &&
+                (onPickCustom == null) == (other.onPickCustom == null))
+
+        override fun hashCode(): Int {
+            var result = title.hashCode()
+            result = 31 * result + (description?.hashCode() ?: 0)
+            result = 31 * result + (icon?.hashCode() ?: 0)
+            result = 31 * result + isNested.hashCode()
+            result = 31 * result + isEnabled.hashCode()
+            result = 31 * result + colors.hashCode()
+            result = 31 * result + (selected?.hashCode() ?: 0)
+            result = 31 * result + (autoColor?.hashCode() ?: 0)
+            result = 31 * result + autoLabel.hashCode()
+            return result
+        }
+    }
 
     /** Строка-справка без контрола; [badge] — метка слева, например код языка «RU». */
     @Immutable
@@ -89,7 +204,27 @@ sealed interface SettingsRow {
         override val isNested: Boolean = false,
         override val isEnabled: Boolean = true,
         val badge: String? = null,
-    ) : SettingsRow
+    ) : SettingsRow {
+        /** Лямбды в сравнении не участвуют: строка пересобирается только при смене данных. */
+        override fun equals(other: Any?): Boolean =
+            this === other || (other is Info &&
+                title == other.title &&
+                description == other.description &&
+                icon == other.icon &&
+                isNested == other.isNested &&
+                isEnabled == other.isEnabled &&
+                badge == other.badge)
+
+        override fun hashCode(): Int {
+            var result = title.hashCode()
+            result = 31 * result + (description?.hashCode() ?: 0)
+            result = 31 * result + (icon?.hashCode() ?: 0)
+            result = 31 * result + isNested.hashCode()
+            result = 31 * result + isEnabled.hashCode()
+            result = 31 * result + (badge?.hashCode() ?: 0)
+            return result
+        }
+    }
 
     /** Функция в разработке: вместо контрола — плашка. */
     @Immutable
@@ -100,6 +235,24 @@ sealed interface SettingsRow {
         override val isNested: Boolean = false,
         val badge: String,
     ) : SettingsRow {
+        /** Лямбды в сравнении не участвуют: строка пересобирается только при смене данных. */
+        override fun equals(other: Any?): Boolean =
+            this === other || (other is Soon &&
+                title == other.title &&
+                description == other.description &&
+                icon == other.icon &&
+                isNested == other.isNested &&
+                badge == other.badge)
+
+        override fun hashCode(): Int {
+            var result = title.hashCode()
+            result = 31 * result + (description?.hashCode() ?: 0)
+            result = 31 * result + (icon?.hashCode() ?: 0)
+            result = 31 * result + isNested.hashCode()
+            result = 31 * result + badge.hashCode()
+            return result
+        }
+
         override val isEnabled: Boolean get() = false
     }
 }

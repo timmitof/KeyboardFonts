@@ -1,4 +1,4 @@
-package kg.timmitof.keyboard.domain.model
+package kg.timmitof.keyboard.suggestion.domain.model
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse

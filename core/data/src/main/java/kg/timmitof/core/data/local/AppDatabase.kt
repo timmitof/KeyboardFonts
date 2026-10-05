@@ -12,7 +12,7 @@ import kg.timmitof.core.data.local.entities.ClipboardEntryEntity
         ClipboardEntryEntity::class,
         BackgroundPhotoEntity::class,
     ],
-    version = 4,
+    version = 1,
     exportSchema = false,
 )
 abstract class AppDatabase: RoomDatabase() {

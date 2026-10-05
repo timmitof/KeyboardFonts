@@ -30,13 +30,20 @@ internal fun KeyColorsSection(
     var pickerTarget by rememberSaveable { mutableStateOf<KeyColorTarget?>(null) }
 
     val autoLabel = stringResource(R.string.key_color_auto)
-    val rows = KeyColorTarget.entries.map { target ->
-        KeyColorRow(
-            target = target,
-            title = stringResource(target.titleRes),
-            auto = remember(settings, isSystemDark) { settings.autoKeyColor(target, isSystemDark) },
-            selected = settings.keyColor(target)?.let { Color(it.toInt()) },
-        )
+    val titles = KeyColorTarget.entries.map { stringResource(it.titleRes) }
+    // «Авто» зависит только от фона, темы и системной темы — не от остальных настроек.
+    val autoColors = remember(settings.background, settings.theme, isSystemDark) {
+        KeyColorTarget.entries.map { settings.autoKeyColor(it, isSystemDark) }
+    }
+    val rows = remember(titles, autoColors, settings) {
+        KeyColorTarget.entries.mapIndexed { index, target ->
+            KeyColorRow(
+                target = target,
+                title = titles[index],
+                auto = autoColors[index],
+                selected = settings.keyColor(target)?.let { Color(it.toInt()) },
+            )
+        }
     }
     val outlineTitle = stringResource(R.string.theme_key_outline_title)
     val outlineDescription = stringResource(R.string.theme_key_outline_description)

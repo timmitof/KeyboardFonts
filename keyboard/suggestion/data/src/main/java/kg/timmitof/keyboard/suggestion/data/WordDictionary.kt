@@ -22,8 +22,6 @@ internal class WordDictionary(
 
     fun lengthAt(index: Int): Int = endOf(index) - starts[index]
 
-    fun charAt(index: Int, offset: Int): Char = words[starts[index] + offset]
-
     fun indexOf(word: String): Int {
         val index = lowerBound(word)
         return if (index < size && compareAt(index, word) == 0) index else -1
@@ -37,13 +35,6 @@ internal class WordDictionary(
         val from = lowerBound(prefix)
         var to = from
         while (to < size && startsWith(to, prefix)) to++
-        return from until to
-    }
-
-    fun rangeOf(char: Char): IntRange {
-        val from = lowerBound(char.toString())
-        var to = from
-        while (to < size && charAt(to, 0) == char) to++
         return from until to
     }
 

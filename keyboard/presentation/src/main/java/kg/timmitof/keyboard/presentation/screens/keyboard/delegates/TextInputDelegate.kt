@@ -29,11 +29,20 @@ internal class TextInputDelegate(
 
         val styled = state.activeFont.apply(char)
         editText(typeEffect(styled)) { query -> query + char }
-        releaseOneShotShift()
 
-        if (state.layer == KeyboardLayer.EMOJI_SEARCH) return
+        // Сброс одноразового Shift и автозамены — одним reduce: на каждый символ их и так хватает.
+        val isSearch = state.layer == KeyboardLayer.EMOJI_SEARCH
+        if (state.shiftState == ShiftState.ACTIVE || (!isSearch && state.autoCorrection != null)) {
+            reduce {
+                state.copy(
+                    shiftState = if (state.shiftState == ShiftState.ACTIVE) ShiftState.DISABLED else state.shiftState,
+                    autoCorrection = if (isSearch) state.autoCorrection else null,
+                )
+            }
+        }
 
-        forgetAutoCorrection()
+        if (isSearch) return
+
         with(suggestionsDelegate) { applyLocalEdit { it.appending(styled) } }
     }
 
@@ -158,12 +167,6 @@ internal class TextInputDelegate(
                 ShiftState.ACTIVE -> state.copy(shiftState = ShiftState.CAPS_LOCK)
                 ShiftState.CAPS_LOCK -> state.copy(shiftState = ShiftState.DISABLED)
             }
-        }
-    }
-
-    private suspend fun KeyboardSyntax.releaseOneShotShift() {
-        if (state.shiftState == ShiftState.ACTIVE) {
-            reduce { state.copy(shiftState = ShiftState.DISABLED) }
         }
     }
 

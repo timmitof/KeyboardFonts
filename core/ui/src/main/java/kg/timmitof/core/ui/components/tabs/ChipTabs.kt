@@ -1,5 +1,6 @@
 package kg.timmitof.core.ui.components.tabs
 
+import androidx.annotation.DrawableRes
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
@@ -33,7 +34,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -41,15 +42,15 @@ import kg.timmitof.core.ui.theme.AccentRole
 import kg.timmitof.core.ui.theme.appColors
 
 @Immutable
-data class ChipTab<K>(
+data class ChipTab<K : Any>(
     val key: K,
     val label: String,
-    val icon: Painter,
+    @DrawableRes val iconRes: Int,
     val role: AccentRole,
 )
 
 @Composable
-fun <K> ChipTabs(
+fun <K : Any> ChipTabs(
     tabs: List<ChipTab<K>>,
     selected: K,
     onSelect: (K) -> Unit,
@@ -71,7 +72,7 @@ fun <K> ChipTabs(
         contentPadding = contentPadding,
         horizontalArrangement = Arrangement.spacedBy(6.dp),
     ) {
-        items(items = tabs, key = { it.key.toString() }) { tab ->
+        items(items = tabs, key = { it.key }) { tab ->
             ChipTabItem(
                 tab = tab,
                 isSelected = tab.key == selected,
@@ -82,7 +83,7 @@ fun <K> ChipTabs(
 }
 
 @Composable
-private fun <K> ChipTabItem(
+private fun <K : Any> ChipTabItem(
     tab: ChipTab<K>,
     isSelected: Boolean,
     onClick: () -> Unit,
@@ -119,7 +120,7 @@ private fun <K> ChipTabItem(
             contentAlignment = Alignment.Center,
         ) {
             Icon(
-                painter = tab.icon,
+                painter = painterResource(tab.iconRes),
                 contentDescription = null,
                 tint = tones.solid,
                 modifier = Modifier.size(14.dp),

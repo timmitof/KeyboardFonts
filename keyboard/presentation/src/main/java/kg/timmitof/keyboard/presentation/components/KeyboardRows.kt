@@ -7,7 +7,14 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
+import kg.timmitof.keyboard.domain.model.KeyboardLanguage
+import kg.timmitof.keyboard.font.domain.model.KeyboardFont
+import kg.timmitof.keyboard.presentation.screens.keyboard.rememberSlice
+import kg.timmitof.keyboard.presentation.screens.keyboard.states.EnterAction
+import kg.timmitof.keyboard.presentation.screens.keyboard.states.ShiftState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import kg.timmitof.keyboard.domain.model.KeyboardKey
@@ -24,6 +31,17 @@ import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardEvent
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardState
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.isUpperCase
 
+/** Всё, что клавиши читают из состояния; data class, чтобы срез сравнивался по значению. */
+@Immutable
+private data class KeyRowsSlice(
+    val shiftState: ShiftState,
+    val font: KeyboardFont,
+    val languages: List<KeyboardLanguage>,
+    val language: KeyboardLanguage?,
+    val isLanguageSlideEnabled: Boolean,
+    val enterAction: EnterAction,
+)
+
 @Composable
 internal fun KeyboardRows(
     layout: KeyboardLayout,
@@ -31,6 +49,16 @@ internal fun KeyboardRows(
     onEvent: (KeyboardEvent) -> Unit
 ) {
     val rowHeight = LocalKeyRowHeight.current
+    val slice by state.rememberSlice {
+        KeyRowsSlice(
+            shiftState = it.shiftState,
+            font = it.activeFont,
+            languages = it.languages,
+            language = it.activeLanguage,
+            isLanguageSlideEnabled = it.fieldType.allowsLanguageSlide,
+            enterAction = it.displayedEnterAction,
+        )
+    }
 
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -46,7 +74,7 @@ internal fun KeyboardRows(
                 row.forEach { key ->
                     KeyboardKeySlot(
                         key = key,
-                        state = state,
+                        slice = slice,
                         isLargeLabel = layout.largeLabels,
                         hasSubLabels = layout.hasSubLabels,
                         onEvent = onEvent
@@ -60,7 +88,7 @@ internal fun KeyboardRows(
 @Composable
 private fun RowScope.KeyboardKeySlot(
     key: KeyboardKey,
-    state: State<KeyboardState>,
+    slice: KeyRowsSlice,
     isLargeLabel: Boolean,
     hasSubLabels: Boolean,
     onEvent: (KeyboardEvent) -> Unit
@@ -68,16 +96,16 @@ private fun RowScope.KeyboardKeySlot(
     when (key) {
         is KeyboardKey.Character -> KeyboardKeyButton(
             key = key,
-            isUpperCase = state.value.shiftState.isUpperCase(),
+            isUpperCase = slice.shiftState.isUpperCase(),
             isLargeLabel = isLargeLabel,
             hasSubLabels = hasSubLabels,
-            font = state.value.activeFont,
+            font = slice.font,
             onInput = { onEvent(KeyboardEvent.OnKeySelect(it)) }
         )
 
         is KeyboardKey.Shift -> ShiftKeyButton(
             weight = key.weight,
-            shiftState = state.value.shiftState,
+            shiftState = slice.shiftState,
             onClick = { onEvent(KeyboardEvent.OnShift) }
         )
 
@@ -91,9 +119,9 @@ private fun RowScope.KeyboardKeySlot(
 
         is KeyboardKey.Space -> SpaceKeyButton(
             weight = key.weight,
-            languages = state.value.languages,
-            selectedLanguage = state.value.activeLanguage,
-            isLanguageSlideEnabled = state.value.fieldType.allowsLanguageSlide,
+            languages = slice.languages,
+            selectedLanguage = slice.language,
+            isLanguageSlideEnabled = slice.isLanguageSlideEnabled,
             onLanguageSelect = { onEvent(KeyboardEvent.OnLanguageSelect(it)) },
             onCursorMove = { horizontal, vertical ->
                 onEvent(KeyboardEvent.OnCursorMove(horizontal, vertical))
@@ -104,7 +132,7 @@ private fun RowScope.KeyboardKeySlot(
 
         is KeyboardKey.Enter -> EnterKeyButton(
             weight = key.weight,
-            enterAction = state.value.displayedEnterAction,
+            enterAction = slice.enterAction,
             onClick = { onEvent(KeyboardEvent.OnEnter) }
         )
 

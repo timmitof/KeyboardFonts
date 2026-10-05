@@ -20,6 +20,8 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,7 +57,7 @@ private val ColorSwatchSize = 30.dp
 private val BadgeShape = RoundedCornerShape(8.dp)
 
 @Composable
-internal fun SettingsRowItem(row: SettingsRow) {
+internal fun SettingsRowItem(row: SettingsRow, latest: State<SettingsRow>) {
     val alpha by animateFloatAsState(
         targetValue = if (row.isEnabled) 1f else DisabledAlpha,
         animationSpec = spring(stiffness = 900f),
@@ -64,8 +66,12 @@ internal fun SettingsRowItem(row: SettingsRow) {
 
     val clickModifier = when {
         !row.isEnabled -> Modifier
-        row is SettingsRow.Toggle -> Modifier.clickable { row.onCheckedChange(!row.checked) }
-        row is SettingsRow.Navigation -> Modifier.clickable(onClick = row.onClick)
+        row is SettingsRow.Toggle -> Modifier.clickable {
+            (latest.value as? SettingsRow.Toggle)?.let { it.onCheckedChange(!it.checked) }
+        }
+        row is SettingsRow.Navigation -> Modifier.clickable {
+            (latest.value as? SettingsRow.Navigation)?.onClick?.invoke()
+        }
         else -> Modifier
     }
 
@@ -94,14 +100,19 @@ internal fun SettingsRowItem(row: SettingsRow) {
 
             // Ползунок и кружки цветов не помещаются в строку — они занимают вторую строку под заголовком.
             (row as? SettingsRow.Colors)?.let { colors ->
+                val onSelect = remember<(Color) -> Unit> {
+                    { color -> (latest.value as? SettingsRow.Colors)?.onSelect?.invoke(color) }
+                }
+                val onPickCustom = remember { { (latest.value as? SettingsRow.Colors)?.onPickCustom?.invoke() ; Unit } }
+                val onAuto = remember { { (latest.value as? SettingsRow.Colors)?.onAuto?.invoke() ; Unit } }
                 ColorSwatches(
                     colors = colors.colors,
                     selected = colors.selected,
-                    onSelect = colors.onSelect,
-                    onPickCustom = colors.onPickCustom,
+                    onSelect = onSelect,
+                    onPickCustom = onPickCustom.takeIf { colors.onPickCustom != null },
                     autoColor = colors.autoColor,
                     autoLabel = colors.autoLabel,
-                    onAuto = colors.onAuto,
+                    onAuto = onAuto,
                     swatchSize = ColorSwatchSize,
                     modifier = Modifier
                         .padding(top = 8.dp)
@@ -109,10 +120,16 @@ internal fun SettingsRowItem(row: SettingsRow) {
                 )
             }
             (row as? SettingsRow.Slider)?.let { slider ->
+                val onValueChange = remember<(Float) -> Unit> {
+                    { value -> (latest.value as? SettingsRow.Slider)?.onValueChange?.invoke(value) }
+                }
+                val onValueChangeFinished = remember {
+                    { (latest.value as? SettingsRow.Slider)?.onValueChangeFinished?.invoke() ; Unit }
+                }
                 Slider(
                     value = slider.value,
-                    onValueChange = slider.onValueChange,
-                    onValueChangeFinished = slider.onValueChangeFinished,
+                    onValueChange = onValueChange,
+                    onValueChangeFinished = onValueChangeFinished.takeIf { slider.onValueChangeFinished != null },
                     valueRange = slider.valueRange,
                     steps = slider.steps,
                     enabled = slider.isEnabled,
@@ -121,7 +138,7 @@ internal fun SettingsRowItem(row: SettingsRow) {
             }
         }
 
-        RowControl(row = row, alpha = { alpha })
+        RowControl(row = row, latest = latest, alpha = { alpha })
     }
 }
 
@@ -185,11 +202,11 @@ private fun RowTitles(row: SettingsRow, alpha: () -> Float) {
 }
 
 @Composable
-private fun RowScope.RowControl(row: SettingsRow, alpha: () -> Float) {
+private fun RowScope.RowControl(row: SettingsRow, latest: State<SettingsRow>, alpha: () -> Float) {
     when (row) {
         is SettingsRow.Toggle -> Switch(
             checked = row.checked,
-            onCheckedChange = row.onCheckedChange,
+            onCheckedChange = { (latest.value as? SettingsRow.Toggle)?.onCheckedChange?.invoke(it) },
             enabled = row.isEnabled,
         )
 
@@ -216,7 +233,7 @@ private fun RowScope.RowControl(row: SettingsRow, alpha: () -> Float) {
         is SettingsRow.Segmented -> SettingsSegmentedControl(
             options = row.options,
             selectedIndex = row.selectedIndex,
-            onSelect = row.onSelect,
+            onSelect = { (latest.value as? SettingsRow.Segmented)?.onSelect?.invoke(it) },
             isEnabled = row.isEnabled,
         )
 

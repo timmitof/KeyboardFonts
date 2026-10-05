@@ -21,6 +21,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.role
@@ -43,7 +44,8 @@ internal fun KeyBase(
     pressedBackground: Color = KFTheme.color.keyButtonPressedBackground,
     sound: KeySound = KeySound.STANDARD,
     interactionSource: MutableInteractionSource? = null,
-    customGestures: ((MutableInteractionSource) -> Modifier)? = null,
+    /** Принимает источник и [onPress] — его жест должен вызвать сразу на касание (вибро/звук). */
+    customGestures: ((MutableInteractionSource, onPress: () -> Unit) -> Modifier)? = null,
     onClick: () -> Unit,
     content: @Composable BoxScope.() -> Unit
 ) {
@@ -55,6 +57,7 @@ internal fun KeyBase(
     LaunchedEffect(isPressed) {
         if (isPressed) feedback.onKeyPress(sound)
     }
+    val onPress = remember { {} }
 
     val scale by animateFloatAsState(
         targetValue = if (isPressed) 0.92f else 1f,
@@ -67,8 +70,8 @@ internal fun KeyBase(
 
     val outline = KFTheme.color.keyOutline.takeIf { KFTheme.isKeyOutlined }
 
-    val clickModifier = customGestures?.invoke(source)
-        ?: Modifier.keyClickable(interactionSource = source, onTap = onClick)
+    val clickModifier = customGestures?.invoke(source, onPress)
+        ?: Modifier.keyClickable(interactionSource = source, onPress = onPress, onTap = onClick)
 
     Box(
         modifier = modifier
@@ -88,6 +91,16 @@ internal fun KeyBase(
             contentAlignment = Alignment.Center,
             content = content
         )
+    }
+}
+
+/**
+ * [Modifier.zIndex] через лямбду: состояние читается на фазе размещения, без рекомпозиции клавиши.
+ */
+internal fun Modifier.liftedZIndex(lifted: () -> Boolean): Modifier = layout { measurable, constraints ->
+    val placeable = measurable.measure(constraints)
+    layout(placeable.width, placeable.height) {
+        placeable.place(0, 0, zIndex = if (lifted()) 1f else 0f)
     }
 }
 

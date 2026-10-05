@@ -26,9 +26,10 @@ internal fun RowScope.BackspaceKeyButton(
         background = KFTheme.color.keySpecialButtonBackground,
         shadowColor = KFTheme.color.keyButtonShadow,
         sound = KeySound.DELETE,
-        customGestures = { interactionSource ->
+        customGestures = { interactionSource, onPress ->
             Modifier.backspaceHoldSlideClickable(
                 interactionSource = interactionSource,
+                onPress = onPress,
                 onTap = onClick,
                 onHold = onDeleteWord,
                 onSlideChange = onSelectChange,

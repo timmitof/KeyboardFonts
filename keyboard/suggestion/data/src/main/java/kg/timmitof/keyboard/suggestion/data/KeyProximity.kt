@@ -12,9 +12,6 @@ internal object KeyProximity {
     fun areAdjacent(first: Char, second: Char): Boolean =
         first != second && neighbors[first]?.contains(second) == true
 
-    fun withNeighbors(char: Char): Set<Char> =
-        neighbors[char]?.let { it + char } ?: setOf(char)
-
     private fun buildNeighbors(): Map<Char, Set<Char>> {
         val result = HashMap<Char, MutableSet<Char>>(96)
 

@@ -164,6 +164,7 @@ internal sealed class KeyboardEvent : BaseEvent.UiEvent() {
     data class OnEmojiSelect(val emoji: String) : KeyboardEvent()
     data class OnEmojiVariantSelect(val base: String, val variant: String) : KeyboardEvent()
     data object OnInputSessionChange : KeyboardEvent()
+    data object OnInputSessionFinish : KeyboardEvent()
     data class OnFieldContextChange(val context: KeyboardFieldContext) : KeyboardEvent()
     data class OnTextContextChange(val context: TextContext) : KeyboardEvent()
     data object OnShift : KeyboardEvent()

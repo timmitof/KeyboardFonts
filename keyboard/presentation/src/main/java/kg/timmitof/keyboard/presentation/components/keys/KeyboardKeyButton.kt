@@ -30,7 +30,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
+import androidx.compose.runtime.State
 import kg.timmitof.core.ui.keyClickable
 import kg.timmitof.keyboard.domain.model.KeyCharacter
 import kg.timmitof.keyboard.font.domain.model.KeyboardFont
@@ -90,7 +90,8 @@ internal fun RowScope.KeyboardKeyButton(
     var pickOffsetPx by remember { mutableFloatStateOf(0f) }
 
     val interactionSource = remember { MutableInteractionSource() }
-    val isPressed by interactionSource.collectIsPressedAsState()
+    // State не читаем в композиции: от нажатия перерисовываются только zIndex и превью.
+    val isPressed = interactionSource.collectIsPressedAsState()
 
     val selectedIndexFor: (Float) -> Int = { offsetPx ->
         (offsetPx / cellWidthPx).roundToInt().coerceIn(0, symbols.lastIndex)
@@ -100,7 +101,7 @@ internal fun RowScope.KeyboardKeyButton(
         // Нажатая клавиша выше соседей: её шапка не должна уходить под соседнюю.
         modifier = modifier
             .weight(key.weight)
-            .zIndex(if (isPressed || isPickerVisible) 1f else 0f)
+            .liftedZIndex { isPressed.value || isPickerVisible }
             .fillMaxHeight(),
         background = if (key.isSpecial) {
             KFTheme.color.keySpecialButtonBackground
@@ -109,9 +110,10 @@ internal fun RowScope.KeyboardKeyButton(
         },
         shadowColor = KFTheme.color.keyButtonShadow,
         interactionSource = interactionSource,
-        customGestures = if (symbols.isEmpty()) null else { source ->
+        customGestures = if (symbols.isEmpty()) null else { source, onPress ->
             Modifier.keyClickable(
                 interactionSource = source,
+                onPress = onPress,
                 onTap = { onInput(input) },
                 onHoldStart = {
                     pickOffsetPx = 0f
@@ -146,9 +148,16 @@ internal fun RowScope.KeyboardKeyButton(
                 onDismiss = { isPickerVisible = false }
             )
 
-            isPressed && LocalKeyFeedback.current.isPreviewEnabled ->
-                KeyPressPreview(label = displayLabel)
+            else -> PressedKeyPreview(isPressed = isPressed, label = displayLabel)
         }
+    }
+}
+
+/** Отдельный composable: нажатие рекомпозирует только его, а не всю клавишу. */
+@Composable
+private fun BoxScope.PressedKeyPreview(isPressed: State<Boolean>, label: String) {
+    if (isPressed.value && LocalKeyFeedback.current.isPreviewEnabled) {
+        KeyPressPreview(label = label)
     }
 }
 

@@ -6,6 +6,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.graphics.layer.drawLayer
+import androidx.compose.ui.graphics.rememberGraphicsLayer
+import androidx.compose.ui.unit.IntSize
+import kotlin.math.roundToInt
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.isUnspecified
@@ -39,8 +44,20 @@ fun Modifier.keyboardBackground(
 ): Modifier = when (background) {
     KeyboardBackground.None -> this
     is KeyboardBackground.Solid -> background(Color(background.argb.toInt()))
-    is KeyboardBackground.Pattern -> clipToBounds().drawBehind { drawBackgroundPattern(background.pattern) }
+    is KeyboardBackground.Pattern -> patternBackground(background.pattern)
     is KeyboardBackground.Photo -> photoBackground(background.photo, maxPhotoSide)
+}
+
+/** Узор записывается в слой один раз на размер и дальше только проигрывается: сотни кругов на кадр не рисуются. */
+@Composable
+private fun Modifier.patternBackground(pattern: BackgroundPattern): Modifier {
+    val layer = rememberGraphicsLayer()
+    return clipToBounds().drawWithCache {
+        layer.record(this, layoutDirection, IntSize(size.width.roundToInt(), size.height.roundToInt())) {
+            drawBackgroundPattern(pattern)
+        }
+        onDrawBehind { drawLayer(layer) }
+    }
 }
 
 @Composable
@@ -177,4 +194,5 @@ private fun DrawScope.drawWaves() {
     }
 }
 
-private const val DefaultPhotoSide = 2048
+/** Клавиатура занимает долю экрана: больше этого при декодировании только съедает память. */
+private const val DefaultPhotoSide = 1440

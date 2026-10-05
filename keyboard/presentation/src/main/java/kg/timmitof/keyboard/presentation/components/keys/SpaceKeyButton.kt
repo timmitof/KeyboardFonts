@@ -66,9 +66,10 @@ internal fun RowScope.SpaceKeyButton(
         background = KFTheme.color.keyButtonBackground,
         shadowColor = KFTheme.color.keyButtonShadow,
         sound = KeySound.SPACE,
-        customGestures = { interactionSource ->
+        customGestures = { interactionSource, onPress ->
             Modifier.spaceCursorClickable(
                 interactionSource = interactionSource,
+                onPress = onPress,
                 onTap = onClick,
                 onSlideStart = {
                     slideOffsetPx = 0f

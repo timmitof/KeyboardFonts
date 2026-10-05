@@ -1,5 +1,6 @@
 package kg.timmitof.keyboard.suggestion.data.repository
 
+import kg.timmitof.keyboard.suggestion.data.LanguageModel
 import kg.timmitof.keyboard.suggestion.data.LanguageModelLoader
 import kg.timmitof.keyboard.suggestion.data.SuggestionEngine
 import kg.timmitof.keyboard.suggestion.data.UserDictionaryStore
@@ -11,12 +12,11 @@ import kg.timmitof.keyboard.suggestion.domain.model.WordSuggestion
 import kg.timmitof.keyboard.suggestion.domain.repository.SuggestionRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -38,15 +38,12 @@ class SuggestionRepositoryImpl @Inject constructor(
     private val mutex = Mutex()
 
     // SymSpell — изменяемый индекс; личные слова добавляем в него один раз на язык.
-    private val modelMutex = Mutex()
-
     private val syncedUserModels = ConcurrentHashMap.newKeySet<String>()
 
-    private val pendingSaves = MutableSharedFlow<String>(extraBufferCapacity = SAVE_BUFFER)
+    // Отложенное сохранение у каждого языка своё: переход ru -> en не должен отменять запись ru.
+    private val saveJobs = ConcurrentHashMap<String, Job>()
 
-    init {
-        observeSaves()
-    }
+    private val dirtyLanguages = ConcurrentHashMap.newKeySet<String>()
 
     override suspend fun suggest(request: SuggestionRequest): List<WordSuggestion> {
         val user = userModel(request.languageCode)
@@ -71,13 +68,23 @@ class SuggestionRepositoryImpl @Inject constructor(
         val model = languageModel(languageCode, user)
 
         user.learn(previous, learned)
-        model.spellCorrector.addWord(learned, USER_WORD_FREQUENCY)
-        pendingSaves.tryEmit(languageCode)
+        // Пока индекс строится, слово попадёт в него при синхронизации личной модели.
+        model.spellCorrector?.addWord(learned, USER_WORD_FREQUENCY)
+        scheduleSave(languageCode)
     }
 
     override suspend fun prefetch(languageCode: String) {
         val user = userModel(languageCode)
         languageModel(languageCode, user)
+    }
+
+    override suspend fun flush() {
+        saveJobs.values.forEach(Job::cancel)
+        saveJobs.clear()
+
+        dirtyLanguages.toList().forEach { languageCode ->
+            if (dirtyLanguages.remove(languageCode)) save(languageCode)
+        }
     }
 
     private suspend fun userModel(languageCode: String): UserLanguageModel =
@@ -89,11 +96,13 @@ class SuggestionRepositoryImpl @Inject constructor(
     private suspend fun languageModel(
         languageCode: String,
         user: UserLanguageModel,
-    ) = languageModelLoader.load(languageCode).also { model ->
-        modelMutex.withLock {
-            if (syncedUserModels.add(languageCode)) {
+    ): LanguageModel = languageModelLoader.load(languageCode).also { model ->
+        // Быстрый путь: add атомарен, мьютекс не нужен.
+        if (syncedUserModels.add(languageCode)) {
+            scope.launch {
+                val corrector = model.spellIndex.await()
                 user.wordFrequencies().forEach { (word, count) ->
-                    model.spellCorrector.addWord(
+                    corrector.addWord(
                         word = word,
                         frequency = (count.toLong() * USER_WORD_FREQUENCY)
                             .coerceAtMost(Int.MAX_VALUE.toLong())
@@ -104,19 +113,25 @@ class SuggestionRepositoryImpl @Inject constructor(
         }
     }
 
-    @OptIn(FlowPreview::class)
-    private fun observeSaves() {
-        pendingSaves
-            .debounce(SAVE_DELAY_MILLIS)
-            .onEach { languageCode ->
-                userModels[languageCode]?.let { userDictionaryStore.save(languageCode, it) }
-            }
-            .launchIn(scope)
+    private fun scheduleSave(languageCode: String) {
+        dirtyLanguages.add(languageCode)
+        saveJobs.put(
+            languageCode,
+            scope.launch {
+                delay(SAVE_DELAY_MILLIS)
+                if (dirtyLanguages.remove(languageCode)) save(languageCode)
+            },
+        )?.cancel()
+    }
+
+    // Запись не отменяем: флаг «грязный» уже снят, отмена потеряла бы выученное.
+    private suspend fun save(languageCode: String) = withContext(NonCancellable) {
+        userModels[languageCode]?.let { userDictionaryStore.save(languageCode, it) }
+        Unit
     }
 
     private companion object {
         const val SAVE_DELAY_MILLIS = 4_000L
-        const val SAVE_BUFFER = 8
         const val USER_WORD_FREQUENCY = 500
     }
 }

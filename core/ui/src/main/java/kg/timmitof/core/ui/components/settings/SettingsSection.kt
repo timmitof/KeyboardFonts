@@ -12,6 +12,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.key
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -278,15 +280,17 @@ private fun SettingsCard(rows: List<SettingsRow>) {
         color = MaterialTheme.appColors.card,
     ) {
         Column {
-            rows.forEachIndexed { index, row ->
+            rows.forEachIndexed { index, row -> key(index) {
                 if (index > 0) {
                     HorizontalDivider(
                         thickness = SettingsDividerThickness,
                         color = MaterialTheme.colorScheme.onBackground.copy(alpha = DividerAlpha),
                     )
                 }
-                SettingsRowItem(row = row)
-            }
+                // Колбэки читаются из актуального состояния: строка сравнивается без лямбд и может не перекомпоновываться.
+                val latest = rememberUpdatedState(row)
+                SettingsRowItem(row = row, latest = latest)
+            } }
         }
     }
 }

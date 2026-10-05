@@ -20,10 +20,14 @@ import kg.timmitof.keyboard.domain.model.KeyboardSettings
 import kg.timmitof.keyboard.domain.model.KeyboardSoundPack
 import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
 import kg.timmitof.keyboard.domain.model.KeyboardToggle
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import java.io.IOException
 import javax.inject.Inject
@@ -48,9 +52,28 @@ class KeyboardSettingsDataSource @Inject constructor(
     private val photos: Flow<Map<Long, BackgroundPhoto>> = photoDao.observeAll()
         .map { entities -> entities.associate { it.id to it.toDomain() } }
 
-    fun observe(): Flow<KeyboardSettings> = combine(preferences, photos, ::toSettings)
+    /**
+     * К базе подписываемся, только пока выбран фон-фото: холодный старт клавиатуры не должен
+     * открывать Room без надобности. Кадр выбранного фото по-прежнему приходит потоком.
+     * Настройки собираются внутри ветки, чтобы при переходе на фото не мелькнул фон по умолчанию.
+     */
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun observe(): Flow<KeyboardSettings> = preferences
+        .map { KeyboardBackground.isPhotoKey(it[BACKGROUND_KEY]) }
+        .distinctUntilChanged()
+        .flatMapLatest { isPhoto ->
+            if (isPhoto) {
+                combine(preferences, photos, ::toSettings)
+            } else {
+                preferences.map { toSettings(it, emptyMap()) }
+            }
+        }
 
-    suspend fun get(): KeyboardSettings = toSettings(preferences.first(), photos.first())
+    suspend fun get(): KeyboardSettings {
+        val prefs = preferences.first()
+        val loaded = if (KeyboardBackground.isPhotoKey(prefs[BACKGROUND_KEY])) photos.first() else emptyMap()
+        return toSettings(prefs, loaded)
+    }
 
     suspend fun setToggle(toggle: KeyboardToggle, enabled: Boolean) {
         context.keyboardPreferences.edit { prefs ->

@@ -1,5 +1,6 @@
 package kg.timmitof.keyboard.presentation.components.overlay
 
+import kg.timmitof.core.ui.plainClickable
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
@@ -162,11 +163,7 @@ internal fun OverlayIconButton(
         modifier = modifier
             .size(IconButtonSize)
             .clip(CircleShape)
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-                onClick = onClick,
-            ),
+            .plainClickable(onClick),
         contentAlignment = Alignment.Center,
     ) {
         Icon(
@@ -189,11 +186,7 @@ internal fun OverlayActionRow(
             .height(40.dp)
             .clip(CircleShape)
             .background(KFTheme.color.overlayActionBackground)
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-                onClick = onClick,
-            )
+            .plainClickable(onClick)
             .padding(horizontal = 14.dp),
         horizontalArrangement = Arrangement.spacedBy(10.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -215,7 +208,7 @@ internal fun OverlayActionRow(
             maxLines = 1,
         )
         Icon(
-            imageVector = ImageVector.vectorResource(R.drawable.ic_chevron_right),
+            imageVector = ImageVector.vectorResource(R.drawable.ic_overlay_chevron),
             contentDescription = null,
             tint = content,
             modifier = Modifier.size(18.dp)

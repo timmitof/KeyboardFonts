@@ -25,8 +25,6 @@ class DataPlugin : Plugin<Project> {
         dependencies {
             implementation(libs.findLibrary("hilt-android").get())
             ksp(libs.findLibrary("hilt-compiler").get())
-            implementation(libs.findLibrary("gson").get())
-            implementation(libs.findLibrary("androidx-datastore-preferences").get())
 
             implementation(project(featureModulePath("domain")))
             implementation(project(":core:common"))

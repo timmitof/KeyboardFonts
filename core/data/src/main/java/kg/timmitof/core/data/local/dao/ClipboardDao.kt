@@ -17,8 +17,9 @@ interface ClipboardDao {
     suspend fun capture(text: String, copiedAt: Long, recentLimit: Int) {
         if (touch(text, copiedAt) == 0) {
             insert(ClipboardEntryEntity(text = text, copiedAt = copiedAt))
+            // Размер растёт только от вставки — после касания старой записи подрезать нечего.
+            trimRecent(recentLimit)
         }
-        trimRecent(recentLimit)
     }
 
     @Query("UPDATE ${ClipboardEntryEntity.TABLE} SET isPinned = :isPinned WHERE id = :id")

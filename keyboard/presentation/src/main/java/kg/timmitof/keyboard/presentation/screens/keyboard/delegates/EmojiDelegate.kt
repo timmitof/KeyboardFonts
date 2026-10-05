@@ -30,7 +30,10 @@ internal class EmojiDelegate(
         }
     }
 
+    /** Слой переключается сразу, данные догружаются: панель не ждёт чтения каталога. */
     suspend fun KeyboardSyntax.openEmojiPanel() {
+        with(layerDelegate) { applyLayer(KeyboardLayer.EMOJI) }
+
         if (state.emojiCategories.isEmpty()) {
             val categories = emojiRepository.getEmojiCategories()
             val variants = emojiRepository.getEmojiVariants()
@@ -45,8 +48,6 @@ internal class EmojiDelegate(
         }
         val recentEmojis = emojiRepository.getRecentEmojis()
         reduce { state.copy(recentEmojis = recentEmojis) }
-
-        with(layerDelegate) { applyLayer(KeyboardLayer.EMOJI) }
     }
 
     suspend fun KeyboardSyntax.openSearch() {
@@ -55,13 +56,12 @@ internal class EmojiDelegate(
     }
 
     suspend fun KeyboardSyntax.updateSearchQuery(query: String) {
+        // Запрос показываем сразу, результаты — когда посчитаются и только если запрос не успели сменить.
+        reduce { state.copy(emojiSearchQuery = query, emojiSearchSelection = 0) }
+
         val results = emojiRepository.searchEmojis(query)
         reduce {
-            state.copy(
-                emojiSearchQuery = query,
-                emojiSearchResults = results,
-                emojiSearchSelection = 0
-            )
+            if (state.emojiSearchQuery == query) state.copy(emojiSearchResults = results) else state
         }
     }
 

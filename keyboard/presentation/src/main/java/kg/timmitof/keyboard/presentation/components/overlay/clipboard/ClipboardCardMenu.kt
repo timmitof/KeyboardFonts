@@ -1,9 +1,8 @@
 package kg.timmitof.keyboard.presentation.components.overlay.clipboard
 
+import kg.timmitof.core.ui.plainClickable
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -86,11 +85,7 @@ private fun MenuItem(
         modifier = Modifier
             .height(38.dp)
             .clip(RoundedCornerShape(8.dp))
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-                onClick = onClick,
-            )
+            .plainClickable(onClick)
             .padding(horizontal = 10.dp),
         horizontalArrangement = Arrangement.spacedBy(10.dp),
         verticalAlignment = Alignment.CenterVertically,

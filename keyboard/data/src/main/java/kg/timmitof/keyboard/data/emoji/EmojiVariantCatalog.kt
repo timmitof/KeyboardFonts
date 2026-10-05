@@ -1,7 +1,12 @@
 package kg.timmitof.keyboard.data.emoji
 
 import android.graphics.Paint
+import android.icu.lang.UCharacter
+import android.icu.lang.UProperty
+import android.os.Build
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 internal object EmojiVariantCatalog {
@@ -9,8 +14,10 @@ internal object EmojiVariantCatalog {
     @Volatile
     private var variantsByBase: Map<String, List<String>>? = null
 
-    suspend fun getVariants(): Map<String, List<String>> = withContext(Dispatchers.Default) {
-        variantsByBase ?: buildVariants().also { variantsByBase = it }
+    private val mutex = Mutex()
+
+    suspend fun getVariants(): Map<String, List<String>> = variantsByBase ?: mutex.withLock {
+        variantsByBase ?: withContext(Dispatchers.Default) { buildVariants() }.also { variantsByBase = it }
     }
 
     private suspend fun buildVariants(): Map<String, List<String>> {
@@ -19,6 +26,7 @@ internal object EmojiVariantCatalog {
             .asSequence()
             .flatMap { it.emojis }
             .distinct()
+            .filter { it.isModifierBase() }
             .mapNotNull { base ->
                 // Достаточно проверить один тон: шрифты поставляются с полным набором
                 val probe = base.withSkinTone(SKIN_TONES.first())
@@ -27,6 +35,15 @@ internal object EmojiVariantCatalog {
                 base to (listOf(base) + SKIN_TONES.map { tone -> base.withSkinTone(tone) })
             }
             .toMap()
+    }
+
+    /**
+     * Тон кожи бывает только у Emoji_Modifier_Base — остальным hasGlyph не нужен.
+     * На API < 28 ICU не знает свойство, там остаётся проверка глифа.
+     */
+    private fun String.isModifierBase(): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) return true
+        return UCharacter.hasBinaryProperty(codePointAt(0), UProperty.EMOJI_MODIFIER_BASE)
     }
 
     private fun String.withSkinTone(tone: Int): String {

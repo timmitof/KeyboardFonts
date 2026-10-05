@@ -19,12 +19,6 @@ internal fun RowScope.ShiftKeyButton(
     shiftState: ShiftState = ShiftState.DISABLED,
     onClick: () -> Unit
 ) {
-    val background = animateColorAsState(
-        targetValue =
-            if (shiftState.isUpperCase()) KFTheme.color.keyButtonPressedBackground
-            else KFTheme.color.keySpecialButtonBackground
-    )
-
     val iconTint = animateColorAsState(
         targetValue =
             if (shiftState.isUpperCase()) KFTheme.color.keyLabelColor
@@ -33,7 +27,12 @@ internal fun RowScope.ShiftKeyButton(
 
     KeyBase(
         modifier = modifier.weight(weight).fillMaxHeight(),
-        background = background.value,
+        // Фон анимирует сам KeyBase.
+        background = if (shiftState.isUpperCase()) {
+            KFTheme.color.keyButtonPressedBackground
+        } else {
+            KFTheme.color.keySpecialButtonBackground
+        },
         shadowColor = KFTheme.color.keyButtonShadow,
         onClick = onClick
     ) {

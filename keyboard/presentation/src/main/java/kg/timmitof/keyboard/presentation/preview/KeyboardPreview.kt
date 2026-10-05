@@ -85,7 +85,7 @@ fun KeyboardPreview(
                 .fillMaxWidth()
                 .clip(shape)
                 .background(KFTheme.color.keyboardBackground)
-                .keyboardBackground(settings.background)
+                .keyboardBackground(settings.background, maxPhotoSide = PreviewPhotoSide)
                 .padding(horizontal = 2.dp, vertical = 5.dp),
         ) {
             PreviewTopBar(
@@ -305,3 +305,4 @@ private const val AbcLabel = "ABC"
 
 private val PreviewKeyRadius: Dp = KeyCornerRadius * PreviewScale
 private val PreviewShape = RoundedCornerShape(14.dp)
+private const val PreviewPhotoSide = 1080

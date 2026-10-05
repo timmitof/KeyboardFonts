@@ -1,11 +1,10 @@
 package kg.timmitof.keyboard.presentation.components.emoji
 
+import kg.timmitof.core.ui.plainClickable
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -67,11 +66,7 @@ private fun RowScope.EmojiTabItem(
             .fillMaxHeight()
             .clip(RoundedCornerShape(17.dp))
             .background(pillColor)
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-                onClick = onClick
-            ),
+            .plainClickable(onClick),
         contentAlignment = Alignment.Center
     ) {
         Text(

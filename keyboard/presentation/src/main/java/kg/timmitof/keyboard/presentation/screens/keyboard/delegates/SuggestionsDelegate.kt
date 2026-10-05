@@ -125,6 +125,9 @@ internal class SuggestionsDelegate(
 
     suspend fun prefetch(languageCode: String) = suggestionRepository.prefetch(languageCode)
 
+    /** Сбрасывает выученное на диск при завершении сессии ввода. */
+    suspend fun flush() = suggestionRepository.flush()
+
     /**
      * Shift решаем только на границе слова: внутри слова он мог быть поднят вручную (имя), Caps Lock не сбрасываем никогда.
      */

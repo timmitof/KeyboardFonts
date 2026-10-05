@@ -13,6 +13,10 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -24,19 +28,26 @@ import kg.timmitof.core.ui.components.color.ColorSwatches
 import kg.timmitof.core.ui.components.color.HueSlider
 import kotlinx.coroutines.launch
 
-/** Цвет меняется сразу в превью клавиатуры; в настройки уходит только по «Применить». */
+/** Цвет сразу уходит в превью клавиатуры ([onPreview]); в настройки — только по «Применить» ([onApply]). */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun BackgroundColorSheet(
-    color: Color,
+    initial: Color,
     title: String,
     toneLabel: String,
     cancelLabel: String,
     applyLabel: String,
-    onChange: (Color) -> Unit,
-    onApply: () -> Unit,
+    onPreview: (Color) -> Unit,
+    onApply: (Color) -> Unit,
     onDismiss: () -> Unit,
 ) {
+    // Черновик живёт только в шторке; наружу уходит превью, а в настройки — лишь по «Применить».
+    var color by remember { mutableStateOf(initial) }
+    val onChange = { picked: Color ->
+        color = picked
+        onPreview(picked)
+    }
+
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
     val closeThen = { action: () -> Unit ->
@@ -90,7 +101,7 @@ internal fun BackgroundColorSheet(
                 }
                 Button(
                     modifier = Modifier.weight(1f),
-                    onClick = { closeThen(onApply) },
+                    onClick = { closeThen { onApply(color) } },
                 ) {
                     Text(text = applyLabel)
                 }

@@ -24,7 +24,12 @@ class BackgroundPhotoRepositoryImpl @Inject constructor(
     override suspend fun addPhoto(uri: String): BackgroundPhoto {
         val stored = storage.copy(uri)
         val entity = BackgroundPhotoEntity(path = stored.path, tone = stored.tone, addedAt = System.currentTimeMillis())
-        return entity.copy(id = dao.insert(entity)).toDomain()
+        return try {
+            entity.copy(id = dao.insert(entity)).toDomain()
+        } catch (error: Throwable) {
+            storage.discard(stored.path)
+            throw error
+        }
     }
 
     override suspend fun setCrop(id: Long, crop: PhotoCrop) =
@@ -32,7 +37,7 @@ class BackgroundPhotoRepositoryImpl @Inject constructor(
 
     override suspend fun deletePhoto(id: Long) {
         val photo = dao.getById(id) ?: return
-        dao.delete(id)
-        storage.delete(photo.path)
+        // Ссылку убираем только после файла: если файл не удалился, запись остаётся и удаление можно повторить.
+        if (storage.delete(photo.path)) dao.delete(id)
     }
 }

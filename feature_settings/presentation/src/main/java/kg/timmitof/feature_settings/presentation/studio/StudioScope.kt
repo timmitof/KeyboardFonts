@@ -12,9 +12,9 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import kg.timmitof.core.ui.components.tabs.ChipTab
@@ -38,24 +38,28 @@ class StudioScope internal constructor() {
 
 @Composable
 fun StudioTabs(
-    selected: StudioTab,
+    selected: () -> StudioTab,
     onSelect: (StudioTab) -> Unit,
     modifier: Modifier = Modifier,
     content: StudioScope.() -> Unit,
 ) {
-    val panes = StudioScope().apply(content).panes()
+    // Панели собираются заново только при смене самого содержимого, а не при выборе вкладки.
+    val panes = remember(content) { StudioScope().apply(content).panes() }
     if (panes.isEmpty()) return
 
-    val available = StudioTab.entries.filter { it in panes }
-    val current = selected.takeIf { it in panes } ?: available.first()
+    val available = remember(panes) { StudioTab.entries.filter { it in panes } }
+    val current = selected().takeIf { it in panes } ?: available.first()
 
-    val chips = available.map { tab ->
-        ChipTab(
-            key = tab,
-            label = stringResource(tab.labelRes),
-            icon = painterResource(tab.iconRes),
-            role = tab.role,
-        )
+    val labels = available.map { stringResource(it.labelRes) }
+    val chips = remember(available, labels) {
+        available.mapIndexed { index, tab ->
+            ChipTab(
+                key = tab,
+                label = labels[index],
+                iconRes = tab.iconRes,
+                role = tab.role,
+            )
+        }
     }
 
     Column(modifier = modifier.fillMaxWidth()) {

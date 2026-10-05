@@ -1,8 +1,7 @@
 package kg.timmitof.keyboard.presentation.components.overlay
 
+import kg.timmitof.core.ui.plainClickable
 import androidx.annotation.DrawableRes
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -103,11 +102,7 @@ internal fun OverlayRows(
 @Composable
 private fun OverlayRowItem(row: OverlayRow) {
     val clickModifier = when (row) {
-        is OverlayRow.Toggle -> Modifier.clickable(
-            interactionSource = remember { MutableInteractionSource() },
-            indication = null,
-            onClick = { row.onCheckedChange(!row.isChecked) },
-        )
+        is OverlayRow.Toggle -> Modifier.plainClickable { row.onCheckedChange(!row.isChecked) }
 
         is OverlayRow.Segmented -> Modifier
     }

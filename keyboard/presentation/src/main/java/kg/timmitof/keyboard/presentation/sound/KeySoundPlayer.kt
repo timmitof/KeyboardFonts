@@ -20,15 +20,20 @@ class KeySoundPlayer(context: Context) {
     private val appContext = context.applicationContext
     private val audioManager = appContext.getSystemService(AudioManager::class.java)
 
-    private val soundPool = SoundPool.Builder()
-        .setMaxStreams(MaxStreams)
-        .setAudioAttributes(
-            AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
-                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                .build()
-        )
-        .build()
+    // Пул создаётся при первом обращении: при выключенном звуке и системном наборе он не нужен.
+    private val soundPoolDelegate = lazy {
+        SoundPool.Builder()
+            .setMaxStreams(MaxStreams)
+            .setAudioAttributes(
+                AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .build()
+            )
+            .build()
+            .also(::listenLoadComplete)
+    }
+    private val soundPool by soundPoolDelegate
 
     private var loadedPack: KeyboardSoundPack? = null
     private var soundIds: Map<KeySound, Int> = emptyMap()
@@ -37,8 +42,8 @@ class KeySoundPlayer(context: Context) {
     // Звук, запрошенный до окончания загрузки сэмпла (например, превью сразу после выбора набора).
     private var pending: Pair<Int, Float>? = null
 
-    init {
-        soundPool.setOnLoadCompleteListener { pool, id, status ->
+    private fun listenLoadComplete(pool: SoundPool) {
+        pool.setOnLoadCompleteListener { _, id, status ->
             if (status != 0) return@setOnLoadCompleteListener
             readyIds += id
             pending?.takeIf { (pendingId, _) -> pendingId == id }?.let { (_, volume) ->
@@ -50,6 +55,11 @@ class KeySoundPlayer(context: Context) {
 
     fun prepare(pack: KeyboardSoundPack) {
         if (pack == loadedPack) return
+        // Системный набор играется через AudioManager: пул ради него не создаём.
+        if (pack == KeyboardSoundPack.SYSTEM && !soundPoolDelegate.isInitialized()) {
+            loadedPack = pack
+            return
+        }
 
         soundIds.values.forEach(soundPool::unload)
         readyIds.clear()
@@ -77,7 +87,7 @@ class KeySoundPlayer(context: Context) {
     }
 
     fun release() {
-        soundPool.release()
+        if (soundPoolDelegate.isInitialized()) soundPool.release()
         soundIds = emptyMap()
         readyIds.clear()
         pending = null

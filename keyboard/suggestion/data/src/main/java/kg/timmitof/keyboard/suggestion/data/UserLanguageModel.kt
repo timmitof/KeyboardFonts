@@ -1,6 +1,7 @@
 package kg.timmitof.keyboard.suggestion.data
 
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentSkipListSet
 
 /**
  * Что клавиатура выучила у пользователя: частоты слов, частоты пар и недавние слова
@@ -14,10 +15,16 @@ internal class UserLanguageModel {
 
     private val pairs = ConcurrentHashMap<String, ConcurrentHashMap<String, Int>>()
 
+    // Отсортированные ключи: префиксный поиск — это subSet, а не проход по всем словам.
+    private val sortedWords = ConcurrentSkipListSet<String>()
+
     private val recent = ArrayDeque<String>()
+
+    private val recentSet = HashSet<String>()
 
     fun learn(previous: String, word: String) {
         words[word] = (words[word] ?: 0) + 1
+        sortedWords.add(word)
 
         if (previous.isNotEmpty()) {
             val followers = pairs.getOrPut(previous) { ConcurrentHashMap(8) }
@@ -38,15 +45,28 @@ internal class UserLanguageModel {
 
     fun pairCount(previous: String, word: String): Int = pairs[previous]?.get(word) ?: 0
 
-    fun wordsWithPrefix(prefix: String): List<String> =
-        words.keys.filter { it.length > prefix.length && it.startsWith(prefix) }
+    fun wordsWithPrefix(prefix: String): List<String> {
+        if (prefix.isEmpty()) return sortedWords.filter { it.isNotEmpty() }
+        // Верхняя граница — префикс с увеличенным последним символом.
+        val upper = prefix.dropLast(1) + (prefix.last() + 1)
+        return sortedWords.subSet(prefix, false, upper, false)
+            .filter { it.length > prefix.length && it.startsWith(prefix) }
+    }
 
-    fun frequentWords(limit: Int): List<String> =
-        words.entries.sortedByDescending { it.value }.take(limit).map { it.key }
+    /** Топ-[limit] по счётчику за один проход, без сортировки всех слов. */
+    fun frequentWords(limit: Int): List<String> {
+        if (limit <= 0) return emptyList()
+        val top = ArrayList<Map.Entry<String, Int>>(limit + 1)
+        for (entry in words.entries) {
+            if (top.size == limit && entry.value <= top.last().value) continue
+            val position = top.indexOfFirst { it.value < entry.value }.takeIf { it >= 0 } ?: top.size
+            top.add(position, java.util.AbstractMap.SimpleEntry(entry.key, entry.value))
+            if (top.size > limit) top.removeAt(top.lastIndex)
+        }
+        return top.map { it.key }
+    }
 
-    fun isRecent(word: String): Boolean = synchronized(recent) { word in recent }
-
-    fun recentWords(): List<String> = synchronized(recent) { recent.toList() }
+    fun isRecent(word: String): Boolean = synchronized(recent) { word in recentSet }
 
     fun export(): List<String> = buildList(words.size + pairs.size) {
         words.entries.forEach { (word, count) -> add("$WORD_MARK\t$word\t$count") }
@@ -60,7 +80,10 @@ internal class UserLanguageModel {
             val columns = line.split('\t')
             when {
                 columns.size == 3 && columns[0] == WORD_MARK ->
-                    columns[2].toIntOrNull()?.let { words[columns[1]] = it }
+                    columns[2].toIntOrNull()?.let {
+                        words[columns[1]] = it
+                        sortedWords.add(columns[1])
+                    }
 
                 columns.size == 4 && columns[0] == PAIR_MARK ->
                     columns[3].toIntOrNull()?.let {
@@ -71,20 +94,38 @@ internal class UserLanguageModel {
     }
 
     private fun remember(word: String) = synchronized(recent) {
-        recent.remove(word)
+        if (!recentSet.add(word)) recent.remove(word)
         recent.addFirst(word)
-        while (recent.size > MAX_RECENT) recent.removeLast()
+        while (recent.size > MAX_RECENT) recentSet.remove(recent.removeLast())
     }
 
-    /** Вместо выбрасывания «хвоста» делит счётчики пополам: редкие слова отмирают, частые остаются. */
+    /**
+     * Вместо выбрасывания «хвоста» делит счётчики пополам: редкие слова отмирают, частые остаются.
+     * Одного деления может не хватить (все счётчики большие), поэтому повторяем, пока размер не упадёт.
+     */
     private fun trim() {
-        if (words.size > MAX_WORDS) {
+        var rounds = 0
+        while (words.size > MAX_WORDS && rounds++ < MAX_TRIM_ROUNDS) {
             words.entries.forEach { entry ->
                 val halved = entry.value / 2
-                if (halved > 0) entry.setValue(halved) else words.remove(entry.key)
+                if (halved > 0) {
+                    entry.setValue(halved)
+                } else {
+                    words.remove(entry.key)
+                    sortedWords.remove(entry.key)
+                }
             }
         }
-        if (pairs.size > MAX_PAIRS) {
+        if (words.size > MAX_WORDS) {
+            // Все счётчики уже единицы: отсекаем лишнее принудительно.
+            words.keys.take(words.size - MAX_WORDS).forEach { key ->
+                words.remove(key)
+                sortedWords.remove(key)
+            }
+        }
+
+        rounds = 0
+        while (pairs.size > MAX_PAIRS && rounds++ < MAX_TRIM_ROUNDS) {
             pairs.entries.forEach { (previous, followers) ->
                 followers.entries.forEach { follower ->
                     val halved = follower.value / 2
@@ -92,6 +133,9 @@ internal class UserLanguageModel {
                 }
                 if (followers.isEmpty()) pairs.remove(previous)
             }
+        }
+        if (pairs.size > MAX_PAIRS) {
+            pairs.keys.take(pairs.size - MAX_PAIRS).forEach { pairs.remove(it) }
         }
     }
 
@@ -101,6 +145,7 @@ internal class UserLanguageModel {
         const val MAX_WORDS = 4000
         const val MAX_PAIRS = 4000
         const val MAX_RECENT = 60
+        const val MAX_TRIM_ROUNDS = 12
 
         const val WORD_MARK = "w"
         const val PAIR_MARK = "p"
