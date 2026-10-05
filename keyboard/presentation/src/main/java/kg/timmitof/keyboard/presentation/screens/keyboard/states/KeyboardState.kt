@@ -18,7 +18,6 @@ import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
 import kg.timmitof.keyboard.domain.model.KeyboardToggle
 import kg.timmitof.keyboard.suggestion.domain.model.TextContext
 import kg.timmitof.keyboard.suggestion.domain.model.WordSuggestion
-import kg.timmitof.keyboard.presentation.R
 
 @Stable
 internal data class KeyboardState(
@@ -98,7 +97,6 @@ internal data class KeyboardState(
     @get:StringRes
     val noticeRes: Int?
         get() = fieldType.noticeRes
-            ?: R.string.field_notice_multiline.takeIf { fieldContext.isMultiLine }
 
     /** Тип поля важнее Enter: в адресе нужен `@`, даже если поле просит «Найти». */
     val bottomRowVariant: String?
@@ -157,6 +155,8 @@ sealed class KeyboardSideEffect : BaseSideEffect.UiSideEffect() {
     }
 
     data object OpenApp : KeyboardSideEffect()
+
+    data object HideKeyboard : KeyboardSideEffect()
 }
 
 internal sealed class KeyboardEvent : BaseEvent.UiEvent() {
@@ -192,4 +192,5 @@ internal sealed class KeyboardEvent : BaseEvent.UiEvent() {
     data class OnClipboardPaste(val entry: ClipboardEntry) : KeyboardEvent()
     data class OnClipboardAction(val action: ClipboardAction) : KeyboardEvent()
     data object OnOpenApp : KeyboardEvent()
+    data object OnHideKeyboard : KeyboardEvent()
 }

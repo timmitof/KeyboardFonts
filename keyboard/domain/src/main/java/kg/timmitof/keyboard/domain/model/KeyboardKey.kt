@@ -67,6 +67,13 @@ sealed class KeyboardKey {
         override fun withWeight(weight: Float) = copy(weight = weight)
     }
 
+    /** Скрыть клавиатуру: на планшете системная «назад» далеко от пальцев. В JSON-раскладках её нет. */
+    data class HideKeyboard(
+        override val weight: Float
+    ) : KeyboardKey() {
+        override fun withWeight(weight: Float) = copy(weight = weight)
+    }
+
     data class Spacer(
         override val weight: Float
     ) : KeyboardKey() {

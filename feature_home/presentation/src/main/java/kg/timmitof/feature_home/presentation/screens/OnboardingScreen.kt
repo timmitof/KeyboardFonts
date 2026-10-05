@@ -243,7 +243,11 @@ private fun SetupContent(
 private fun TryContent(onDone: () -> Unit) {
     val success = MaterialTheme.appColors.success
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+    ) {
         ScreenTitle(
             title = stringResource(R.string.onboarding_try_title),
             lead = stringResource(R.string.onboarding_try_lead),

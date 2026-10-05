@@ -101,6 +101,9 @@ internal class KeyboardFontsService : ComposeInputMethodService() {
         textSyncHandler.postDelayed(textSyncTask, TEXT_SYNC_DELAY_MILLIS)
     }
 
+    /** Система по умолчанию в альбомном режиме раскрывает ввод на весь экран; мы показываем обычную клавиатуру поверх приложения. */
+    override fun onEvaluateFullscreenMode(): Boolean = false
+
     override fun onFinishInputView(finishingInput: Boolean) {
         super.onFinishInputView(finishingInput)
         textSyncHandler.removeCallbacks(textSyncTask)
@@ -119,6 +122,7 @@ internal class KeyboardFontsService : ComposeInputMethodService() {
             }
 
             KeyboardSideEffect.OpenApp -> openApp()
+            KeyboardSideEffect.HideKeyboard -> requestHideSelf(0)
         }
     }
 

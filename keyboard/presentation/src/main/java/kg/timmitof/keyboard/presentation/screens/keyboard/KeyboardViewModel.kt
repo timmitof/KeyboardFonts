@@ -100,6 +100,7 @@ internal class KeyboardViewModel(
                 with(clipboardDelegate) { paste(event.entry.text) }
             }
             is KeyboardEvent.OnClipboardAction -> intent { clipboardDelegate.applyAction(event.action) }
+            is KeyboardEvent.OnHideKeyboard -> intent { postSideEffect(KeyboardSideEffect.HideKeyboard) }
             is KeyboardEvent.OnOpenApp -> intent {
                 reduce { state.copy(keyboardOverlay = null) }
                 postSideEffect(KeyboardSideEffect.OpenApp)

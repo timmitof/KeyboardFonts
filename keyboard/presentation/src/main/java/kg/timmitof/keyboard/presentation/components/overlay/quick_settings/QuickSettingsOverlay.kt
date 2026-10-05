@@ -12,6 +12,7 @@ import kg.timmitof.keyboard.domain.model.KeyboardHeight
 import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
 import kg.timmitof.keyboard.domain.model.KeyboardToggle
 import kg.timmitof.keyboard.presentation.R
+import kg.timmitof.keyboard.presentation.components.LocalKeyboardMetrics
 import kg.timmitof.keyboard.presentation.components.overlay.OverlayActionRow
 import kg.timmitof.keyboard.presentation.components.overlay.OverlayDivider
 import kg.timmitof.keyboard.presentation.components.overlay.OverlayHeader
@@ -38,6 +39,9 @@ internal fun ColumnScope.QuickSettingsOverlay(
     val vibrationTitle = stringResource(R.string.quick_settings_vibration)
     val heightTitle = stringResource(R.string.quick_settings_height)
     val themeTitle = stringResource(R.string.quick_settings_theme)
+    val splitTitle = stringResource(R.string.quick_settings_split)
+    // Строка нужна только там, где клавиатуру вообще можно разделить.
+    val canSplit = LocalKeyboardMetrics.current.formFactor.canSplit
     val heightOptions = KeyboardHeight.entries.map { stringResource(it.labelRes) }
     val themeOptions = KeyboardThemeMode.entries.map { stringResource(it.labelRes) }
 
@@ -62,6 +66,15 @@ internal fun ColumnScope.QuickSettingsOverlay(
             isChecked = settings[KeyboardToggle.VIBRATION],
             onCheckedChange = { apply(QuickSetting.Toggle(KeyboardToggle.VIBRATION, it)) },
         )
+
+        if (canSplit) {
+            toggle(
+                iconRes = R.drawable.ic_quick_split,
+                title = splitTitle,
+                isChecked = settings[KeyboardToggle.SPLIT_KEYBOARD],
+                onCheckedChange = { apply(QuickSetting.Toggle(KeyboardToggle.SPLIT_KEYBOARD, it)) },
+            )
+        }
 
         segmented(
             iconRes = R.drawable.ic_quick_height,

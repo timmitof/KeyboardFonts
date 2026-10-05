@@ -28,7 +28,10 @@ enum class KeyboardToggle(
 
     KEY_PREVIEW("key_preview", default = true),
 
-    KEY_OUTLINE("key_outline", default = false);
+    KEY_OUTLINE("key_outline", default = false),
+
+    /** Действует только в альбомном режиме и на планшете. */
+    SPLIT_KEYBOARD("split_keyboard", default = true);
 }
 
 enum class KeyboardThemeMode(val key: String) {
@@ -120,6 +123,8 @@ data class KeyboardSettings(
     val isKeyPreviewEnabled: Boolean get() = isOn(KeyboardToggle.KEY_PREVIEW)
 
     val isKeyOutlineEnabled: Boolean get() = isOn(KeyboardToggle.KEY_OUTLINE)
+
+    val isSplitEnabled: Boolean get() = isOn(KeyboardToggle.SPLIT_KEYBOARD)
 
     companion object {
         const val DEFAULT_SOUND_VOLUME = 0.6f

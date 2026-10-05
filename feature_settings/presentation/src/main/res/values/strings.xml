@@ -120,6 +120,8 @@
     <string name="size_height_xl">XL</string>
     <string name="size_digits_row_title">Цифровой ряд</string>
     <string name="size_digits_row_description">Цифры всегда над буквами</string>
+    <string name="size_split_title">Разделённая клавиатура</string>
+    <string name="size_split_description">Две половины у краёв — в альбомном режиме и на планшете</string>
 
     <!-- Звук -->
     <string name="sound_vibration_title">Вибрация при нажатии</string>

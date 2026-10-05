@@ -271,6 +271,8 @@ internal fun SizePane(
     val heightOptions = remember(heightLabels) { heightLabels }
     val digitsTitle = stringResource(R.string.size_digits_row_title)
     val digitsDescription = stringResource(R.string.size_digits_row_description)
+    val splitTitle = stringResource(R.string.size_split_title)
+    val splitDescription = stringResource(R.string.size_split_description)
 
     SettingsSection {
         segmented(
@@ -284,6 +286,12 @@ internal fun SizePane(
             description = digitsDescription,
             checked = settings[KeyboardToggle.DIGITS_ROW],
             onCheckedChange = { onToggle(KeyboardToggle.DIGITS_ROW, it) },
+        )
+        toggle(
+            title = splitTitle,
+            description = splitDescription,
+            checked = settings[KeyboardToggle.SPLIT_KEYBOARD],
+            onCheckedChange = { onToggle(KeyboardToggle.SPLIT_KEYBOARD, it) },
         )
     }
 }

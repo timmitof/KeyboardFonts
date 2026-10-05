@@ -212,6 +212,7 @@ private fun RowScope.PreviewKey(
             background = KFTheme.color.keyEnterBackground,
             tint = KFTheme.color.keyEnterTextColor,
         )
+        is KeyboardKey.HideKeyboard -> PreviewIconKey(key.weight, R.drawable.ic_keyboard_hide)
         is KeyboardKey.EmojiSwitch -> PreviewIconKey(key.weight, R.drawable.ic_emoji_key)
 
         is KeyboardKey.SymbolsSwitch -> PreviewTextKey(key.weight, SymbolsLabel)

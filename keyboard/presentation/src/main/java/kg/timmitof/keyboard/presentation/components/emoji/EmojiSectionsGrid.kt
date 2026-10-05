@@ -53,6 +53,7 @@ internal fun List<EmojiSection>.gridIndex(): EmojiGridIndex {
 @Composable
 internal fun EmojiSectionsGrid(
     sections: List<EmojiSection>,
+    columns: Int,
     gridState: LazyGridState,
     currentSection: State<Int>,
     emojiVariants: Map<String, List<String>>,
@@ -62,7 +63,7 @@ internal fun EmojiSectionsGrid(
 ) {
     Box(modifier = modifier) {
         LazyVerticalGrid(
-            columns = GridCells.Fixed(EmojiGridColumns),
+            columns = GridCells.Fixed(columns),
             state = gridState,
             modifier = Modifier.fillMaxSize()
         ) {

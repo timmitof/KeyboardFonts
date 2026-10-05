@@ -16,10 +16,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import kg.timmitof.keyboard.presentation.components.KeyRowHeight
+import kg.timmitof.keyboard.presentation.components.LocalKeyboardMetrics
 import kg.timmitof.keyboard.presentation.components.KeyRowSpacing
 import kg.timmitof.keyboard.presentation.components.KeyboardRows
 import kg.timmitof.keyboard.presentation.components.LocalKeyRowHeight
+import kg.timmitof.keyboard.presentation.components.rememberKeyboardMetrics
 import kg.timmitof.keyboard.presentation.components.keys.LocalKeyFeedback
 import kg.timmitof.keyboard.presentation.components.keys.rememberKeyFeedback
 import kg.timmitof.keyboard.presentation.components.emoji.EmojiPanel
@@ -43,9 +44,12 @@ internal fun KeyboardFontsScreen(viewModel: KeyboardViewModel) {
 
     val settings by remember { derivedStateOf { state.value.settings } }
 
+    val metrics = rememberKeyboardMetrics(settings)
+
     CompositionLocalProvider(
         LocalKeyFeedback provides rememberKeyFeedback(settings),
-        LocalKeyRowHeight provides KeyRowHeight * settings.height.scale,
+        LocalKeyboardMetrics provides metrics,
+        LocalKeyRowHeight provides metrics.rowHeight,
     ) {
         KeyboardContent(
             state = state,

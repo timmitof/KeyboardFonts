@@ -115,8 +115,6 @@ internal fun NoticePill(
     @StringRes textRes: Int,
     modifier: Modifier = Modifier,
 ) {
-    val isRestriction = textRes != R.string.field_notice_multiline
-
     Row(
         modifier = modifier
             .height(26.dp)
@@ -126,14 +124,12 @@ internal fun NoticePill(
         horizontalArrangement = Arrangement.spacedBy(6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        if (isRestriction) {
-            Icon(
-                imageVector = ImageVector.vectorResource(R.drawable.ic_field_lock),
-                contentDescription = null,
-                tint = KFTheme.color.noticeTextColor,
-                modifier = Modifier.size(12.dp)
-            )
-        }
+        Icon(
+            imageVector = ImageVector.vectorResource(R.drawable.ic_field_lock),
+            contentDescription = null,
+            tint = KFTheme.color.noticeTextColor,
+            modifier = Modifier.size(12.dp)
+        )
         Text(
             text = stringResource(textRes),
             fontSize = 11.sp,

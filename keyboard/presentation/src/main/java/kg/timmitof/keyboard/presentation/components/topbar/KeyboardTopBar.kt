@@ -33,7 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kg.timmitof.keyboard.presentation.R
 import kg.timmitof.keyboard.presentation.components.FontsCarousel
-import kg.timmitof.keyboard.presentation.components.TopBarHeight
+import kg.timmitof.keyboard.presentation.components.LocalKeyboardMetrics
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardEvent
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardOverlay
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardState
@@ -61,7 +61,7 @@ internal fun KeyboardTopBar(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .height(TopBarHeight)
+            .height(LocalKeyboardMetrics.current.topBarHeight)
             .padding(horizontal = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
