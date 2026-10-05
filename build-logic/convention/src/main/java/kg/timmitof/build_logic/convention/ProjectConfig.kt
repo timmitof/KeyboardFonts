@@ -10,8 +10,8 @@ object ProjectConfig {
     const val MIN_SDK = 24
     const val TARGET_SDK = 36
 
-    const val VERSION_CODE = 5
-    const val VERSION_NAME = "1.1.1"
+    const val VERSION_CODE = 6
+    const val VERSION_NAME = "1.2.0"
 
     val JAVA_VERSION = JavaVersion.VERSION_11
     val JVM_TARGET = JvmTarget.JVM_11
