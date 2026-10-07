@@ -77,15 +77,16 @@ internal class BigramTable(
             while (lineStart < text.length) {
                 var lineEnd = text.indexOf('\n', lineStart)
                 if (lineEnd < 0) lineEnd = text.length
+                val contentEnd = text.lineContentEnd(lineStart, lineEnd)
 
                 val separator = text.indexOf('\t', lineStart)
-                if (separator in (lineStart + 1) until lineEnd) {
+                if (separator in (lineStart + 1) until contentEnd) {
                     val block = blocks.size
                     if (block == bounds.size) bounds = bounds.copyOf(block * 2)
                     bounds[block] = followers.length
                     blocks[text.substring(lineStart, separator)] = block
 
-                    followers.append(text, separator + 1, lineEnd).append(' ')
+                    followers.append(text, separator + 1, contentEnd).append(' ')
                 }
                 lineStart = lineEnd + 1
             }

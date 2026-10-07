@@ -1,0 +1,2 @@
+*.dict text eol=lf
+*.bigrams text eol=lf

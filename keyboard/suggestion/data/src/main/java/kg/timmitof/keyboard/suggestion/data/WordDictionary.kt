@@ -79,10 +79,11 @@ internal class WordDictionary(
             while (lineStart < text.length) {
                 var lineEnd = text.indexOf('\n', lineStart)
                 if (lineEnd < 0) lineEnd = text.length
+                val contentEnd = text.lineContentEnd(lineStart, lineEnd)
 
                 val separator = text.indexOf('\t', lineStart)
-                if (separator in (lineStart + 1) until lineEnd) {
-                    val score = text.parseScore(separator + 1, lineEnd)
+                if (separator in (lineStart + 1) until contentEnd) {
+                    val score = text.parseScore(separator + 1, contentEnd)
                     if (score > 0) {
                         if (count == starts.size) {
                             starts = starts.copyOf(count * 2)
