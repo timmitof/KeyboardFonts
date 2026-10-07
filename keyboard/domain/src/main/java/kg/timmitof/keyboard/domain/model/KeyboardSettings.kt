@@ -16,6 +16,9 @@ enum class KeyboardToggle(
 
     LEARN_FROM_INPUT("learn_from_input", default = false, parent = SUGGESTIONS),
 
+    /** Не зависит от Т9: точка нужна и с выключенными подсказками. Поля без подсказок (пароль, адрес) её не получают. */
+    DOUBLE_SPACE_PERIOD("double_space_period", default = true),
+
     STYLED_FONTS("styled_fonts_enabled", default = true),
 
     REMEMBER_FONT("remember_font", default = true, parent = STYLED_FONTS),
@@ -109,6 +112,8 @@ data class KeyboardSettings(
     val isNextWordPredictionEnabled: Boolean get() = isOn(KeyboardToggle.NEXT_WORD_PREDICTION)
 
     val isLearningEnabled: Boolean get() = isOn(KeyboardToggle.LEARN_FROM_INPUT)
+
+    val isDoubleSpacePeriodEnabled: Boolean get() = isOn(KeyboardToggle.DOUBLE_SPACE_PERIOD)
 
     val isFontsPanelEnabled: Boolean get() = isOn(KeyboardToggle.STYLED_FONTS)
 

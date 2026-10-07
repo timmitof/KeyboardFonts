@@ -19,11 +19,24 @@ internal class LanguageModel(
     val spellCorrector: SpellCorrector?
         get() = if (spellIndex.isCompleted && !spellIndex.isCancelled) spellIndex.getCompleted() else null
 
+    /**
+     * Нет в словаре, но в одной правке есть частое словарное слово — скорее всего, промах по клавише.
+     * Зовётся при завершении слова, а не на нажатие: поиск по индексу на каждую букву не нужен.
+     */
+    fun isLikelyTypo(word: String, corrector: SpellCorrector): Boolean =
+        !dictionary.contains(word) &&
+                corrector.corrections(word, maxDistance = 1.0).any { correction ->
+                    correction.distance == 1 && correction.score >= TYPO_NEIGHBOR_MIN_SCORE
+                }
+
     companion object {
         val Empty = LanguageModel(
             WordDictionary.Empty,
             BigramTable.Empty,
             CompletableDeferred(SpellCorrector.Empty),
         )
+
+        /** Шкала 1..1000; от 600 и выше — примерно 1,2–1,6 тыс. самых частых слов, где опечатки и случаются. */
+        const val TYPO_NEIGHBOR_MIN_SCORE = 600
     }
 }

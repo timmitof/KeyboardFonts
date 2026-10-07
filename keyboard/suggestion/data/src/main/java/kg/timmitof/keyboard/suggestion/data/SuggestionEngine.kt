@@ -91,8 +91,9 @@ class SuggestionEngine @Inject constructor() {
         }
 
         val isKnown = dictionary.contains(query) || user.knows(query)
-        // Своё слово и слово, которого ждёт фраза, набраны намеренно — их не трогаем никогда.
-        val isProtected = user.knows(query) || boosts.isExpected(query)
+        // Своё слово, слово, которого ждёт фраза, и уже отвергнувшее замену набраны намеренно — их не трогаем.
+        // Подсказки для них считаются как обычно, снимается только автозамена.
+        val isProtected = user.knows(query) || boosts.isExpected(query) || user.hasRejected(query)
 
         dictionary.rankByPrefix(query).forEach { index ->
             offer(dictionary.wordAt(index), dictionary.scoreAt(index), distance = 0)

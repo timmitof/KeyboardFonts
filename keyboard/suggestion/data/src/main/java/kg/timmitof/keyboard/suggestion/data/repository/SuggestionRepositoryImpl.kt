@@ -2,6 +2,7 @@ package kg.timmitof.keyboard.suggestion.data.repository
 
 import kg.timmitof.keyboard.suggestion.data.LanguageModel
 import kg.timmitof.keyboard.suggestion.data.LanguageModelLoader
+import kg.timmitof.keyboard.suggestion.data.SpellCorrector
 import kg.timmitof.keyboard.suggestion.data.SuggestionEngine
 import kg.timmitof.keyboard.suggestion.data.UserDictionaryStore
 import kg.timmitof.keyboard.suggestion.data.UserLanguageModel
@@ -12,6 +13,7 @@ import kg.timmitof.keyboard.suggestion.domain.model.WordSuggestion
 import kg.timmitof.keyboard.suggestion.domain.repository.SuggestionRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.SupervisorJob
@@ -45,6 +47,10 @@ class SuggestionRepositoryImpl @Inject constructor(
 
     private val dirtyLanguages = ConcurrentHashMap.newKeySet<String>()
 
+    // Отложенное обучение выполняется по одному, в порядке поступления.
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val learning = Dispatchers.IO.limitedParallelism(1)
+
     override suspend fun suggest(request: SuggestionRequest): List<WordSuggestion> {
         val user = userModel(request.languageCode)
         val model = languageModel(request.languageCode, user)
@@ -58,7 +64,12 @@ class SuggestionRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun learn(languageCode: String, previousWord: String, word: String) {
+    override suspend fun learn(
+        languageCode: String,
+        previousWord: String,
+        word: String,
+        isDeliberate: Boolean,
+    ) {
         val learned = word.toDictionaryForm()
         if (!learned.isLearnable()) return
 
@@ -67,10 +78,37 @@ class SuggestionRepositoryImpl @Inject constructor(
         val user = userModel(languageCode)
         val model = languageModel(languageCode, user)
 
-        user.learn(previous, learned)
-        // Пока индекс строится, слово попадёт в него при синхронизации личной модели.
-        model.spellCorrector?.addWord(learned, USER_WORD_FREQUENCY)
+        withSpellIndex(model) { corrector ->
+            // Отказ от автозамены — тоже осознанный выбор: такое слово не опечатка.
+            val trusted = isDeliberate || user.hasRejected(learned)
+            val isSuspicious = !trusted && model.isLikelyTypo(learned, corrector)
+            if (user.learn(previous, learned, isSuspicious)) corrector.addWord(learned, USER_WORD_FREQUENCY)
+        }
         scheduleSave(languageCode)
+    }
+
+    override suspend fun rejectAutoCorrection(
+        languageCode: String,
+        previousWord: String,
+        typed: String,
+        corrected: String,
+        wasLearned: Boolean,
+    ) {
+        val original = typed.toDictionaryForm()
+        val user = userModel(languageCode)
+        val model = languageModel(languageCode, user)
+        val previous = previousWord.toDictionaryForm().takeIf { it.isLearnable() }.orEmpty()
+
+        // Через ту же очередь, что и обучение: пока индекс строится, сама замена могла ещё не выучиться.
+        // Из SymSpell слово не убираем — библиотека умеет только добавлять; счётчик и пара откатываются.
+        withSpellIndex(model) {
+            if (wasLearned) user.unlearn(previous, corrected.toDictionaryForm())
+            if (original.isNotEmpty()) user.reject(original)
+        }
+        scheduleSave(languageCode)
+
+        // Отвергнутое уже в отказах — выучится сразу, без проверки на опечатку.
+        learn(languageCode, previousWord, typed)
     }
 
     override suspend fun prefetch(languageCode: String) {
@@ -102,6 +140,7 @@ class SuggestionRepositoryImpl @Inject constructor(
             scope.launch {
                 val corrector = model.spellIndex.await()
                 user.wordFrequencies().forEach { (word, count) ->
+                    if (user.isSuspicious(word)) return@forEach
                     corrector.addWord(
                         word = word,
                         frequency = (count.toLong() * USER_WORD_FREQUENCY)
@@ -110,6 +149,19 @@ class SuggestionRepositoryImpl @Inject constructor(
                     )
                 }
             }
+        }
+    }
+
+    /**
+     * Обучению нужен индекс опечаток. Готов — работаем сразу (это завершение слова, не нажатие клавиши),
+     * иначе — в фоне, когда достроится: ввод ждать индекс не должен.
+     */
+    private suspend fun withSpellIndex(model: LanguageModel, action: (SpellCorrector) -> Unit) {
+        val corrector = model.spellCorrector
+        if (corrector != null) {
+            action(corrector)
+        } else {
+            scope.launch(learning) { action(model.spellIndex.await()) }
         }
     }
 

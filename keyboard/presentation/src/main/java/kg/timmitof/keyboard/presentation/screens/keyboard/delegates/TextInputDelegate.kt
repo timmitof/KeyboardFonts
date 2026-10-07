@@ -6,6 +6,7 @@ import kg.timmitof.keyboard.suggestion.domain.model.WordSuggestion
 import kg.timmitof.keyboard.presentation.screens.keyboard.KeyboardSyntax
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.AutoCorrection
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.ComposingText
+import kg.timmitof.keyboard.presentation.screens.keyboard.states.CorrectionRejection
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardLayer
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardSideEffect
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.ShiftState
@@ -63,11 +64,35 @@ internal class TextInputDelegate(
         val styled = state.activeFont.apply(suggestion.text)
         replaceWord("$styled ")
 
-        suggestionsDelegate.learnWord(state, suggestion.text)
+        suggestionsDelegate.learnWord(state, suggestion.text, isDeliberate = true)
         reduce { state.copy(suggestions = emptyList(), suggestionsWord = "", autoCorrection = null) }
     }
 
-    suspend fun KeyboardSyntax.typeSpace() = finishWord(" ")
+    suspend fun KeyboardSyntax.typeSpace() {
+        if (!insertPeriod()) finishWord(" ")
+    }
+
+    /**
+     * Второй пробел подряд сразу после слова: «слово␣» → «слово.␣». Отменяется Backspace как автозамена,
+     * а авто-Shift поднимается сам — снимок текста теперь кончается точкой.
+     */
+    private suspend fun KeyboardSyntax.insertPeriod(): Boolean {
+        if (state.layer == KeyboardLayer.EMOJI_SEARCH) return false
+        if (!state.settings.isDoubleSpacePeriodEnabled || !state.fieldType.allowsSuggestions) return false
+
+        val context = state.textContext
+        if (context.composingWord.isNotEmpty()) return false
+
+        // Перед пробелом — буква или цифра; стилизованные буквы — суррогатные пары, смотрим кодовую точку.
+        val before = context.before
+        if (before.length < 2 || before.last() != ' ') return false
+        if (!Character.isLetterOrDigit(before.codePointBefore(before.length - 1))) return false
+
+        postSideEffect(KeyboardSideEffect.Input.ReplaceTextBeforeCursor(chars = 1, text = PERIOD_SPACE))
+        reduce { state.copy(autoCorrection = AutoCorrection(original = "  ", corrected = PERIOD_SPACE)) }
+        with(suggestionsDelegate) { applyLocalEdit { it.removingLast(1).appending(PERIOD_SPACE) } }
+        return true
+    }
 
     private suspend fun KeyboardSyntax.finishWord(separator: String) {
         if (state.layer == KeyboardLayer.EMOJI_SEARCH) {
@@ -84,7 +109,9 @@ internal class TextInputDelegate(
             val corrected = state.activeFont.apply(correction.text) + separator
             replaceWord(corrected)
 
-            suggestionsDelegate.learnWord(state, correction.text)
+            // Предыдущее слово берём до правки снимка: при отмене пару надо разучить ровно ту же.
+            val previousWord = state.textContext.previousWord
+            val wasLearned = suggestionsDelegate.learnWord(state, correction.text)
             reduce {
                 state.copy(
                     suggestions = emptyList(),
@@ -92,6 +119,12 @@ internal class TextInputDelegate(
                     autoCorrection = AutoCorrection(
                         original = typed + separator,
                         corrected = corrected,
+                        rejection = CorrectionRejection(
+                            previousWord = previousWord,
+                            typed = typed,
+                            corrected = correction.text,
+                            wasLearned = wasLearned,
+                        ),
                     ),
                 )
             }
@@ -101,11 +134,17 @@ internal class TextInputDelegate(
         } else {
             closeComposing()
             postSideEffect(KeyboardSideEffect.Input.CommitText(separator))
-            if (typed.isNotEmpty()) suggestionsDelegate.learnWord(state, typed)
+            if (typed.isNotEmpty()) learnTyped(typed)
 
             forgetAutoCorrection()
             with(suggestionsDelegate) { applyLocalEdit { it.appending(separator) } }
         }
+    }
+
+    /** Заглавная посреди предложения — имя или сокращение: учим сразу, как выбранное осознанно. */
+    private suspend fun KeyboardSyntax.learnTyped(typed: String) {
+        val isCapitalized = !state.textContext.isSentenceStart && Character.isUpperCase(typed.codePointAt(0))
+        suggestionsDelegate.learnWord(state, typed, isDeliberate = isCapitalized)
     }
 
     /** Без черновика границы слова спрашиваем у поля: курсор могли поставить посреди чужого текста. */
@@ -152,7 +191,7 @@ internal class TextInputDelegate(
         } else {
             state.textContext.composingWord
                 .takeIf { it.isNotEmpty() }
-                ?.let { suggestionsDelegate.learnWord(state, it) }
+                ?.let { learnTyped(it) }
 
             closeComposing()
             postSideEffect(KeyboardSideEffect.Input.PerformEditorAction)
@@ -211,7 +250,10 @@ internal class TextInputDelegate(
         }
     }
 
-    /** Backspace сразу после автозамены возвращает набранное, иначе исправление нечем отменить. */
+    /**
+     * Backspace сразу после автозамены возвращает набранное, иначе исправление нечем отменить.
+     * Отмена замены слова ещё и разучивает её: в следующий раз то же слово не исправится.
+     */
     private suspend fun KeyboardSyntax.undoAutoCorrection(): Boolean {
         if (state.layer == KeyboardLayer.EMOJI_SEARCH) return false
 
@@ -228,6 +270,10 @@ internal class TextInputDelegate(
             )
         )
         reduce { state.copy(autoCorrection = null) }
+        with(suggestionsDelegate) {
+            applyLocalEdit { it.removingLast(correction.corrected.length).appending(correction.original) }
+        }
+        correction.rejection?.let { suggestionsDelegate.rejectAutoCorrection(state, it) }
         return true
     }
 
@@ -286,5 +332,6 @@ internal class TextInputDelegate(
 
     private companion object {
         const val WORD_SEPARATORS = ".,!?;:"
+        const val PERIOD_SPACE = ". "
     }
 }

@@ -5,6 +5,7 @@ import kg.timmitof.keyboard.suggestion.domain.model.TextContext
 import kg.timmitof.keyboard.suggestion.domain.model.WordSuggestion
 import kg.timmitof.keyboard.suggestion.domain.repository.SuggestionRepository
 import kg.timmitof.keyboard.presentation.screens.keyboard.KeyboardSyntax
+import kg.timmitof.keyboard.presentation.screens.keyboard.states.CorrectionRejection
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardSideEffect
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardState
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.ShiftState
@@ -112,14 +113,34 @@ internal class SuggestionsDelegate(
         )
     }
 
-    suspend fun learnWord(state: KeyboardState, word: String) {
-        val languageCode = state.activeLanguage?.code ?: return
-        if (!state.allowsSuggestions || !state.settings.isLearningEnabled) return
+    /**
+     * @param isDeliberate слово выбрано осознанно — учится сразу, без проверки на опечатку.
+     * @return ушло ли слово в обучение: только тогда его есть что разучивать при отмене автозамены.
+     */
+    suspend fun learnWord(state: KeyboardState, word: String, isDeliberate: Boolean = false): Boolean {
+        val languageCode = state.activeLanguage?.code ?: return false
+        if (!state.allowsSuggestions || !state.settings.isLearningEnabled) return false
 
         suggestionRepository.learn(
             languageCode = languageCode,
             previousWord = state.textContext.previousWord,
             word = word,
+            isDeliberate = isDeliberate,
+        )
+        return true
+    }
+
+    /** Отмена автозамены: разучить замену, запомнить отказ. Без обучения на вводе ничего не храним. */
+    suspend fun rejectAutoCorrection(state: KeyboardState, rejection: CorrectionRejection) {
+        val languageCode = state.activeLanguage?.code ?: return
+        if (!state.allowsSuggestions || !state.settings.isLearningEnabled) return
+
+        suggestionRepository.rejectAutoCorrection(
+            languageCode = languageCode,
+            previousWord = rejection.previousWord,
+            typed = rejection.typed,
+            corrected = rejection.corrected,
+            wasLearned = rejection.wasLearned,
         )
     }
 

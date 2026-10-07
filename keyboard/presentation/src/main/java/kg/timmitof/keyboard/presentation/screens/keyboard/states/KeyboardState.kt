@@ -127,10 +127,25 @@ internal data class ComposingText(
     val isActive: Boolean get() = text.isNotEmpty()
 }
 
+/**
+ * Замена, которую Backspace сразу после неё возвращает назад: автозамена слова или точка двойным пробелом.
+ *
+ * @param rejection что разучить при отмене; у точки его нет.
+ */
 @Stable
 internal data class AutoCorrection(
     val original: String,
     val corrected: String,
+    val rejection: CorrectionRejection? = null,
+)
+
+/** Данные автозамены слова, нужные, чтобы её отмена разучила выученное. */
+@Stable
+internal data class CorrectionRejection(
+    val previousWord: String,
+    val typed: String,
+    val corrected: String,
+    val wasLearned: Boolean,
 )
 
 sealed class KeyboardSideEffect : BaseSideEffect.UiSideEffect() {

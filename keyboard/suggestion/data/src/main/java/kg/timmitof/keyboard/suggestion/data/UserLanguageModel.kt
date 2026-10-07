@@ -1,11 +1,12 @@
 package kg.timmitof.keyboard.suggestion.data
 
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.ConcurrentSkipListSet
 
 /**
- * Что клавиатура выучила у пользователя: частоты слов, частоты пар и недавние слова
- * (последние живут только до перезапуска).
+ * Что клавиатура выучила у пользователя: частоты слов, частоты пар, недавние слова
+ * (последние живут только до перезапуска), слова, отвергнувшие автозамену, и слова, похожие на опечатку.
  *
  * Структуры конкурентные: потеря счётчика в гонке не страшна, а блокировки на пути ввода недопустимы.
  */
@@ -22,9 +23,28 @@ internal class UserLanguageModel {
 
     private val recentSet = HashSet<String>()
 
-    fun learn(previous: String, word: String) {
-        words[word] = (words[word] ?: 0) + 1
+    // Порядок нужен только для вытеснения самых старых отказов при переполнении.
+    private val rejected = ConcurrentHashMap.newKeySet<String>()
+    private val rejectedOrder = ConcurrentLinkedQueue<String>()
+
+    // Новые слова в одной правке от частого словарного: «известными» становятся не сразу.
+    private val suspicious = ConcurrentHashMap.newKeySet<String>()
+
+    /**
+     * @param isSuspicious слово похоже на опечатку. Помечается только новое слово: выученное раньше
+     * не разжалуем, а осознанный ввод (`false`) пометку снимает. После [SUSPICIOUS_KNOWN_THRESHOLD]
+     * повторов пометка снимается сама — опечатку столько раз подряд не повторяют.
+     * @return можно ли отдавать слово в индекс опечаток (подозрительное — нельзя).
+     */
+    fun learn(previous: String, word: String, isSuspicious: Boolean = false): Boolean {
+        val count = words.merge(word, 1, Int::plus) ?: 1
         sortedWords.add(word)
+
+        when {
+            !isSuspicious -> suspicious.remove(word)
+            count == 1 -> suspicious.add(word)
+            count >= SUSPICIOUS_KNOWN_THRESHOLD -> suspicious.remove(word)
+        }
 
         if (previous.isNotEmpty()) {
             val followers = pairs.getOrPut(previous) { ConcurrentHashMap(8) }
@@ -33,13 +53,41 @@ internal class UserLanguageModel {
 
         remember(word)
         trim()
+
+        return word !in suspicious
     }
+
+    /** Откатывает один [learn]: счётчик не уходит ниже нуля, обнулённые слово и пара удаляются. */
+    fun unlearn(previous: String, word: String) {
+        if (words.computeIfPresent(word) { _, count -> (count - 1).takeIf { it > 0 } } == null) {
+            forgetWord(word)
+        }
+
+        if (previous.isEmpty()) return
+        val followers = pairs[previous] ?: return
+        followers.computeIfPresent(word) { _, count -> (count - 1).takeIf { it > 0 } }
+        if (followers.isEmpty()) pairs.remove(previous, followers)
+    }
+
+    /** Набранное слово, ради которого отменили автозамену: больше его не исправляем. */
+    fun reject(word: String) {
+        if (!rejected.add(word)) return
+        rejectedOrder.add(word)
+        while (rejected.size > MAX_REJECTED) {
+            rejectedOrder.poll()?.let(rejected::remove) ?: break
+        }
+    }
+
+    fun hasRejected(word: String): Boolean = word in rejected
+
+    fun isSuspicious(word: String): Boolean = word in suspicious
 
     fun countOf(word: String): Int = words[word] ?: 0
 
     fun wordFrequencies(): Map<String, Int> = words.toMap()
 
-    fun knows(word: String): Boolean = countOf(word) >= KNOWN_THRESHOLD
+    fun knows(word: String): Boolean =
+        countOf(word) >= if (word in suspicious) SUSPICIOUS_KNOWN_THRESHOLD else KNOWN_THRESHOLD
 
     fun followersOf(previous: String): Map<String, Int> = pairs[previous].orEmpty()
 
@@ -68,13 +116,17 @@ internal class UserLanguageModel {
 
     fun isRecent(word: String): Boolean = synchronized(recent) { word in recentSet }
 
-    fun export(): List<String> = buildList(words.size + pairs.size) {
+    fun export(): List<String> = buildList(words.size + pairs.size + rejected.size + suspicious.size) {
         words.entries.forEach { (word, count) -> add("$WORD_MARK\t$word\t$count") }
         pairs.entries.forEach { (previous, followers) ->
             followers.entries.forEach { (word, count) -> add("$PAIR_MARK\t$previous\t$word\t$count") }
         }
+        // Отказы — от старых к новым: после загрузки вытесняться будут те же самые.
+        rejectedOrder.forEach { word -> if (word in rejected) add("$REJECTED_MARK\t$word") }
+        suspicious.forEach { word -> add("$SUSPICIOUS_MARK\t$word") }
     }
 
+    /** Строки с незнакомой меткой пропускаются: старые файлы без отказов и пометок читаются как раньше. */
     fun restore(lines: Sequence<String>) {
         lines.forEach { line ->
             val columns = line.split('\t')
@@ -89,8 +141,19 @@ internal class UserLanguageModel {
                     columns[3].toIntOrNull()?.let {
                         pairs.getOrPut(columns[1]) { ConcurrentHashMap(8) }[columns[2]] = it
                     }
+
+                columns.size == 2 && columns[0] == REJECTED_MARK -> reject(columns[1])
+
+                columns.size == 2 && columns[0] == SUSPICIOUS_MARK -> suspicious.add(columns[1])
             }
         }
+        // Пометка без самого слова ничего не значит.
+        suspicious.retainAll(words.keys)
+    }
+
+    private fun forgetWord(word: String) {
+        sortedWords.remove(word)
+        suspicious.remove(word)
     }
 
     private fun remember(word: String) = synchronized(recent) {
@@ -112,7 +175,7 @@ internal class UserLanguageModel {
                     entry.setValue(halved)
                 } else {
                     words.remove(entry.key)
-                    sortedWords.remove(entry.key)
+                    forgetWord(entry.key)
                 }
             }
         }
@@ -120,7 +183,7 @@ internal class UserLanguageModel {
             // Все счётчики уже единицы: отсекаем лишнее принудительно.
             words.keys.take(words.size - MAX_WORDS).forEach { key ->
                 words.remove(key)
-                sortedWords.remove(key)
+                forgetWord(key)
             }
         }
 
@@ -142,12 +205,18 @@ internal class UserLanguageModel {
     private companion object {
         const val KNOWN_THRESHOLD = 2
 
+        /** Опечатку пять раз подряд не повторяют, а своё слово набирают легко. */
+        const val SUSPICIOUS_KNOWN_THRESHOLD = 5
+
         const val MAX_WORDS = 4000
         const val MAX_PAIRS = 4000
         const val MAX_RECENT = 60
+        const val MAX_REJECTED = 300
         const val MAX_TRIM_ROUNDS = 12
 
         const val WORD_MARK = "w"
         const val PAIR_MARK = "p"
+        const val REJECTED_MARK = "r"
+        const val SUSPICIOUS_MARK = "s"
     }
 }
