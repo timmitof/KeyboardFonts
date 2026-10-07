@@ -41,5 +41,9 @@ gradlePlugin {
             id = "keyboardfonts.data"
             implementationClass = "kg.timmitof.build_logic.convention.plugins.DataPlugin"
         }
+        register("dictionariesPlugin") {
+            id = "keyboardfonts.dictionaries"
+            implementationClass = "kg.timmitof.build_logic.convention.plugins.DictionariesPlugin"
+        }
     }
 }
