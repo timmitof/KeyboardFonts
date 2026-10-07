@@ -5,37 +5,60 @@ import kg.timmitof.core.ui.base.BaseEvent
 import kg.timmitof.core.ui.base.BaseSideEffect
 import kg.timmitof.core.ui.base.BaseState
 import kg.timmitof.feature_settings.domain.model.SettingsSummary
+import kg.timmitof.feature_settings.presentation.studio.StudioTab
+import kg.timmitof.keyboard.clipboard.domain.model.ClipboardBoard
+import kg.timmitof.keyboard.domain.model.BackgroundPhoto
+import kg.timmitof.keyboard.domain.model.KeyColorTarget
+import kg.timmitof.keyboard.domain.model.KeyboardBackground
+import kg.timmitof.keyboard.domain.model.KeyboardHeight
 import kg.timmitof.keyboard.domain.model.KeyboardSettings
+import kg.timmitof.keyboard.domain.model.KeyboardSoundPack
 import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
 import kg.timmitof.keyboard.domain.model.KeyboardToggle
+import kg.timmitof.keyboard.font.domain.model.FontPanel
 
-/**
- * Состояние экрана настроек.
- *
- * @property settings положение всех переключателей и выбранная тема.
- * @property summary значения строк-переходов: раскладки, шрифты, статус клавиатуры.
- */
 @Immutable
 data class SettingsState(
     val settings: KeyboardSettings = KeyboardSettings(),
     val summary: SettingsSummary = SettingsSummary(),
-) : BaseState()
+    val clipboard: ClipboardBoard = ClipboardBoard(),
+    val fontPanel: FontPanel = FontPanel(),
+    val selectedTab: StudioTab = StudioTab.Default,
+    val photos: List<BackgroundPhoto> = emptyList(),
+) : BaseState() {
+}
 
-/** Screen-specific one-off effects */
 sealed class SettingsSideEffect : BaseSideEffect.UiSideEffect()
 
-/** All actions coming from the UI */
 sealed class SettingsEvent : BaseEvent.UiEvent() {
 
-    /** Переключена одна из настроек. */
     data class ToggleChanged(val toggle: KeyboardToggle, val enabled: Boolean) : SettingsEvent()
 
-    /** Выбрана тема клавиатуры. */
     data class ThemeChanged(val mode: KeyboardThemeMode) : SettingsEvent()
 
-    /** Экран вернулся на передний план — статус клавиатуры мог измениться в системе. */
+    data class HeightChanged(val height: KeyboardHeight) : SettingsEvent()
+
+    data class KeyColorChanged(val target: KeyColorTarget, val argb: Long?) : SettingsEvent()
+
+    data class BackgroundSelected(val background: KeyboardBackground) : SettingsEvent()
+
+    data class BackgroundPhotoPicked(val uri: String) : SettingsEvent()
+
+    data class EditPhotoClicked(val photoId: Long) : SettingsEvent()
+
+    data class SoundPackChanged(val pack: KeyboardSoundPack) : SettingsEvent()
+
+    data class SoundVolumeChanged(val volume: Float) : SettingsEvent()
+
+    data class PanelFontsChanged(val ids: List<String>) : SettingsEvent()
+
+    data object ResetFontPanelClicked : SettingsEvent()
+
+    data class TabSelected(val tab: StudioTab) : SettingsEvent()
+
+    data object ClearRecentClipboardClicked : SettingsEvent()
+
     data object ScreenResumed : SettingsEvent()
 
-    /** Переход на экран проверки клавиатуры. */
-    data object CheckKeyboardClicked : SettingsEvent()
+    data object ConnectKeyboardClicked : SettingsEvent()
 }

@@ -1,8 +1,7 @@
 package kg.timmitof.keyboard.presentation.components.topbar
 
+import kg.timmitof.core.ui.plainClickable
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -19,12 +18,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kg.timmitof.keyboard.domain.model.WordSuggestion
+import kg.timmitof.keyboard.suggestion.domain.model.WordSuggestion
 import kg.timmitof.keyboard.presentation.theme.KFTheme
 
-/**
- * Строка подсказок слов.
- */
 @Composable
 internal fun SuggestionsRow(
     suggestions: List<WordSuggestion>,
@@ -61,19 +57,19 @@ private fun SuggestionSlot(
         else -> KFTheme.color.keyTextColor
     }
 
+    val text = remember(suggestion) {
+        if (suggestion.isLiteral) "«${suggestion.text}»" else suggestion.text
+    }
+
     Box(
         modifier = modifier
             .fillMaxHeight()
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-                onClick = onClick
-            )
+            .plainClickable(onClick)
             .padding(horizontal = 4.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = if (suggestion.isLiteral) "«${suggestion.text}»" else suggestion.text,
+            text = text,
             fontSize = 15.sp,
             fontWeight = if (suggestion.isAutoCorrect || !suggestion.isLiteral) {
                 FontWeight.Medium

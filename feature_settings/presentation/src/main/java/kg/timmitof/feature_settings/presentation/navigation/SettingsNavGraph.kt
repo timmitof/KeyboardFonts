@@ -5,11 +5,15 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import kg.timmitof.core.navigation.graphs.SettingsGraph
 import kg.timmitof.feature_settings.presentation.screens.SettingsScreen
+import kg.timmitof.feature_settings.presentation.screens.crop.BackgroundCropScreen
 
 fun NavGraphBuilder.settingsGraph() {
     navigation<SettingsGraph>(startDestination = SettingsGraph.SettingsScreen) {
         composable<SettingsGraph.SettingsScreen> {
             SettingsScreen()
+        }
+        composable<SettingsGraph.BackgroundCropScreen> {
+            BackgroundCropScreen()
         }
     }
 }

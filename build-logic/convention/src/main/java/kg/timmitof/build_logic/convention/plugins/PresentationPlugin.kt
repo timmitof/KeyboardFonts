@@ -1,6 +1,7 @@
 package kg.timmitof.build_logic.convention.plugins
 
 import com.android.build.gradle.LibraryExtension
+import kg.timmitof.build_logic.convention.debugImplementation
 import kg.timmitof.build_logic.convention.featureModulePath
 import kg.timmitof.build_logic.convention.featureNamespacePrefix
 import kg.timmitof.build_logic.convention.implementation
@@ -18,7 +19,6 @@ class PresentationPlugin : Plugin<Project> {
         pluginManager.apply("com.google.devtools.ksp")
         pluginManager.apply("dagger.hilt.android.plugin")
         pluginManager.apply("org.jetbrains.kotlin.plugin.compose")
-        pluginManager.apply("org.jetbrains.kotlin.plugin.serialization")
 
         extensions.configure<LibraryExtension> {
             namespace = "${featureNamespacePrefix()}.presentation"
@@ -31,7 +31,7 @@ class PresentationPlugin : Plugin<Project> {
             implementation(libs.findLibrary("androidx-navigation-compose").get())
             implementation(libs.findLibrary("androidx-ui").get())
             implementation(libs.findLibrary("androidx-ui-tooling-preview").get())
-            implementation(libs.findLibrary("androidx-ui-tooling").get())
+            debugImplementation(libs.findLibrary("androidx-ui-tooling").get())
             implementation(libs.findLibrary("androidx-ui-graphics").get())
             implementation(libs.findLibrary("androidx-material3").get())
             implementation(libs.findLibrary("androidx-compose-material-icons").get())
@@ -43,11 +43,9 @@ class PresentationPlugin : Plugin<Project> {
             implementation(libs.findLibrary("hilt-android").get())
             ksp(libs.findLibrary("hilt-compiler").get())
             implementation(libs.findLibrary("hilt-navigation").get())
-            implementation(libs.findLibrary("kotlin-kotlinx-serialization-json").get())
 
             implementation(project(":core:ui"))
             implementation(project(":core:navigation"))
-            featureModuleIfExists("di")?.let { implementation(project(it)) }
             featureModuleIfExists("domain")?.let { implementation(project(it)) }
         }
     }

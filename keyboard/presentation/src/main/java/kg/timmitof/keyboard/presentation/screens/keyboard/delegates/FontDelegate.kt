@@ -1,28 +1,37 @@
 package kg.timmitof.keyboard.presentation.screens.keyboard.delegates
 
-import kg.timmitof.keyboard.domain.model.KeyboardFont
-import kg.timmitof.keyboard.domain.repository.FontRepository
+import kg.timmitof.keyboard.font.domain.model.FontPanel
+import kg.timmitof.keyboard.font.domain.model.KeyboardFont
+import kg.timmitof.keyboard.font.domain.repository.FontRepository
 import kg.timmitof.keyboard.presentation.screens.keyboard.KeyboardSyntax
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 
 internal class FontDelegate(
     private val fontRepository: FontRepository,
 ) {
 
-    /** Загружает каталог шрифтов и сохранённый выбор в состояние. */
+    val panel: Flow<FontPanel> = fontRepository.observePanel()
+
     suspend fun KeyboardSyntax.loadFonts() {
-        val fonts = fontRepository.getFonts()
+        val fonts = panel.first().visible
         val selected = if (state.settings.isFontRemembered) {
             fontRepository.getSelectedFont()
         } else {
             KeyboardFont.Default
         }
-        reduce { state.copy(fonts = fonts, selectedFont = selected) }
+        reduce { state.copy(fonts = fonts, selectedFont = selected.takeIf { it in fonts } ?: KeyboardFont.Default) }
     }
 
-    /**
-     * Смена шрифта: сохраняет выбор и обновляет состояние.
-     * Повторный тап по уже выбранному шрифту сбрасывает стилизацию на дефолтную.
-     */
+    /** Скрытый в приложении шрифт перестаёт действовать сразу, а не до следующего выбора. */
+    suspend fun KeyboardSyntax.applyPanel(panel: FontPanel) {
+        if (state.fonts == panel.visible) return
+
+        val selected = state.selectedFont.takeIf { it in panel.visible } ?: KeyboardFont.Default
+        reduce { state.copy(fonts = panel.visible, selectedFont = selected) }
+    }
+
+    /** Повторный тап по выбранному шрифту сбрасывает его на дефолтный. */
     suspend fun KeyboardSyntax.selectFont(font: KeyboardFont) {
         val current = state.selectedFont
         val target = when {
@@ -35,9 +44,6 @@ internal class FontDelegate(
         reduce { state.copy(selectedFont = target) }
     }
 
-    /**
-     * Разворачивает карусель шрифтов на всю верхнюю панель или сворачивает её в кнопку «Aa».
-     */
     suspend fun KeyboardSyntax.setFontsExpanded(expanded: Boolean) {
         val target = expanded && state.allowsFonts
         if (state.isFontsExpanded != target) {
@@ -45,12 +51,7 @@ internal class FontDelegate(
         }
     }
 
-    /**
-     * Возврат к обычному шрифту в начале сессии ввода.
-     *
-     * Нужен, когда «Запоминать выбранный шрифт» выключено: выбор действует
-     * до конца текущего сообщения и не переносится в следующее поле.
-     */
+    /** Нужен при выключенном «Запоминать выбранный шрифт»: выбор живёт до конца сообщения. */
     suspend fun KeyboardSyntax.forgetFontIfNeeded() {
         if (state.settings.isFontRemembered || state.selectedFont.isDefault) return
 

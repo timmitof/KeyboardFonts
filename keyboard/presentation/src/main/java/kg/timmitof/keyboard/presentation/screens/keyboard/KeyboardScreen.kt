@@ -16,11 +16,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import kg.timmitof.keyboard.domain.model.KeyboardLayout
-import kg.timmitof.keyboard.presentation.components.KeyRowHeight
+import kg.timmitof.keyboard.presentation.components.LocalKeyboardMetrics
 import kg.timmitof.keyboard.presentation.components.KeyRowSpacing
 import kg.timmitof.keyboard.presentation.components.KeyboardRows
 import kg.timmitof.keyboard.presentation.components.LocalKeyRowHeight
+import kg.timmitof.keyboard.presentation.components.rememberKeyboardMetrics
 import kg.timmitof.keyboard.presentation.components.keys.LocalKeyFeedback
 import kg.timmitof.keyboard.presentation.components.keys.rememberKeyFeedback
 import kg.timmitof.keyboard.presentation.components.emoji.EmojiPanel
@@ -35,6 +35,7 @@ import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardLayer
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardOverlay
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardState
 import kg.timmitof.keyboard.presentation.theme.KFTheme
+import kg.timmitof.keyboard.presentation.theme.keyboardBackground
 import org.orbitmvi.orbit.compose.collectAsState
 
 @Composable
@@ -43,9 +44,12 @@ internal fun KeyboardFontsScreen(viewModel: KeyboardViewModel) {
 
     val settings by remember { derivedStateOf { state.value.settings } }
 
+    val metrics = rememberKeyboardMetrics(settings)
+
     CompositionLocalProvider(
         LocalKeyFeedback provides rememberKeyFeedback(settings),
-        LocalKeyRowHeight provides KeyRowHeight * settings.height.scale,
+        LocalKeyboardMetrics provides metrics,
+        LocalKeyRowHeight provides metrics.rowHeight,
     ) {
         KeyboardContent(
             state = state,
@@ -60,7 +64,9 @@ private fun KeyboardContent(
     onEvent: (KeyboardEvent) -> Unit
 ) {
     val insets = LocalKeyboardInsets.current
-    val overlay = state.value.keyboardOverlay
+    val overlay by state.rememberSlice { it.keyboardOverlay }
+    val background by state.rememberSlice { it.settings.background }
+    val layer by state.rememberSlice { it.layer }
 
     BackHandler(enabled = overlay != null) {
         onEvent(KeyboardEvent.OnOverlayChange(null))
@@ -70,17 +76,17 @@ private fun KeyboardContent(
         modifier = Modifier
             .fillMaxWidth()
             .background(KFTheme.color.keyboardBackground)
+            .keyboardBackground(background)
             .padding(start = insets.left, end = insets.right, bottom = insets.bottom)
     ) {
         Box(modifier = Modifier.padding(horizontal = 3.dp, vertical = 8.dp)) {
-            when (state.value.layer) {
+            when (layer) {
                 KeyboardLayer.EMOJI -> EmojiLayer(
                     state = state,
                     onEvent = onEvent
                 )
 
                 KeyboardLayer.EMOJI_SEARCH -> EmojiSearchLayer(
-                    layout = state.value.keyboardLayout,
                     state = state,
                     onEvent = onEvent
                 )
@@ -108,6 +114,8 @@ private fun LettersLayer(
     state: State<KeyboardState>,
     onEvent: (KeyboardEvent) -> Unit
 ) {
+    val layout by state.rememberSlice { it.keyboardLayout }
+
     Column(modifier = Modifier.fillMaxWidth()) {
         KeyboardTopBar(state = state, onEvent = onEvent)
 
@@ -115,44 +123,54 @@ private fun LettersLayer(
         Spacer(modifier = Modifier.height(KeyRowSpacing / 2))
 
         KeyboardRows(
-            layout = state.value.keyboardLayout,
+            layout = layout,
             state = state,
             onEvent = onEvent
         )
     }
 }
 
-/** Слой эмодзи */
 @Composable
 private fun EmojiLayer(
     state: State<KeyboardState>,
     onEvent: (KeyboardEvent) -> Unit
 ) {
+    val categories by state.rememberSlice { it.emojiCategories }
+    val recentEmojis by state.rememberSlice { it.recentEmojis }
+    val language by state.rememberSlice { it.activeLanguage }
+    val variants by state.rememberSlice { it.emojiVariants }
+    val preferredVariants by state.rememberSlice { it.preferredEmojiVariants }
+
     EmojiPanel(
-        categories = state.value.emojiCategories,
-        recentEmojis = state.value.recentEmojis,
-        selectedLanguage = state.value.activeLanguage,
+        categories = categories,
+        recentEmojis = recentEmojis,
+        selectedLanguage = language,
         onEvent = onEvent,
-        emojiVariants = state.value.emojiVariants,
-        preferredVariants = state.value.preferredEmojiVariants
+        emojiVariants = variants,
+        preferredVariants = preferredVariants
     )
 }
 
-/** Слой поиска эмодзи */
 @Composable
 private fun EmojiSearchLayer(
-    layout: KeyboardLayout,
     state: State<KeyboardState>,
     onEvent: (KeyboardEvent) -> Unit
 ) {
+    val layout by state.rememberSlice { it.keyboardLayout }
+    val query by state.rememberSlice { it.emojiSearchQuery }
+    val results by state.rememberSlice { it.emojiSearchResults }
+    val selection by state.rememberSlice { it.emojiSearchSelection }
+    val variants by state.rememberSlice { it.emojiVariants }
+    val preferredVariants by state.rememberSlice { it.preferredEmojiVariants }
+
     Column(modifier = Modifier.fillMaxWidth()) {
         EmojiSearchBar(
-            query = state.value.emojiSearchQuery,
-            results = state.value.emojiSearchResults,
-            selectionChars = state.value.emojiSearchSelection,
+            query = query,
+            results = results,
+            selectionChars = selection,
             onEvent = onEvent,
-            emojiVariants = state.value.emojiVariants,
-            preferredVariants = state.value.preferredEmojiVariants
+            emojiVariants = variants,
+            preferredVariants = preferredVariants
         )
 
         // Половину зазора добавит верхний ряд клавиш.

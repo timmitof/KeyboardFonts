@@ -17,11 +17,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
-/**
- * Верхняя панель экрана: заголовок, стрелка «назад» и действия справа.
- *
- * @param onBack `null` — экран корневой, стрелка не нужна.
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppTopBar(

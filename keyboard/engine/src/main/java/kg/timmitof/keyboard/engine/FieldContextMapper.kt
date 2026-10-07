@@ -5,9 +5,6 @@ import android.view.inputmethod.EditorInfo
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardFieldContext
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardFieldType
 
-/**
- * Разбирает `EditorInfo` в контекст поля для клавиатуры.
- */
 internal fun EditorInfo?.toFieldContext(): KeyboardFieldContext = KeyboardFieldContext(
     type = toFieldType(),
     enterAction = toEnterAction(),
@@ -41,7 +38,6 @@ private fun EditorInfo?.toFieldType(): KeyboardFieldType {
     }
 }
 
-/** Многострочное поле: Enter переносит строку, а отправка остаётся кнопкой в приложении. */
 private fun EditorInfo?.isMultiLine(): Boolean {
     if (this == null) return false
     if (inputType and InputType.TYPE_MASK_CLASS != InputType.TYPE_CLASS_TEXT) return false

@@ -33,7 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kg.timmitof.keyboard.domain.model.ClipboardEntry
+import kg.timmitof.keyboard.clipboard.domain.model.ClipboardEntry
 import kg.timmitof.keyboard.presentation.R
 import kg.timmitof.keyboard.presentation.components.KeyShape
 import kg.timmitof.keyboard.presentation.components.KeySupport
@@ -45,7 +45,6 @@ import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardEvent
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardState
 import kg.timmitof.keyboard.presentation.theme.KFTheme
 
-/** Буфер обмена — то же окно, что и быстрые настройки, отличается только содержимым. */
 @Composable
 internal fun ColumnScope.ClipboardOverlay(
     state: State<KeyboardState>,
@@ -87,13 +86,6 @@ internal fun ColumnScope.ClipboardOverlay(
         }
     }
 
-//    OverlayActionRow(
-//        label = stringResource(R.string.clipboard_open_app),
-//        onClick = { onEvent(KeyboardEvent.OnOpenApp) },
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .padding(horizontal = 12.dp, vertical = 3.dp),
-//    )
 }
 
 private fun LazyGridScope.section(
@@ -123,7 +115,6 @@ private fun SectionHeader(title: String) {
     )
 }
 
-/** Карточка буфера: тап вставляет и закрывает окно, долгое нажатие открывает меню. */
 @Composable
 private fun ClipboardCard(
     entry: ClipboardEntry,
@@ -153,7 +144,7 @@ private fun ClipboardCard(
                 text = entry.text,
                 fontSize = 12.sp,
                 lineHeight = 16.sp,
-                color = KFTheme.color.keyTextColor,
+                color = KFTheme.color.keyLabelColor,
                 maxLines = CardMaxLines,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -205,5 +196,4 @@ private fun EmptyClipboard(modifier: Modifier = Modifier) {
 
 private const val ClipboardColumns = 2
 
-/** Сколько строк текста помещается в карточку — дальше многоточие. */
 private const val CardMaxLines = 3

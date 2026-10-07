@@ -1,14 +1,13 @@
 package kg.timmitof.feature_settings.domain.model
 
-/**
- * Значения справа в строках-переходах: что выбрано, не заходя в подэкран.
- *
- * @property languages короткие метки включённых раскладок, например «RU, EN».
- * @property fontsTotal сколько шрифтов есть в каталоге.
- * @property isKeyboardReady клавиатура включена в системе и выбрана текущей.
- */
+import kg.timmitof.keyboard.domain.model.KeyboardLanguage
+import kg.timmitof.keyboard.domain.model.KeyboardLayout
+import kg.timmitof.keyboard.font.domain.model.KeyboardFont
+
 data class SettingsSummary(
-    val languages: String = "",
-    val fontsTotal: Int = 0,
+    val languages: List<KeyboardLanguage> = emptyList(),
+    val selectedLanguage: KeyboardLanguage? = null,
+    val selectedFont: KeyboardFont = KeyboardFont.Default,
+    val previewLayout: KeyboardLayout? = null,
     val isKeyboardReady: Boolean = false,
 )

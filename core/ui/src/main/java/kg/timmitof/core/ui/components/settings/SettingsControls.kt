@@ -15,16 +15,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import kg.timmitof.core.ui.theme.appColors
 
 private val SegmentedShape = RoundedCornerShape(14.dp)
 private val SegmentShape = RoundedCornerShape(11.dp)
 
-/**
- * Выбор из двух-трёх вариантов.
- *
- * Вместо ползущего индикатора анимируются цвета самих сегментов: варианты
- * разной ширины, и перекрашивание не требует ни измерений, ни лишнего слоя.
- */
+/** Вместо ползущего индикатора анимируются цвета сегментов: варианты разной ширины, измерений не нужно. */
 @Composable
 fun SettingsSegmentedControl(
     options: List<String>,
@@ -36,7 +32,7 @@ fun SettingsSegmentedControl(
     Row(
         modifier = modifier
             .clip(SegmentedShape)
-            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .background(MaterialTheme.appColors.cardMuted)
             .padding(3.dp),
     ) {
         options.forEachIndexed { index, option ->
@@ -59,16 +55,16 @@ private fun Segment(
 ) {
     val background by animateColorAsState(
         targetValue = if (isSelected) {
-            MaterialTheme.colorScheme.primary
+            MaterialTheme.appColors.selected
         } else {
-            MaterialTheme.colorScheme.surfaceVariant
+            MaterialTheme.appColors.cardMuted
         },
         animationSpec = spring(stiffness = 700f),
         label = "segmentBackground"
     )
     val content by animateColorAsState(
         targetValue = if (isSelected) {
-            MaterialTheme.colorScheme.onPrimary
+            MaterialTheme.appColors.onSelected
         } else {
             MaterialTheme.colorScheme.onSurfaceVariant
         },

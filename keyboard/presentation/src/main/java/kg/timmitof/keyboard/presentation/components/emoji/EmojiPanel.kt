@@ -1,8 +1,7 @@
 package kg.timmitof.keyboard.presentation.components.emoji
 
+import kg.timmitof.core.ui.plainClickable
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -37,8 +36,7 @@ import kg.timmitof.keyboard.presentation.R
 import kg.timmitof.keyboard.presentation.components.KeyShape
 import kg.timmitof.keyboard.presentation.components.KeyRowCount
 import kg.timmitof.keyboard.presentation.components.KeyRowSpacing
-import kg.timmitof.keyboard.presentation.components.LocalKeyRowHeight
-import kg.timmitof.keyboard.presentation.components.TopBarHeight
+import kg.timmitof.keyboard.presentation.components.LocalKeyboardMetrics
 import kg.timmitof.keyboard.presentation.components.keys.BackspaceKeyButton
 import kg.timmitof.keyboard.presentation.components.keys.SpaceKeyButton
 import kg.timmitof.keyboard.presentation.components.keys.SpecialKeyButton
@@ -47,31 +45,26 @@ import kg.timmitof.keyboard.presentation.theme.KFTheme
 import kg.timmitof.keyboard.presentation.theme.KeyboardTheme
 import kotlinx.coroutines.launch
 
-/** Высоты частей панели. */
 private val SearchFieldHeight = 42.dp
 private val TabsBarHeight = 34.dp
-private val BottomRowHeight = 60.dp
 private val SearchGridSpacing = 6.dp
 private val GridTabsSpacing = 4.dp
 
-/** Высота всего, кроме сетки: поиск, зазоры, табы и нижний ряд. */
-private val EmojiChromeHeight =
-    SearchFieldHeight + SearchGridSpacing + GridTabsSpacing + TabsBarHeight + BottomRowHeight
+/** Нижний ряд (ABC, пробел) — высотой с ряд клавиш, поэтому «обвязка» сетки зависит от устройства. */
+private fun chromeHeight(bottomRow: Dp) =
+    SearchFieldHeight + SearchGridSpacing + GridTabsSpacing + TabsBarHeight + bottomRow
 
-/** Сколько целых рядов эмодзи показываем, если высота экрана позволяет. */
+/** Ячейка эмодзи примерно этого размера: на широком экране колонок больше, а не ячейки крупнее. */
+private val EmojiCellTarget = 46.dp
+
 private const val PreferredGridRows = 5
 
-/** Минимум рядов — ниже этого сетка не опускается даже на низком экране. */
-private const val MinGridRows = 3
+private const val MinGridRows = 1
 
-/** Доля высоты экрана, которую панель старается не переступать. */
 private const val MaxScreenFraction = 0.55f
 
 /**
- * Панель эмодзи.
- *
- * Высота не фиксирована: сетка получает столько целых рядов, сколько влезает
- * в [MaxScreenFraction] высоты экрана, но не меньше зоны клавиш ABC-слоя —
+ * Сетка берёт целые ряды в пределах [MaxScreenFraction] экрана, но не меньше зоны ABC-слоя —
  * так панель не «съезжает» вниз при переключении и не режет ряд пополам.
  */
 @Composable
@@ -92,21 +85,23 @@ internal fun EmojiPanel(
     val gridState = rememberLazyGridState()
     val scope = rememberCoroutineScope()
 
-    // Подсветка таба следует за прокруткой.
     val currentSection = remember(index) {
         derivedStateOf { index.sectionAt(gridState.firstVisibleItemIndex) }
     }
 
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
 
-    val keyboardHeight = TopBarHeight + KeyRowSpacing / 2 + LocalKeyRowHeight.current * KeyRowCount
+    val metrics = LocalKeyboardMetrics.current
+    val keyboardHeight = metrics.topBarHeight + KeyRowSpacing / 2 + metrics.rowHeight * KeyRowCount
 
     BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
-        val gridHeight = remember(maxWidth, screenHeight, keyboardHeight) {
+        val columns = maxOf(EmojiGridColumns, (maxWidth / EmojiCellTarget).toInt())
+        val gridHeight = remember(maxWidth, screenHeight, keyboardHeight, metrics.rowHeight) {
             gridHeight(
-                cellSize = maxWidth / EmojiGridColumns,
+                cellSize = maxWidth / columns,
                 screenHeight = screenHeight,
                 lettersHeight = keyboardHeight,
+                chrome = chromeHeight(metrics.rowHeight),
             )
         }
 
@@ -127,6 +122,7 @@ internal fun EmojiPanel(
             } else {
                 EmojiSectionsGrid(
                     sections = sections,
+                    columns = columns,
                     gridState = gridState,
                     currentSection = currentSection,
                     emojiVariants = emojiVariants,
@@ -155,27 +151,18 @@ internal fun EmojiPanel(
     }
 }
 
-/**
- * Высота сетки: целое число рядов плюс место под закреплённый заголовок,
- * но не ниже зоны клавиш обычного слоя.
- *
- * @param cellSize сторона квадратной ячейки эмодзи.
- * @param screenHeight высота экрана — потолок для панели.
- * @param lettersHeight высота ABC-слоя — пол для панели.
- */
-private fun gridHeight(cellSize: Dp, screenHeight: Dp, lettersHeight: Dp): Dp {
-    val minHeight = lettersHeight - EmojiChromeHeight
+/** Панель не выше доли экрана (но и не ниже букв), иначе в альбомном режиме ряд с ABC уезжает за край. */
+private fun gridHeight(cellSize: Dp, screenHeight: Dp, lettersHeight: Dp, chrome: Dp): Dp {
+    val minHeight = (lettersHeight - chrome).coerceAtLeast(0.dp)
     if (cellSize <= 0.dp) return minHeight
 
-    val available = screenHeight * MaxScreenFraction - EmojiChromeHeight - EmojiSectionHeaderHeight
+    val panelLimit = maxOf(lettersHeight, screenHeight * MaxScreenFraction)
+    val available = panelLimit - chrome - EmojiSectionHeaderHeight
     val rows = (available / cellSize).toInt().coerceIn(MinGridRows, PreferredGridRows)
 
     return (cellSize * rows + EmojiSectionHeaderHeight).coerceAtLeast(minHeight)
 }
 
-/**
- * Поиск — постоянное поле сверху.
- */
 @Composable
 private fun EmojiSearchField(
     onClick: () -> Unit,
@@ -186,11 +173,7 @@ private fun EmojiSearchField(
             .padding(horizontal = 3.dp)
             .height(SearchFieldHeight)
             .background(KFTheme.color.keyButtonBackground, KeyShape)
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-                onClick = onClick
-            )
+            .plainClickable(onClick)
             .padding(horizontal = 12.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -209,9 +192,6 @@ private fun EmojiSearchField(
     }
 }
 
-/**
- * Нижний ряд панели: ABC, пробел и ⌫.
- */
 @Composable
 private fun EmojiBottomRow(
     selectedLanguage: KeyboardLanguage?,
@@ -221,7 +201,7 @@ private fun EmojiBottomRow(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .height(BottomRowHeight),
+            .height(LocalKeyboardMetrics.current.rowHeight),
         verticalAlignment = Alignment.CenterVertically
     ) {
         SpecialKeyButton(

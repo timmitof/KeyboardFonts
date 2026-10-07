@@ -3,12 +3,7 @@ package kg.timmitof.keyboard.engine
 import android.view.inputmethod.EditorInfo
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.EnterAction
 
-/**
- * Идентификатор действия редактора, который нужно отправлять в `performEditorAction`.
- *
- * Поле с собственной меткой кнопки ([EditorInfo.actionLabel]) объявляет действие через
- * [EditorInfo.actionId], а не через `imeOptions` — там оно остаётся `UNSPECIFIED`.
- */
+/** Поле с [EditorInfo.actionLabel] объявляет действие через [EditorInfo.actionId], а не `imeOptions`. */
 internal fun EditorInfo?.editorActionId(): Int {
     if (this == null) return EditorInfo.IME_ACTION_UNSPECIFIED
 
@@ -22,14 +17,7 @@ internal fun EditorInfo?.editorActionId(): Int {
     }
 }
 
-/**
- * Есть ли у поля действие, которое Enter должен выполнять вместо перевода строки.
- *
- * Многострочность отдельно не проверяем: такие поля фреймворк сам помечает
- * [EditorInfo.IME_FLAG_NO_ENTER_ACTION] (`TextView.shouldAdvanceFocusOnEnter`,
- * `BasicTextField` при `ImeAction.Default`). Если флага нет, а действие задано —
- * поле осознанно просит именно действие, и перебивать его нельзя.
- */
+/** Многострочность не проверяем: такие поля фреймворк сам помечает [EditorInfo.IME_FLAG_NO_ENTER_ACTION]. */
 internal fun EditorInfo?.hasEditorAction(): Boolean {
     if (this == null) return false
     if (imeOptions and EditorInfo.IME_FLAG_NO_ENTER_ACTION != 0) return false
@@ -38,12 +26,6 @@ internal fun EditorInfo?.hasEditorAction(): Boolean {
     return actionId != EditorInfo.IME_ACTION_UNSPECIFIED && actionId != EditorInfo.IME_ACTION_NONE
 }
 
-/**
- * Определяет действие клавиши Enter для текущего поля ввода.
- *
- * [EnterAction.RETURN] (обычный перевод строки), если поле не просит действие
- * (см. [hasEditorAction]) или просит нестандартное — своей иконки для него нет.
- */
 internal fun EditorInfo?.toEnterAction(): EnterAction {
     if (!hasEditorAction()) return EnterAction.RETURN
 

@@ -28,7 +28,7 @@ internal fun RowScope.SpecialKeyButton(
             text = label,
             fontSize = 13.5.sp,
             fontWeight = FontWeight.Medium,
-            color = KFTheme.color.keySpecialTextColor
+            color = KFTheme.color.keySpecialLabelColor
         )
     }
 }
@@ -45,7 +45,7 @@ internal fun RowScope.SpecialIconKeyButton(
         Icon(
             imageVector = ImageVector.vectorResource(iconRes),
             contentDescription = contentDescription,
-            tint = KFTheme.color.keySpecialTextColor,
+            tint = KFTheme.color.keySpecialLabelColor,
             modifier = Modifier.size(20.dp)
         )
     }

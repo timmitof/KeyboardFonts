@@ -15,7 +15,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.annotation.StringRes
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import kg.timmitof.keyboard.font.domain.model.KeyboardFont
+import kg.timmitof.keyboard.suggestion.domain.model.WordSuggestion
+import kg.timmitof.keyboard.presentation.screens.keyboard.rememberSlice
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -26,27 +33,35 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kg.timmitof.keyboard.presentation.R
 import kg.timmitof.keyboard.presentation.components.FontsCarousel
-import kg.timmitof.keyboard.presentation.components.TopBarHeight
+import kg.timmitof.keyboard.presentation.components.LocalKeyboardMetrics
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardEvent
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardOverlay
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardState
 import kg.timmitof.keyboard.presentation.theme.KFTheme
 
-/**
- * Верхняя панель клавиатуры.
- */
 @Composable
 internal fun KeyboardTopBar(
     state: State<KeyboardState>,
     onEvent: (KeyboardEvent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val mode = state.value.topBarMode
+    val topBar by state.rememberSlice {
+        TopBarSlice(
+            mode = it.topBarMode,
+            allowsFonts = it.allowsFonts,
+            selectedFont = it.selectedFont,
+            fonts = it.fonts,
+            suggestions = it.suggestions,
+            noticeRes = it.noticeRes,
+            overlay = it.keyboardOverlay,
+        )
+    }
+    val mode = topBar.mode
 
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .height(TopBarHeight)
+            .height(LocalKeyboardMetrics.current.topBarHeight)
             .padding(horizontal = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -56,7 +71,7 @@ internal fun KeyboardTopBar(
             transitionSpec = { fadeIn(tween(160)) togetherWith fadeOut(tween(120)) },
             label = "topBarContent"
         ) { current ->
-            TopBarContent(mode = current, state = state, onEvent = onEvent)
+            TopBarContent(mode = current, slice = topBar, onEvent = onEvent)
         }
 
         AnimatedContent(
@@ -66,16 +81,13 @@ internal fun KeyboardTopBar(
         ) { isCollapsible ->
             TopBarAnchors(
                 isCollapsible = isCollapsible,
-                overlay = state.value.keyboardOverlay,
+                overlay = topBar.overlay,
                 onEvent = onEvent
             )
         }
     }
 }
 
-/**
- * Правый край панели.
- */
 @Composable
 private fun TopBarAnchors(
     isCollapsible: Boolean,
@@ -119,21 +131,23 @@ private val KeyboardOverlay.titleRes: Int
 @Composable
 private fun TopBarContent(
     mode: TopBarMode,
-    state: State<KeyboardState>,
+    slice: TopBarSlice,
     onEvent: (KeyboardEvent) -> Unit,
 ) {
+    val fontPreview = remember(slice.selectedFont) { slice.selectedFont.apply(FontPreviewText) }
+
     when (mode) {
         TopBarMode.CURSOR -> CursorModeHint()
 
         TopBarMode.SUGGESTIONS -> ContentRow(spacing = 2.dp) {
-            if (state.value.allowsFonts) {
+            if (slice.allowsFonts) {
                 FontToggleButton(
-                    preview = state.value.selectedFont.apply(FontPreviewText),
+                    preview = fontPreview,
                     onClick = { onEvent(KeyboardEvent.OnFontsExpandedChange(true)) }
                 )
             }
             SuggestionsRow(
-                suggestions = state.value.suggestions,
+                suggestions = slice.suggestions,
                 onSelect = { onEvent(KeyboardEvent.OnSuggestionSelect(it)) },
                 modifier = Modifier.weight(1f)
             )
@@ -141,26 +155,38 @@ private fun TopBarContent(
 
         TopBarMode.FONTS_EXPANDED -> ContentRow(spacing = 8.dp) {
             FontsCarousel(
-                fonts = state.value.fonts,
-                selectedFontId = state.value.selectedFont.id,
+                fonts = slice.fonts,
+                selectedFontId = slice.selectedFont.id,
                 onFontSelect = { onEvent(KeyboardEvent.OnFontSelect(it)) },
                 modifier = Modifier.weight(1f)
             )
         }
 
         TopBarMode.IDLE -> ContentRow {
-            if (state.value.allowsFonts) {
+            if (slice.allowsFonts) {
                 FontToggleButton(
-                    preview = state.value.selectedFont.apply(FontPreviewText),
+                    preview = fontPreview,
                     onClick = { onEvent(KeyboardEvent.OnFontsExpandedChange(true)) }
                 )
             }
-            state.value.noticeRes?.let { NoticePill(textRes = it) }
+            slice.noticeRes?.let { NoticePill(textRes = it) }
 
             Box(modifier = Modifier.weight(1f))
         }
     }
 }
+
+/** Всё, что читает топбар; data class — срез сравнивается по значению. */
+@Immutable
+private data class TopBarSlice(
+    val mode: TopBarMode,
+    val allowsFonts: Boolean,
+    val selectedFont: KeyboardFont,
+    val fonts: List<KeyboardFont>,
+    val suggestions: List<WordSuggestion>,
+    @param:StringRes val noticeRes: Int?,
+    val overlay: KeyboardOverlay?,
+)
 
 private enum class TopBarMode { CURSOR, SUGGESTIONS, FONTS_EXPANDED, IDLE }
 
@@ -172,7 +198,6 @@ private val KeyboardState.topBarMode: TopBarMode
         else -> TopBarMode.IDLE
     }
 
-/** Текст на кнопке шрифтов — показывает выбранный стиль. */
 private const val FontPreviewText = "Aa"
 
 @Composable

@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -29,9 +28,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -118,10 +117,19 @@ internal fun DumpingSplash(
                 painter = if (showOnlyBgLogo) logoBg else logo,
                 contentDescription = null,
                 modifier = Modifier
-                    .size(logoSize.value.dp)
-                    .rotate(rotation.value)
-                    .graphicsLayer { translationY = offsetY.value }
-                    .clip(RoundedCornerShape(clipRadius.value.toInt()))
+                    // Размер читается на этапе измерения, а не в композиции.
+                    .layout { measurable, constraints ->
+                        val side = logoSize.value.dp.roundToPx()
+                        val placeable = measurable.measure(Constraints.fixed(side, side))
+                        layout(side, side) { placeable.place(0, 0) }
+                    }
+                    // Поворот, смещение и скругление — на этапе отрисовки.
+                    .graphicsLayer {
+                        rotationZ = rotation.value
+                        translationY = offsetY.value
+                        shape = RoundedCornerShape(clipRadius.value.toInt())
+                        clip = true
+                    }
             )
         }
     }

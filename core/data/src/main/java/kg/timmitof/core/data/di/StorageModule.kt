@@ -9,14 +9,10 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kg.timmitof.core.data.local.AppDatabase
 import kg.timmitof.core.data.local.Migrations
+import kg.timmitof.core.data.local.dao.BackgroundPhotoDao
 import kg.timmitof.core.data.local.dao.ClipboardDao
-import kg.timmitof.core.data.local.dao.ProjectDao
-import kg.timmitof.core.data.local.dao.TemplateDao
 import javax.inject.Singleton
 
-/**
- * DI модуль для работы с базой данных
- */
 @Module
 @InstallIn(SingletonComponent::class)
 object StorageModule {
@@ -30,13 +26,9 @@ object StorageModule {
 
     @Singleton
     @Provides
-    fun provideUserProjectDao(database: AppDatabase): ProjectDao = database.projectDao()
-
-    @Singleton
-    @Provides
-    fun provideTemplateDao(database: AppDatabase): TemplateDao = database.templateDao()
-
-    @Singleton
-    @Provides
     fun provideClipboardDao(database: AppDatabase): ClipboardDao = database.clipboardDao()
+
+    @Singleton
+    @Provides
+    fun provideBackgroundPhotoDao(database: AppDatabase): BackgroundPhotoDao = database.backgroundPhotoDao()
 }

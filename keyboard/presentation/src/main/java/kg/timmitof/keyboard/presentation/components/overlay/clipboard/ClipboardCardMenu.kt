@@ -1,9 +1,8 @@
 package kg.timmitof.keyboard.presentation.components.overlay.clipboard
 
+import kg.timmitof.core.ui.plainClickable
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -27,13 +26,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
-import kg.timmitof.keyboard.domain.model.ClipboardEntry
+import kg.timmitof.keyboard.clipboard.domain.model.ClipboardEntry
 import kg.timmitof.keyboard.presentation.R
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.ClipboardAction
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardEvent
 import kg.timmitof.keyboard.presentation.theme.KFTheme
 
-/** Выбор по долгому нажатию на карточку: закрепить или удалить. */
 @Composable
 internal fun ClipboardCardMenu(
     entry: ClipboardEntry,
@@ -87,11 +85,7 @@ private fun MenuItem(
         modifier = Modifier
             .height(38.dp)
             .clip(RoundedCornerShape(8.dp))
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-                onClick = onClick,
-            )
+            .plainClickable(onClick)
             .padding(horizontal = 10.dp),
         horizontalArrangement = Arrangement.spacedBy(10.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -105,7 +99,7 @@ private fun MenuItem(
         Text(
             text = label,
             fontSize = 13.sp,
-            color = KFTheme.color.keyTextColor,
+            color = KFTheme.color.keyLabelColor,
             maxLines = 1,
         )
     }

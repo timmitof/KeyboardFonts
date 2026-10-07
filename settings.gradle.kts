@@ -24,7 +24,6 @@ fun includeFeature(name: String) {
     val featurePrefix = "feature_$name"
     val featureDir = file(featurePrefix)
 
-    // Слои feature-модуля
     val layers = listOf("data", "domain", "di", "presentation")
 
     layers.forEach { layer ->
@@ -44,7 +43,6 @@ rootProject.name = "KeyboardFonts"
 
 include(":app")
 
-//Include Core
 include(
     ":core:common",
     ":core:data",
@@ -52,7 +50,6 @@ include(
     ":core:ui",
 )
 
-//Include Keyboard
 include(
     ":keyboard:integration",
     ":keyboard:engine",
@@ -61,6 +58,23 @@ include(
     ":keyboard:domain",
     ":keyboard:di",
 )
+
+fun includeKeyboardModule(name: String) {
+    val layers = listOf("data", "domain", "di")
+    layers.forEach { layer ->
+        val layerDir = file("keyboard/$name/$layer")
+        if (layerDir.exists()) {
+            val modulePath = ":keyboard:$name:$layer"
+            include(modulePath)
+            project(modulePath).projectDir = layerDir
+            println("Included $modulePath")
+        }
+    }
+}
+
+includeKeyboardModule("suggestion")
+includeKeyboardModule("font")
+includeKeyboardModule("clipboard")
 
 includeFeature("home")
 includeFeature("settings")

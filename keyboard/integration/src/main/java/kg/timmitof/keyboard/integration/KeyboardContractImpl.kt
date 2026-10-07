@@ -66,7 +66,7 @@ class KeyboardContractImpl @Inject constructor(
         inputMethodManager?.showInputMethodPicker()
     }
 
-    /** Системные экраны могут отсутствовать на кастомных прошивках — падать из-за этого нельзя. */
+    // Системные экраны могут отсутствовать на кастомных прошивках.
     private inline fun runSafely(action: String, block: () -> Unit) {
         runCatching(block).onFailure { e -> Log.e(TAG, "Failed to $action", e) }
     }

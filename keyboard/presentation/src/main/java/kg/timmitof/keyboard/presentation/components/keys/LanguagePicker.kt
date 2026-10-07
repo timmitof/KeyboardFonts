@@ -25,15 +25,7 @@ import kg.timmitof.keyboard.presentation.components.AboveAnchorPopupPositionProv
 import kg.timmitof.keyboard.presentation.theme.KFTheme
 import kotlin.math.abs
 
-/**
- * Попап выбора языка.
- *
- * @param languages доступные языки.
- * @param width ширина попапа (ширина клавиши пробела).
- * @param floatIndex плавающий индекс языка под пальцем (лямбда — чтобы лента
- *   двигалась в фазе рисования без рекомпозиций).
- * @param onDismiss запрос на закрытие попапа.
- */
+/** [floatIndex] — лямбда, чтобы лента двигалась в фазе рисования без рекомпозиций. */
 @Composable
 internal fun LanguagePicker(
     languages: List<KeyboardLanguage>,

@@ -2,8 +2,10 @@ package kg.timmitof.core.ui.components.settings
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -11,51 +13,51 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kg.timmitof.core.ui.R
+import kg.timmitof.core.ui.components.color.ColorSwatches
+import kg.timmitof.core.ui.theme.appColors
 
-/** Минимальная высота строки — палец попадает без прицеливания. */
-private val RowMinHeight = 56.dp
+private val RowMinHeight = 54.dp
 
-/** Отступ вложенной строки: она сдвинута под родителя, а не просто подписана к нему. */
-private val NestedStartPadding = 52.dp
-private val RowStartPadding = 16.dp
-private val RowEndPadding = 16.dp
+private val NestedStartPadding = 44.dp
+private val RowHorizontalPadding = 14.dp
 
-/** Линия связи вложенной строки с родителем. */
-private val ConnectorOffset = 30.dp
+private val ConnectorOffset = 24.dp
 private val ConnectorWidth = 2.dp
 private const val ConnectorAlpha = 0.28f
 
-/** Насколько гаснет строка, отключённая родителем: видно, но трогать нечего. */
 private const val DisabledAlpha = 0.4f
 
-/**
- * Отрисовка одной [SettingsRow].
- *
- * Все пять типов делят общий каркас — иконка, текст, контрол справа, — поэтому
- * строки выглядят одинаково независимо от того, что стоит в конце.
- */
+private val ColorSwatchSize = 30.dp
+
+private val BadgeShape = RoundedCornerShape(8.dp)
+
 @Composable
-internal fun SettingsRowItem(row: SettingsRow) {
+internal fun SettingsRowItem(row: SettingsRow, latest: State<SettingsRow>) {
     val alpha by animateFloatAsState(
         targetValue = if (row.isEnabled) 1f else DisabledAlpha,
         animationSpec = spring(stiffness = 900f),
@@ -64,8 +66,12 @@ internal fun SettingsRowItem(row: SettingsRow) {
 
     val clickModifier = when {
         !row.isEnabled -> Modifier
-        row is SettingsRow.Toggle -> Modifier.clickable { row.onCheckedChange(!row.checked) }
-        row is SettingsRow.Navigation -> Modifier.clickable(onClick = row.onClick)
+        row is SettingsRow.Toggle -> Modifier.clickable {
+            (latest.value as? SettingsRow.Toggle)?.let { it.onCheckedChange(!it.checked) }
+        }
+        row is SettingsRow.Navigation -> Modifier.clickable {
+            (latest.value as? SettingsRow.Navigation)?.onClick?.invoke()
+        }
         else -> Modifier
     }
 
@@ -78,24 +84,52 @@ internal fun SettingsRowItem(row: SettingsRow) {
             .nestedConnector(row.isNested) { connectorColor }
             .heightIn(min = RowMinHeight)
             .padding(
-                start = if (row.isNested) NestedStartPadding else RowStartPadding,
-                end = RowEndPadding,
-                top = 11.dp,
-                bottom = 11.dp,
+                start = if (row.isNested) NestedStartPadding else RowHorizontalPadding,
+                end = RowHorizontalPadding,
+                top = 9.dp,
+                bottom = 9.dp,
             ),
-        horizontalArrangement = Arrangement.spacedBy(14.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         row.icon?.let { icon -> RowIcon(icon = icon, alpha = { alpha }) }
+        (row as? SettingsRow.Info)?.badge?.let { badge -> RowBadge(text = badge) }
 
         Column(modifier = Modifier.weight(1f)) {
             RowTitles(row = row, alpha = { alpha })
 
-            // Ползунок не помещается в строку — он занимает вторую строку под заголовком.
+            // Ползунок и кружки цветов не помещаются в строку — они занимают вторую строку под заголовком.
+            (row as? SettingsRow.Colors)?.let { colors ->
+                val onSelect = remember<(Color) -> Unit> {
+                    { color -> (latest.value as? SettingsRow.Colors)?.onSelect?.invoke(color) }
+                }
+                val onPickCustom = remember { { (latest.value as? SettingsRow.Colors)?.onPickCustom?.invoke() ; Unit } }
+                val onAuto = remember { { (latest.value as? SettingsRow.Colors)?.onAuto?.invoke() ; Unit } }
+                ColorSwatches(
+                    colors = colors.colors,
+                    selected = colors.selected,
+                    onSelect = onSelect,
+                    onPickCustom = onPickCustom.takeIf { colors.onPickCustom != null },
+                    autoColor = colors.autoColor,
+                    autoLabel = colors.autoLabel,
+                    onAuto = onAuto,
+                    swatchSize = ColorSwatchSize,
+                    modifier = Modifier
+                        .padding(top = 8.dp)
+                        .graphicsLayer { this.alpha = alpha },
+                )
+            }
             (row as? SettingsRow.Slider)?.let { slider ->
+                val onValueChange = remember<(Float) -> Unit> {
+                    { value -> (latest.value as? SettingsRow.Slider)?.onValueChange?.invoke(value) }
+                }
+                val onValueChangeFinished = remember {
+                    { (latest.value as? SettingsRow.Slider)?.onValueChangeFinished?.invoke() ; Unit }
+                }
                 Slider(
                     value = slider.value,
-                    onValueChange = slider.onValueChange,
+                    onValueChange = onValueChange,
+                    onValueChangeFinished = onValueChangeFinished.takeIf { slider.onValueChangeFinished != null },
                     valueRange = slider.valueRange,
                     steps = slider.steps,
                     enabled = slider.isEnabled,
@@ -104,7 +138,7 @@ internal fun SettingsRowItem(row: SettingsRow) {
             }
         }
 
-        RowControl(row = row, alpha = { alpha })
+        RowControl(row = row, latest = latest, alpha = { alpha })
     }
 }
 
@@ -115,9 +149,31 @@ private fun RowIcon(icon: Painter, alpha: () -> Float) {
         contentDescription = null,
         tint = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier
-            .size(24.dp)
+            .size(22.dp)
             .graphicsLayer { this.alpha = alpha() },
     )
+}
+
+@Composable
+private fun RowBadge(text: String) {
+    val tones = MaterialTheme.appColors.hint
+
+    Box(
+        modifier = Modifier
+            .size(width = 34.dp, height = 28.dp)
+            .clip(BadgeShape)
+            .background(tones.container),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = text,
+            fontFamily = FontFamily.Monospace,
+            fontWeight = FontWeight.Medium,
+            fontSize = 12.sp,
+            color = tones.onContainer,
+            maxLines = 1,
+        )
+    }
 }
 
 @Composable
@@ -126,7 +182,7 @@ private fun RowTitles(row: SettingsRow, alpha: () -> Float) {
         text = row.title,
         style = MaterialTheme.typography.bodyLarge,
         fontSize = 15.sp,
-        fontWeight = FontWeight.Normal,
+        fontWeight = FontWeight.Medium,
         color = MaterialTheme.colorScheme.onBackground,
         modifier = Modifier.graphicsLayer { this.alpha = alpha() },
     )
@@ -135,22 +191,22 @@ private fun RowTitles(row: SettingsRow, alpha: () -> Float) {
         Text(
             text = description,
             style = MaterialTheme.typography.bodySmall,
+            fontSize = 12.5.sp,
             fontWeight = FontWeight.Normal,
             color = MaterialTheme.colorScheme.outline,
             modifier = Modifier
-                .padding(top = 2.dp)
+                .padding(top = 1.dp)
                 .graphicsLayer { this.alpha = alpha() },
         )
     }
 }
 
-/** Контрол в конце строки — по нему и различаются типы. */
 @Composable
-private fun RowScope.RowControl(row: SettingsRow, alpha: () -> Float) {
+private fun RowScope.RowControl(row: SettingsRow, latest: State<SettingsRow>, alpha: () -> Float) {
     when (row) {
         is SettingsRow.Toggle -> Switch(
             checked = row.checked,
-            onCheckedChange = row.onCheckedChange,
+            onCheckedChange = { (latest.value as? SettingsRow.Toggle)?.onCheckedChange?.invoke(it) },
             enabled = row.isEnabled,
         )
 
@@ -165,7 +221,7 @@ private fun RowScope.RowControl(row: SettingsRow, alpha: () -> Float) {
                 )
             }
             Icon(
-                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                painter = painterResource(R.drawable.ic_chevron_right),
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.outline,
                 modifier = Modifier
@@ -177,17 +233,28 @@ private fun RowScope.RowControl(row: SettingsRow, alpha: () -> Float) {
         is SettingsRow.Segmented -> SettingsSegmentedControl(
             options = row.options,
             selectedIndex = row.selectedIndex,
-            onSelect = row.onSelect,
+            onSelect = { (latest.value as? SettingsRow.Segmented)?.onSelect?.invoke(it) },
             isEnabled = row.isEnabled,
         )
 
         is SettingsRow.Soon -> SettingsSoonBadge(text = row.badge)
 
-        is SettingsRow.Slider -> Unit
+        is SettingsRow.Slider -> row.valueLabel?.let { label ->
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Normal,
+                color = MaterialTheme.colorScheme.outline,
+                modifier = Modifier
+                    .align(Alignment.Top)
+                    .graphicsLayer { this.alpha = alpha() },
+            )
+        }
+
+        is SettingsRow.Info, is SettingsRow.Colors -> Unit
     }
 }
 
-/** Линия, связывающая вложенную строку с родительским переключателем. */
 private fun Modifier.nestedConnector(isNested: Boolean, color: () -> Color): Modifier =
     if (!isNested) this else drawBehind {
         drawRect(

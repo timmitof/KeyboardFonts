@@ -1,5 +1,6 @@
 package kg.timmitof.keyboard.presentation.components
 
+import kg.timmitof.core.ui.plainClickable
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
@@ -9,9 +10,6 @@ import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkHorizontally
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -31,19 +29,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kg.timmitof.keyboard.domain.model.KeyboardFont
+import kg.timmitof.keyboard.font.domain.model.KeyboardFont
 import kg.timmitof.keyboard.presentation.theme.KFTheme
 
-/** Высота таблетки шрифта в раскрытой карусели. */
 private val FontPillHeight = 32.dp
 
-/**
- * Горизонтальная карусель шрифтов в верхней панели.
- */
 @Composable
 internal fun FontsCarousel(
     fonts: List<KeyboardFont>,
@@ -89,24 +84,25 @@ private fun FontPill(
     modifier: Modifier = Modifier,
 ) {
     val shape = RoundedCornerShape(FontPillHeight / 2)
+    // Выбранный шрифт — плашка цвета служебных клавиш; остальные — текст прямо на фоне.
     val background by animateColorAsState(
-        targetValue = if (isSelected) KFTheme.color.keyButtonPressedBackground else Color.Transparent,
+        targetValue = if (isSelected) KFTheme.color.keySpecialButtonBackground else Color.Transparent,
         animationSpec = tween(200),
     )
     val textColor by animateColorAsState(
-        targetValue = KFTheme.color.keyTextColor.copy(alpha = if (isSelected) 1f else 0.55f),
+        targetValue = if (isSelected) {
+            KFTheme.color.keySpecialLabelColor
+        } else {
+            KFTheme.color.keyTextColor.copy(alpha = UnselectedAlpha)
+        },
         animationSpec = tween(200),
     )
 
     Row(
         modifier = modifier
             .clip(shape)
-            .background(background)
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-                onClick = onClick,
-            )
+            .drawBehind { drawRect(background) }
+            .plainClickable(onClick)
             .defaultMinSize(minWidth = 52.dp)
             .padding(horizontal = 12.dp),
         horizontalArrangement = Arrangement.Center,
@@ -134,6 +130,8 @@ private fun FontPill(
         }
     }
 }
+
+private const val UnselectedAlpha = 0.55f
 
 private val ResetEnterTransition =
     fadeIn(tween(180)) + expandHorizontally(

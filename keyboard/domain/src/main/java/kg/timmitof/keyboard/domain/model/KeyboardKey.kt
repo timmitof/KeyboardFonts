@@ -3,17 +3,8 @@ package kg.timmitof.keyboard.domain.model
 sealed class KeyboardKey {
     abstract val weight: Float
 
-    /** Копия клавиши с другим весом — нужна для нормировки ряда под ширину раскладки. */
     abstract fun withWeight(weight: Float): KeyboardKey
 
-    /**
-     * Обычная клавиша.
-     *
-     * @param subLabel подпись рядом с основной меткой (буквы возле цифр на телефонной раскладке).
-     * @param hint мелкая подсказка в верхнем углу клавиши (цифры над буквами верхнего ряда).
-     * @param output что реально вводится, если это не сама метка (клавиша «пауза» вводит «,»).
-     * @param isSpecial клавиша оформляется как служебная (серый фон), хотя вводит символ.
-     */
     data class Character(
         override val weight: Float,
         val labelLower: String,
@@ -71,6 +62,13 @@ sealed class KeyboardKey {
     }
 
     data class EmojiSwitch(
+        override val weight: Float
+    ) : KeyboardKey() {
+        override fun withWeight(weight: Float) = copy(weight = weight)
+    }
+
+    /** Скрыть клавиатуру: на планшете системная «назад» далеко от пальцев. В JSON-раскладках её нет. */
+    data class HideKeyboard(
         override val weight: Float
     ) : KeyboardKey() {
         override fun withWeight(weight: Float) = copy(weight = weight)

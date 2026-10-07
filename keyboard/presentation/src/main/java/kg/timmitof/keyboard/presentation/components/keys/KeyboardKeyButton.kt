@@ -30,48 +30,37 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
+import androidx.compose.runtime.State
 import kg.timmitof.core.ui.keyClickable
 import kg.timmitof.keyboard.domain.model.KeyCharacter
-import kg.timmitof.keyboard.domain.model.KeyboardFont
+import kg.timmitof.keyboard.font.domain.model.KeyboardFont
 import kg.timmitof.keyboard.domain.model.KeyboardKey
 import kg.timmitof.keyboard.domain.model.LongPressAction
 import kg.timmitof.keyboard.presentation.theme.KFTheme
 import kotlin.math.roundToInt
 
-/** Кегль основной метки: одиночный символ и слово вроде `.com` или `пауза`. */
 private val SingleGlyphSize = 23.sp
 private val WordLabelSize = 15.sp
 
-/**
- * Кегль меток телефонной раскладки.
- */
 private val LargeLabelSize = 26.sp
 private val LargeWordLabelSize = 19.sp
 private val SubLabelSize = 11.5.sp
 
-/** Зазор между меткой и подписью. */
 private val SubLabelSpacing = 4.dp
 
-/** Отступ пары цифра + буквы от краёв клавиши. */
 private val KeyLabelPadding = 6.dp
 
-/** Подпись приглушена — она подсказка, а не то, что вводится. */
 private const val SubLabelAlpha = 0.5f
 
-/** Кегль подсказки в углу клавиши. */
 private val HintSize = 10.sp
+
+private const val HintAlpha = 0.6f
 
 internal fun String.isWordLabel(): Boolean = codePointCount(0, length) > 1
 
 /**
- * Клавиша с символом.
- *
- * Наверх уходит [KeyCharacter] в обоих регистрах, а не готовая строка: какой
- * регистр применить, решает ViewModel в момент ввода — состояние Shift к этому
- * моменту может уже измениться соседним нажатием.
- *
- * @param onInput символ введён: обычным нажатием или выбором из пикера.
+ * Наверх уходит [KeyCharacter] в обоих регистрах: регистр применяет ViewModel в момент ввода,
+ * а Shift к этому моменту мог измениться от соседнего нажатия.
  */
 @Composable
 internal fun RowScope.KeyboardKeyButton(
@@ -101,7 +90,8 @@ internal fun RowScope.KeyboardKeyButton(
     var pickOffsetPx by remember { mutableFloatStateOf(0f) }
 
     val interactionSource = remember { MutableInteractionSource() }
-    val isPressed by interactionSource.collectIsPressedAsState()
+    // State не читаем в композиции: от нажатия перерисовываются только zIndex и превью.
+    val isPressed = interactionSource.collectIsPressedAsState()
 
     val selectedIndexFor: (Float) -> Int = { offsetPx ->
         (offsetPx / cellWidthPx).roundToInt().coerceIn(0, symbols.lastIndex)
@@ -111,7 +101,7 @@ internal fun RowScope.KeyboardKeyButton(
         // Нажатая клавиша выше соседей: её шапка не должна уходить под соседнюю.
         modifier = modifier
             .weight(key.weight)
-            .zIndex(if (isPressed || isPickerVisible) 1f else 0f)
+            .liftedZIndex { isPressed.value || isPickerVisible }
             .fillMaxHeight(),
         background = if (key.isSpecial) {
             KFTheme.color.keySpecialButtonBackground
@@ -120,9 +110,10 @@ internal fun RowScope.KeyboardKeyButton(
         },
         shadowColor = KFTheme.color.keyButtonShadow,
         interactionSource = interactionSource,
-        customGestures = if (symbols.isEmpty()) null else { source ->
+        customGestures = if (symbols.isEmpty()) null else { source, onPress ->
             Modifier.keyClickable(
                 interactionSource = source,
+                onPress = onPress,
                 onTap = { onInput(input) },
                 onHoldStart = {
                     pickOffsetPx = 0f
@@ -144,9 +135,9 @@ internal fun RowScope.KeyboardKeyButton(
             subLabel = key.subLabel ?: "".takeIf { hasSubLabels && !key.isSpecial },
             isLarge = isLargeLabel,
             color = if (key.isSpecial) {
-                KFTheme.color.keySpecialTextColor
+                KFTheme.color.keySpecialLabelColor
             } else {
-                KFTheme.color.keyTextColor
+                KFTheme.color.keyLabelColor
             }
         )
 
@@ -157,9 +148,16 @@ internal fun RowScope.KeyboardKeyButton(
                 onDismiss = { isPickerVisible = false }
             )
 
-            isPressed && LocalKeyFeedback.current.isPreviewEnabled ->
-                KeyPressPreview(label = displayLabel)
+            else -> PressedKeyPreview(isPressed = isPressed, label = displayLabel)
         }
+    }
+}
+
+/** Отдельный composable: нажатие рекомпозирует только его, а не всю клавишу. */
+@Composable
+private fun BoxScope.PressedKeyPreview(isPressed: State<Boolean>, label: String) {
+    if (isPressed.value && LocalKeyFeedback.current.isPreviewEnabled) {
+        KeyPressPreview(label = label)
     }
 }
 
@@ -223,7 +221,7 @@ private fun BoxScope.KeyHint(hint: String) {
             .padding(top = 3.dp, end = 3.dp),
         text = hint,
         fontSize = HintSize,
-        color = KFTheme.color.keySpecialTextColor,
+        color = KFTheme.color.keyLabelColor.copy(alpha = HintAlpha),
         style = TextStyle(
             platformStyle = PlatformTextStyle(includeFontPadding = false),
             lineHeight = HintSize,

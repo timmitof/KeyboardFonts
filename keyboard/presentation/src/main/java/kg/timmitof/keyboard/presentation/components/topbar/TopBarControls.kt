@@ -1,12 +1,11 @@
 package kg.timmitof.keyboard.presentation.components.topbar
 
+import kg.timmitof.core.ui.plainClickable
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -38,17 +37,12 @@ import kg.timmitof.keyboard.presentation.R
 import kg.timmitof.keyboard.presentation.components.KeySupport
 import kg.timmitof.keyboard.presentation.theme.KFTheme
 
-/** Высота элементов верхней панели. */
 private val ControlHeight = 32.dp
 
 private val ControlShape = RoundedCornerShape(ControlHeight / 2)
 
-/** Сторона якоря справа: зона нажатия во всю высоту панели. */
 private val AnchorSize = 40.dp
 
-/**
- * Свёрнутая карусель шрифтов: кнопка с текущим стилем.
- */
 @Composable
 internal fun FontToggleButton(
     preview: String,
@@ -60,11 +54,7 @@ internal fun FontToggleButton(
             .height(ControlHeight)
             .clip(ControlShape)
             .pillSurface()
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-                onClick = onClick
-            )
+            .plainClickable(onClick)
             .padding(horizontal = 12.dp),
         horizontalArrangement = Arrangement.spacedBy(5.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -73,18 +63,17 @@ internal fun FontToggleButton(
             text = preview,
             fontSize = 15.sp,
             fontWeight = FontWeight.Medium,
-            color = KFTheme.color.keyTextColor,
+            color = KFTheme.color.keyLabelColor,
             maxLines = 1
         )
         Text(
             text = "▾",
             fontSize = 11.sp,
-            color = KFTheme.color.keyTextColor.copy(alpha = 0.5f)
+            color = KFTheme.color.keyLabelColor.copy(alpha = 0.5f)
         )
     }
 }
 
-/** Якорь в правом краю панели: подсвечен, пока открыт его лист. */
 @Composable
 internal fun TopBarAnchorButton(
     @DrawableRes iconRes: Int,
@@ -109,11 +98,7 @@ internal fun TopBarAnchorButton(
             .size(AnchorSize)
             .clip(CircleShape)
             .background(background)
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-                onClick = onClick
-            ),
+            .plainClickable(onClick),
         contentAlignment = Alignment.Center
     ) {
         Icon(
@@ -130,8 +115,6 @@ internal fun NoticePill(
     @StringRes textRes: Int,
     modifier: Modifier = Modifier,
 ) {
-    val isRestriction = textRes != R.string.field_notice_multiline
-
     Row(
         modifier = modifier
             .height(26.dp)
@@ -141,14 +124,12 @@ internal fun NoticePill(
         horizontalArrangement = Arrangement.spacedBy(6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        if (isRestriction) {
-            Icon(
-                imageVector = ImageVector.vectorResource(R.drawable.ic_field_lock),
-                contentDescription = null,
-                tint = KFTheme.color.noticeTextColor,
-                modifier = Modifier.size(12.dp)
-            )
-        }
+        Icon(
+            imageVector = ImageVector.vectorResource(R.drawable.ic_field_lock),
+            contentDescription = null,
+            tint = KFTheme.color.noticeTextColor,
+            modifier = Modifier.size(12.dp)
+        )
         Text(
             text = stringResource(textRes),
             fontSize = 11.sp,

@@ -3,6 +3,7 @@ package kg.timmitof.keyboard.presentation.screens.keyboard
 import androidx.lifecycle.viewModelScope
 import kg.timmitof.core.ui.base.BaseSideEffect
 import kg.timmitof.core.ui.base.BaseViewModel
+import kg.timmitof.keyboard.domain.model.KeyboardSettings
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.ClipboardDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.EmojiDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.FieldContextDelegate
@@ -24,11 +25,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.syntax.Syntax
 
-/**
- * Orbit-синтаксис клавиатуры: даёт делегатам доступ к `state`, `reduce`
- * и `postSideEffect` — методы делегатов объявляются с этим ресивером
- * и вызываются из `intent {}` ViewModel через `with(delegate) { ... }`.
- */
+/** Orbit-синтаксис: делегаты получают `state`, `reduce` и `postSideEffect` через этот ресивер. */
 internal typealias KeyboardSyntax = Syntax<KeyboardState, BaseSideEffect>
 
 internal class KeyboardViewModel(
@@ -103,11 +100,13 @@ internal class KeyboardViewModel(
                 with(clipboardDelegate) { paste(event.entry.text) }
             }
             is KeyboardEvent.OnClipboardAction -> intent { clipboardDelegate.applyAction(event.action) }
+            is KeyboardEvent.OnHideKeyboard -> intent { postSideEffect(KeyboardSideEffect.HideKeyboard) }
             is KeyboardEvent.OnOpenApp -> intent {
                 reduce { state.copy(keyboardOverlay = null) }
                 postSideEffect(KeyboardSideEffect.OpenApp)
             }
             is KeyboardEvent.OnInputSessionChange -> resetInputSession()
+            is KeyboardEvent.OnInputSessionFinish -> viewModelScope.launch { suggestionsDelegate.flush() }
             is KeyboardEvent.OnFieldContextChange -> intent {
                 with(fieldContextDelegate) { applyContext(event.context) }
                 with(suggestionsDelegate) { requestSuggestions() }
@@ -123,20 +122,20 @@ internal class KeyboardViewModel(
         // Настройки первыми: от них зависят и шрифт по умолчанию, и вид раскладки.
         with(settingsDelegate) { loadSettings() }
         with(languageDelegate) { loadLanguages() }
+
+        // Прогрев словаря и эмодзи — параллельно с остальной загрузкой, первый ввод не ждёт.
+        val languageCode = state.activeLanguage?.code
+        viewModelScope.launch { languageCode?.let { suggestionsDelegate.prefetch(it) } }
+        viewModelScope.launch { emojiDelegate.prefetchVariants() }
+
         with(fontDelegate) { loadFonts() }
         with(layerDelegate) { applyLayer(KeyboardLayer.LETTERS) }
 
         layerDelegate.preloadLayouts(state.languages.map { it.code })
         observeSuggestions()
         observeSettings()
+        observeFontPanel()
         observeClipboard()
-
-        val languageCode = state.activeLanguage?.code
-
-        viewModelScope.launch {
-            emojiDelegate.prefetchVariants()
-            languageCode?.let { suggestionsDelegate.prefetch(it) }
-        }
     }
 
     private fun openOverlay(overlay: KeyboardOverlay?) = intent {
@@ -151,7 +150,12 @@ internal class KeyboardViewModel(
             .launchIn(viewModelScope)
     }
 
-    /** Готовые подсказки приходят из фонового расчёта и попадают в состояние. */
+    private fun observeFontPanel() {
+        fontDelegate.panel
+            .onEach { panel -> intent { with(fontDelegate) { applyPanel(panel) } } }
+            .launchIn(viewModelScope)
+    }
+
     private fun observeSuggestions() {
         suggestionsDelegate.suggestions
             .onEach { (request, suggestions) ->
@@ -161,37 +165,37 @@ internal class KeyboardViewModel(
     }
 
     /**
-     * Настройки правит другой процесс — приложение.
-     *
-     * Раскладка пересобирается вместе с ними: цифровой ряд появляется и исчезает
-     * сразу, не дожидаясь следующего открытия клавиатуры.
+     * Раскладку и подсказки пересобираем только если изменилось влияющее на них поле:
+     * громкость, цвет или фон на них не влияют. Первая эмиссия совпадает с загруженными настройками и ничего не делает.
      */
     private fun observeSettings() {
         settingsDelegate.settings
             .onEach { settings ->
                 intent {
+                    val previous = state.settings
                     with(settingsDelegate) { applySettings(settings) }
-                    with(layerDelegate) { applyLayer(state.layer) }
-                    with(suggestionsDelegate) { requestSuggestions() }
+
+                    if (previous.isDigitsRowEnabled != settings.isDigitsRowEnabled) {
+                        with(layerDelegate) { applyLayer(state.layer) }
+                    }
+                    if (previous.affectsSuggestions != settings.affectsSuggestions) {
+                        with(suggestionsDelegate) { requestSuggestions() }
+                    }
                 }
             }
             .launchIn(viewModelScope)
     }
 
+    private val KeyboardSettings.affectsSuggestions: List<Boolean>
+        get() = listOf(isSuggestionsEnabled, isNextWordPredictionEnabled, isAutoCorrectEnabled)
+
     private fun prefetchSearchIndex() = viewModelScope.launch {
         emojiDelegate.prefetchSearchIndex()
     }
 
-    /**
-     * Новая сессия ввода: карусель шрифтов снова открыта, подсказки сброшены.
-     *
-     * Карусель — лицо клавиатуры, поэтому при каждом её открытии она на месте,
-     * а свернётся сама, как только пользователь начнёт набирать слово.
-     */
     private fun resetInputSession() = intent {
         with(textInputDelegate) { resetShift() }
         with(fontDelegate) { forgetFontIfNeeded() }
-        clipboardDelegate.captureSystemClip()
         reduce {
             state.copy(
                 suggestions = emptyList(),

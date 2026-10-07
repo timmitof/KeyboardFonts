@@ -2,9 +2,15 @@ package kg.timmitof.feature_settings.presentation.screens
 
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kg.timmitof.core.navigation.graphs.HomeGraph
+import kg.timmitof.core.navigation.graphs.SettingsGraph
 import kg.timmitof.core.ui.base.BaseSideEffect
 import kg.timmitof.core.ui.base.BaseViewModel
 import kg.timmitof.feature_settings.domain.interactor.SettingsInteractor
+import kg.timmitof.feature_settings.presentation.studio.StudioTab
+import kg.timmitof.keyboard.domain.model.KeyColorTarget
+import kg.timmitof.keyboard.domain.model.KeyboardBackground
+import kg.timmitof.keyboard.domain.model.KeyboardHeight
+import kg.timmitof.keyboard.domain.model.KeyboardSoundPack
 import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
 import kg.timmitof.keyboard.domain.model.KeyboardToggle
 import org.orbitmvi.orbit.syntax.Syntax
@@ -17,14 +23,28 @@ class SettingsViewModel @Inject constructor(
 
     init {
         observeSettings()
+        observeFontPanel()
+        observePhotos()
+        observeClipboard()
     }
 
     override fun onEvent(event: SettingsEvent) {
         when (event) {
             is SettingsEvent.ToggleChanged -> setToggle(event.toggle, event.enabled)
             is SettingsEvent.ThemeChanged -> setTheme(event.mode)
+            is SettingsEvent.HeightChanged -> setHeight(event.height)
+            is SettingsEvent.KeyColorChanged -> setKeyColor(event.target, event.argb)
+            is SettingsEvent.BackgroundSelected -> setBackground(event.background)
+            is SettingsEvent.BackgroundPhotoPicked -> addPhoto(event.uri)
+            is SettingsEvent.EditPhotoClicked -> navigateTo(SettingsGraph.BackgroundCropScreen(event.photoId))
+            is SettingsEvent.SoundPackChanged -> setSoundPack(event.pack)
+            is SettingsEvent.SoundVolumeChanged -> setSoundVolume(event.volume)
+            is SettingsEvent.PanelFontsChanged -> setPanelFonts(event.ids)
+            is SettingsEvent.ResetFontPanelClicked -> resetFontPanel()
+            is SettingsEvent.TabSelected -> selectTab(event.tab)
+            is SettingsEvent.ClearRecentClipboardClicked -> clearRecentClipboard()
             is SettingsEvent.ScreenResumed -> loadSummary()
-            is SettingsEvent.CheckKeyboardClicked -> navigateTo(HomeGraph.CheckKeyboardScreen)
+            is SettingsEvent.ConnectKeyboardClicked -> navigateTo(HomeGraph.OnboardingScreen(isFromSettings = true))
         }
     }
 
@@ -39,12 +59,73 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    /** Записи в буфер добавляет клавиатура — вкладка видит их сразу. */
+    private fun observeClipboard() = intent {
+        settingsInteractor.observeClipboard().collect { board ->
+            reduce { state.copy(clipboard = board) }
+        }
+    }
+
+    private fun observeFontPanel() = intent {
+        settingsInteractor.observeFontPanel().collect { panel ->
+            reduce { state.copy(fontPanel = panel) }
+        }
+    }
+
+    private fun setPanelFonts(ids: List<String>) = intent {
+        settingsInteractor.setPanelFonts(ids)
+    }
+
+    private fun resetFontPanel() = intent {
+        settingsInteractor.resetFontPanel()
+    }
+
     private fun setToggle(toggle: KeyboardToggle, enabled: Boolean) = intent {
         settingsInteractor.setToggle(toggle, enabled)
     }
 
     private fun setTheme(mode: KeyboardThemeMode) = intent {
         settingsInteractor.setTheme(mode)
+    }
+
+    private fun setHeight(height: KeyboardHeight) = intent {
+        settingsInteractor.setHeight(height)
+    }
+
+    private fun setKeyColor(target: KeyColorTarget, argb: Long?) = intent {
+        settingsInteractor.setKeyColor(target, argb)
+    }
+
+    private fun observePhotos() = intent {
+        settingsInteractor.observePhotos().collect { photos ->
+            reduce { state.copy(photos = photos) }
+        }
+    }
+
+    /** Фото копируется к нам целиком и сразу открывается настройка, какая его часть будет видна. */
+    private fun addPhoto(uri: String) = intent {
+        runCatching { settingsInteractor.addPhoto(uri) }
+            .onSuccess { photo -> navigateTo(SettingsGraph.BackgroundCropScreen(photo.id)) }
+    }
+
+    private fun setBackground(background: KeyboardBackground) = intent {
+        settingsInteractor.setBackground(background)
+    }
+
+    private fun setSoundPack(pack: KeyboardSoundPack) = intent {
+        settingsInteractor.setSoundPack(pack)
+    }
+
+    private fun setSoundVolume(volume: Float) = intent {
+        settingsInteractor.setSoundVolume(volume)
+    }
+
+    private fun selectTab(tab: StudioTab) = intent {
+        if (tab != state.selectedTab) reduce { state.copy(selectedTab = tab) }
+    }
+
+    private fun clearRecentClipboard() = intent {
+        settingsInteractor.clearRecentClipboard()
     }
 
     private fun loadSummary() = intent {

@@ -19,8 +19,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
-import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
-import kg.timmitof.keyboard.domain.model.TextContext
+import kg.timmitof.keyboard.suggestion.domain.model.TextContext
 import kg.timmitof.keyboard.presentation.insets.KeyboardInsetsTracker
 import kg.timmitof.keyboard.presentation.insets.LocalKeyboardInsets
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardFieldContext
@@ -28,7 +27,9 @@ import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardEvent
 import kg.timmitof.keyboard.presentation.screens.keyboard.KeyboardFontsScreen
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardSideEffect
 import kg.timmitof.keyboard.presentation.screens.keyboard.KeyboardViewModel
+import kg.timmitof.keyboard.presentation.theme.KeyboardAppearance
 import kg.timmitof.keyboard.presentation.theme.KeyboardTheme
+import kg.timmitof.keyboard.presentation.theme.appearance
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
 
@@ -47,12 +48,10 @@ class KeyboardFontsView(
 
     private val insetsTracker = KeyboardInsetsTracker(this)
 
-    /** Сервис отдаёт сюда разобранный `EditorInfo` при каждой смене поля ввода. */
     fun updateFieldContext(context: KeyboardFieldContext) {
         fieldContext.value = context
     }
 
-    /** Сервис отдаёт сюда текст вокруг курсора при каждой правке поля — вход Т9. */
     fun updateTextContext(context: TextContext) {
         textContext.value = context
     }
@@ -98,35 +97,24 @@ class KeyboardFontsView(
         val insets by insetsTracker.insets
 
         CompositionLocalProvider(LocalKeyboardInsets provides insets) {
-            KeyboardTheme(darkTheme = viewModel.isDarkTheme()) {
+            KeyboardTheme(appearance = viewModel.appearance()) {
                 KeyboardFontsScreen(viewModel = viewModel)
             }
         }
     }
 }
 
-/**
- * Тема клавиатуры: следовать системе или держать выбранную в настройках.
- *
- * Состояние читается через `derivedStateOf`, чтобы поток нажатий не перекрашивал
- * клавиатуру: тему меняют раз в жизни, а состояние — на каждую букву.
- */
+/** Состояние читается через `derivedStateOf`, чтобы поток нажатий не перекрашивал клавиатуру. */
 @Composable
-private fun KeyboardViewModel.isDarkTheme(): Boolean {
+private fun KeyboardViewModel.appearance(): KeyboardAppearance {
     val isSystemDark = isSystemInDarkTheme()
     val state = collectAsState()
 
-    val isDark by remember(isSystemDark) {
-        derivedStateOf {
-            when (state.value.settings.theme) {
-                KeyboardThemeMode.AUTO -> isSystemDark
-                KeyboardThemeMode.LIGHT -> false
-                KeyboardThemeMode.DARK -> true
-            }
-        }
+    val appearance by remember(isSystemDark) {
+        derivedStateOf { state.value.settings.appearance(isSystemDark) }
     }
 
-    return isDark
+    return appearance
 }
 
 @Composable
@@ -135,8 +123,11 @@ private fun InputSessionResetEffect(viewModel: KeyboardViewModel) {
 
     DisposableEffect(lifecycleOwner, viewModel) {
         val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME || event == Lifecycle.Event.ON_PAUSE) {
-                viewModel.onEvent(KeyboardEvent.OnInputSessionChange)
+            // Сброс — только на старте ввода: на паузе он дублировал бы ресет следующего ON_RESUME.
+            when (event) {
+                Lifecycle.Event.ON_RESUME -> viewModel.onEvent(KeyboardEvent.OnInputSessionChange)
+                Lifecycle.Event.ON_PAUSE -> viewModel.onEvent(KeyboardEvent.OnInputSessionFinish)
+                else -> Unit
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)

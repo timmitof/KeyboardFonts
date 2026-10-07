@@ -1,61 +1,155 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="settings_title">Настройки клавиатуры</string>
+    <string name="studio_app_name">Keyboard Fonts</string>
+    <string name="studio_status_active">Активна</string>
+    <string name="studio_status_not_ready">Не подключена</string>
 
-    <!-- Клавиатура Fonts -->
-    <string name="settings_section_app">Клавиатура Fonts</string>
-    <string name="settings_check_title">Проверить клавиатуру</string>
-    <string name="settings_check_description">Подключение и тестовые поля ввода</string>
-    <string name="settings_check_ready">Подключена</string>
-    <string name="settings_check_not_ready">Не подключена</string>
+    <!-- Предпросмотр -->
+    <string name="studio_preview_sample">Hello</string>
+    <string name="studio_preview_check">Проверить</string>
 
-    <!-- Ввод текста -->
-    <string name="settings_section_input">Ввод текста</string>
-    <string name="settings_suggestions_title">Подсказки слов (T9)</string>
-    <string name="settings_suggestions_description">Строка над клавишами предлагает варианты</string>
-    <string name="settings_suggestions_description_off">Выключено — строка отдана шрифтам</string>
-    <string name="settings_autocorrect_title">Автокоррекция</string>
-    <string name="settings_autocorrect_description">Исправлять опечатки при вводе пробела</string>
-    <string name="settings_space_commit_title">Подстановка пробелом</string>
-    <string name="settings_space_commit_description">Пробел принимает выделенную подсказку</string>
-    <string name="settings_next_word_title">Предсказание следующего слова</string>
-    <string name="settings_learn_title">Учиться на моём тексте</string>
-    <string name="settings_learn_description">Личный словарь пополняется тем, что вы пишете</string>
+    <!-- Вкладки -->
+    <string name="studio_tab_background">Фон</string>
+    <string name="studio_tab_theme">Тема</string>
+    <string name="studio_tab_fonts">Шрифты</string>
+    <string name="studio_tab_input">Ввод</string>
+    <string name="studio_tab_languages">Языки</string>
+    <string name="studio_tab_size">Размер</string>
+    <string name="studio_tab_sound">Звук</string>
+    <string name="studio_tab_clipboard">Буфер</string>
+
+    <!-- Фон -->
+    <string name="background_from_gallery">Из галереи</string>
+    <string name="background_color">Цвет</string>
+    <string name="background_presets_header">Готовые</string>
+    <string name="background_none">Без фона</string>
+    <string name="background_mint">Мята</string>
+    <string name="background_stripes">Полоски</string>
+    <string name="background_bubbles">Пузыри</string>
+    <string name="background_grid">Клетка</string>
+    <string name="background_waves">Волны</string>
+    <string name="background_night">Ночь</string>
+    <string name="background_my_photos">Мои фото</string>
+    <string name="background_add_photo">Добавить</string>
+    <string name="background_photos_hint">Нажми на выбранное фото ещё раз — и сможешь его подвинуть.</string>
+    <string name="background_color_title">Цвет фона</string>
+    <string name="background_custom_tone">Свой оттенок</string>
+    <string name="background_cancel">Отмена</string>
+    <string name="background_apply">Применить</string>
+    <string name="background_colors_hint">Цвета клавиш подобрались под фон сами. Если хочется по-другому — поменяй их ниже, а кружок «А» вернёт подобранные.</string>
+    <string name="background_crop_title">Фото для фона</string>
+    <string name="background_crop_hint">Двигай фото пальцем и приближай двумя пальцами. Что видно в рамке — то и будет на клавиатуре.</string>
+    <string name="background_crop_done">Готово</string>
+    <string name="background_crop_delete">Удалить фото</string>
+    <string name="background_crop_delete_question">Удалить это фото из фонов? В галерее телефона оно останется.</string>
+    <string name="background_crop_delete_confirm">Удалить</string>
+    <string name="background_crop_error">Не получилось открыть фото. Попробуй выбрать другое.</string>
+
+    <!-- Тема -->
+    <string name="theme_light">Светлая</string>
+    <string name="theme_dark">Тёмная</string>
+    <string name="theme_auto">Как в системе</string>
+    <string name="theme_overridden_by_background">Сейчас цвета задаёт фон. Тема снова заработает, если во вкладке «Фон» выбрать «Без фона».</string>
+    <string name="key_colors_header">Цвета клавиш</string>
+    <string name="key_color_auto">А</string>
+    <string name="key_color_letters">Буквы</string>
+    <string name="key_color_special">Служебные клавиши</string>
+    <string name="key_color_enter">Клавиша Enter</string>
+    <string name="key_color_letters_picker">Свой цвет букв</string>
+    <string name="key_color_special_picker">Свой цвет служебных клавиш</string>
+    <string name="key_color_enter_picker">Свой цвет Enter</string>
+    <string name="theme_key_outline_title">Контур клавиш</string>
+    <string name="theme_key_outline_description">Тонкая рамка вместо тени</string>
+    <string name="color_picker_confirm">Готово</string>
+    <string name="color_picker_dismiss">Отмена</string>
 
     <!-- Шрифты -->
-    <string name="settings_section_fonts">Шрифты</string>
-    <string name="settings_styled_fonts_title">Стилизованные шрифты</string>
-    <string name="settings_styled_fonts_description">Панель со шрифтами над клавишами</string>
-    <string name="settings_font_set_title">Набор шрифтов</string>
-    <string name="settings_font_set_description">Порядок и видимость в панели</string>
-    <string name="settings_font_set_value">Все %1$d</string>
-    <string name="settings_remember_font_title">Запоминать выбранный шрифт</string>
+    <string name="fonts_panel_title">Панель шрифтов</string>
+    <string name="fonts_panel_description">Стили над клавишами</string>
+    <string name="fonts_remember_title">Запоминать выбранный шрифт</string>
+    <string name="fonts_remember_description">Стиль остаётся и в следующем поле</string>
+    <string name="fonts_catalog_header">В панели · %1$d</string>
+    <string name="fonts_hidden_header">Скрытые · %1$d</string>
+    <string name="fonts_reorder_hint">Перетащите за ручку справа, чтобы поменять порядок</string>
+    <string name="fonts_reset">Сбросить</string>
 
-    <!-- Клавиатура -->
-    <string name="settings_section_keyboard">Клавиатура</string>
-    <string name="settings_languages_title">Языки и раскладки</string>
-    <string name="settings_size_title">Размер и высота</string>
-    <string name="settings_size_description">С предпросмотром клавиатуры</string>
-    <string name="settings_size_value">Средняя</string>
-    <string name="settings_digits_row_title">Цифровой ряд</string>
-    <string name="settings_digits_row_description">Отдельная строка цифр сверху</string>
-    <string name="settings_theme_title">Тема</string>
-    <string name="settings_theme_auto">Авто</string>
-    <string name="settings_theme_light">Светлая</string>
-    <string name="settings_theme_dark">Тёмная</string>
+    <!-- Названия шрифтов -->
+    <string name="font_name_default">Обычный</string>
+    <string name="font_name_script">Рукописный</string>
+    <string name="font_name_bold_script">Рукописный жирный</string>
+    <string name="font_name_fraktur">Готика</string>
+    <string name="font_name_bold_fraktur">Готика жирная</string>
+    <string name="font_name_double_struck">Двойной контур</string>
+    <string name="font_name_circled">В кружках</string>
+    <string name="font_name_squared">В квадратах</string>
+    <string name="font_name_small_caps">Капитель</string>
+    <string name="font_name_bold">Жирный</string>
+    <string name="font_name_italic">Курсив</string>
+    <string name="font_name_bold_italic">Жирный курсив</string>
+    <string name="font_name_sans">Без засечек</string>
+    <string name="font_name_sans_bold">Без засечек, жирный</string>
+    <string name="font_name_sans_italic">Без засечек, курсив</string>
+    <string name="font_name_sans_bold_italic">Без засечек, жирный курсив</string>
+    <string name="font_name_monospace">Моноширинный</string>
+    <string name="font_name_underline">Подчёркнутый</string>
+    <string name="font_name_strikethrough">Зачёркнутый</string>
 
-    <!-- Отклик -->
-    <string name="settings_section_feedback">Отклик</string>
-    <string name="settings_vibration_title">Вибрация при нажатии</string>
-    <string name="settings_sound_title">Звук нажатия</string>
-    <string name="settings_key_preview_title">Всплывающий предпросмотр клавиши</string>
+    <!-- Ввод -->
+    <string name="input_suggestions_title">Подсказки T9</string>
+    <string name="input_suggestions_description">Слова над клавишами</string>
+    <string name="input_suggestions_description_off">Выключено — строка отдана шрифтам</string>
+    <string name="input_autocorrect_title">Автозамена</string>
+    <string name="input_autocorrect_description">Исправляет опечатки</string>
+    <string name="input_space_commit_title">Подстановка пробелом</string>
+    <string name="input_space_commit_description">Пробел принимает выделенную подсказку</string>
+    <string name="input_next_word_title">Следующее слово</string>
+    <string name="input_next_word_description">Подсказка, пока слово не начато</string>
+    <string name="input_learn_title">Учиться на моём тексте</string>
+    <string name="input_learn_description">Новые слова запоминаются сами</string>
 
-    <!-- Скоро -->
-    <string name="settings_section_soon">Скоро</string>
-    <string name="settings_soon_badge">Скоро</string>
-    <string name="settings_translator_title">Переводчик</string>
-    <string name="settings_translator_description">Перевод текста прямо в поле ввода</string>
-    <string name="settings_voice_title">Голосовой ввод</string>
+    <!-- Языки -->
+    <string name="languages_header">Активные · по порядку переключения</string>
+    <string name="languages_current">Сейчас на клавиатуре</string>
+
+    <!-- Размер -->
+    <string name="size_height_title">Высота</string>
+    <string name="size_height_s">S</string>
+    <string name="size_height_m">M</string>
+    <string name="size_height_l">L</string>
+    <string name="size_height_xl">XL</string>
+    <string name="size_digits_row_title">Цифровой ряд</string>
+    <string name="size_digits_row_description">Цифры всегда над буквами</string>
+    <string name="size_split_title">Разделённая клавиатура</string>
+    <string name="size_split_description">Две половины у краёв — в альбомном режиме и на планшете</string>
+
+    <!-- Звук -->
+    <string name="sound_vibration_title">Вибрация при нажатии</string>
+    <string name="sound_click_title">Звук нажатия</string>
+    <string name="sound_volume_title">Громкость</string>
+    <string name="sound_volume_value">%1$d %%</string>
+    <string name="sound_pack_header">Звук клавиш</string>
+    <string name="sound_pack_system">Системный</string>
+    <string name="sound_pack_mechanical">Механика</string>
+    <string name="sound_pack_bubble">Пузырь</string>
+    <string name="sound_pack_typewriter">Машинка</string>
+    <string name="sound_key_preview_title">Предпросмотр клавиши</string>
+    <string name="sound_key_preview_description">Буква всплывает над пальцем</string>
+
+    <!-- Буфер -->
+    <string name="clipboard_pinned_header">Закреплено</string>
+    <string name="clipboard_clear_recent">Очистить недавние</string>
+    <string name="clipboard_pinned_empty">Закрепите запись в буфере клавиатуры — она появится здесь</string>
+    <string name="clipboard_recent_title">Недавние</string>
+    <string name="clipboard_recent_description">Копии, которые не закреплены</string>
+
+    <!-- Советы: только жесты, которые уже работают на клавиатуре -->
+    <string name="tip_counter">Совет %1$d из %2$d</string>
+    <string name="tip_space_language">Свайп по пробелу влево или вправо меняет язык без отдельной кнопки</string>
+    <string name="tip_space_cursor">Зажмите пробел и ведите палец — курсор поедет следом</string>
+    <string name="tip_backspace_slide">Зажмите ⌫ и сдвиньте влево — выделятся слова для удаления</string>
+    <string name="tip_long_press">Долгое нажатие на букву открывает похожие символы</string>
+    <string name="tip_quick_settings">Шестерёнка над клавишами — тема, высота и вибрация прямо с клавиатуры</string>
+    <string name="tip_clipboard">Значок буфера над клавишами хранит скопированное — запись можно закрепить</string>
 
 </resources>

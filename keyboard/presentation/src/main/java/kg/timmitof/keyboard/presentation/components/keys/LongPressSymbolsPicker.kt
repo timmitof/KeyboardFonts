@@ -23,16 +23,8 @@ import androidx.compose.ui.window.PopupProperties
 import kg.timmitof.keyboard.presentation.components.AboveAnchorPopupPositionProvider
 import kg.timmitof.keyboard.presentation.theme.KFTheme
 
-/** Размер ячейки символа в попапе. */
 internal val LongPressSymbolCellSize = 38.dp
 
-/**
- * Попап выбора символа по зажатию клавиши
- *
- * @param symbols варианты символов.
- * @param selectedIndex индекс символа под пальцем.
- * @param onDismiss запрос на закрытие попапа.
- */
 @Composable
 internal fun LongPressSymbolsPicker(
     symbols: List<String>,
@@ -73,7 +65,7 @@ internal fun LongPressSymbolsPicker(
                         text = symbol,
                         fontSize = if (symbol.isWordLabel()) 13.sp else 28.sp,
                         fontWeight = FontWeight.Medium,
-                        color = KFTheme.color.keyTextColor,
+                        color = KFTheme.color.keyLabelColor,
                         maxLines = 1
                     )
                 }

@@ -18,6 +18,5 @@ interface EmojiRepository {
 
     suspend fun searchEmojis(query: String): List<String>
 
-    /** Готовит поисковый индекс заранее — чтобы первый запрос не ждал разбора словаря. */
     suspend fun prefetchSearchIndex()
 }

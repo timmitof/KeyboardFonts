@@ -12,7 +12,6 @@ import kg.timmitof.keyboard.domain.model.KeyCharacter
 
 object KeyboardMapper {
 
-    /** Значение поля `script` в JSON-раскладке. */
     private const val LATIN_SCRIPT = "latin"
 
 
@@ -24,7 +23,7 @@ object KeyboardMapper {
     )
 
     fun KeyboardKeyDto.toDomain(): KeyboardKey? {
-        val keyType = KeyType.fromString(type) ?: return null  // неизвестный тип — игнор
+        val keyType = KeyType.fromString(type) ?: return null
 
         return when (keyType) {
             KeyType.CHARACTER    -> KeyboardKey.Character(

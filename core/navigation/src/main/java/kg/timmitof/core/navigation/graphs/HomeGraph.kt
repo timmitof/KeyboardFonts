@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data object HomeGraph {
 
-    /** Проверка клавиатуры: инструкция подключения и тестовые поля ввода. */
+    /** isFromSettings: по «Готово» возвращаемся назад, а не открываем «Студию» заново. */
     @Serializable
-    data object CheckKeyboardScreen
+    data class OnboardingScreen(val isFromSettings: Boolean = false)
 }

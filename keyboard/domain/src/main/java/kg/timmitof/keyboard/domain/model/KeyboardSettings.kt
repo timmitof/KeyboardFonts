@@ -1,55 +1,39 @@
 package kg.timmitof.keyboard.domain.model
 
-/**
- * Переключатель настроек клавиатуры: одна строка экрана — один ключ хранилища.
- *
- * Новая настройка добавляется одной записью здесь: и хранилище, и экран
- * настроек собираются по этому списку, руками ничего дописывать не нужно.
- *
- * @property key ключ в `keyboardPreferences` — рядом с `selected_font` и `selected_language`.
- * @property default значение до первого выбора пользователя.
- * @property parent родительский переключатель: пока он выключен, дочерний не действует.
- */
+/** Новая настройка — одна запись здесь: хранилище и экран настроек собираются по списку. [parent] выключен — дочерний не действует. */
 enum class KeyboardToggle(
     val key: String,
     val default: Boolean,
     val parent: KeyboardToggle? = null,
 ) {
-    /** Подсказки слов (Т9) — строка над клавишами. */
     SUGGESTIONS("t9_enabled", default = true),
 
-    /** Исправлять опечатки при вводе пробела. */
     AUTO_CORRECT("autocorrect_enabled", default = true, parent = SUGGESTIONS),
 
-    /** Пробел принимает выделенную подсказку. */
-    SPACE_COMMITS("space_commits_suggestion", default = true, parent = SUGGESTIONS),
+    SPACE_COMMITS("space_commits_suggestion", default = false, parent = SUGGESTIONS),
 
-    /** Предсказание следующего слова, когда новое ещё не начато. */
     NEXT_WORD_PREDICTION("next_word_prediction", default = true, parent = SUGGESTIONS),
 
-    /** Учиться на своём тексте — личный словарь. */
-    LEARN_FROM_INPUT("learn_from_input", default = true, parent = SUGGESTIONS),
+    LEARN_FROM_INPUT("learn_from_input", default = false, parent = SUGGESTIONS),
 
-    /** Панель со стилизованными шрифтами над клавишами. */
     STYLED_FONTS("styled_fonts_enabled", default = true),
 
-    /** Запоминать выбранный шрифт между сессиями ввода. */
     REMEMBER_FONT("remember_font", default = true, parent = STYLED_FONTS),
 
-    /** Отдельная строка цифр сверху. */
     DIGITS_ROW("digits_row", default = false),
 
-    /** Вибрация при нажатии. */
     VIBRATION("key_vibration", default = true),
 
-    /** Звук нажатия. */
     SOUND("key_sound", default = false),
 
-    /** Всплывающий предпросмотр клавиши. */
-    KEY_PREVIEW("key_preview", default = true);
+    KEY_PREVIEW("key_preview", default = true),
+
+    KEY_OUTLINE("key_outline", default = false),
+
+    /** Действует только в альбомном режиме и на планшете. */
+    SPLIT_KEYBOARD("split_keyboard", default = true);
 }
 
-/** Тема клавиатуры: следовать системе или зафиксировать светлую/тёмную. */
 enum class KeyboardThemeMode(val key: String) {
     AUTO("auto"),
     LIGHT("light"),
@@ -62,9 +46,6 @@ enum class KeyboardThemeMode(val key: String) {
     }
 }
 
-/**
- * Высота рядов клавиш.
- */
 enum class KeyboardHeight(val key: String, val scale: Float) {
     S("s", 0.86f),
     M("m", 1f),
@@ -78,27 +59,44 @@ enum class KeyboardHeight(val key: String, val scale: Float) {
     }
 }
 
-/**
- * Снимок всех настроек клавиатуры.
- *
- * [flags] только читается — экземпляр собирается хранилищем и дальше не меняется,
- * поэтому снимок можно считать неизменяемым.
- */
+enum class KeyboardSoundPack(val key: String) {
+    SYSTEM("system"),
+    MECHANICAL("mechanical"),
+    BUBBLE("bubble"),
+    TYPEWRITER("typewriter");
+
+    companion object {
+        val Default = SYSTEM
+
+        fun of(key: String?): KeyboardSoundPack = entries.firstOrNull { it.key == key } ?: Default
+    }
+}
+
+enum class KeyColorTarget { KEY, SPECIAL, ENTER }
+
 data class KeyboardSettings(
     private val flags: Map<KeyboardToggle, Boolean> = emptyMap(),
     val theme: KeyboardThemeMode = KeyboardThemeMode.Default,
     val height: KeyboardHeight = KeyboardHeight.Default,
+    /** Цвета клавиш, ARGB; `null` — «Авто»: из палитры фона, а без фона — из темы. */
+    val keyColor: Long? = null,
+    val specialKeyColor: Long? = null,
+    val enterColor: Long? = null,
+    val soundPack: KeyboardSoundPack = KeyboardSoundPack.Default,
+    /** 0..1, доля от системной громкости. */
+    val soundVolume: Float = DEFAULT_SOUND_VOLUME,
+    val background: KeyboardBackground = KeyboardBackground.Default,
 ) {
 
-    /** Положение самого переключателя — таким его видит пользователь на экране. */
+    fun keyColor(target: KeyColorTarget): Long? = when (target) {
+        KeyColorTarget.KEY -> keyColor
+        KeyColorTarget.SPECIAL -> specialKeyColor
+        KeyColorTarget.ENTER -> enterColor
+    }
+
     operator fun get(toggle: KeyboardToggle): Boolean = flags[toggle] ?: toggle.default
 
-    /**
-     * Действует ли настройка прямо сейчас.
-     *
-     * Выключенный родитель гасит всю ветку: дочерние переключатели остаются
-     * в своём положении, но на поведение клавиатуры уже не влияют.
-     */
+    /** Выключенный родитель гасит всю ветку, хотя дочерние сохраняют своё положение. */
     fun isOn(toggle: KeyboardToggle): Boolean =
         get(toggle) && toggle.parent?.let(::isOn) != false
 
@@ -123,4 +121,12 @@ data class KeyboardSettings(
     val isSoundEnabled: Boolean get() = isOn(KeyboardToggle.SOUND)
 
     val isKeyPreviewEnabled: Boolean get() = isOn(KeyboardToggle.KEY_PREVIEW)
+
+    val isKeyOutlineEnabled: Boolean get() = isOn(KeyboardToggle.KEY_OUTLINE)
+
+    val isSplitEnabled: Boolean get() = isOn(KeyboardToggle.SPLIT_KEYBOARD)
+
+    companion object {
+        const val DEFAULT_SOUND_VOLUME = 0.6f
+    }
 }

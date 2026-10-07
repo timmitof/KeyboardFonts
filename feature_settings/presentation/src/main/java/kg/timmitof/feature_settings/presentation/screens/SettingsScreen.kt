@@ -1,20 +1,22 @@
 package kg.timmitof.feature_settings.presentation.screens
 
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Surface
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -22,42 +24,38 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import kg.timmitof.core.ui.base.Container
 import kg.timmitof.core.ui.base.ContainerDSLBuilder
-import kg.timmitof.core.ui.components.AppTopBar
+import kg.timmitof.core.ui.components.brand.BrandHeader
+import kg.timmitof.core.ui.components.brand.StatusPill
+import kg.timmitof.core.ui.components.hint.TipsCard
+import kg.timmitof.core.ui.theme.AccentRole
 import kg.timmitof.core.ui.theme.KeyboardFontsTheme
+import kotlinx.coroutines.flow.drop
 import kg.timmitof.feature_settings.presentation.R
-import kg.timmitof.feature_settings.presentation.components.AppSection
-import kg.timmitof.feature_settings.presentation.components.FeedbackSection
-import kg.timmitof.feature_settings.presentation.components.FontsSection
-import kg.timmitof.feature_settings.presentation.components.KeyboardSection
-import kg.timmitof.feature_settings.presentation.components.SoonSection
-import kg.timmitof.feature_settings.presentation.components.TextInputSection
+import kg.timmitof.feature_settings.presentation.components.StudioPreviewCard
+import kg.timmitof.feature_settings.presentation.studio.BackgroundPane
+import kg.timmitof.feature_settings.presentation.studio.ClipboardPane
+import kg.timmitof.feature_settings.presentation.studio.FontsPane
+import kg.timmitof.feature_settings.presentation.studio.InputPane
+import kg.timmitof.feature_settings.presentation.studio.LanguagesPane
+import kg.timmitof.feature_settings.presentation.studio.SizePane
+import kg.timmitof.feature_settings.presentation.studio.SoundPane
+import kg.timmitof.feature_settings.presentation.studio.StudioTab
+import kg.timmitof.feature_settings.presentation.studio.StudioTabs
+import kg.timmitof.feature_settings.presentation.studio.ThemePane
+import kg.timmitof.keyboard.domain.model.KeyColorTarget
+import kg.timmitof.keyboard.domain.model.KeyboardBackground
+import kg.timmitof.keyboard.domain.model.KeyboardHeight
+import kg.timmitof.keyboard.domain.model.KeyboardSoundPack
 import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
 import kg.timmitof.keyboard.domain.model.KeyboardToggle
 
-/**
- * Настройки клавиатуры — корневой экран приложения.
- *
- * Экран собран из секций: заголовок + карточка со строками. Новая функция —
- * это новая секция, порядок остальных при этом не меняется.
- */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
-    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
-
     Container(
-        modifier = Modifier
-            .fillMaxSize()
-            .nestedScroll(scrollBehavior.nestedScrollConnection),
+        modifier = Modifier.fillMaxSize(),
         viewModel = viewModel,
-        topBar = {
-            AppTopBar(
-                title = stringResource(R.string.settings_title),
-                scrollBehavior = scrollBehavior
-            )
-        }
     ) { state, innerPadding ->
         SettingsContent(
             state = state,
@@ -73,7 +71,8 @@ internal fun ContainerDSLBuilder<SettingsSideEffect, SettingsEvent>.SettingsCont
 ) {
     val scrollState = rememberScrollState()
 
-    // Клавиатуру включают в системных настройках — статус перечитываем при возврате
+    // Клавиатуру включают в системных настройках, язык и шрифт меняют на ней самой —
+    // всё это перечитываем при возврате.
     LifecycleResumeEffect(Unit) {
         sendEvent(SettingsEvent.ScreenResumed)
         onPauseOrDispose { }
@@ -85,55 +84,207 @@ internal fun ContainerDSLBuilder<SettingsSideEffect, SettingsEvent>.SettingsCont
     val onTheme = remember<(KeyboardThemeMode) -> Unit> {
         { mode -> sendEvent(SettingsEvent.ThemeChanged(mode)) }
     }
-    val onCheckKeyboard = remember { { sendEvent(SettingsEvent.CheckKeyboardClicked) } }
+    val onHeight = remember<(KeyboardHeight) -> Unit> {
+        { height -> sendEvent(SettingsEvent.HeightChanged(height)) }
+    }
+    val onKeyColor = remember<(KeyColorTarget, Long?) -> Unit> {
+        { target, argb -> sendEvent(SettingsEvent.KeyColorChanged(target, argb)) }
+    }
+    val onPanelFonts = remember<(List<String>) -> Unit> {
+        { ids -> sendEvent(SettingsEvent.PanelFontsChanged(ids)) }
+    }
+    val onResetFonts = remember { { sendEvent(SettingsEvent.ResetFontPanelClicked) } }
+    val onSoundPack = remember<(KeyboardSoundPack) -> Unit> {
+        { pack -> sendEvent(SettingsEvent.SoundPackChanged(pack)) }
+    }
+    val onSoundVolume = remember<(Float) -> Unit> {
+        { volume -> sendEvent(SettingsEvent.SoundVolumeChanged(volume)) }
+    }
+    val onBackground = remember<(KeyboardBackground) -> Unit> {
+        { background -> sendEvent(SettingsEvent.BackgroundSelected(background)) }
+    }
+    val onBackgroundPhoto = remember<(String) -> Unit> {
+        { uri -> sendEvent(SettingsEvent.BackgroundPhotoPicked(uri)) }
+    }
+    val onEditPhoto = remember<(Long) -> Unit> {
+        { id -> sendEvent(SettingsEvent.EditPhotoClicked(id)) }
+    }
+    val onTab = remember<(StudioTab) -> Unit> {
+        { tab -> sendEvent(SettingsEvent.TabSelected(tab)) }
+    }
+    val onClearClipboard = remember { { sendEvent(SettingsEvent.ClearRecentClipboardClicked) } }
+    val onConnect = remember { { sendEvent(SettingsEvent.ConnectKeyboardClicked) } }
 
-    val settings = state.value.settings
-    val summary = state.value.summary
+    // Каждая панель читает только свой кусок состояния: derivedStateOf не будит остальных при чужих изменениях.
+    val settings = remember(state) { derivedStateOf { state.value.settings } }
+    val summary = remember(state) { derivedStateOf { state.value.summary } }
+    val fontPanel = remember(state) { derivedStateOf { state.value.fontPanel } }
+    val photos = remember(state) { derivedStateOf { state.value.photos } }
+    val clipboard = remember(state) { derivedStateOf { state.value.clipboard } }
+    val isKeyboardReady by remember(state) { derivedStateOf { state.value.summary.isKeyboardReady } }
+    val selectedTab = remember<() -> StudioTab>(state) { { state.value.selectedTab } }
+
+    // Черновик цвета фона живёт только здесь: превью клавиатуры видит его сразу, во ViewModel он уходит по «Применить».
+    val backgroundDraft = remember { mutableStateOf<KeyboardBackground.Solid?>(null) }
+    val onDraftPreview = remember<(KeyboardBackground.Solid?) -> Unit> { { draft -> backgroundDraft.value = draft } }
+    LaunchedEffect(settings) {
+        snapshotFlow { settings.value.background }
+            .drop(1)
+            .collect { backgroundDraft.value = null }
+    }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(scrollState)
             .padding(
                 top = innerPadding.calculateTopPadding(),
                 bottom = innerPadding.calculateBottomPadding()
             )
-            .padding(bottom = BottomPadding)
     ) {
-        AppSection(
-            isKeyboardReady = summary.isKeyboardReady,
-            onCheckKeyboard = onCheckKeyboard
+        StudioHeader(
+            isKeyboardReady = isKeyboardReady,
+            onConnect = onConnect,
         )
 
-        TextInputSection(
-            settings = settings,
-            onToggle = onToggle
+        StudioPreview(
+            state = state,
+            draft = backgroundDraft,
+            modifier = Modifier.padding(horizontal = HorizontalPadding),
         )
 
-        FontsSection(
-            settings = settings,
-            fontsTotal = summary.fontsTotal,
-            onToggle = onToggle
-        )
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .verticalScroll(scrollState)
+                .padding(top = 14.dp, bottom = BottomPadding)
+        ) {
+            StudioTabs(
+                selected = selectedTab,
+                onSelect = onTab,
+            ) {
+                tab(StudioTab.BACKGROUND) {
+                    BackgroundPane(
+                        settings = settings.value,
+                        photos = photos.value,
+                        onSelect = onBackground,
+                        onPhotoPicked = onBackgroundPhoto,
+                        onEditPhoto = onEditPhoto,
+                        onDraftPreview = onDraftPreview,
+                        onKeyColor = onKeyColor,
+                    )
+                }
+                tab(StudioTab.THEME) {
+                    ThemePane(
+                        settings = settings.value,
+                        onTheme = onTheme,
+                        onKeyColor = onKeyColor,
+                        onToggle = onToggle,
+                    )
+                }
+                tab(StudioTab.FONTS) {
+                    FontsPane(
+                        settings = settings.value,
+                        panel = fontPanel.value,
+                        onToggle = onToggle,
+                        onPanelFonts = onPanelFonts,
+                        onReset = onResetFonts,
+                    )
+                }
+                tab(StudioTab.INPUT) {
+                    InputPane(settings = settings.value, onToggle = onToggle)
+                }
+                tab(StudioTab.LANGUAGES) {
+                    val current = summary.value
+                    LanguagesPane(languages = current.languages, selected = current.selectedLanguage)
+                }
+                tab(StudioTab.SIZE) {
+                    SizePane(settings = settings.value, onHeight = onHeight, onToggle = onToggle)
+                }
+                tab(StudioTab.SOUND) {
+                    SoundPane(
+                        settings = settings.value,
+                        onToggle = onToggle,
+                        onSoundPack = onSoundPack,
+                        onSoundVolume = onSoundVolume,
+                    )
+                }
+                tab(StudioTab.CLIPBOARD) {
+                    ClipboardPane(board = clipboard.value, onClearRecent = onClearClipboard)
+                }
+            }
 
-        KeyboardSection(
-            settings = settings,
-            languages = summary.languages,
-            onToggle = onToggle,
-            onTheme = onTheme
-        )
-
-        FeedbackSection(
-            settings = settings,
-            onToggle = onToggle
-        )
-
-        SoonSection()
+            StudioTips(modifier = Modifier.padding(horizontal = HorizontalPadding, vertical = 12.dp))
+        }
     }
 }
 
-/** Последняя карточка не должна упираться в край экрана. */
-private val BottomPadding = 24.dp
+/** Читает состояние сам, чтобы рекомпозиция превью не задевала остальной экран. */
+@Composable
+private fun StudioPreview(
+    state: State<SettingsState>,
+    draft: State<KeyboardBackground.Solid?>,
+    modifier: Modifier = Modifier,
+) {
+    StudioPreviewCard(
+        modifier = modifier,
+        settings = state.value.settings,
+        draft = { draft.value },
+        summary = state.value.summary,
+        fonts = state.value.fontPanel.visible,
+        sample = stringResource(R.string.studio_preview_sample),
+        checkLabel = stringResource(R.string.studio_preview_check),
+    )
+}
+
+@Composable
+private fun StudioHeader(
+    isKeyboardReady: Boolean,
+    onConnect: () -> Unit,
+) {
+    BrandHeader(
+        modifier = Modifier.padding(horizontal = HorizontalPadding),
+        title = stringResource(R.string.studio_app_name),
+    ) {
+        if (isKeyboardReady) {
+            StatusPill(
+                text = stringResource(R.string.studio_status_active),
+                role = AccentRole.SUCCESS,
+            )
+        } else {
+            StatusPill(
+                text = stringResource(R.string.studio_status_not_ready),
+                role = AccentRole.HINT,
+                onClick = onConnect,
+            )
+        }
+    }
+}
+
+@Composable
+private fun StudioTips(modifier: Modifier = Modifier) {
+    val tips = StudioTipsRes.map { stringResource(it) }
+    val counter = stringResource(R.string.tip_counter)
+
+    TipsCard(
+        modifier = modifier,
+        tips = tips,
+        counter = { index, total -> counter.format(index, total) },
+    )
+}
+
+private val StudioTipsRes = listOf(
+    R.string.tip_space_language,
+    R.string.tip_space_cursor,
+    R.string.tip_backspace_slide,
+    R.string.tip_long_press,
+    R.string.tip_quick_settings,
+    R.string.tip_clipboard,
+)
+
+private val HorizontalPadding = 16.dp
+
+private val BottomPadding = 12.dp
 
 @Preview(showBackground = true)
 @Composable

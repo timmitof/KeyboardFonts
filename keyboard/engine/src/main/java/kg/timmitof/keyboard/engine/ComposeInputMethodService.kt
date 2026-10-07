@@ -20,9 +20,6 @@ import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 
-/**
- * Базовый [InputMethodService] с поддержкой Compose.
- */
 internal abstract class ComposeInputMethodService : InputMethodService(),
     LifecycleOwner, SavedStateRegistryOwner, ViewModelStoreOwner, OnBackPressedDispatcherOwner {
 
@@ -62,13 +59,7 @@ internal abstract class ComposeInputMethodService : InputMethodService(),
         return onCreateComposeView()
     }
 
-    /**
-     * «Назад» до Android 13, где системного диспетчера ещё нет.
-     *
-     * Событие перехватывается, только когда его кто-то ждёт: иначе клавиатура
-     * должна свернуться, как и всегда. Само действие — на отпускании, чтобы
-     * долгое нажатие и отмена жеста работали как в системе.
-     */
+    /** «Назад» до Android 13. Перехватываем, только если есть слушатели (иначе клавиатура сворачивается), действие — на отпускании. */
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean = when {
         keyCode == KeyEvent.KEYCODE_BACK && onBackPressedDispatcher.hasEnabledCallbacks() -> {
             event.startTracking()

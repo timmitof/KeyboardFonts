@@ -23,10 +23,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kg.timmitof.core.ui.spaceCursorClickable
 import kg.timmitof.keyboard.domain.model.KeyboardLanguage
+import kg.timmitof.keyboard.presentation.sound.KeySound
 import kg.timmitof.keyboard.presentation.theme.KFTheme
 import kotlin.math.roundToInt
 
-/** Смещение пальца, за которое слайд по пробелу переключает один язык. */
 private val LanguageSlideStep = 80.dp
 
 @Composable
@@ -65,9 +65,11 @@ internal fun RowScope.SpaceKeyButton(
             .onSizeChanged { keyWidthPx = it.width },
         background = KFTheme.color.keyButtonBackground,
         shadowColor = KFTheme.color.keyButtonShadow,
-        customGestures = { interactionSource ->
+        sound = KeySound.SPACE,
+        customGestures = { interactionSource, onPress ->
             Modifier.spaceCursorClickable(
                 interactionSource = interactionSource,
+                onPress = onPress,
                 onTap = onClick,
                 onSlideStart = {
                     slideOffsetPx = 0f
@@ -125,7 +127,7 @@ private fun LanguageLabel(
             text = selectedLanguage.displayName,
             fontSize = 12.sp,
             fontWeight = FontWeight.Medium,
-            color = KFTheme.color.keyTextColor,
+            color = KFTheme.color.keyLabelColor,
             letterSpacing = 0.5.sp
         )
 
@@ -139,7 +141,7 @@ private fun LanguageArrows(label: String) {
         text = label,
         fontSize = 22.sp,
         fontWeight = FontWeight.Medium,
-        color = KFTheme.color.keyTextColor.copy(alpha = 0.5f),
+        color = KFTheme.color.keyLabelColor.copy(alpha = 0.5f),
         letterSpacing = 0.sp
     )
 }

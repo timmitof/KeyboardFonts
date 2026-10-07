@@ -22,26 +22,26 @@ fun DependencyHandler.androidTestImplementation(dependencyNotation: Any): Depend
 fun DependencyHandler.debugImplementation(dependencyNotation: Any): Dependency? =
     add("debugImplementation", dependencyNotation)
 
-/**
- * Префикс namespace модуля: [ProjectConfig.BASE_NAMESPACE] + корневой модуль пути.
- *
- * Примеры: `:keyboard:presentation` → `kg.timmitof.keyboard`,
- * `:feature_home:feature_home_presentation` → `kg.timmitof.feature_home` —
- * итоговый namespace слоя совпадает с пакетами исходников.
- */
+/** Namespace модуля: базовый префикс + родительские сегменты пути (`:keyboard:data` → `kg.timmitof.keyboard`). */
 fun Project.featureNamespacePrefix(): String {
-    val rootModule = path.split(":").firstOrNull { it.isNotBlank() }
-        ?: error("Invalid project path: $path")
+    val parts = path.split(":").filter { it.isNotBlank() }
+    if (parts.isEmpty()) error("Invalid project path: $path")
 
-    return "${ProjectConfig.BASE_NAMESPACE}.$rootModule"
+    val parentParts = parts.dropLast(1)
+    return (listOf(ProjectConfig.BASE_NAMESPACE) + parentParts).joinToString(".")
 }
 
+/** Путь к соседнему слою: `:keyboard:data` + "domain" → `:keyboard:domain`. */
 fun Project.featureModulePath(moduleName: String): String {
     val parts = path.split(":").filter { it.isNotBlank() }
     val rootModule = parts.getOrNull(0) ?: error("Invalid project path: $path")
 
-    return if (rootModule.contains("feature")) ":$rootModule:${rootModule}_$moduleName"
-        else ":$rootModule:$moduleName"
+    return if (rootModule.contains("feature")) {
+        ":$rootModule:${rootModule}_$moduleName"
+    } else {
+        val parentPath = parts.dropLast(1).joinToString(":")
+        ":$parentPath:$moduleName"
+    }
 }
 
 val Project.libs
