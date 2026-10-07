@@ -19,4 +19,12 @@ class AssetTextLoaderImpl @Inject constructor(
             null
         }
     }
+
+    override suspend fun loadBytes(path: String): ByteArray? = withContext(Dispatchers.IO) {
+        try {
+            assetManager.open(path).use { it.readBytes() }
+        } catch (e: Exception) {
+            null
+        }
+    }
 }

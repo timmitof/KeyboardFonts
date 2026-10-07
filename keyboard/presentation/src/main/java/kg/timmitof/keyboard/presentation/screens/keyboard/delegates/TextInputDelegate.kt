@@ -90,6 +90,7 @@ internal class TextInputDelegate(
 
         postSideEffect(KeyboardSideEffect.Input.ReplaceTextBeforeCursor(chars = 1, text = PERIOD_SPACE))
         reduce { state.copy(autoCorrection = AutoCorrection(original = "  ", corrected = PERIOD_SPACE)) }
+        releaseCapsLock()
         with(suggestionsDelegate) { applyLocalEdit { it.removingLast(1).appending(PERIOD_SPACE) } }
         return true
     }
@@ -104,6 +105,8 @@ internal class TextInputDelegate(
         // Подстановку пробелом можно выключить: тогда подсказки остаются, но принимает их только тап.
         val correction = typed.takeIf { it.isNotEmpty() && state.settings.isSpaceCommitsEnabled }
             ?.let { suggestionsDelegate.awaitCorrection(state) }
+
+        if (separator.isSeparator()) releaseCapsLock()
 
         if (correction != null) {
             val corrected = state.activeFont.apply(correction.text) + separator
@@ -138,6 +141,16 @@ internal class TextInputDelegate(
 
             forgetAutoCorrection()
             with(suggestionsDelegate) { applyLocalEdit { it.appending(separator) } }
+        }
+    }
+
+    /**
+     * Знак препинания закрывает набор капсом. Дальше Shift решает обычный авто-Shift по обновлённому
+     * снимку текста: после «.», «!», «?» — на одну букву, после запятой — выключен.
+     */
+    private suspend fun KeyboardSyntax.releaseCapsLock() {
+        if (state.shiftState == ShiftState.CAPS_LOCK) {
+            reduce { state.copy(shiftState = ShiftState.DISABLED) }
         }
     }
 
@@ -329,6 +342,7 @@ internal class TextInputDelegate(
     private fun String.isWordText(): Boolean = all(TextContext.Companion::isWordChar)
 
     private fun String.isSeparator(): Boolean = length == 1 && this[0] in WORD_SEPARATORS
+
 
     private companion object {
         const val WORD_SEPARATORS = ".,!?;:"

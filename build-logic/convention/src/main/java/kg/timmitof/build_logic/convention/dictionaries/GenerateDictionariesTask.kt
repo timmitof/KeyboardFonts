@@ -15,6 +15,7 @@ import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import java.io.File
 import java.util.Locale
+import java.util.zip.GZIPInputStream
 import kotlin.math.ln
 import kotlin.math.roundToInt
 
@@ -22,6 +23,8 @@ import kotlin.math.roundToInt
  * Частотный список → `dictionaries/<code>.dict`: `слово<TAB>частота`, частота — логарифм числа вхождений
  * в шкале 1..1000 (самое частое слово — 1000), строки отсортированы для бинарного поиска.
  * Шкала та же, что у прежних словарей: под неё подобраны веса `SuggestionEngine`.
+ *
+ * Если у языка задан список словоформ, рядом пишется `<code>.forms` — фильтр Блума ([WordFormsFilter]).
  */
 @CacheableTask
 abstract class GenerateDictionariesTask : DefaultTask() {
@@ -58,19 +61,52 @@ abstract class GenerateDictionariesTask : DefaultTask() {
                 )
             }
 
-            val dictionary = spec.rank(source)
+            val forms = spec.forms?.let { name ->
+                val file = sourcesByName[name]?.takeIf(File::isFile)
+                if (file == null) logger.warn("dictionaries: ${spec.code} — нет файла словоформ $name, собираю без фильтра")
+                file?.let { spec.readForms(it) }
+            }
+
+            val dictionary = spec.rank(source, forms)
             output.resolve("${spec.code}$EXTENSION").writeText(dictionary.text, Charsets.UTF_8)
             logger.lifecycle(
                 "dictionaries: ${spec.code} — ${dictionary.words} слов из ${spec.source}, " +
                         "отброшено похожих на опечатки: ${dictionary.typos}"
             )
+
+            if (forms != null) {
+                forms.writeTo(output.resolve("${spec.code}$FORMS_EXTENSION"))
+                logger.lifecycle(
+                    "dictionaries: ${spec.code} — фильтр словоформ: ${forms.size} форм из ${spec.forms}, " +
+                            "${forms.byteSize / 1024} КБ"
+                )
+            }
+        }
+    }
+
+    /** Размер фильтра зависит от числа форм, поэтому файл читается дважды: сначала счёт, потом заполнение. */
+    private fun DictionarySpec.readForms(file: File): WordFormsFilter {
+        var count = 0
+        forEachForm(file) { count++ }
+        return WordFormsFilter(count).also { filter -> forEachForm(file, filter::add) }
+    }
+
+    /** Формы приводятся к виду словаря и проходят тот же отбор, что и слова частотного списка. */
+    private inline fun DictionarySpec.forEachForm(file: File, action: (String) -> Unit) {
+        val folding = folding()
+        val input = file.inputStream().buffered().let { if (file.name.endsWith(".gz")) GZIPInputStream(it) else it }
+        input.bufferedReader(Charsets.UTF_8).useLines { lines ->
+            lines.forEach { line ->
+                val form = normalize(line.trim(), folding)
+                if (accepts(form)) action(form)
+            }
         }
     }
 
     private class Dictionary(val text: String, val words: Int, val typos: Int)
 
-    private fun DictionarySpec.rank(source: File): Dictionary {
-        val folding = folds.chunked(2).associate { it[0] to it[1] }
+    private fun DictionarySpec.rank(source: File, forms: WordFormsFilter?): Dictionary {
+        val folding = folding()
         val counts = HashMap<String, Long>(maxWords * 4)
 
         source.forEachLine(Charsets.UTF_8) { raw ->
@@ -79,9 +115,7 @@ abstract class GenerateDictionariesTask : DefaultTask() {
             if (space <= 0) return@forEachLine
 
             val count = line.substring(space + 1).toLongOrNull()?.takeIf { it > 0 } ?: return@forEachLine
-            val word = line.substring(0, space).lowercase(Locale.ROOT)
-                .map { folding[it] ?: it }
-                .joinToString("")
+            val word = normalize(line.substring(0, space), folding)
 
             if (accepts(word)) counts.merge(word, count, Long::plus)
         }
@@ -96,7 +130,8 @@ abstract class GenerateDictionariesTask : DefaultTask() {
             ranked.asSequence()
                 .takeWhile { scoreOf(it.value) >= typoNeighborMinScore }
                 .map { it.key }
-                .toList()
+                .toList(),
+            validForms = forms,
         )
 
         // Место отброшенной опечатки занимает следующее по частоте слово — размер словаря сохраняется.
@@ -119,6 +154,14 @@ abstract class GenerateDictionariesTask : DefaultTask() {
         return Dictionary(text = text, words = kept.size, typos = typos)
     }
 
+    private fun DictionarySpec.folding(): Map<Char, Char> = folds.chunked(2).associate { it[0] to it[1] }
+
+    private fun normalize(word: String, folding: Map<Char, Char>): String {
+        val lower = word.lowercase(Locale.ROOT)
+        if (folding.isEmpty()) return lower
+        return buildString(lower.length) { lower.forEach { append(folding[it] ?: it) } }
+    }
+
     /** Апостроф допустим только внутри слова (`don't`), одиночные буквы — только из белого списка. */
     private fun DictionarySpec.accepts(word: String): Boolean = when {
         word.isEmpty() || word.length > maxLength -> false
@@ -130,6 +173,7 @@ abstract class GenerateDictionariesTask : DefaultTask() {
     companion object {
         const val DIRECTORY = "dictionaries"
         const val EXTENSION = ".dict"
+        const val FORMS_EXTENSION = ".forms"
 
         private const val MAX_SCORE = 1000
     }

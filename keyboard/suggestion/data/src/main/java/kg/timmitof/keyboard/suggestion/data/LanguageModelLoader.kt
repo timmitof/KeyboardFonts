@@ -36,11 +36,19 @@ class LanguageModelLoader @Inject constructor(
             assetTextLoader.loadText("$DIRECTORY/$languageCode$BIGRAMS_EXTENSION")
         }
 
+        val formsBytes = async(Dispatchers.IO) {
+            assetTextLoader.loadBytes("$DIRECTORY/$languageCode$FORMS_EXTENSION")
+        }
+
         val words = wordsText.await() ?: return@coroutineScope LanguageModel.Empty
 
         val dictionary = async(Dispatchers.Default) { WordDictionary.parse(words) }
         val bigrams = async(Dispatchers.Default) {
             bigramsText.await()?.let(BigramTable::parse) ?: BigramTable.Empty
+        }
+        // Списка форм может и не быть (английский) — тогда язык работает без фильтра.
+        val forms = async(Dispatchers.Default) {
+            formsBytes.await()?.let(WordForms::parse) ?: WordForms.Empty
         }
         val parsed = dictionary.await()
 
@@ -49,6 +57,7 @@ class LanguageModelLoader @Inject constructor(
             bigrams = bigrams.await(),
             // Свой scope: индекс должен пережить вызвавшую корутину.
             spellIndex = indexScope.async { SpellCorrector.build(parsed) },
+            forms = forms.await(),
         )
     }
 
@@ -56,5 +65,6 @@ class LanguageModelLoader @Inject constructor(
         const val DIRECTORY = "dictionaries"
         const val DICTIONARY_EXTENSION = ".dict"
         const val BIGRAMS_EXTENSION = ".bigrams"
+        const val FORMS_EXTENSION = ".forms"
     }
 }

@@ -12,6 +12,7 @@ import org.gradle.kotlin.dsl.register
 /**
  * Собирает словари Т9 из частотных списков при сборке и кладёт их в ассеты как сгенерированные:
  * в репозитории — только исходный список, на телефоне — готовый отсортированный словарь без разбора.
+ * Рядом со словарём — фильтр словоформ `<code>.forms`, если у языка задан список форм.
  */
 class DictionariesPlugin : Plugin<Project> {
     override fun apply(target: Project) = with(target) {
@@ -23,7 +24,7 @@ class DictionariesPlugin : Plugin<Project> {
             languages.set(extension.languages)
             sources.from(
                 extension.sourceDirectory.zip(extension.languages) { directory, specs ->
-                    specs.map { directory.file(it.source) }
+                    specs.flatMap { spec -> listOfNotNull(spec.source, spec.forms).map(directory::file) }
                 }
             )
             staticAssets.set(layout.projectDirectory.dir("src/main/assets"))

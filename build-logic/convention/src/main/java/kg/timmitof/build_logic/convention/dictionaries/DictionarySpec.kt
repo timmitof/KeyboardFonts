@@ -9,6 +9,7 @@ import java.io.Serializable
  * @param folds пары символов подряд: `"ёе"` — «ё» сводится к «е».
  * @param trustedWords сколько самых частых слов берём без проверки на опечатку.
  * @param typoNeighborMinScore частота соседа в одну правку, при которой редкое слово считаем опечаткой.
+ * @param forms файл всех словоформ языка для фильтра Блума; `null` — фильтра нет.
  */
 data class DictionarySpec(
     val code: String,
@@ -20,9 +21,10 @@ data class DictionarySpec(
     val folds: String,
     val trustedWords: Int,
     val typoNeighborMinScore: Int,
+    val forms: String?,
 ) : Serializable {
 
     companion object {
-        private const val serialVersionUID = 1L
+        private const val serialVersionUID = 2L
     }
 }

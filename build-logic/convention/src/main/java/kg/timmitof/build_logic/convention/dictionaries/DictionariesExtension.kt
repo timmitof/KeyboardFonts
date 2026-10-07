@@ -11,6 +11,7 @@ import org.gradle.api.provider.ListProperty
  * dictionaries {
  *     language("ru_ru", source = "ru_full.txt") {
  *         alphabet = "абв…"
+ *         forms = "ru_forms.txt.gz"
  *         fold('ё', 'е')
  *     }
  * }
@@ -59,6 +60,13 @@ class DictionarySpecBuilder internal constructor(
      */
     var typoNeighborMinScore: Int = DEFAULT_TYPO_NEIGHBOR_MIN_SCORE
 
+    /**
+     * Файл всех словоформ языка (по слову в строке, можно `.gz`) в той же папке, что и [source].
+     * Из него собирается фильтр Блума `<code>.forms`: такие слова Т9 не заменяет автозаменой
+     * и не отбрасывает как опечатки. Не задан или файла нет — фильтра нет, язык работает как раньше.
+     */
+    var forms: String? = null
+
     private val folds = StringBuilder()
 
     /** Сводит [from] к [to] с суммированием частот — так же, как движок приводит ввод к форме словаря. */
@@ -80,6 +88,7 @@ class DictionarySpecBuilder internal constructor(
             folds = folds.toString(),
             trustedWords = trustedWords,
             typoNeighborMinScore = typoNeighborMinScore,
+            forms = forms,
         )
     }
 

@@ -6,8 +6,14 @@ import kotlin.math.abs
  * Узнаёт слова в одной правке (замена, вставка, удаление, перестановка соседних букв) от частых.
  * Индекс — как в SymSpell: частое слово и все его варианты без одной буквы. Совпадение вариантов
  * ещё не значит одну правку («xbc»/«bcx»), поэтому кандидат проверяется точно.
+ *
+ * @param validForms настоящие словоформы языка: они опечатками не считаются, даже если похожи на частое слово
+ * («толп» рядом с «толпа»).
  */
-internal class TypoFilter(frequentWords: Collection<String>) {
+internal class TypoFilter(
+    frequentWords: Collection<String>,
+    private val validForms: WordFormsFilter? = null,
+) {
 
     private val index = HashMap<String, MutableList<String>>(frequentWords.size * 8)
 
@@ -18,7 +24,7 @@ internal class TypoFilter(frequentWords: Collection<String>) {
     }
 
     fun isTypo(word: String): Boolean =
-        word.variants().any { variant ->
+        validForms?.mightContain(word) != true && word.variants().any { variant ->
             index[variant]?.any { frequent -> isOneEdit(word, frequent) } == true
         }
 

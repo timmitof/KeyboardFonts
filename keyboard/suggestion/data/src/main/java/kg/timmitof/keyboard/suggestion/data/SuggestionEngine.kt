@@ -91,9 +91,11 @@ class SuggestionEngine @Inject constructor() {
         }
 
         val isKnown = dictionary.contains(query) || user.knows(query)
-        // Своё слово, слово, которого ждёт фраза, и уже отвергнувшее замену набраны намеренно — их не трогаем.
+        // Своё слово, слово, которого ждёт фраза, уже отвергнувшее замену и настоящая словоформа языка
+        // («переключателя», «толп») набраны намеренно — их не трогаем.
         // Подсказки для них считаются как обычно, снимается только автозамена.
-        val isProtected = user.knows(query) || boosts.isExpected(query) || user.hasRejected(query)
+        val isProtected = user.knows(query) || boosts.isExpected(query) || user.hasRejected(query) ||
+                model.isWordForm(query)
 
         dictionary.rankByPrefix(query).forEach { index ->
             offer(dictionary.wordAt(index), dictionary.scoreAt(index), distance = 0)
@@ -125,6 +127,7 @@ class SuggestionEngine @Inject constructor() {
         val ranked = candidates.values.sortedByDescending { it.score }
         val best = ranked.firstOrNull() ?: return emptyList()
         val isAutoCorrect = request.allowsAutoCorrect && !isProtected &&
+                best.isClearWinnerOver(ranked.getOrNull(1)) &&
                 (if (isKnown) best.outweighs(query, dictionary, boosts) else best.replaces(query, expected)) &&
                 typed.isCorrectable(request.context.isSentenceStart)
 
@@ -172,15 +175,22 @@ class SuggestionEngine @Inject constructor() {
     }
 
     /**
-     * Можно ли молча подставить кандидата при пробеле. Дополнение — если набрано достаточно
-     * («прив» → «привет») или оно следует из фразы («как д» → «дела»).
+     * Можно ли молча подставить кандидата при пробеле. Дополнение — только если оно следует из фразы
+     * («как д» → «дела»): без контекста недописанное слово чаще дописано намеренно («отвал» ≠ «отвали»).
      */
     private fun Candidate.replaces(query: String, expected: Set<String>): Boolean = when {
         distance > 0 -> distance <= MAX_AUTO_CORRECT_DISTANCE &&
                 word.length <= query.length + AUTO_CORRECT_EXTRA_CHARS
 
-        else -> word in expected || query.length >= AUTO_COMPLETE_MIN_CHARS
+        else -> word in expected
     }
+
+    /**
+     * Близкие по очкам кандидаты — движок не уверен («быо» → «был» или «было»): подставлять наугад
+     * хуже, чем оставить оба в подсказках.
+     */
+    private fun Candidate.isClearWinnerOver(runnerUp: Candidate?): Boolean =
+        runnerUp == null || score - runnerUp.score >= AUTO_CORRECT_MIN_LEAD
 
     /**
      * Можно ли заменить известное слово: только на ожидаемое фразой, в одну правку и заметно
@@ -312,10 +322,11 @@ class SuggestionEngine @Inject constructor() {
 
         const val AUTO_CORRECT_EXTRA_CHARS = 1
 
+        /** На сколько первый кандидат должен опережать второй, чтобы подставиться автозаменой. */
+        const val AUTO_CORRECT_MIN_LEAD = 60
+
         /** На сколько частота кандидата должна превышать частоту набранного известного слова, чтобы его заменить. */
         const val KNOWN_WORD_REPLACE_GAIN = 300
-
-        const val AUTO_COMPLETE_MIN_CHARS = 3
 
         const val PREDICTION_FOLLOWERS = 24
 

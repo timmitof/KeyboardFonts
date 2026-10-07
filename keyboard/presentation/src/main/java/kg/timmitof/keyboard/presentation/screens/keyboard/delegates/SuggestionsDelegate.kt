@@ -150,7 +150,8 @@ internal class SuggestionsDelegate(
     suspend fun flush() = suggestionRepository.flush()
 
     /**
-     * Shift решаем только на границе слова: внутри слова он мог быть поднят вручную (имя), Caps Lock не сбрасываем никогда.
+     * Shift решаем только на границе слова: внутри слова он мог быть поднят вручную (имя).
+     * Caps Lock здесь не трогаем — его снимает знак препинания (`TextInputDelegate.releaseCapsLock`).
      */
     private fun KeyboardState.autoShift(context: TextContext): ShiftState = when {
         shiftState == ShiftState.CAPS_LOCK || !fieldType.autoCapitalize -> shiftState
