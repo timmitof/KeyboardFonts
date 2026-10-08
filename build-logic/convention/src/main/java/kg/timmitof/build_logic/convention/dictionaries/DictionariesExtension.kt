@@ -12,6 +12,8 @@ import org.gradle.api.provider.ListProperty
  *     language("ru_ru", source = "ru_full.txt") {
  *         alphabet = "абв…"
  *         forms = "ru_forms.txt.gz"
+ *         formsMinOccurrences = 1
+ *         formsFalsePositiveRate = 0.03
  *         fold('ё', 'е')
  *     }
  * }
@@ -43,7 +45,7 @@ class DictionarySpecBuilder internal constructor(
     var singleLetters: String = ""
 
     /**
-     * Сколько самых частых слов берём. Каждые 100 тыс. слов — примерно +12 МБ индекса опечаток `<code>.spell`
+     * Сколько самых частых слов берём. Каждые 100 тыс. слов — примерно +1,5 МБ индекса опечаток `<code>.spell`
      * в APK; на телефоне он отображается в память, а не копируется в кучу.
      */
     var maxWords: Int = DEFAULT_MAX_WORDS
@@ -64,11 +66,23 @@ class DictionarySpecBuilder internal constructor(
     var typoNeighborMinScore: Int = DEFAULT_TYPO_NEIGHBOR_MIN_SCORE
 
     /**
-     * Файл всех словоформ языка (по слову в строке, можно `.gz`) в той же папке, что и [source].
+     * Файл словоформ языка (одна лемма в строке, формы через пробел; можно `.gz`) в той же папке, что и [source].
      * Из него собирается фильтр Блума `<code>.forms`: такие слова Т9 не заменяет автозаменой
      * и не отбрасывает как опечатки. Не задан или файла нет — фильтра нет, язык работает как раньше.
      */
     var forms: String? = null
+
+    /**
+     * Лемма попадает в фильтр [forms], только если хоть одна её форма встречается в частотном списке
+     * не меньше стольких раз. Остальные леммы — редкие слова, которых в речи почти нет. `0` — все леммы.
+     */
+    var formsMinOccurrences: Int = DEFAULT_FORMS_MIN_OCCURRENCES
+
+    /**
+     * Доля ложных «да» фильтра [forms] — слов, ошибочно принятых за настоящие (их не исправит автозамена).
+     * Каждое удвоение доли экономит около 1,4 бита на форму.
+     */
+    var formsFalsePositiveRate: Double = DEFAULT_FORMS_FALSE_POSITIVE_RATE
 
     private val folds = StringBuilder()
 
@@ -80,6 +94,10 @@ class DictionarySpecBuilder internal constructor(
     internal fun build(): DictionarySpec {
         require(alphabet.isNotEmpty()) { "dictionaries: для $code не задан alphabet" }
         require(maxWords > 0) { "dictionaries: maxWords для $code должен быть больше нуля" }
+        require(formsMinOccurrences >= 0) { "dictionaries: formsMinOccurrences для $code не может быть отрицательным" }
+        require(formsFalsePositiveRate > 0.0 && formsFalsePositiveRate < 1.0) {
+            "dictionaries: formsFalsePositiveRate для $code должен быть в (0; 1)"
+        }
 
         return DictionarySpec(
             code = code,
@@ -92,6 +110,8 @@ class DictionarySpecBuilder internal constructor(
             trustedWords = trustedWords,
             typoNeighborMinScore = typoNeighborMinScore,
             forms = forms,
+            formsMinOccurrences = formsMinOccurrences,
+            formsFalsePositiveRate = formsFalsePositiveRate,
         )
     }
 
@@ -102,5 +122,8 @@ class DictionarySpecBuilder internal constructor(
         /** Размер прежних ручных словарей: на нём опечаток почти нет, и под него подобраны веса подсказок. */
         const val DEFAULT_TRUSTED_WORDS = 40_000
         const val DEFAULT_TYPO_NEIGHBOR_MIN_SCORE = 600
+
+        const val DEFAULT_FORMS_MIN_OCCURRENCES = 1
+        const val DEFAULT_FORMS_FALSE_POSITIVE_RATE = 0.03
     }
 }

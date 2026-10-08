@@ -12,6 +12,8 @@ dictionaries {
         alphabet = "абвгдежзийклмнопрстуфхцчшщъыьэюя"
         singleLetters = "авикосуя"
         forms = "ru_forms.txt.gz"
+        formsMinOccurrences = 1
+        formsFalsePositiveRate = 0.03
         fold('ё', 'е')
     }
     language("en_us", source = "en_full.txt") {

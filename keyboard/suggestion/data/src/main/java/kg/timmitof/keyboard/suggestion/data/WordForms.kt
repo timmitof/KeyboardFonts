@@ -3,7 +3,8 @@ package kg.timmitof.keyboard.suggestion.data
 import java.nio.ByteBuffer
 
 /**
- * Фильтр Блума всех словоформ языка: «да» ошибочно примерно в 1 % случаев, «нет» — всегда точно.
+ * Фильтр Блума словоформ языка (только леммы, которые встречаются в частотном списке): «да» ошибочно
+ * в заданной при сборке доле случаев (`formsFalsePositiveRate`, 3 %), «нет» — всегда точно.
  * Собирается при сборке плагином словарей (`WordFormsFilter` в build-logic), формат оттуда, хеш — [WordHash]:
  * `MAGIC, VERSION, bits, hashes, words` (Int, big-endian), затем `bits / 64` значений Long.
  *
@@ -35,7 +36,7 @@ internal class WordForms private constructor(
         val Empty = WordForms(LongArray(0), bits = 0, hashes = 0)
 
         private const val MAGIC = 0x4B465746
-        private const val VERSION = 1
+        private const val VERSION = 2
         private const val HEADER_INTS = 5
 
         /** Чужой или битый файл — без фильтра, как у языка без списка форм. */

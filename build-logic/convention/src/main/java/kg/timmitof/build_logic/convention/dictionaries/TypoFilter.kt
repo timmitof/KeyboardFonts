@@ -7,12 +7,13 @@ import kotlin.math.abs
  * Индекс — как в SymSpell: частое слово и все его варианты без одной буквы. Совпадение вариантов
  * ещё не значит одну правку («xbc»/«bcx»), поэтому кандидат проверяется точно.
  *
- * @param validForms настоящие словоформы языка: они опечатками не считаются, даже если похожи на частое слово
- * («толп» рядом с «толпа»).
+ * @param validForms настоящие словоформы языка из частотного списка: они опечатками не считаются, даже если
+ * похожи на частое слово («толп» рядом с «толпа»). Точное множество, а не фильтр Блума: ложное «да»
+ * оставило бы опечатку в словаре.
  */
 internal class TypoFilter(
     frequentWords: Collection<String>,
-    private val validForms: WordFormsFilter? = null,
+    private val validForms: Set<String> = emptySet(),
 ) {
 
     private val index = HashMap<String, MutableList<String>>(frequentWords.size * 8)
@@ -24,7 +25,7 @@ internal class TypoFilter(
     }
 
     fun isTypo(word: String): Boolean =
-        validForms?.mightContain(word) != true && word.variants().any { variant ->
+        word !in validForms && word.variants().any { variant ->
             index[variant]?.any { frequent -> isOneEdit(word, frequent) } == true
         }
 
