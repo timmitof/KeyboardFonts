@@ -18,6 +18,8 @@ android {
     // Интерфейс только на русском и английском: переводы библиотек на другие языки лишь раздувают resources.arsc.
     androidResources {
         localeFilters += listOf("ru", "en")
+        // Индекс опечаток Т9 (~12 МБ на язык) отображается в память прямо из APK — только если он не сжат.
+        noCompress += "spell"
     }
 
     packaging {

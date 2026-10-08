@@ -9,7 +9,8 @@ import kotlin.math.ln
 
 /**
  * Сводит подсказки одной шкалой очков из источников: частота словаря, пары слов
- * (словарные и выученные), личная статистика, слова текущего поля. Опечатки — через [SpellCorrector].
+ * (словарные и выученные), личная статистика, слова текущего поля. Опечатки — через [SpellCorrector]:
+ * слово целиком и, если дополнений мало, начало слова с одной правкой.
  */
 @Singleton
 class SuggestionEngine @Inject constructor() {
@@ -90,6 +91,13 @@ class SuggestionEngine @Inject constructor() {
             }
         }
 
+        // Опечатка в начале слова — только добавочный кандидат: найденное иначе слово он не перебивает.
+        fun offerPrefixTypo(word: String, score: Int) {
+            if (word == query || word in candidates) return
+            val total = score + boosts.of(word) - completionPenalty(word, query)
+            candidates[word] = Candidate(word, total, PREFIX_TYPO_DISTANCE, isPrefixTypo = true)
+        }
+
         val isKnown = dictionary.contains(query) || user.knows(query)
         // Своё слово, слово, которого ждёт фраза, уже отвергнувшее замену и настоящая словоформа языка
         // («переключателя», «толп») набраны намеренно — их не трогаем.
@@ -97,7 +105,8 @@ class SuggestionEngine @Inject constructor() {
         val isProtected = user.knows(query) || boosts.isExpected(query) || user.hasRejected(query) ||
                 model.isWordForm(query)
 
-        dictionary.rankByPrefix(query).forEach { index ->
+        val completions = dictionary.rankByPrefix(query)
+        completions.forEach { index ->
             offer(dictionary.wordAt(index), dictionary.scoreAt(index), distance = 0)
         }
 
@@ -105,8 +114,7 @@ class SuggestionEngine @Inject constructor() {
             maxTypoDistance(query, previous)?.let { maxDistance ->
                 // Двухбуквенный обрывок похож на слишком многое — исправляем только на то, чего ждёт фраза.
                 val onlyExpected = query.length < MIN_TYPO_LENGTH
-                // Индекс строится в фоне: пока не готов, обходимся без исправлений опечаток.
-                model.spellCorrector?.corrections(query, maxDistance)?.forEach { correction ->
+                model.spellCorrector.corrections(query, maxDistance).forEach { correction ->
                     if (onlyExpected && !boosts.isExpected(correction.word)) return@forEach
                     // Выученных слов нет в словаре (счёт 0) — берём оценку из личной частоты.
                     val base = correction.score.takeIf { it > 0 } ?: personalScore(user.countOf(correction.word))
@@ -124,17 +132,38 @@ class SuggestionEngine @Inject constructor() {
 
         val expected = expectedAfter(previous, query, model, user, boosts, ::offer)
 
+        // Ошибка во 2–4-й букве ломает и точный префикс, и поиск целого слова — строка подсказок пустеет.
+        // Ищем слова, чьё начало в одной правке от набранного, но только когда дополнений не хватает.
+        val exactCompletions = completions.count { dictionary.lengthAt(it) != query.length }
+        if (query.length >= MIN_TYPO_LENGTH && exactCompletions < PREFIX_TYPO_MAX_COMPLETIONS) {
+            model.spellCorrector.prefixCorrections(query, RANKING_SIZE, COMPLETION_PENALTY).forEach { correction ->
+                val base = correction.score.takeIf { it > 0 } ?: personalScore(user.countOf(correction.word))
+                offerPrefixTypo(
+                    word = correction.word,
+                    score = base - typoPenalty(correction.distance) +
+                            proximityBonus(query, correction.word.take(query.length)),
+                )
+            }
+        }
+
         val ranked = candidates.values.sortedByDescending { it.score }
-        val best = ranked.firstOrNull() ?: return emptyList()
-        val isAutoCorrect = request.allowsAutoCorrect && !isProtected &&
-                best.isClearWinnerOver(ranked.getOrNull(1)) &&
+        if (ranked.isEmpty()) return emptyList()
+
+        // Автозамена решается так, будто префиксных опечаток нет: они только подсказка.
+        val corrections = if (ranked.any { it.isPrefixTypo }) ranked.filterNot { it.isPrefixTypo } else ranked
+        val best = corrections.firstOrNull()
+        val isAutoCorrect = best != null && request.allowsAutoCorrect && !isProtected &&
+                best.isClearWinnerOver(corrections.getOrNull(1)) &&
                 (if (isKnown) best.outweighs(query, dictionary, boosts) else best.replaces(query, expected)) &&
                 typed.isCorrectable(request.context.isSentenceStart)
+
+        // Подставляемое слово всегда первое, даже если префиксная опечатка набрала больше очков.
+        val shown = if (isAutoCorrect && best != null && best !== ranked.first()) listOf(best) + (ranked - best) else ranked
 
         return buildList(MAX_SUGGESTIONS) {
             add(WordSuggestion(text = typed, isLiteral = !isKnown))
 
-            ranked.take(MAX_SUGGESTIONS - 1).forEachIndexed { index, candidate ->
+            shown.take(MAX_SUGGESTIONS - 1).forEachIndexed { index, candidate ->
                 add(
                     WordSuggestion(
                         text = candidate.word.matchCaseOf(typed),
@@ -214,10 +243,10 @@ class SuggestionEngine @Inject constructor() {
      * Для коротких обрывков исправление вредно: точное дополнение уже есть в префиксном поиске.
      * Две буквы исправляем в одну правку и только после предыдущего слова — фильтр по контексту в [complete].
      */
-    private fun maxTypoDistance(query: String, previous: String): Double? = when {
+    private fun maxTypoDistance(query: String, previous: String): Int? = when {
         query.length < MIN_WORD_LENGTH -> null
-        query.length < MIN_TYPO_LENGTH -> if (previous.isEmpty()) null else 1.0
-        query.length < TWO_EDITS_MIN_LENGTH -> 1.0
+        query.length < MIN_TYPO_LENGTH -> if (previous.isEmpty()) null else 1
+        query.length < TWO_EDITS_MIN_LENGTH -> 1
         else -> SpellCorrector.MAX_EDIT_DISTANCE
     }
 
@@ -276,7 +305,13 @@ class SuggestionEngine @Inject constructor() {
             surrounding.filter { it.length > query.length && it.startsWith(query) }
     }
 
-    private class Candidate(val word: String, val score: Int, val distance: Int) {
+    /** @param isPrefixTypo найден по началу слова с правкой: показывается, но автозамену не запускает. */
+    private class Candidate(
+        val word: String,
+        val score: Int,
+        val distance: Int,
+        val isPrefixTypo: Boolean = false,
+    ) {
 
         /** Число правок до [query]: у дополнений `distance == 0`, и правки — это дописанные буквы. */
         fun edits(query: String): Int = if (distance > 0) distance else word.length - query.length
@@ -295,6 +330,12 @@ class SuggestionEngine @Inject constructor() {
         const val TWO_EDITS_MIN_LENGTH = 8
 
         const val MAX_AUTO_CORRECT_DISTANCE = 1
+
+        /** Начало слова отличается от набранного одной правкой. */
+        const val PREFIX_TYPO_DISTANCE = 1
+
+        /** Ищем опечатку в начале, если точных дополнений не хватает на места в строке рядом с набранным. */
+        const val PREFIX_TYPO_MAX_COMPLETIONS = MAX_SUGGESTIONS - 1
 
         const val SURROUNDING_LIMIT = 32
 

@@ -1,61 +1,73 @@
 package kg.timmitof.keyboard.suggestion.data
 
-import com.darkrockstudios.symspellkt.common.SpellCheckSettings
-import com.darkrockstudios.symspellkt.common.Verbosity
-import com.darkrockstudios.symspellkt.impl.SymSpell
-
-/** SymSpell (symmetric delete): индекс удалений строится заранее, без линейного прохода по словарю. */
-internal class SpellCorrector private constructor(
-    private val symSpell: SymSpell,
-    private val dictionary: WordDictionary,
+/**
+ * Исправление опечаток: готовый индекс словаря ([DictionarySpellIndex], собирается при сборке)
+ * плюс маленький индекс выученных слов в памяти ([PersonalSpellIndex]). Оба только читаются на нажатие,
+ * поэтому корректор готов сразу после загрузки модели и не требует блокировок.
+ *
+ * @param dictionaryIndex индекс словаря; если файла нет — [SpellIndex] без результатов.
+ * @param isDictionaryWord есть ли слово в словаре: такие уже в [dictionaryIndex], в личный индекс не попадают.
+ */
+internal class SpellCorrector(
+    private val dictionaryIndex: SpellIndex,
+    private val personal: PersonalSpellIndex,
+    private val isDictionaryWord: (String) -> Boolean,
 ) {
 
-    class Correction(val word: String, val distance: Int, val score: Int)
+    fun corrections(query: String, maxDistance: Int = MAX_EDIT_DISTANCE): List<SpellIndex.Correction> =
+        merge(
+            dictionaryIndex.corrections(query, maxDistance),
+            personal.corrections(query, maxDistance),
+        )
 
-    @Synchronized
-    fun corrections(query: String, maxDistance: Double = MAX_EDIT_DISTANCE): List<Correction> =
-        symSpell.lookup(query, Verbosity.All, maxDistance)
-            .map { item ->
-                Correction(
-                    word = item.term,
-                    distance = item.distance.toInt(),
-                    score = dictionary.scoreOf(item.term),
-                )
-            }
+    /** Слова, начало которых в одной правке от [query]; подробнее — [SpellIndex.prefixCorrections]. */
+    fun prefixCorrections(query: String, limit: Int, lengthPenalty: Int): List<SpellIndex.Correction> =
+        merge(
+            dictionaryIndex.prefixCorrections(query, limit, lengthPenalty),
+            personal.prefixCorrections(query, limit, lengthPenalty),
+        )
 
-    @Synchronized
-    fun addWord(word: String, frequency: Int) {
-        symSpell.createDictionaryEntry(word, frequency)
+    fun addWord(word: String) {
+        if (!isDictionaryWord(word)) personal.add(word)
+    }
+
+    /** Выученное слово забыто (отменённая автозамена) — больше его не предлагаем как исправление. */
+    fun removeWord(word: String) {
+        personal.remove(word)
+    }
+
+    /** Личный индекс обычно пуст или мал — без лишних копий в частом случае. */
+    private fun merge(
+        dictionary: List<SpellIndex.Correction>,
+        personal: List<SpellIndex.Correction>,
+    ): List<SpellIndex.Correction> = when {
+        personal.isEmpty() -> dictionary
+        dictionary.isEmpty() -> personal
+        else -> {
+            val known = dictionary.mapTo(HashSet(dictionary.size)) { it.word }
+            dictionary + personal.filter { it.word !in known }
+        }
     }
 
     companion object {
 
-        const val MAX_EDIT_DISTANCE = 2.0
+        const val MAX_EDIT_DISTANCE = SpellIndex.MAX_DISTANCE
 
-        private const val PREFIX_LENGTH = 7
-        private const val TOP_K = 12
-
-        fun build(dictionary: WordDictionary): SpellCorrector {
-            val settings = SpellCheckSettings(
-                maxEditDistance = MAX_EDIT_DISTANCE,
-                prefixLength = PREFIX_LENGTH,
-                countThreshold = 1,
-                topK = TOP_K,
+        fun create(dictionary: WordDictionary, dictionaryIndex: SpellIndex?): SpellCorrector =
+            SpellCorrector(
+                dictionaryIndex = dictionaryIndex ?: NoSpellIndex,
+                personal = PersonalSpellIndex(dictionary::scoreOf),
+                isDictionaryWord = dictionary::contains,
             )
-            val symSpell = SymSpell(settings)
 
-            for (i in 0 until dictionary.size) {
-                symSpell.createDictionaryEntry(dictionary.wordAt(i), dictionary.scoreAt(i))
-            }
+        fun empty(): SpellCorrector = create(WordDictionary.Empty, dictionaryIndex = null)
+    }
 
-            return SpellCorrector(symSpell, dictionary)
-        }
+    /** Языка без файла индекса: исправления только по выученным словам. */
+    private object NoSpellIndex : SpellIndex {
+        override fun corrections(query: String, maxDistance: Int) = emptyList<SpellIndex.Correction>()
 
-        val Empty = SpellCorrector(
-            symSpell = SymSpell(
-                SpellCheckSettings(maxEditDistance = MAX_EDIT_DISTANCE),
-            ),
-            dictionary = WordDictionary.Empty,
-        )
+        override fun prefixCorrections(query: String, limit: Int, lengthPenalty: Int) =
+            emptyList<SpellIndex.Correction>()
     }
 }

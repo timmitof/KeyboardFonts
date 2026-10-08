@@ -10,8 +10,7 @@ import java.io.File
  * Формат файла (big-endian, как пишет [DataOutputStream]):
  * `MAGIC:Int, VERSION:Int, bits:Int, hashes:Int, words:Int`, затем `bits / 64` значений `Long`.
  *
- * Хеш продублирован в рантайме (`keyboard/suggestion/data/.../WordForms.kt`): build-logic — отдельная
- * сборка, общего кода у них нет. Менять только вместе с [VERSION].
+ * Хеш — [WordHash], он же продублирован в рантайме. Менять только вместе с [VERSION].
  */
 internal class WordFormsFilter(expectedWords: Int) {
 
@@ -31,7 +30,7 @@ internal class WordFormsFilter(expectedWords: Int) {
     val byteSize: Int get() = HEADER_BYTES + words.size * Long.SIZE_BYTES
 
     fun add(word: String) {
-        val hash = hash(word)
+        val hash = WordHash.hash(word)
         for (index in 0 until HASHES) {
             val bit = bitAt(hash, index)
             words[bit ushr 6] = words[bit ushr 6] or (1L shl bit)
@@ -40,7 +39,7 @@ internal class WordFormsFilter(expectedWords: Int) {
     }
 
     fun mightContain(word: String): Boolean {
-        val hash = hash(word)
+        val hash = WordHash.hash(word)
         for (index in 0 until HASHES) {
             val bit = bitAt(hash, index)
             if (words[bit ushr 6] and (1L shl bit) == 0L) return false
@@ -76,25 +75,5 @@ internal class WordFormsFilter(expectedWords: Int) {
         const val HASHES = 7
 
         private const val HEADER_BYTES = 5 * Int.SIZE_BYTES
-
-        private const val FNV_OFFSET = -0x340d631b7bdddcdbL
-        private const val FNV_PRIME = 0x100000001b3L
-        private const val MIX_FIRST = -0xae502812aa7333L
-        private const val MIX_SECOND = -0x3b314601e57a13adL
-
-        /**
-         * FNV-1a по байтам UTF-16 (младший, потом старший) с финальным перемешиванием из MurmurHash3.
-         * Не `String.hashCode()`: его 32 бит мало для миллионов слов, а реализация — не наш контракт.
-         */
-        fun hash(word: String): Long {
-            var hash = FNV_OFFSET
-            for (char in word) {
-                hash = (hash xor (char.code and 0xFF).toLong()) * FNV_PRIME
-                hash = (hash xor (char.code ushr 8).toLong()) * FNV_PRIME
-            }
-            hash = (hash xor (hash ushr 33)) * MIX_FIRST
-            hash = (hash xor (hash ushr 33)) * MIX_SECOND
-            return hash xor (hash ushr 33)
-        }
     }
 }

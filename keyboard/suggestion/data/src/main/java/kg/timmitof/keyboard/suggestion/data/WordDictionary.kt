@@ -22,6 +22,11 @@ internal class WordDictionary(
 
     fun lengthAt(index: Int): Int = endOf(index) - starts[index]
 
+    /** Все слова одной строкой: слово [index] — участок `[startAt(index), startAt(index) + lengthAt(index))`. */
+    val text: CharSequence get() = words
+
+    fun startAt(index: Int): Int = starts[index]
+
     fun indexOf(word: String): Int {
         val index = lowerBound(word)
         return if (index < size && compareAt(index, word) == 0) index else -1
@@ -31,11 +36,16 @@ internal class WordDictionary(
 
     fun scoreOf(word: String): Int = indexOf(word).takeIf { it >= 0 }?.let(scores::get) ?: 0
 
+    /** Слова на [prefix] идут подряд с [lowerBound] — конец тоже ищется бинарно, а не проходом. */
     fun prefixRange(prefix: String): IntRange {
         val from = lowerBound(prefix)
-        var to = from
-        while (to < size && startsWith(to, prefix)) to++
-        return from until to
+        var low = from
+        var high = size
+        while (low < high) {
+            val middle = (low + high) ushr 1
+            if (startsWith(middle, prefix)) low = middle + 1 else high = middle
+        }
+        return from until low
     }
 
     private fun endOf(index: Int): Int = starts[index + 1] - 1

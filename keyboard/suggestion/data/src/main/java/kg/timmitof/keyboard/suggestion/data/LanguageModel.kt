@@ -1,26 +1,17 @@
 package kg.timmitof.keyboard.suggestion.data
 
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-
 /**
- * Словарь и биграммы доступны сразу, индекс опечаток [spellIndex] строится в фоне
- * и дольше всего: пока он не готов, подсказки работают без исправлений.
+ * Всё, что нужно подсказкам одного языка. Индекс опечаток собран при сборке и только отображается
+ * в память, поэтому [spellCorrector] готов вместе со словарём — без фонового построения.
  *
  * @param forms все словоформы языка, а не только частые из [dictionary]; у языка без списка форм — пустой.
  */
 internal class LanguageModel(
     val dictionary: WordDictionary,
     val bigrams: BigramTable,
-    val spellIndex: Deferred<SpellCorrector>,
+    val spellCorrector: SpellCorrector,
     private val forms: WordForms = WordForms.Empty,
 ) {
-
-    /** Готовый индекс или `null`, если он ещё строится (или сборка упала). */
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val spellCorrector: SpellCorrector?
-        get() = if (spellIndex.isCompleted && !spellIndex.isCancelled) spellIndex.getCompleted() else null
 
     /**
      * Настоящая словоформа языка, пусть и редкая («переключателя», «толп»): автозамена её не трогает.
@@ -32,17 +23,19 @@ internal class LanguageModel(
      * Нет в словаре и среди словоформ, но в одной правке есть частое словарное слово — скорее всего, промах по клавише.
      * Зовётся при завершении слова, а не на нажатие: поиск по индексу на каждую букву не нужен.
      */
-    fun isLikelyTypo(word: String, corrector: SpellCorrector): Boolean =
+    fun isLikelyTypo(word: String): Boolean =
         !dictionary.contains(word) && !isWordForm(word) &&
-                corrector.corrections(word, maxDistance = 1.0).any { correction ->
+                spellCorrector.corrections(word, maxDistance = 1).any { correction ->
                     correction.distance == 1 && correction.score >= TYPO_NEIGHBOR_MIN_SCORE
                 }
 
     companion object {
-        val Empty = LanguageModel(
+
+        /** Свой экземпляр на язык: личный индекс опечаток изменяемый, делить его между языками нельзя. */
+        fun empty(): LanguageModel = LanguageModel(
             WordDictionary.Empty,
             BigramTable.Empty,
-            CompletableDeferred(SpellCorrector.Empty),
+            SpellCorrector.empty(),
         )
 
         /** Шкала 1..1000; от 600 и выше — примерно 1,2–1,6 тыс. самых частых слов, где опечатки и случаются. */

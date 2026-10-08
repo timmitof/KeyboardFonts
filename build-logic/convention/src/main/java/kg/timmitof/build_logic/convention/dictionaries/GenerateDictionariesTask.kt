@@ -25,6 +25,7 @@ import kotlin.math.roundToInt
  * Шкала та же, что у прежних словарей: под неё подобраны веса `SuggestionEngine`.
  *
  * Если у языка задан список словоформ, рядом пишется `<code>.forms` — фильтр Блума ([WordFormsFilter]).
+ * Рядом всегда пишется `<code>.spell` — индекс опечаток по номерам строк словаря ([SpellIndexWriter]).
  */
 @CacheableTask
 abstract class GenerateDictionariesTask : DefaultTask() {
@@ -70,8 +71,15 @@ abstract class GenerateDictionariesTask : DefaultTask() {
             val dictionary = spec.rank(source, forms)
             output.resolve("${spec.code}$EXTENSION").writeText(dictionary.text, Charsets.UTF_8)
             logger.lifecycle(
-                "dictionaries: ${spec.code} — ${dictionary.words} слов из ${spec.source}, " +
+                "dictionaries: ${spec.code} — ${dictionary.words.size} слов из ${spec.source}, " +
                         "отброшено похожих на опечатки: ${dictionary.typos}"
+            )
+
+            val spell = SpellIndexWriter(dictionary.words, spec.alphabet)
+                .writeTo(output.resolve("${spec.code}$SPELL_EXTENSION"))
+            logger.lifecycle(
+                "dictionaries: ${spec.code} — индекс опечаток: ${spell.postings} записей в ${spell.buckets} корзинах, " +
+                        "${spell.bytes / 1024} КБ"
             )
 
             if (forms != null) {
@@ -103,7 +111,8 @@ abstract class GenerateDictionariesTask : DefaultTask() {
         }
     }
 
-    private class Dictionary(val text: String, val words: Int, val typos: Int)
+    /** @param words слова в порядке строк [text] — по этим номерам ссылается индекс опечаток. */
+    private class Dictionary(val text: String, val words: List<String>, val typos: Int)
 
     private fun DictionarySpec.rank(source: File, forms: WordFormsFilter?): Dictionary {
         val folding = folding()
@@ -147,11 +156,11 @@ abstract class GenerateDictionariesTask : DefaultTask() {
         }
 
         // Сортировка по кодам символов — ровно так сравнивает WordDictionary.
-        val text = kept
-            .sortedBy { it.key }
+        val sorted = kept.sortedBy { it.key }
+        val text = sorted
             .joinToString(separator = "\n", postfix = "\n") { (word, count) -> "$word\t${scoreOf(count)}" }
 
-        return Dictionary(text = text, words = kept.size, typos = typos)
+        return Dictionary(text = text, words = sorted.map { it.key }, typos = typos)
     }
 
     private fun DictionarySpec.folding(): Map<Char, Char> = folds.chunked(2).associate { it[0] to it[1] }
@@ -174,6 +183,7 @@ abstract class GenerateDictionariesTask : DefaultTask() {
         const val DIRECTORY = "dictionaries"
         const val EXTENSION = ".dict"
         const val FORMS_EXTENSION = ".forms"
+        const val SPELL_EXTENSION = ".spell"
 
         private const val MAX_SCORE = 1000
     }

@@ -2,7 +2,6 @@ package kg.timmitof.keyboard.suggestion.data.repository
 
 import kg.timmitof.keyboard.suggestion.data.LanguageModel
 import kg.timmitof.keyboard.suggestion.data.LanguageModelLoader
-import kg.timmitof.keyboard.suggestion.data.SpellCorrector
 import kg.timmitof.keyboard.suggestion.data.SuggestionEngine
 import kg.timmitof.keyboard.suggestion.data.UserDictionaryStore
 import kg.timmitof.keyboard.suggestion.data.UserLanguageModel
@@ -13,7 +12,6 @@ import kg.timmitof.keyboard.suggestion.domain.model.WordSuggestion
 import kg.timmitof.keyboard.suggestion.domain.repository.SuggestionRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.SupervisorJob
@@ -39,17 +37,13 @@ class SuggestionRepositoryImpl @Inject constructor(
 
     private val mutex = Mutex()
 
-    // SymSpell — изменяемый индекс; личные слова добавляем в него один раз на язык.
+    // Личные слова переносим в индекс опечаток модели один раз на язык, дальше он пополняется при обучении.
     private val syncedUserModels = ConcurrentHashMap.newKeySet<String>()
 
     // Отложенное сохранение у каждого языка своё: переход ru -> en не должен отменять запись ru.
     private val saveJobs = ConcurrentHashMap<String, Job>()
 
     private val dirtyLanguages = ConcurrentHashMap.newKeySet<String>()
-
-    // Отложенное обучение выполняется по одному, в порядке поступления.
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private val learning = Dispatchers.IO.limitedParallelism(1)
 
     override suspend fun suggest(request: SuggestionRequest): List<WordSuggestion> {
         val user = userModel(request.languageCode)
@@ -78,12 +72,10 @@ class SuggestionRepositoryImpl @Inject constructor(
         val user = userModel(languageCode)
         val model = languageModel(languageCode, user)
 
-        withSpellIndex(model) { corrector ->
-            // Отказ от автозамены — тоже осознанный выбор: такое слово не опечатка.
-            val trusted = isDeliberate || user.hasRejected(learned)
-            val isSuspicious = !trusted && model.isLikelyTypo(learned, corrector)
-            if (user.learn(previous, learned, isSuspicious)) corrector.addWord(learned, USER_WORD_FREQUENCY)
-        }
+        // Отказ от автозамены — тоже осознанный выбор: такое слово не опечатка.
+        val trusted = isDeliberate || user.hasRejected(learned)
+        val isSuspicious = !trusted && model.isLikelyTypo(learned)
+        if (user.learn(previous, learned, isSuspicious)) model.spellCorrector.addWord(learned)
         scheduleSave(languageCode)
     }
 
@@ -99,12 +91,13 @@ class SuggestionRepositoryImpl @Inject constructor(
         val model = languageModel(languageCode, user)
         val previous = previousWord.toDictionaryForm().takeIf { it.isLearnable() }.orEmpty()
 
-        // Через ту же очередь, что и обучение: пока индекс строится, сама замена могла ещё не выучиться.
-        // Из SymSpell слово не убираем — библиотека умеет только добавлять; счётчик и пара откатываются.
-        withSpellIndex(model) {
-            if (wasLearned) user.unlearn(previous, corrected.toDictionaryForm())
-            if (original.isNotEmpty()) user.reject(original)
+        if (wasLearned) {
+            val replacement = corrected.toDictionaryForm()
+            user.unlearn(previous, replacement)
+            // Забытое целиком слово уходит и из исправлений; словарные там и не лежали.
+            if (user.countOf(replacement) == 0) model.spellCorrector.removeWord(replacement)
         }
+        if (original.isNotEmpty()) user.reject(original)
         scheduleSave(languageCode)
 
         // Отвергнутое уже в отказах — выучится сразу, без проверки на опечатку.
@@ -135,33 +128,13 @@ class SuggestionRepositoryImpl @Inject constructor(
         languageCode: String,
         user: UserLanguageModel,
     ): LanguageModel = languageModelLoader.load(languageCode).also { model ->
-        // Быстрый путь: add атомарен, мьютекс не нужен.
+        // add атомарен, мьютекс не нужен. Тысячи слов по десятку вариантов — в фоне: первая подсказка их не ждёт.
         if (syncedUserModels.add(languageCode)) {
             scope.launch {
-                val corrector = model.spellIndex.await()
-                user.wordFrequencies().forEach { (word, count) ->
-                    if (user.isSuspicious(word)) return@forEach
-                    corrector.addWord(
-                        word = word,
-                        frequency = (count.toLong() * USER_WORD_FREQUENCY)
-                            .coerceAtMost(Int.MAX_VALUE.toLong())
-                            .toInt(),
-                    )
+                user.wordFrequencies().keys.forEach { word ->
+                    if (!user.isSuspicious(word)) model.spellCorrector.addWord(word)
                 }
             }
-        }
-    }
-
-    /**
-     * Обучению нужен индекс опечаток. Готов — работаем сразу (это завершение слова, не нажатие клавиши),
-     * иначе — в фоне, когда достроится: ввод ждать индекс не должен.
-     */
-    private suspend fun withSpellIndex(model: LanguageModel, action: (SpellCorrector) -> Unit) {
-        val corrector = model.spellCorrector
-        if (corrector != null) {
-            action(corrector)
-        } else {
-            scope.launch(learning) { action(model.spellIndex.await()) }
         }
     }
 
@@ -184,6 +157,5 @@ class SuggestionRepositoryImpl @Inject constructor(
 
     private companion object {
         const val SAVE_DELAY_MILLIS = 4_000L
-        const val USER_WORD_FREQUENCY = 500
     }
 }

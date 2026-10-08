@@ -22,7 +22,6 @@ dictionaries {
 
 dependencies {
     implementation(project(":keyboard:data"))
-    implementation(libs.symspellkt)
 
     testImplementation(libs.junit)
 }
