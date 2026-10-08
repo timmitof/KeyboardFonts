@@ -108,7 +108,7 @@ internal fun DumpingSplash(
                     text = stringResource(SplashR.string.app_name),
                     style = MaterialTheme.typography.displaySmall,
                     color = MaterialTheme.colorScheme.onBackground,
-                    fontFamily = FontFamily(Font(R.font.sf_pro_rounded_black)),
+                    fontFamily = FontFamily(Font(R.font.nunito_black)),
                     fontWeight = FontWeight.Bold
                 )
             }
