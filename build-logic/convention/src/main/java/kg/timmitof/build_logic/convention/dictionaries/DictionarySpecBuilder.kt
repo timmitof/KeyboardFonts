@@ -1,45 +1,19 @@
 package kg.timmitof.build_logic.convention.dictionaries
 
-import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.provider.ListProperty
+import kg.timmitof.build_logic.convention.languages.LanguagesDsl
 
 /**
- * Словари Т9 из частотных списков (`слово число` построчно, как в hermitdave/FrequencyWords).
- * Исходники лежат вне ассетов, в APK уходят только готовые `<code>.dict` и индекс опечаток `<code>.spell`.
- *
- * ```
- * dictionaries {
- *     language("ru_ru", source = "ru_full.txt") {
- *         alphabet = "абв…"
- *         forms = "ru_forms.txt.gz"
- *         formsMinOccurrences = 1
- *         formsFalsePositiveRate = 0.03
- *         fold('ё', 'е')
- *     }
- * }
- * ```
+ * Правила словаря Т9 одного языка — блок `dictionary(source = …) { … }` в каталоге `keyboardLanguages`.
+ * Исходник — частотный список (`слово число` построчно, как в hermitdave/FrequencyWords) в `dictionaries/`
+ * модуля подсказок; в APK уходят только готовые `<code>.dict` и индекс опечаток `<code>.spell`.
  */
-abstract class DictionariesExtension {
-
-    /** Папка с исходными списками; по умолчанию `dictionaries/` модуля. */
-    abstract val sourceDirectory: DirectoryProperty
-
-    /** Заполняется через [language]; напрямую не трогаем. */
-    abstract val languages: ListProperty<DictionarySpec>
-
-    /** Язык без исходника пропускается — пока списка нет, работает словарь из ассетов. */
-    fun language(code: String, source: String, configure: DictionarySpecBuilder.() -> Unit) {
-        languages.add(DictionarySpecBuilder(code, source).apply(configure).build())
-    }
-}
-
+@LanguagesDsl
 class DictionarySpecBuilder internal constructor(
     private val code: String,
     private val source: String,
+    /** Допустимые символы слова — алфавит языка. Остальные слова (цифры, латиница в русском) отбрасываются. */
+    private val alphabet: String,
 ) {
-
-    /** Допустимые символы слова, в нижнем регистре. Остальные слова (цифры, латиница в русском) отбрасываются. */
-    var alphabet: String = ""
 
     /** Однобуквенные слова, которые оставляем (предлоги, союзы); прочие одиночные буквы — шум субтитров. */
     var singleLetters: String = ""
@@ -92,7 +66,6 @@ class DictionarySpecBuilder internal constructor(
     }
 
     internal fun build(): DictionarySpec {
-        require(alphabet.isNotEmpty()) { "dictionaries: для $code не задан alphabet" }
         require(maxWords > 0) { "dictionaries: maxWords для $code должен быть больше нуля" }
         require(formsMinOccurrences >= 0) { "dictionaries: formsMinOccurrences для $code не может быть отрицательным" }
         require(formsFalsePositiveRate > 0.0 && formsFalsePositiveRate < 1.0) {

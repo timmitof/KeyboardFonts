@@ -6,6 +6,7 @@ import kg.timmitof.keyboard.domain.model.BackgroundPhoto
 import kg.timmitof.keyboard.domain.model.KeyColorTarget
 import kg.timmitof.keyboard.domain.model.KeyboardBackground
 import kg.timmitof.keyboard.domain.model.KeyboardHeight
+import kg.timmitof.keyboard.domain.model.KeyboardLanguages
 import kg.timmitof.keyboard.domain.model.KeyboardSettings
 import kg.timmitof.keyboard.domain.model.KeyboardSoundPack
 import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
@@ -45,6 +46,12 @@ interface SettingsInteractor {
     suspend fun deletePhoto(id: Long)
 
     suspend fun getSummary(): SettingsSummary
+
+    /** Каталог, включённые языки и выбранный; клавиатура переключает только включённые, в их порядке. */
+    fun observeLanguages(): Flow<KeyboardLanguages>
+
+    /** Пустой список игнорируется — последний язык удалить нельзя. Выученные слова удалённого языка остаются. */
+    suspend fun setEnabledLanguages(codes: List<String>)
 
     fun observeFontPanel(): Flow<FontPanel>
 

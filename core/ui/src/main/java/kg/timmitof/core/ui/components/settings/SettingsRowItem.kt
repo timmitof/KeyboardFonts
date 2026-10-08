@@ -54,8 +54,6 @@ private const val DisabledAlpha = 0.4f
 
 private val ColorSwatchSize = 30.dp
 
-private val BadgeShape = RoundedCornerShape(8.dp)
-
 @Composable
 internal fun SettingsRowItem(row: SettingsRow, latest: State<SettingsRow>) {
     val alpha by animateFloatAsState(
@@ -93,7 +91,7 @@ internal fun SettingsRowItem(row: SettingsRow, latest: State<SettingsRow>) {
         verticalAlignment = Alignment.CenterVertically,
     ) {
         row.icon?.let { icon -> RowIcon(icon = icon, alpha = { alpha }) }
-        (row as? SettingsRow.Info)?.badge?.let { badge -> RowBadge(text = badge) }
+        (row as? SettingsRow.Info)?.badge?.let { badge -> SettingsBadge(text = badge) }
 
         Column(modifier = Modifier.weight(1f)) {
             RowTitles(row = row, alpha = { alpha })
@@ -152,28 +150,6 @@ private fun RowIcon(icon: Painter, alpha: () -> Float) {
             .size(22.dp)
             .graphicsLayer { this.alpha = alpha() },
     )
-}
-
-@Composable
-private fun RowBadge(text: String) {
-    val tones = MaterialTheme.appColors.hint
-
-    Box(
-        modifier = Modifier
-            .size(width = 34.dp, height = 28.dp)
-            .clip(BadgeShape)
-            .background(tones.container),
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(
-            text = text,
-            fontFamily = FontFamily.Monospace,
-            fontWeight = FontWeight.Medium,
-            fontSize = 12.sp,
-            color = tones.onContainer,
-            maxLines = 1,
-        )
-    }
 }
 
 @Composable

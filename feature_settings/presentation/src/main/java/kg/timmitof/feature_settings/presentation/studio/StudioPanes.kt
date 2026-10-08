@@ -28,7 +28,6 @@ import kg.timmitof.feature_settings.presentation.components.VisibleFontsList
 import kg.timmitof.keyboard.clipboard.domain.model.ClipboardBoard
 import kg.timmitof.keyboard.domain.model.KeyColorTarget
 import kg.timmitof.keyboard.domain.model.KeyboardHeight
-import kg.timmitof.keyboard.domain.model.KeyboardLanguage
 import kg.timmitof.keyboard.domain.model.KeyboardSettings
 import kg.timmitof.keyboard.domain.model.KeyboardSoundPack
 import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
@@ -238,25 +237,6 @@ internal fun InputPane(
             checked = settings[KeyboardToggle.LEARN_FROM_INPUT],
             onCheckedChange = { onToggle(KeyboardToggle.LEARN_FROM_INPUT, it) },
         )
-    }
-}
-
-@Composable
-internal fun LanguagesPane(
-    languages: List<KeyboardLanguage>,
-    selected: KeyboardLanguage?,
-) {
-    val header = stringResource(R.string.languages_header)
-    val current = stringResource(R.string.languages_current)
-
-    SettingsSection(title = header) {
-        languages.forEach { language ->
-            info(
-                title = language.displayName,
-                badge = language.shortName,
-                description = current.takeIf { language.code == selected?.code },
-            )
-        }
     }
 }
 

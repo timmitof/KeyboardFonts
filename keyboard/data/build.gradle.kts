@@ -1,4 +1,8 @@
-plugins { id("keyboardfonts.data") }
+plugins {
+    id("keyboardfonts.data")
+    // assets/languages.json собирается из каталога keyboard/build.gradle.kts.
+    id("keyboardfonts.languageCatalog")
+}
 
 dependencies {
     implementation(project(":core:data"))

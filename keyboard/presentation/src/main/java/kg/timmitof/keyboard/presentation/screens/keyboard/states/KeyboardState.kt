@@ -26,6 +26,8 @@ internal data class KeyboardState(
     val languages: List<KeyboardLanguage> = emptyList(),
     val selectedLanguage: KeyboardLanguage? = null,
     val fieldLanguage: KeyboardLanguage? = null,
+    /** Подмена для почты и пароля: латинский язык из включённых, иначе из каталога. */
+    val latinLanguage: KeyboardLanguage? = null,
     val fonts: List<KeyboardFont> = emptyList(),
     val selectedFont: KeyboardFont = KeyboardFont.Default,
     val isFontsExpanded: Boolean = true,
@@ -57,7 +59,7 @@ internal data class KeyboardState(
     fun latinLanguageFor(type: KeyboardFieldType): KeyboardLanguage? {
         if (!type.requiresLatinLayout || selectedLanguage?.isLatin != false) return null
 
-        return languages.firstOrNull(KeyboardLanguage::isLatin)
+        return latinLanguage
     }
 
     val enterAction: EnterAction get() = fieldContext.enterAction
@@ -76,8 +78,10 @@ internal data class KeyboardState(
     val activeFont: KeyboardFont
         get() = if (allowsFonts) selectedFont else KeyboardFont.Default
 
+    /** Язык без словаря Т9 работает без подсказок, автозамены и обучения. */
     val allowsSuggestions: Boolean
-        get() = settings.isSuggestionsEnabled && fieldType.allowsSuggestions && layer.showsSuggestions
+        get() = settings.isSuggestionsEnabled && fieldType.allowsSuggestions && layer.showsSuggestions &&
+                activeLanguage?.hasDictionary == true
 
     val hasSuggestions: Boolean
         get() = suggestions.isNotEmpty() && allowsSuggestions

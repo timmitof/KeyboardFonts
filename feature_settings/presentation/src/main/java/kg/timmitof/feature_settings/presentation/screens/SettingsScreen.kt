@@ -94,6 +94,9 @@ internal fun ContainerDSLBuilder<SettingsSideEffect, SettingsEvent>.SettingsCont
         { ids -> sendEvent(SettingsEvent.PanelFontsChanged(ids)) }
     }
     val onResetFonts = remember { { sendEvent(SettingsEvent.ResetFontPanelClicked) } }
+    val onEnabledLanguages = remember<(List<String>) -> Unit> {
+        { codes -> sendEvent(SettingsEvent.EnabledLanguagesChanged(codes)) }
+    }
     val onSoundPack = remember<(KeyboardSoundPack) -> Unit> {
         { pack -> sendEvent(SettingsEvent.SoundPackChanged(pack)) }
     }
@@ -117,7 +120,7 @@ internal fun ContainerDSLBuilder<SettingsSideEffect, SettingsEvent>.SettingsCont
 
     // Каждая панель читает только свой кусок состояния: derivedStateOf не будит остальных при чужих изменениях.
     val settings = remember(state) { derivedStateOf { state.value.settings } }
-    val summary = remember(state) { derivedStateOf { state.value.summary } }
+    val languages = remember(state) { derivedStateOf { state.value.languages } }
     val fontPanel = remember(state) { derivedStateOf { state.value.fontPanel } }
     val photos = remember(state) { derivedStateOf { state.value.photos } }
     val clipboard = remember(state) { derivedStateOf { state.value.clipboard } }
@@ -195,8 +198,10 @@ internal fun ContainerDSLBuilder<SettingsSideEffect, SettingsEvent>.SettingsCont
                     InputPane(settings = settings.value, onToggle = onToggle)
                 }
                 tab(StudioTab.LANGUAGES) {
-                    val current = summary.value
-                    LanguagesPane(languages = current.languages, selected = current.selectedLanguage)
+                    LanguagesPane(
+                        languages = languages.value,
+                        onEnabledLanguages = onEnabledLanguages,
+                    )
                 }
                 tab(StudioTab.SIZE) {
                     SizePane(settings = settings.value, onHeight = onHeight, onToggle = onToggle)

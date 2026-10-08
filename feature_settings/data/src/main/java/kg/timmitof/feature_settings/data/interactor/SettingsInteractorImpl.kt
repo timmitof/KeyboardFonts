@@ -8,6 +8,7 @@ import kg.timmitof.keyboard.domain.model.BackgroundPhoto
 import kg.timmitof.keyboard.domain.model.KeyColorTarget
 import kg.timmitof.keyboard.domain.model.KeyboardBackground
 import kg.timmitof.keyboard.domain.model.KeyboardHeight
+import kg.timmitof.keyboard.domain.model.KeyboardLanguages
 import kg.timmitof.keyboard.domain.model.KeyboardSettings
 import kg.timmitof.keyboard.domain.model.KeyboardSoundPack
 import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
@@ -78,16 +79,21 @@ class SettingsInteractorImpl @Inject constructor(
 
     override suspend fun getSummary(): SettingsSummary {
         val keyboardState = keyboardContract.getKeyboardState()
-        val selectedLanguage = languageRepository.getSelectedLanguage()
+        val selectedLanguage = languageRepository.getLanguages().selected
 
         return SettingsSummary(
-            languages = languageRepository.getLanguages(),
             selectedLanguage = selectedLanguage,
             selectedFont = fontRepository.getSelectedFont(),
-            previewLayout = keyboardLayoutRepository.getLayout(selectedLanguage.code),
+            previewLayout = keyboardLayoutRepository.getLayout(selectedLanguage.layout),
             isKeyboardReady = keyboardState.isEnabled && keyboardState.isSelected,
         )
     }
+
+    override fun observeLanguages(): Flow<KeyboardLanguages> =
+        languageRepository.observeLanguages()
+
+    override suspend fun setEnabledLanguages(codes: List<String>) =
+        languageRepository.setEnabledLanguages(codes)
 
     override fun observeFontPanel(): Flow<FontPanel> =
         fontRepository.observePanel()

@@ -24,6 +24,7 @@ class SettingsViewModel @Inject constructor(
     init {
         observeSettings()
         observeFontPanel()
+        observeLanguages()
         observePhotos()
         observeClipboard()
     }
@@ -41,6 +42,7 @@ class SettingsViewModel @Inject constructor(
             is SettingsEvent.SoundVolumeChanged -> setSoundVolume(event.volume)
             is SettingsEvent.PanelFontsChanged -> setPanelFonts(event.ids)
             is SettingsEvent.ResetFontPanelClicked -> resetFontPanel()
+            is SettingsEvent.EnabledLanguagesChanged -> setEnabledLanguages(event.codes)
             is SettingsEvent.TabSelected -> selectTab(event.tab)
             is SettingsEvent.ClearRecentClipboardClicked -> clearRecentClipboard()
             is SettingsEvent.ScreenResumed -> loadSummary()
@@ -70,6 +72,19 @@ class SettingsViewModel @Inject constructor(
         settingsInteractor.observeFontPanel().collect { panel ->
             reduce { state.copy(fontPanel = panel) }
         }
+    }
+
+    /** Удалили выбранный язык — превью клавиатуры показывает новый, поэтому сводка перечитывается. */
+    private fun observeLanguages() = intent {
+        settingsInteractor.observeLanguages().collect { languages ->
+            reduce { state.copy(languages = languages) }
+            val shown = state.summary.selectedLanguage ?: return@collect
+            if (languages.selected.code != shown.code) loadSummary()
+        }
+    }
+
+    private fun setEnabledLanguages(codes: List<String>) = intent {
+        if (codes.isNotEmpty()) settingsInteractor.setEnabledLanguages(codes)
     }
 
     private fun setPanelFonts(ids: List<String>) = intent {

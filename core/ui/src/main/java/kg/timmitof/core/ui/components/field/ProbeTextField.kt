@@ -33,8 +33,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
- * Поле для пробы шрифтов: текст хранится локально, плейсхолдер показывает пример.
- * Внешний вид задаётся параметрами; [trailing] — необязательный хвост справа (например, кнопка).
+ * Поле для пробы шрифтов и поиска: текст хранится локально, плейсхолдер показывает пример.
+ * Внешний вид задаётся параметрами; [leading] и [trailing] — необязательные иконка слева и хвост справа (например, кнопка).
+ * [onTextChange] — для тех, кому текст нужен снаружи (поиск по списку).
  */
 @Composable
 fun ProbeTextField(
@@ -51,7 +52,9 @@ fun ProbeTextField(
     singleLine: Boolean = false,
     autoFocus: Boolean = false,
     focusRequester: FocusRequester = remember { FocusRequester() },
+    leading: (@Composable RowScope.() -> Unit)? = null,
     trailing: (@Composable RowScope.() -> Unit)? = null,
+    onTextChange: (String) -> Unit = {},
 ) {
     var text by rememberSaveable { mutableStateOf("") }
     val textColor = MaterialTheme.colorScheme.onBackground
@@ -70,10 +73,14 @@ fun ProbeTextField(
             .padding(contentPadding),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        leading?.invoke(this)
         Box(modifier = Modifier.weight(1f)) {
             BasicTextField(
                 value = text,
-                onValueChange = { text = it },
+                onValueChange = {
+                    text = it
+                    onTextChange(it)
+                },
                 singleLine = singleLine,
                 textStyle = style,
                 cursorBrush = SolidColor(cursorColor),

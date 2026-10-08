@@ -39,7 +39,7 @@ internal class LayerDelegate(
             ?.takeIf { layer == KeyboardLayer.LETTERS }
             ?.let { return keyboardLayoutRepository.getLayout(it) }
 
-        val layoutName = (if (layer.usesLanguageLayout) activeLanguage?.code else layer.fixedLayoutName)
+        val layoutName = (if (layer.usesLanguageLayout) activeLanguage?.layout else layer.fixedLayoutName)
             ?: return null
         val isLetters = layer == KeyboardLayer.LETTERS
         val key = LayoutKey(
@@ -58,8 +58,8 @@ internal class LayerDelegate(
         return (if (key.hasDigitsRow) letters.withDigitsRow() else letters).also { cache[key] = it }
     }
 
-    suspend fun preloadLayouts(languageCodes: List<String>) {
-        (languageCodes + KeyboardLayer.entries.mapNotNull { it.fixedLayoutName })
+    suspend fun preloadLayouts(languageLayouts: List<String>) {
+        (languageLayouts + KeyboardLayer.entries.mapNotNull { it.fixedLayoutName })
             .distinct()
             .forEach { keyboardLayoutRepository.getLayout(it) }
     }

@@ -3,6 +3,7 @@ package kg.timmitof.keyboard.presentation.screens.keyboard
 import androidx.lifecycle.viewModelScope
 import kg.timmitof.core.ui.base.BaseSideEffect
 import kg.timmitof.core.ui.base.BaseViewModel
+import kg.timmitof.keyboard.domain.model.KeyboardLanguage
 import kg.timmitof.keyboard.domain.model.KeyboardSettings
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.ClipboardDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.EmojiDelegate
@@ -124,16 +125,16 @@ internal class KeyboardViewModel(
         with(languageDelegate) { loadLanguages() }
 
         // Прогрев словаря и эмодзи — параллельно с остальной загрузкой, первый ввод не ждёт.
-        val languageCode = state.activeLanguage?.code
-        viewModelScope.launch { languageCode?.let { suggestionsDelegate.prefetch(it) } }
+        prefetchDictionary(state.activeLanguage)
         viewModelScope.launch { emojiDelegate.prefetchVariants() }
 
         with(fontDelegate) { loadFonts() }
         with(layerDelegate) { applyLayer(KeyboardLayer.LETTERS) }
 
-        layerDelegate.preloadLayouts(state.languages.map { it.code })
+        layerDelegate.preloadLayouts(state.languages.map { it.layout })
         observeSuggestions()
         observeSettings()
+        observeLanguages()
         observeFontPanel()
         observeClipboard()
     }
@@ -184,6 +185,31 @@ internal class KeyboardViewModel(
                 }
             }
             .launchIn(viewModelScope)
+    }
+
+    /**
+     * Включённые языки и их порядок меняют в настройках. Первая эмиссия совпадает с загруженными и ничего не делает;
+     * сменился язык ввода (удалили выбранный) — пересобираем раскладку и подсказки.
+     */
+    private fun observeLanguages() {
+        languageDelegate.languages
+            .onEach { languages ->
+                intent {
+                    val isLanguageChanged = with(languageDelegate) { applyLanguages(languages) }
+                    if (isLanguageChanged) {
+                        prefetchDictionary(state.activeLanguage)
+                        with(suggestionsDelegate) { requestSuggestions() }
+                    }
+                }
+                layerDelegate.preloadLayouts(languages.enabled.map { it.layout })
+            }
+            .launchIn(viewModelScope)
+    }
+
+    /** Прогрев словаря — в фоне, первый ввод не ждёт. Язык без словаря прогревать нечего. */
+    private fun prefetchDictionary(language: KeyboardLanguage?) {
+        val code = language?.takeIf(KeyboardLanguage::hasDictionary)?.code ?: return
+        viewModelScope.launch { suggestionsDelegate.prefetch(code) }
     }
 
     private val KeyboardSettings.affectsSuggestions: List<Boolean>

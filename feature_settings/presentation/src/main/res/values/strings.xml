@@ -111,6 +111,16 @@
     <!-- Языки -->
     <string name="languages_header">Активные · по порядку переключения</string>
     <string name="languages_current">Сейчас на клавиатуре</string>
+    <string name="languages_with_suggestions">Подсказки и автозамена</string>
+    <string name="languages_without_suggestions">Без подсказок</string>
+    <string name="languages_reorder_hint">Порядок — это порядок переключения пробелом. Последний язык убрать нельзя, выученные слова убранного языка сохранятся.</string>
+    <string name="languages_remove">Убрать язык</string>
+    <string name="languages_add">Добавить язык</string>
+    <string name="languages_add_title">Добавить язык</string>
+    <string name="languages_search">Найти язык</string>
+    <string name="languages_connected_header">Подключены</string>
+    <string name="languages_catalog_header">Все языки</string>
+    <string name="languages_add_action">Добавить</string>
 
     <!-- Размер -->
     <string name="size_height_title">Высота</string>

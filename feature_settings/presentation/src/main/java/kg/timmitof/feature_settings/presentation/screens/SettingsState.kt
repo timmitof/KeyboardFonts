@@ -11,6 +11,7 @@ import kg.timmitof.keyboard.domain.model.BackgroundPhoto
 import kg.timmitof.keyboard.domain.model.KeyColorTarget
 import kg.timmitof.keyboard.domain.model.KeyboardBackground
 import kg.timmitof.keyboard.domain.model.KeyboardHeight
+import kg.timmitof.keyboard.domain.model.KeyboardLanguages
 import kg.timmitof.keyboard.domain.model.KeyboardSettings
 import kg.timmitof.keyboard.domain.model.KeyboardSoundPack
 import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
@@ -23,6 +24,8 @@ data class SettingsState(
     val summary: SettingsSummary = SettingsSummary(),
     val clipboard: ClipboardBoard = ClipboardBoard(),
     val fontPanel: FontPanel = FontPanel(),
+    /** `null` — ещё не загружены. */
+    val languages: KeyboardLanguages? = null,
     val selectedTab: StudioTab = StudioTab.Default,
     val photos: List<BackgroundPhoto> = emptyList(),
 ) : BaseState() {
@@ -53,6 +56,9 @@ sealed class SettingsEvent : BaseEvent.UiEvent() {
     data class PanelFontsChanged(val ids: List<String>) : SettingsEvent()
 
     data object ResetFontPanelClicked : SettingsEvent()
+
+    /** Новый порядок включённых языков: перестановка, удаление и добавление из каталога. */
+    data class EnabledLanguagesChanged(val codes: List<String>) : SettingsEvent()
 
     data class TabSelected(val tab: StudioTab) : SettingsEvent()
 
