@@ -89,8 +89,8 @@ object FontCatalog {
 
     /** Заглавные с узким неразрывным пробелом после каждой буквы и цифры: «П Р И В Е Т». */
     private fun spacedCaps(): Map<Char, String> {
-        val map = HashMap<Char, String>(160)
-        val letters = ('A'..'Z') + ('a'..'z') + ('А'..'я') + 'Ё' + 'ё' + ('0'..'9')
+        val map = HashMap<Char, String>(400)
+        val letters = ('A'..'Z') + ('a'..'z') + ('Ѐ'..'ӿ').filter(Char::isLetter) + ('0'..'9')
         letters.forEach { map[it] = "${it.uppercaseChar()}${StyledText.LETTER_SPACING}" }
         return map
     }
