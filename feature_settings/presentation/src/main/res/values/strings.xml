@@ -7,6 +7,7 @@
 
     <!-- Предпросмотр -->
     <string name="studio_preview_sample">Hello</string>
+    <string name="studio_preview_sample_cyrillic">Привет</string>
     <string name="studio_preview_check">Проверить</string>
 
     <!-- Вкладки -->
@@ -94,6 +95,15 @@
     <string name="font_name_monospace">Моноширинный</string>
     <string name="font_name_underline">Подчёркнутый</string>
     <string name="font_name_strikethrough">Зачёркнутый</string>
+    <string name="font_name_double_underline">Двойное подчёркивание</string>
+    <string name="font_name_slashed">Косое перечёркивание</string>
+    <string name="font_name_clouds">Облака</string>
+    <string name="font_name_arc">Дуга сверху</string>
+    <string name="font_name_dot_above">Точки сверху</string>
+    <string name="font_name_tilde_above">Волна сверху</string>
+    <string name="font_name_spaced_caps">Разрядка</string>
+    <string name="font_name_old_slavonic">Старославянский</string>
+    <string name="font_name_latin_only">%1$s · только латиница</string>
 
     <!-- Ввод -->
     <string name="input_suggestions_title">Подсказки T9</string>

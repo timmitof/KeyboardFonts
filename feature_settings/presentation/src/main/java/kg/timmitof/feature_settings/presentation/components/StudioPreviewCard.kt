@@ -28,6 +28,8 @@ import kg.timmitof.feature_settings.domain.model.SettingsSummary
 import kg.timmitof.keyboard.domain.model.KeyboardBackground
 import kg.timmitof.keyboard.domain.model.KeyboardSettings
 import kg.timmitof.keyboard.font.domain.model.KeyboardFont
+import kg.timmitof.keyboard.presentation.components.fontScript
+import kg.timmitof.keyboard.presentation.components.orDefaultFor
 import kg.timmitof.keyboard.presentation.preview.KeyboardPreview
 
 @Composable
@@ -40,6 +42,8 @@ internal fun StudioPreviewCard(
     checkLabel: String,
     modifier: Modifier = Modifier,
 ) {
+    val script = summary.selectedLanguage.fontScript
+
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -49,8 +53,8 @@ internal fun StudioPreviewCard(
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         TryField(
-            placeholder = remember(summary.selectedFont, sample) {
-                "${summary.selectedFont.apply(sample)} $SampleEmoji"
+            placeholder = remember(summary.selectedFont, sample, script) {
+                "${summary.selectedFont.orDefaultFor(script).apply(sample)} $SampleEmoji"
             },
             checkLabel = checkLabel,
         )
@@ -61,6 +65,7 @@ internal fun StudioPreviewCard(
             fonts = fonts,
             selectedFont = summary.selectedFont,
             languageName = summary.selectedLanguage?.displayName.orEmpty(),
+            script = script,
         )
     }
 }

@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.sp
 import kg.timmitof.keyboard.domain.model.KeyboardKey
 import kg.timmitof.keyboard.domain.model.KeyboardLayout
 import kg.timmitof.keyboard.domain.model.KeyboardSettings
+import kg.timmitof.keyboard.font.domain.model.FontScript
 import kg.timmitof.keyboard.font.domain.model.KeyboardFont
 import kg.timmitof.keyboard.presentation.R
 import kg.timmitof.keyboard.presentation.components.KeyCornerRadius
@@ -48,6 +49,9 @@ import kg.timmitof.keyboard.presentation.components.KeyRowHeight
 import kg.timmitof.keyboard.presentation.components.KeyRowSpacing
 import kg.timmitof.keyboard.presentation.components.KeySpacing
 import kg.timmitof.keyboard.presentation.components.TopBarHeight
+import kg.timmitof.keyboard.presentation.components.fontSample
+import kg.timmitof.keyboard.presentation.components.orDefaultFor
+import kg.timmitof.keyboard.presentation.components.supporting
 import kg.timmitof.keyboard.presentation.components.keys.keySurface
 import kg.timmitof.keyboard.presentation.theme.KFTheme
 import kg.timmitof.keyboard.presentation.theme.KeyboardTheme
@@ -63,8 +67,12 @@ fun KeyboardPreview(
     selectedFont: KeyboardFont,
     languageName: String,
     modifier: Modifier = Modifier,
+    script: FontScript = FontScript.LATIN,
     shape: Shape = PreviewShape,
 ) {
+    // Как на самой клавиатуре: стили без поддержки алфавита раскладки не показываются и не применяются.
+    val scriptFonts = remember(fonts, script) { fonts.supporting(script) }
+    val font = selectedFont.orDefaultFor(script)
     val isSystemDark = isSystemInDarkTheme()
     val appearance = remember(settings, isSystemDark) { settings.appearance(isSystemDark) }
 
@@ -89,8 +97,9 @@ fun KeyboardPreview(
                 .padding(horizontal = 2.dp, vertical = 5.dp),
         ) {
             PreviewTopBar(
-                fonts = fonts,
-                selectedFont = selectedFont,
+                fonts = scriptFonts,
+                selectedFont = font,
+                sample = script.fontSample,
                 isFontsVisible = settings.isFontsPanelEnabled,
             )
 
@@ -104,7 +113,7 @@ fun KeyboardPreview(
                     row.forEach { key ->
                         PreviewKey(
                             key = key,
-                            font = selectedFont,
+                            font = font,
                             languageName = languageName,
                         )
                     }
@@ -118,6 +127,7 @@ fun KeyboardPreview(
 private fun PreviewTopBar(
     fonts: List<KeyboardFont>,
     selectedFont: KeyboardFont,
+    sample: String,
     isFontsVisible: Boolean,
 ) {
     Row(
@@ -135,7 +145,7 @@ private fun PreviewTopBar(
         ) {
             Row(horizontalArrangement = Arrangement.spacedBy(3.dp)) {
                 fonts.take(PreviewFontsCount).forEach { font ->
-                    PreviewFontChip(font = font, isSelected = font.id == selectedFont.id)
+                    PreviewFontChip(font = font, sample = sample, isSelected = font.id == selectedFont.id)
                 }
             }
         }
@@ -147,8 +157,8 @@ private fun PreviewTopBar(
 }
 
 @Composable
-private fun PreviewFontChip(font: KeyboardFont, isSelected: Boolean) {
-    val text = remember(font) { font.apply(FontSample) }
+private fun PreviewFontChip(font: KeyboardFont, sample: String, isSelected: Boolean) {
+    val text = remember(font, sample) { font.apply(sample) }
 
     Box(
         modifier = Modifier
@@ -300,7 +310,6 @@ private const val PreviewScale = 0.66f
 
 private const val PreviewFontsCount = 4
 
-private const val FontSample = "Abc"
 private const val SymbolsLabel = "123"
 private const val AbcLabel = "ABC"
 

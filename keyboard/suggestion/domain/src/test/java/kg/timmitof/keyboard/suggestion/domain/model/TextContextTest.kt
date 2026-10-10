@@ -75,4 +75,11 @@ class TextContextTest {
         assertEquals(TextContext.MAX_BEFORE_LENGTH, long.before.length)
         assertTrue(long.before.endsWith("б"))
     }
+
+    @Test
+    fun `стилизованное слово с разрядкой и знаками — одно слово`() {
+        assertEquals("П\u202FР\u202FИ\u202F", TextContext(before = "ок П\u202FР\u202FИ\u202F").composingWord)
+        assertEquals("п\u0336р\u0336", TextContext(before = "ок п\u0336р\u0336").composingWord)
+        assertEquals("ок", TextContext(before = "ок д\u0336").previousWord)
+    }
 }

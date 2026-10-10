@@ -48,6 +48,8 @@ import kg.timmitof.keyboard.domain.model.KeyboardHeight
 import kg.timmitof.keyboard.domain.model.KeyboardSoundPack
 import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
 import kg.timmitof.keyboard.domain.model.KeyboardToggle
+import kg.timmitof.keyboard.font.domain.model.FontScript
+import kg.timmitof.keyboard.presentation.components.fontScript
 
 @Composable
 fun SettingsScreen(
@@ -122,6 +124,7 @@ internal fun ContainerDSLBuilder<SettingsSideEffect, SettingsEvent>.SettingsCont
     val settings = remember(state) { derivedStateOf { state.value.settings } }
     val languages = remember(state) { derivedStateOf { state.value.languages } }
     val fontPanel = remember(state) { derivedStateOf { state.value.fontPanel } }
+    val fontScript = remember(state) { derivedStateOf { state.value.summary.selectedLanguage.fontScript } }
     val photos = remember(state) { derivedStateOf { state.value.photos } }
     val clipboard = remember(state) { derivedStateOf { state.value.clipboard } }
     val isKeyboardReady by remember(state) { derivedStateOf { state.value.summary.isKeyboardReady } }
@@ -189,6 +192,7 @@ internal fun ContainerDSLBuilder<SettingsSideEffect, SettingsEvent>.SettingsCont
                     FontsPane(
                         settings = settings.value,
                         panel = fontPanel.value,
+                        script = fontScript.value,
                         onToggle = onToggle,
                         onPanelFonts = onPanelFonts,
                         onReset = onResetFonts,
@@ -237,7 +241,13 @@ private fun StudioPreview(
         draft = { draft.value },
         summary = state.value.summary,
         fonts = state.value.fontPanel.visible,
-        sample = stringResource(R.string.studio_preview_sample),
+        sample = stringResource(
+            if (state.value.summary.selectedLanguage.fontScript == FontScript.CYRILLIC) {
+                R.string.studio_preview_sample_cyrillic
+            } else {
+                R.string.studio_preview_sample
+            }
+        ),
         checkLabel = stringResource(R.string.studio_preview_check),
     )
 }

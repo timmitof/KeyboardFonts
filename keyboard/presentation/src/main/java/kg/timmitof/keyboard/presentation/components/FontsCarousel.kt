@@ -43,6 +43,7 @@ private val FontPillHeight = 32.dp
 internal fun FontsCarousel(
     fonts: List<KeyboardFont>,
     selectedFontId: String,
+    sample: String,
     onFontSelect: (KeyboardFont) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -65,7 +66,7 @@ internal fun FontsCarousel(
         itemsIndexed(fonts, key = { _, font -> font.id }) { index, font ->
             val isSelected = index == selectedIndex
             FontPill(
-                preview = remember(font) { font.apply("Abc") },
+                preview = remember(font, sample) { font.apply(sample) },
                 isSelected = isSelected,
                 isResettable = isSelected && !font.isDefault,
                 onClick = { onFontSelect(font) },

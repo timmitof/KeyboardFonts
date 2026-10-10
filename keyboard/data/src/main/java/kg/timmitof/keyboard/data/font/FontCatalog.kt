@@ -1,6 +1,8 @@
 package kg.timmitof.keyboard.data.font
 
+import kg.timmitof.keyboard.font.domain.model.FontScript
 import kg.timmitof.keyboard.font.domain.model.KeyboardFont
+import kg.timmitof.keyboard.font.domain.model.StyledText
 
 object FontCatalog {
 
@@ -9,7 +11,7 @@ object FontCatalog {
     private fun buildFonts(): List<KeyboardFont> = listOf(
         KeyboardFont(KeyboardFont.DEFAULT_ID, emptyMap()),
 
-        KeyboardFont(
+        latin(
             "script",
             math(upper = 0x1D49C, lower = 0x1D4B6).override(
                 'B' to 0x212C, 'E' to 0x2130, 'F' to 0x2131, 'H' to 0x210B, 'I' to 0x2110,
@@ -17,17 +19,17 @@ object FontCatalog {
                 'e' to 0x212F, 'g' to 0x210A, 'o' to 0x2134,
             ),
         ),
-        KeyboardFont("bold_script", math(upper = 0x1D4D0, lower = 0x1D4EA)),
+        latin("bold_script", math(upper = 0x1D4D0, lower = 0x1D4EA)),
 
-        KeyboardFont(
+        latin(
             "fraktur",
             math(upper = 0x1D504, lower = 0x1D51E).override(
                 'C' to 0x212D, 'H' to 0x210C, 'I' to 0x2111, 'R' to 0x211C, 'Z' to 0x2128,
             ),
         ),
-        KeyboardFont("bold_fraktur", math(upper = 0x1D56C, lower = 0x1D586)),
+        latin("bold_fraktur", math(upper = 0x1D56C, lower = 0x1D586)),
 
-        KeyboardFont(
+        latin(
             "double_struck",
             math(upper = 0x1D538, lower = 0x1D552, digit = 0x1D7D8).override(
                 'C' to 0x2102, 'H' to 0x210D, 'N' to 0x2115, 'P' to 0x2119,
@@ -35,24 +37,40 @@ object FontCatalog {
             ),
         ),
 
-        KeyboardFont("circled", circled()),
-        KeyboardFont("squared", squared()),
-        KeyboardFont("small_caps", smallCaps()),
+        latin("circled", circled()),
+        latin("squared", squared()),
+        latin("small_caps", smallCaps()),
 
-        KeyboardFont("bold", math(upper = 0x1D400, lower = 0x1D41A, digit = 0x1D7CE)),
-        KeyboardFont("italic", math(upper = 0x1D434, lower = 0x1D44E).override('h' to 0x210E)),
-        KeyboardFont("bold_italic", math(upper = 0x1D468, lower = 0x1D482)),
+        latin("bold", math(upper = 0x1D400, lower = 0x1D41A, digit = 0x1D7CE)),
+        latin("italic", math(upper = 0x1D434, lower = 0x1D44E).override('h' to 0x210E)),
+        latin("bold_italic", math(upper = 0x1D468, lower = 0x1D482)),
 
-        KeyboardFont("sans", math(upper = 0x1D5A0, lower = 0x1D5BA, digit = 0x1D7E2)),
-        KeyboardFont("sans_bold", math(upper = 0x1D5D4, lower = 0x1D5EE, digit = 0x1D7EC)),
-        KeyboardFont("sans_italic", math(upper = 0x1D608, lower = 0x1D622)),
-        KeyboardFont("sans_bold_italic", math(upper = 0x1D63C, lower = 0x1D656)),
+        latin("sans", math(upper = 0x1D5A0, lower = 0x1D5BA, digit = 0x1D7E2)),
+        latin("sans_bold", math(upper = 0x1D5D4, lower = 0x1D5EE, digit = 0x1D7EC)),
+        latin("sans_italic", math(upper = 0x1D608, lower = 0x1D622)),
+        latin("sans_bold_italic", math(upper = 0x1D63C, lower = 0x1D656)),
 
-        KeyboardFont("monospace", math(upper = 0x1D670, lower = 0x1D68A, digit = 0x1D7F6)),
+        latin("monospace", math(upper = 0x1D670, lower = 0x1D68A, digit = 0x1D7F6)),
 
-        KeyboardFont("underline", combining(0x0332)),
-        KeyboardFont("strikethrough", combining(0x0336)),
+        marks("underline", 0x0332),
+        marks("strikethrough", 0x0336),
+        marks("double_underline", 0x0333),
+        marks("slashed", 0x0338),
+        marks("clouds", 0x035C, 0x0361),
+        marks("arc", 0x0361),
+        marks("dot_above", 0x0307),
+        marks("tilde_above", 0x0303),
+
+        KeyboardFont("spaced_caps", spacedCaps()),
+        KeyboardFont("old_slavonic", oldSlavonic(), scripts = CyrillicOnly),
     )
+
+    private fun latin(id: String, charMap: Map<Char, String>): KeyboardFont =
+        KeyboardFont(id, charMap, scripts = LatinOnly)
+
+    /** Знаки ставятся после каждой буквы и цифры любого алфавита — таблица на каждую букву не нужна. */
+    private fun marks(id: String, vararg marks: Int): KeyboardFont =
+        KeyboardFont(id, emptyMap(), marks = marks.joinToString("") { codePoint(it) })
 
     private fun math(upper: Int, lower: Int, digit: Int = ABSENT): MutableMap<Char, String> {
         val map = HashMap<Char, String>(72)
@@ -69,12 +87,32 @@ object FontCatalog {
         return this
     }
 
-    private fun combining(mark: Int): Map<Char, String> {
-        val suffix = codePoint(mark)
-        val map = HashMap<Char, String>(72)
-        ('A'..'Z').forEach { map[it] = "$it$suffix" }
-        ('a'..'z').forEach { map[it] = "$it$suffix" }
-        ('0'..'9').forEach { map[it] = "$it$suffix" }
+    /** Заглавные с узким неразрывным пробелом после каждой буквы и цифры: «П Р И В Е Т». */
+    private fun spacedCaps(): Map<Char, String> {
+        val map = HashMap<Char, String>(160)
+        val letters = ('A'..'Z') + ('a'..'z') + ('А'..'я') + 'Ё' + 'ё' + ('0'..'9')
+        letters.forEach { map[it] = "${it.uppercaseChar()}${StyledText.LETTER_SPACING}" }
+        return map
+    }
+
+    /**
+     * Старославянский вид: исторические буквы из блоков Cyrillic (U+0460–U+047F) и Cyrillic Extended-B
+     * (U+A640–U+A69F) там, где у современной буквы есть прямой предок. Остальные буквы не меняются.
+     */
+    private fun oldSlavonic(): Map<Char, String> {
+        val map = HashMap<Char, String>(32)
+        fun letter(plain: Char, upper: Int, lower: Int) {
+            map[plain.uppercaseChar()] = codePoint(upper)
+            map[plain] = codePoint(lower)
+        }
+        letter('е', upper = 0x0462, lower = 0x0463) // ѣ ять
+        letter('з', upper = 0xA640, lower = 0xA641) // ꙁ зело
+        letter('о', upper = 0x047A, lower = 0x047B) // ѻ широкое о
+        letter('у', upper = 0xA64A, lower = 0xA64B) // ꙋ ук
+        letter('ф', upper = 0x0472, lower = 0x0473) // ѳ фита
+        letter('ъ', upper = 0xA64E, lower = 0xA64F) // ꙏ нейтральный ер
+        letter('ы', upper = 0xA650, lower = 0xA651) // ꙑ еры
+        letter('я', upper = 0xA656, lower = 0xA657) // ꙗ йотированный аз
         return map
     }
 
@@ -114,4 +152,7 @@ object FontCatalog {
     private fun codePoint(cp: Int): String = String(Character.toChars(cp))
 
     private const val ABSENT = -1
+
+    private val LatinOnly = setOf(FontScript.LATIN)
+    private val CyrillicOnly = setOf(FontScript.CYRILLIC)
 }

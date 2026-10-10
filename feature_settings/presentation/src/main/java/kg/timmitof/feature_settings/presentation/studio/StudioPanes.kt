@@ -33,7 +33,9 @@ import kg.timmitof.keyboard.domain.model.KeyboardSoundPack
 import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
 import kg.timmitof.keyboard.domain.model.KeyboardToggle
 import kg.timmitof.keyboard.font.domain.model.FontPanel
+import kg.timmitof.keyboard.font.domain.model.FontScript
 import kg.timmitof.keyboard.font.domain.model.KeyboardFont
+import kg.timmitof.keyboard.presentation.components.fontSample
 import kg.timmitof.keyboard.presentation.sound.KeySound
 import kg.timmitof.keyboard.presentation.theme.palette
 import kg.timmitof.keyboard.presentation.sound.rememberKeySoundPlayer
@@ -74,6 +76,7 @@ internal fun ThemePane(
 internal fun FontsPane(
     settings: KeyboardSettings,
     panel: FontPanel,
+    script: FontScript,
     onToggle: (KeyboardToggle, Boolean) -> Unit,
     onPanelFonts: (List<String>) -> Unit,
     onReset: () -> Unit,
@@ -84,8 +87,8 @@ internal fun FontsPane(
     val panelDescription = stringResource(R.string.fonts_panel_description)
     val rememberTitle = stringResource(R.string.fonts_remember_title)
     val rememberDescription = stringResource(R.string.fonts_remember_description)
-    val visible = fontItems(panel.visible)
-    val hidden = fontItems(panel.hidden)
+    val visible = fontItems(panel.visible, script)
+    val hidden = fontItems(panel.hidden, script)
     val visibleIds = remember(visible) { visible.map(FontItem::id) }
 
     SettingsSection {
@@ -139,16 +142,23 @@ internal fun FontsPane(
     }
 }
 
-/** Список собирается один раз на смену набора шрифтов или языка, а не на каждую рекомпозицию. */
+/**
+ * Список собирается один раз на смену набора шрифтов или языка, а не на каждую рекомпозицию.
+ * Образец — на алфавите выбранного языка; стиль без его поддержки показывается на латинице с пометкой.
+ */
 @Composable
-private fun fontItems(fonts: List<KeyboardFont>): List<FontItem> {
-    val names = fonts.map { font -> font.nameRes?.let { stringResource(it) } ?: font.id }
-    return remember(fonts, names) {
-        fonts.mapIndexed { index, font -> FontItem(font.id, names[index], font.apply(FontSample)) }
+private fun fontItems(fonts: List<KeyboardFont>, script: FontScript): List<FontItem> {
+    val names = fonts.map { font ->
+        val name = font.nameRes?.let { stringResource(it) } ?: font.id
+        if (font.supports(script)) name else stringResource(R.string.font_name_latin_only, name)
+    }
+    return remember(fonts, names, script) {
+        fonts.mapIndexed { index, font ->
+            val sample = if (font.supports(script)) script.fontSample else FontScript.LATIN.fontSample
+            FontItem(font.id, names[index], font.apply(sample))
+        }
     }
 }
-
-private const val FontSample = "Abc"
 
 private val KeyboardFont.nameRes: Int?
     get() = when (id) {
@@ -171,6 +181,14 @@ private val KeyboardFont.nameRes: Int?
         "monospace" -> R.string.font_name_monospace
         "underline" -> R.string.font_name_underline
         "strikethrough" -> R.string.font_name_strikethrough
+        "double_underline" -> R.string.font_name_double_underline
+        "slashed" -> R.string.font_name_slashed
+        "clouds" -> R.string.font_name_clouds
+        "arc" -> R.string.font_name_arc
+        "dot_above" -> R.string.font_name_dot_above
+        "tilde_above" -> R.string.font_name_tilde_above
+        "spaced_caps" -> R.string.font_name_spaced_caps
+        "old_slavonic" -> R.string.font_name_old_slavonic
         else -> null
     }
 

@@ -20,6 +20,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import kg.timmitof.keyboard.font.domain.model.FontScript
 import kg.timmitof.keyboard.font.domain.model.KeyboardFont
 import kg.timmitof.keyboard.suggestion.domain.model.WordSuggestion
 import kg.timmitof.keyboard.presentation.screens.keyboard.rememberSlice
@@ -33,6 +34,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kg.timmitof.keyboard.presentation.R
 import kg.timmitof.keyboard.presentation.components.FontsCarousel
+import kg.timmitof.keyboard.presentation.components.fontSample
+import kg.timmitof.keyboard.presentation.components.fontShortSample
+import kg.timmitof.keyboard.presentation.components.orDefaultFor
 import kg.timmitof.keyboard.presentation.components.LocalKeyboardMetrics
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardEvent
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardOverlay
@@ -49,8 +53,9 @@ internal fun KeyboardTopBar(
         TopBarSlice(
             mode = it.topBarMode,
             allowsFonts = it.allowsFonts,
-            selectedFont = it.selectedFont,
-            fonts = it.fonts,
+            selectedFont = it.selectedFont.orDefaultFor(it.fontScript),
+            fonts = it.availableFonts,
+            fontScript = it.fontScript,
             suggestions = it.suggestions,
             noticeRes = it.noticeRes,
             overlay = it.keyboardOverlay,
@@ -134,7 +139,9 @@ private fun TopBarContent(
     slice: TopBarSlice,
     onEvent: (KeyboardEvent) -> Unit,
 ) {
-    val fontPreview = remember(slice.selectedFont) { slice.selectedFont.apply(FontPreviewText) }
+    val fontPreview = remember(slice.selectedFont, slice.fontScript) {
+        slice.selectedFont.apply(slice.fontScript.fontShortSample)
+    }
 
     when (mode) {
         TopBarMode.CURSOR -> CursorModeHint()
@@ -157,6 +164,7 @@ private fun TopBarContent(
             FontsCarousel(
                 fonts = slice.fonts,
                 selectedFontId = slice.selectedFont.id,
+                sample = slice.fontScript.fontSample,
                 onFontSelect = { onEvent(KeyboardEvent.OnFontSelect(it)) },
                 modifier = Modifier.weight(1f)
             )
@@ -183,6 +191,7 @@ private data class TopBarSlice(
     val allowsFonts: Boolean,
     val selectedFont: KeyboardFont,
     val fonts: List<KeyboardFont>,
+    val fontScript: FontScript,
     val suggestions: List<WordSuggestion>,
     @param:StringRes val noticeRes: Int?,
     val overlay: KeyboardOverlay?,
@@ -197,8 +206,6 @@ private val KeyboardState.topBarMode: TopBarMode
         hasSuggestions -> TopBarMode.SUGGESTIONS
         else -> TopBarMode.IDLE
     }
-
-private const val FontPreviewText = "Aa"
 
 @Composable
 private fun ContentRow(

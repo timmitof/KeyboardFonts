@@ -1,5 +1,7 @@
 package kg.timmitof.keyboard.data.font
 
+import kg.timmitof.keyboard.font.domain.model.StyledText
+
 object FontDecoder {
 
     private val plainByGlyph: Map<Int, Char> by lazy { buildIndex() }
@@ -14,7 +16,7 @@ object FontDecoder {
             val width = Character.charCount(codePoint)
 
             when {
-                codePoint.isCombiningMark() -> Unit
+                width == 1 && StyledText.isLetterTail(text[index]) -> Unit
                 else -> result.append(plainByGlyph[codePoint] ?: text.substring(index, index + width))
             }
             index += width
@@ -22,13 +24,9 @@ object FontDecoder {
         return result.toString()
     }
 
-    /** Обычная латиница, кириллица и цифры декодирования не требуют. */
-    private fun Char.needsDecoding(): Boolean = code > MAX_PLAIN_CODE
-
-    private fun Int.isCombiningMark(): Boolean =
-        Character.getType(this).let {
-            it == Character.NON_SPACING_MARK.toInt() || it == Character.ENCLOSING_MARK.toInt()
-        }
+    /** Стилизованный глиф, знак стиля или разрядка; суррогаты — глифы из математических блоков. */
+    private fun Char.needsDecoding(): Boolean =
+        isSurrogate() || StyledText.isLetterTail(this) || code in plainByGlyph
 
     private fun buildIndex(): Map<Int, Char> {
         val index = HashMap<Int, Char>(1024)
@@ -36,7 +34,8 @@ object FontDecoder {
         FontCatalog.fonts.forEach { font ->
             font.charMap.forEach { (plain, glyph) ->
                 val codePoint = glyph.codePointAt(0)
-                if (codePoint == plain.code) return@forEach
+                // Обычные буквы и цифры остаются собой: «Разрядка» начинается с самой буквы, а не с глифа.
+                if (codePoint == plain.code || codePoint.isPlainLetter()) return@forEach
 
                 val current = index[codePoint]
                 if (current == null || (current.isUpperCase() && plain.isLowerCase())) {
@@ -47,6 +46,11 @@ object FontDecoder {
         return index
     }
 
-    /** Выше этого кода начинаются стилизованные глифы и комбинируемые знаки. */
-    private const val MAX_PLAIN_CODE = 0x04FF
+    /** Базовая латиница, цифры и современная кириллица — настоящий текст, его не расшифровываем. */
+    private fun Int.isPlainLetter(): Boolean =
+        this < BASIC_LATIN_END || this in MODERN_CYRILLIC
+
+    private const val BASIC_LATIN_END = 0x80
+
+    private val MODERN_CYRILLIC = 0x0400..0x045F
 }

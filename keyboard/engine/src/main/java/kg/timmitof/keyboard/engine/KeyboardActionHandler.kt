@@ -10,6 +10,7 @@ import android.view.KeyEvent
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.ExtractedTextRequest
 import android.view.inputmethod.InputConnection
+import kg.timmitof.keyboard.font.domain.model.StyledText
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardSideEffect
 import kotlin.math.abs
 
@@ -119,10 +120,16 @@ internal class KeyboardActionHandler(
         val before = getTextBeforeCursor(GRAPHEME_LOOKUP_LENGTH, 0)
         if (before.isNullOrEmpty()) return
 
+        val text = before.toString()
         val iterator = graphemeIterator
-        iterator.setText(before.toString())
+        iterator.setText(text)
         val end = iterator.last()
-        val start = iterator.previous().takeIf { it != BreakIterator.DONE } ?: 0
+        var start = iterator.previous().takeIf { it != BreakIterator.DONE } ?: 0
+
+        // Разрядка — отдельная графема, но стирается вместе с буквой перед ней.
+        if (start > 0 && end - start == 1 && text[start] == StyledText.LETTER_SPACING) {
+            start = iterator.previous().takeIf { it != BreakIterator.DONE } ?: 0
+        }
 
         deleteSurroundingText(end - start, 0)
     }
@@ -167,7 +174,7 @@ internal class KeyboardActionHandler(
      * (ZWJ, вариационные селекторы, комбинируемые), не управляющий (CR+LF) и не хангыль-джамо.
      */
     private fun Char.isPlainChar(): Boolean {
-        if (isSurrogate() || this in HANGUL_JAMO) return false
+        if (isSurrogate() || this in HANGUL_JAMO || this == StyledText.LETTER_SPACING) return false
 
         return when (Character.getType(this).toByte()) {
             Character.NON_SPACING_MARK,

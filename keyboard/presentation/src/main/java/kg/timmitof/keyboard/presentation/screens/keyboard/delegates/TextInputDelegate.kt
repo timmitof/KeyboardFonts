@@ -1,6 +1,7 @@
 package kg.timmitof.keyboard.presentation.screens.keyboard.delegates
 
 import kg.timmitof.keyboard.domain.model.KeyCharacter
+import kg.timmitof.keyboard.font.domain.model.StyledText
 import kg.timmitof.keyboard.suggestion.domain.model.TextContext
 import kg.timmitof.keyboard.suggestion.domain.model.WordSuggestion
 import kg.timmitof.keyboard.presentation.screens.keyboard.KeyboardSyntax
@@ -83,10 +84,12 @@ internal class TextInputDelegate(
         val context = state.textContext
         if (context.composingWord.isNotEmpty()) return false
 
-        // Перед пробелом — буква или цифра; стилизованные буквы — суррогатные пары, смотрим кодовую точку.
+        // Перед пробелом — буква или цифра; стилизованные буквы — суррогатные пары, смотрим кодовую точку,
+        // а знаки стиля и разрядку после буквы пропускаем.
         val before = context.before
         if (before.length < 2 || before.last() != ' ') return false
-        if (!Character.isLetterOrDigit(before.codePointBefore(before.length - 1))) return false
+        val word = before.dropLast(1).trimEnd(StyledText::isLetterTail)
+        if (word.isEmpty() || !Character.isLetterOrDigit(word.codePointBefore(word.length))) return false
 
         postSideEffect(KeyboardSideEffect.Input.ReplaceTextBeforeCursor(chars = 1, text = PERIOD_SPACE))
         reduce { state.copy(autoCorrection = AutoCorrection(original = "  ", corrected = PERIOD_SPACE)) }
@@ -242,7 +245,7 @@ internal class TextInputDelegate(
         val composing = state.composing
         if (!composing.isActive) return false
 
-        val shortened = composing.copy(text = composing.text.dropLastCodePoint())
+        val shortened = composing.copy(text = composing.text.dropLastSymbol())
         postSideEffect(
             KeyboardSideEffect.Input.SetComposingText(shortened.text, shortened.hasCorrection)
         )
@@ -335,9 +338,8 @@ internal class TextInputDelegate(
     private fun String.dropLastWord(): String =
         trimEnd().dropLastWhile { !it.isWhitespace() }
 
-    /** Стилизованные буквы — суррогатные пары, поэтому убираем символ целиком. */
-    private fun String.dropLastCodePoint(): String =
-        if (isEmpty()) this else dropLast(Character.charCount(codePointBefore(length)))
+    /** Стилизованная буква — суррогатная пара или буква со знаками стиля, поэтому убираем её целиком. */
+    private fun String.dropLastSymbol(): String = dropLast(StyledText.lastSymbolLength(this))
 
     private fun String.isWordText(): Boolean = all(TextContext.Companion::isWordChar)
 

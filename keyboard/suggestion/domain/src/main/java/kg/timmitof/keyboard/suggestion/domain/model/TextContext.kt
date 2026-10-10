@@ -64,6 +64,10 @@ data class TextContext(
 
         private const val MIN_CONTEXT_WORD = 2
 
-        fun isWordChar(char: Char): Boolean = !char.isWhitespace() && char !in SEPARATORS
+        /** Узкий неразрывный пробел «Разрядки» (`StyledText.LETTER_SPACING`) — часть буквы, а не граница слова. */
+        private const val LETTER_SPACING = ' '
+
+        fun isWordChar(char: Char): Boolean =
+            char == LETTER_SPACING || (!char.isWhitespace() && char !in SEPARATORS)
     }
 }

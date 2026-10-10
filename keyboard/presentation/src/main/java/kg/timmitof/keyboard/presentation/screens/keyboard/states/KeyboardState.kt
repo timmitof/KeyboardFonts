@@ -10,7 +10,11 @@ import kg.timmitof.keyboard.clipboard.domain.model.ClipboardEntry
 import kg.timmitof.keyboard.domain.model.EmojiCategory
 import kg.timmitof.keyboard.domain.model.KeyboardHeight
 import kg.timmitof.keyboard.domain.model.KeyCharacter
+import kg.timmitof.keyboard.font.domain.model.FontScript
 import kg.timmitof.keyboard.font.domain.model.KeyboardFont
+import kg.timmitof.keyboard.presentation.components.fontScript
+import kg.timmitof.keyboard.presentation.components.orDefaultFor
+import kg.timmitof.keyboard.presentation.components.supporting
 import kg.timmitof.keyboard.domain.model.KeyboardLanguage
 import kg.timmitof.keyboard.domain.model.KeyboardLayout
 import kg.timmitof.keyboard.domain.model.KeyboardSettings
@@ -75,8 +79,13 @@ internal data class KeyboardState(
     val allowsFonts: Boolean
         get() = settings.isFontsPanelEnabled && fieldType.allowsFonts
 
+    /** Алфавит раскладки: стили без его поддержки прячутся с панели и не применяются. */
+    val fontScript: FontScript get() = activeLanguage.fontScript
+
+    val availableFonts: List<KeyboardFont> get() = fonts.supporting(fontScript)
+
     val activeFont: KeyboardFont
-        get() = if (allowsFonts) selectedFont else KeyboardFont.Default
+        get() = if (allowsFonts) selectedFont.orDefaultFor(fontScript) else KeyboardFont.Default
 
     /** Язык без словаря Т9 работает без подсказок, автозамены и обучения. */
     val allowsSuggestions: Boolean
