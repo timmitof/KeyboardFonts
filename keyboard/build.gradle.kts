@@ -35,4 +35,28 @@ keyboardLanguages {
         name = "Қазақша"
         alphabet = "аәбвгғдеёжзийкқлмнңоөпрстуұүфхһцчшщъыіьэюя"
     }
+    // Латиница первой: по локали uz_* выбирается первый узбекский из каталога.
+    language("uz_latn") {
+        name = "Oʻzbekcha"
+        isLatin = true
+        alphabet = "abcdefghijklmnopqrstuvxyzʻʼ"
+    }
+    language("uz_cyrl") {
+        name = "Ўзбекча"
+        shortName = "ЎЗ"
+        alphabet = "абвгғдеёжзийкқлмнопрстуўфхҳцчшъьэюя"
+    }
+    language("tg_tj") {
+        name = "Тоҷикӣ"
+        alphabet = "абвгғдеёжзиӣйкқлмнопрстуӯфхҳчҷшъэюя"
+    }
+    language("uk_ua") {
+        name = "Українська"
+        alphabet = "абвгґдеєжзиіїйклмнопрстуфхцчшщьюяʼ"
+    }
+    language("tr_tr") {
+        name = "Türkçe"
+        isLatin = true
+        alphabet = "abcçdefgğhıijklmnoöprsştuüvyz"
+    }
 }

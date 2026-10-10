@@ -1,0 +1,53 @@
+{
+  "name": "Тоҷикӣ",
+  "script": "cyrillic",
+  "rows": [
+    [
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "й", "labelUpper": "Й", "hint": "1", "longPress": { "type": "SYMBOLS", "symbols": ["1"] } },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "ц", "labelUpper": "Ц", "hint": "2", "longPress": { "type": "SYMBOLS", "symbols": ["2"] } },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "у", "labelUpper": "У", "hint": "3", "longPress": { "type": "SYMBOLS", "symbols": ["3"], "characters": [ { "labelLower": "ӯ", "labelUpper": "Ӯ" } ] } },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "к", "labelUpper": "К", "hint": "4", "longPress": { "type": "SYMBOLS", "symbols": ["4"], "characters": [ { "labelLower": "қ", "labelUpper": "Қ" } ] } },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "е", "labelUpper": "Е", "hint": "5", "longPress": { "type": "SYMBOLS", "symbols": ["5"], "characters": [ { "labelLower": "ё", "labelUpper": "Ё" } ] } },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "н", "labelUpper": "Н", "hint": "6", "longPress": { "type": "SYMBOLS", "symbols": ["6"] } },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "г", "labelUpper": "Г", "hint": "7", "longPress": { "type": "SYMBOLS", "symbols": ["7"], "characters": [ { "labelLower": "ғ", "labelUpper": "Ғ" } ] } },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "ш", "labelUpper": "Ш", "hint": "8", "longPress": { "type": "SYMBOLS", "symbols": ["8"] } },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "щ", "labelUpper": "Щ", "hint": "9", "longPress": { "type": "SYMBOLS", "symbols": ["9"] } },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "з", "labelUpper": "З", "hint": "0", "longPress": { "type": "SYMBOLS", "symbols": ["0"] } },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "х", "labelUpper": "Х", "longPress": { "type": "SYMBOLS", "characters": [ { "labelLower": "ҳ", "labelUpper": "Ҳ" } ] } }
+    ],
+    [
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "ф", "labelUpper": "Ф" },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "ы", "labelUpper": "Ы" },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "в", "labelUpper": "В" },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "а", "labelUpper": "А", "longPress": { "type": "SYMBOLS", "symbols": ["@"] } },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "п", "labelUpper": "П" },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "р", "labelUpper": "Р" },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "о", "labelUpper": "О" },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "л", "labelUpper": "Л" },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "д", "labelUpper": "Д" },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "ж", "labelUpper": "Ж" },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "э", "labelUpper": "Э" }
+    ],
+    [
+      { "type": "SHIFT", "weight": 1.0 },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "я", "labelUpper": "Я" },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "ч", "labelUpper": "Ч", "longPress": { "type": "SYMBOLS", "characters": [ { "labelLower": "ҷ", "labelUpper": "Ҷ" } ] } },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "с", "labelUpper": "С" },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "м", "labelUpper": "М" },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "и", "labelUpper": "И", "longPress": { "type": "SYMBOLS", "characters": [ { "labelLower": "ӣ", "labelUpper": "Ӣ" } ] } },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "т", "labelUpper": "Т" },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "ь", "labelUpper": "Ь", "longPress": { "type": "SYMBOLS", "characters": [ { "labelLower": "ъ", "labelUpper": "Ъ" } ] } },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "б", "labelUpper": "Б" },
+      { "type": "CHARACTER", "weight": 1.0, "labelLower": "ю", "labelUpper": "Ю" },
+      { "type": "BACKSPACE", "weight": 1.0 }
+    ],
+    [
+      { "type": "SYMBOLS_SWITCH", "weight": 1.375 },
+      { "type": "EMOJI_SWITCH", "weight": 1.1 },
+      { "type": "CHARACTER", "weight": 0.99, "labelLower": ",", "labelUpper": ",", "longPress": { "type": "MICROPHONE" } },
+      { "type": "SPACE", "weight": 4.62, "labelLower": " ", "labelUpper": " " },
+      { "type": "CHARACTER", "weight": 0.99, "labelLower": ".", "labelUpper": ".", "longPress": { "type": "SYMBOLS", "symbols": [",", "!", "?"] } },
+      { "type": "ENTER", "weight": 1.925 }
+    ]
+  ]
+}
