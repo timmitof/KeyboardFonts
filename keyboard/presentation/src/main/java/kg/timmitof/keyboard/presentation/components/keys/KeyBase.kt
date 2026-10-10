@@ -1,10 +1,9 @@
 package kg.timmitof.keyboard.presentation.components.keys
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.padding
@@ -12,6 +11,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.util.lerp
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -50,23 +53,26 @@ internal fun KeyBase(
     content: @Composable BoxScope.() -> Unit
 ) {
     val source = remember(interactionSource) { interactionSource ?: MutableInteractionSource() }
-    val isPressed by source.collectIsPressedAsState()
 
-    // Вибрация и звук — на касание, а не на ввод: отклик должен опережать символ.
-    val feedback = LocalKeyFeedback.current
-    LaunchedEffect(isPressed) {
-        if (isPressed) feedback.onKeyPress(sound)
+    // Вибрация и звук — прямо из жеста на касание: через состояние они ждали бы кадр, а короткий тап терялся.
+    val feedback by rememberUpdatedState(LocalKeyFeedback.current)
+    val currentSound by rememberUpdatedState(sound)
+    val onPress = remember { { feedback.onKeyPress(currentSound) } }
+
+    // Доля нажатия 0..1 анимируется из потока взаимодействий и читается только при отрисовке: нажатие не рекомпозирует клавишу.
+    val pressFraction = remember { Animatable(0f) }
+    LaunchedEffect(source) {
+        val presses = mutableListOf<PressInteraction.Press>()
+        source.interactions.collect { interaction ->
+            when (interaction) {
+                is PressInteraction.Press -> presses += interaction
+                is PressInteraction.Release -> presses -= interaction.press
+                is PressInteraction.Cancel -> presses -= interaction.press
+            }
+            val target = if (presses.isEmpty()) 0f else 1f
+            launch { pressFraction.animateTo(target, PressAnimationSpec) }
+        }
     }
-    val onPress = remember { {} }
-
-    val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.92f else 1f,
-        animationSpec = tween(80), label = "scale"
-    )
-    val surface by animateColorAsState(
-        targetValue = if (isPressed) pressedBackground else background,
-        animationSpec = tween(80), label = "surface"
-    )
 
     val outline = KFTheme.color.keyOutline.takeIf { KFTheme.isKeyOutlined }
 
@@ -86,8 +92,16 @@ internal fun KeyBase(
             modifier = Modifier
                 .matchParentSize()
                 .padding(horizontal = KeySpacing / 2, vertical = KeyRowSpacing / 2)
-                .graphicsLayer { scaleX = scale; scaleY = scale }
-                .keySurface(surface = { surface }, support = { shadowColor }, outline = outline),
+                .graphicsLayer {
+                    val scale = lerp(1f, PressedScale, pressFraction.value)
+                    scaleX = scale
+                    scaleY = scale
+                }
+                .keySurface(
+                    surface = { lerp(background, pressedBackground, pressFraction.value) },
+                    support = { shadowColor },
+                    outline = outline
+                ),
             contentAlignment = Alignment.Center,
             content = content
         )
@@ -141,3 +155,7 @@ internal fun Modifier.keySurface(
 }
 
 private val KeyOutlineWidth = 1.dp
+
+private const val PressedScale = 0.92f
+
+private val PressAnimationSpec = tween<Float>(durationMillis = 80)

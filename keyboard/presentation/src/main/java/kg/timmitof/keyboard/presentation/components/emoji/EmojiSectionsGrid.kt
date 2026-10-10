@@ -70,6 +70,7 @@ internal fun EmojiSectionsGrid(
             sections.forEach { section ->
                 item(
                     key = "header:${section.id}",
+                    contentType = "header",
                     span = { GridItemSpan(maxLineSpan) }
                 ) {
                     SectionHeader(titleRes = section.titleRes)
@@ -77,7 +78,8 @@ internal fun EmojiSectionsGrid(
 
                 items(
                     items = section.emojis,
-                    key = { emoji -> "${section.id}:$emoji" }
+                    key = { emoji -> "${section.id}:$emoji" },
+                    contentType = { "emoji" }
                 ) { base ->
                     val displayed = preferredVariants[base] ?: base
                     EmojiCell(

@@ -12,6 +12,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.platform.AbstractComposeView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -86,12 +87,15 @@ class KeyboardFontsView(
 
         InputSessionResetEffect(viewModel)
 
-        LaunchedEffect(fieldContext.value) {
-            viewModel.onEvent(KeyboardEvent.OnFieldContextChange(fieldContext.value))
+        // Снимки поля читаются вне композиции: синхронизация текста не рекомпозирует корень и не ждёт кадра.
+        LaunchedEffect(viewModel) {
+            snapshotFlow { fieldContext.value }
+                .collect { viewModel.onEvent(KeyboardEvent.OnFieldContextChange(it)) }
         }
 
-        LaunchedEffect(textContext.value) {
-            viewModel.onEvent(KeyboardEvent.OnTextContextChange(textContext.value))
+        LaunchedEffect(viewModel) {
+            snapshotFlow { textContext.value }
+                .collect { viewModel.onEvent(KeyboardEvent.OnTextContextChange(it)) }
         }
 
         val insets by insetsTracker.insets

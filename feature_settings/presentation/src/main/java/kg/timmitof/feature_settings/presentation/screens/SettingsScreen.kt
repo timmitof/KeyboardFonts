@@ -144,6 +144,8 @@ internal fun ContainerDSLBuilder<SettingsSideEffect, SettingsEvent>.SettingsCont
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
+        Spacer(modifier = Modifier.height(innerPadding.calculateTopPadding()))
+
         StudioHeader(
             isKeyboardReady = isKeyboardReady,
             onConnect = onConnect,
