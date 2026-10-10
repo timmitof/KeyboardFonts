@@ -2,11 +2,14 @@ package kg.timmitof.feature_settings.presentation.screens
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -140,14 +143,7 @@ internal fun ContainerDSLBuilder<SettingsSideEffect, SettingsEvent>.SettingsCont
             .collect { backgroundDraft.value = null }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(
-                top = innerPadding.calculateTopPadding(),
-                bottom = innerPadding.calculateBottomPadding()
-            )
-    ) {
+    Column(modifier = Modifier.fillMaxSize()) {
         StudioHeader(
             isKeyboardReady = isKeyboardReady,
             onConnect = onConnect,
@@ -158,6 +154,8 @@ internal fun ContainerDSLBuilder<SettingsSideEffect, SettingsEvent>.SettingsCont
             draft = backgroundDraft,
             modifier = Modifier.padding(horizontal = HorizontalPadding),
         )
+
+        HorizontalDivider(modifier = Modifier.fillMaxWidth(), thickness = 1.dp)
 
         Column(
             modifier = Modifier
@@ -225,6 +223,8 @@ internal fun ContainerDSLBuilder<SettingsSideEffect, SettingsEvent>.SettingsCont
             }
 
             StudioTips(modifier = Modifier.padding(horizontal = HorizontalPadding, vertical = 12.dp))
+
+            Spacer(modifier = Modifier.height(innerPadding.calculateBottomPadding()))
         }
     }
 }

@@ -71,6 +71,7 @@ fun <K : Any> ChipTabs(
             .fadingEnd { listState.canScrollForward },
         contentPadding = contentPadding,
         horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         items(items = tabs, key = { it.key }) { tab ->
             ChipTabItem(
