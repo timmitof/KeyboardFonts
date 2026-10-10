@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="backgrounds">Şablonlar</string>
+    <string name="onboarding_status_connected">Bağlı</string>
+    <string name="onboarding_enable_title">Klavyeyi bağlayalım</string>
+    <string name="onboarding_enable_lead">Android ayarlarında iki adım — yaklaşık 20 saniye. Ardından yazı tiplerini hemen deneyebilirsiniz.</string>
+    <string name="onboarding_select_title">Bir adım daha</string>
+    <string name="onboarding_select_lead">Klavye etkin. Şimdi yazmak için onu seçmeniz yeterli.</string>
+    <string name="onboarding_try_title">Deneyin</string>
+    <string name="onboarding_try_lead">Tuşların üstündeki stillere dokunun — metin anında değişir.</string>
+    <string name="step_enable_title">Keyboard Fonts\'u etkinleştirin</string>
+    <string name="step_enable_subtitle">Android klavye listesinde</string>
+    <string name="step_enable_done_title">Keyboard Fonts etkin</string>
+    <string name="step_enable_done_subtitle">Tamam</string>
+    <string name="step_enable_mock_caption">Ayarlar › Ekran klavyesi</string>
+    <string name="step_enable_mock_poke">dokunun</string>
+    <string name="step_enable_action">Ayarları aç</string>
+    <string name="step_select_title">Ana klavyeniz yapın</string>
+    <string name="step_select_subtitle">Sistem penceresinden seçin</string>
+    <string name="step_select_subtitle_active">Sistem seçim penceresi açılacak</string>
+    <string name="step_select_mock_caption">Giriş yöntemini seçin</string>
+    <string name="step_select_mock_poke">seçin</string>
+    <string name="step_select_action">Klavyeyi seç</string>
+    <string name="step_try_title">Yazı tiplerini deneyin</string>
+    <string name="step_try_subtitle">Burada, uygulamanın içinde</string>
+    <string name="hint_warning_title">Android neden uyarıyor?</string>
+    <string name="hint_warning_body">Sistem bu mesajı her üçüncü taraf klavye için gösterir. Gönül rahatlığıyla onaylayabilirsiniz.</string>
+    <string name="hint_switch_back_title">Geri dönmek kolay</string>
+    <string name="hint_switch_back_body">Ekranın altındaki klavye simgesi, aynı seçimi her uygulamada açar.</string>
+    <string name="try_placeholder">Bir şeyler yazın…</string>
+    <string name="try_done">Tamam, ayarlara geç</string>
+    <string name="coach_title">Yazı tipi buradan seçilir</string>
+    <string name="coach_body">Stil sonraki harflere uygulanır</string>
+</resources>

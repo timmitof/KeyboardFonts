@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="key_hide_keyboard">Сховати клавіатуру</string>
+    <string name="quick_settings_split">Розділена клавіатура</string>
+    <string name="emoji_recent_empty">Поки немає недавніх емодзі</string>
+    <string name="emoji_search_hint">Пошук емодзі</string>
+    <string name="emoji_search_start_typing">Почніть друкувати, щоб знайти емодзі</string>
+    <string name="emoji_search_no_results">Нічого не знайдено</string>
+    <string name="cursor_mode_hint">Перетягуйте пальцем, щоб керувати курсором</string>
+    <string name="field_notice_password">Введення не зберігається</string>
+    <string name="fonts_not_available">Шрифти недоступні</string>
+    <string name="fonts_expand">Шрифти</string>
+    <string name="fonts_collapse">Згорнути шрифти</string>
+    <string name="keyboard_hide">Згорнути клавіатуру</string>
+    <string name="quick_settings_title">Швидкі налаштування</string>
+    <string name="overlay_close">Закрити</string>
+    <string name="quick_settings_suggestions">Підказки T9</string>
+    <string name="quick_settings_autocorrect_on">Автозаміну ввімкнено</string>
+    <string name="quick_settings_autocorrect_off">Автозаміну вимкнено</string>
+    <string name="quick_settings_fonts">Шрифти</string>
+    <string name="quick_settings_height">Висота</string>
+    <string name="quick_settings_vibration">Вібрація</string>
+    <string name="quick_settings_theme">Тема</string>
+    <string name="quick_settings_open_app">Усі налаштування в застосунку</string>
+    <string name="keyboard_theme_auto">Авто</string>
+    <string name="keyboard_theme_light">Світла</string>
+    <string name="keyboard_theme_dark">Темна</string>
+    <string name="clipboard_title">Буфер обміну</string>
+    <string name="clipboard_clear">Очистити недавнє</string>
+    <string name="clipboard_pinned">Закріплено</string>
+    <string name="clipboard_recent">Недавнє</string>
+    <string name="clipboard_empty">Скопіюйте текст — він з’явиться тут</string>
+    <string name="clipboard_pin">Закріпити</string>
+    <string name="clipboard_unpin">Відкріпити</string>
+    <string name="clipboard_delete">Видалити</string>
+    <string name="clipboard_open_app">Історія буфера в застосунку</string>
+    <string name="emoji_category_recent">Недавні</string>
+    <string name="emoji_category_smileys">Смайли та емоції</string>
+    <string name="emoji_category_people">Люди й тіло</string>
+    <string name="emoji_category_animals">Тварини й природа</string>
+    <string name="emoji_category_food">Їжа та напої</string>
+    <string name="emoji_category_activities">Активності</string>
+    <string name="emoji_category_travel">Подорожі й місця</string>
+    <string name="emoji_category_objects">Предмети</string>
+    <string name="emoji_category_symbols">Символи</string>
+    <string name="emoji_category_flags">Прапори</string>
+</resources>

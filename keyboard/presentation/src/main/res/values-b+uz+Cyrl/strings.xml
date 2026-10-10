@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="key_hide_keyboard">Клавиатурани яшириш</string>
+    <string name="quick_settings_split">Бўлинган клавиатура</string>
+    <string name="emoji_recent_empty">Ҳозирча сўнгги эмоджилар йўқ</string>
+    <string name="emoji_search_hint">Эмоджи қидириш</string>
+    <string name="emoji_search_start_typing">Эмоджи топиш учун ёзишни бошланг</string>
+    <string name="emoji_search_no_results">Ҳеч нарса топилмади</string>
+    <string name="cursor_mode_hint">Курсорни бошқариш учун бармоғингизни суринг</string>
+    <string name="field_notice_password">Киритилган матн сақланмайди</string>
+    <string name="fonts_not_available">Шрифтлар мавжуд эмас</string>
+    <string name="fonts_expand">Шрифтлар</string>
+    <string name="fonts_collapse">Шрифтларни йиғиш</string>
+    <string name="keyboard_hide">Клавиатурани йиғиш</string>
+    <string name="quick_settings_title">Тезкор созламалар</string>
+    <string name="overlay_close">Ёпиш</string>
+    <string name="quick_settings_suggestions">T9 таклифлари</string>
+    <string name="quick_settings_autocorrect_on">Автотузатиш ёқилган</string>
+    <string name="quick_settings_autocorrect_off">Автотузатиш ўчирилган</string>
+    <string name="quick_settings_fonts">Шрифтлар</string>
+    <string name="quick_settings_height">Баландлик</string>
+    <string name="quick_settings_vibration">Тебраниш</string>
+    <string name="quick_settings_theme">Мавзу</string>
+    <string name="quick_settings_open_app">Барча созламалар иловада</string>
+    <string name="keyboard_theme_auto">Авто</string>
+    <string name="keyboard_theme_light">Ёруғ</string>
+    <string name="keyboard_theme_dark">Қоронғи</string>
+    <string name="clipboard_title">Алмашув буфери</string>
+    <string name="clipboard_clear">Сўнггиларни тозалаш</string>
+    <string name="clipboard_pinned">Қадалган</string>
+    <string name="clipboard_recent">Сўнггилар</string>
+    <string name="clipboard_empty">Матнни нусхаланг — у шу ерда пайдо бўлади</string>
+    <string name="clipboard_pin">Қадаш</string>
+    <string name="clipboard_unpin">Қадашни олиб ташлаш</string>
+    <string name="clipboard_delete">Ўчириш</string>
+    <string name="clipboard_open_app">Буфер тарихи иловада</string>
+    <string name="emoji_category_recent">Сўнггилар</string>
+    <string name="emoji_category_smileys">Смайллар ва ҳиссиётлар</string>
+    <string name="emoji_category_people">Одамлар ва тана</string>
+    <string name="emoji_category_animals">Ҳайвонлар ва табиат</string>
+    <string name="emoji_category_food">Таом ва ичимликлар</string>
+    <string name="emoji_category_activities">Фаолият</string>
+    <string name="emoji_category_travel">Саёҳат ва жойлар</string>
+    <string name="emoji_category_objects">Буюмлар</string>
+    <string name="emoji_category_symbols">Белгилар</string>
+    <string name="emoji_category_flags">Байроқлар</string>
+</resources>

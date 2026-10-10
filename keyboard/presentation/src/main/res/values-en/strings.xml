@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="key_hide_keyboard">Hide keyboard</string>
+    <string name="quick_settings_split">Split keyboard</string>
+    <string name="emoji_recent_empty">No recent emoji yet</string>
+    <string name="emoji_search_hint">Search emoji</string>
+    <string name="emoji_search_start_typing">Start typing to find emoji</string>
+    <string name="emoji_search_no_results">Nothing found</string>
+    <string name="cursor_mode_hint">Drag your finger to move the cursor</string>
+    <string name="field_notice_password">Input is not saved</string>
+    <string name="fonts_not_available">Fonts are unavailable</string>
+    <string name="fonts_expand">Fonts</string>
+    <string name="fonts_collapse">Collapse fonts</string>
+    <string name="keyboard_hide">Collapse keyboard</string>
+    <string name="quick_settings_title">Quick settings</string>
+    <string name="overlay_close">Close</string>
+    <string name="quick_settings_suggestions">T9 suggestions</string>
+    <string name="quick_settings_autocorrect_on">Autocorrect on</string>
+    <string name="quick_settings_autocorrect_off">Autocorrect off</string>
+    <string name="quick_settings_fonts">Fonts</string>
+    <string name="quick_settings_height">Height</string>
+    <string name="quick_settings_vibration">Vibration</string>
+    <string name="quick_settings_theme">Theme</string>
+    <string name="quick_settings_open_app">All settings in the app</string>
+    <string name="keyboard_theme_auto">Auto</string>
+    <string name="keyboard_theme_light">Light</string>
+    <string name="keyboard_theme_dark">Dark</string>
+    <string name="clipboard_title">Clipboard</string>
+    <string name="clipboard_clear">Clear recent</string>
+    <string name="clipboard_pinned">Pinned</string>
+    <string name="clipboard_recent">Recent</string>
+    <string name="clipboard_empty">Copy some text — it will appear here</string>
+    <string name="clipboard_pin">Pin</string>
+    <string name="clipboard_unpin">Unpin</string>
+    <string name="clipboard_delete">Delete</string>
+    <string name="clipboard_open_app">Clipboard history in the app</string>
+    <string name="emoji_category_recent">Recent</string>
+    <string name="emoji_category_smileys">Smileys &amp; emotion</string>
+    <string name="emoji_category_people">People &amp; body</string>
+    <string name="emoji_category_animals">Animals &amp; nature</string>
+    <string name="emoji_category_food">Food &amp; drink</string>
+    <string name="emoji_category_activities">Activities</string>
+    <string name="emoji_category_travel">Travel &amp; places</string>
+    <string name="emoji_category_objects">Objects</string>
+    <string name="emoji_category_symbols">Symbols</string>
+    <string name="emoji_category_flags">Flags</string>
+</resources>

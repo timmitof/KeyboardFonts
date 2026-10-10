@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="backgrounds">Андозалар</string>
+    <string name="onboarding_status_connected">Уланган</string>
+    <string name="onboarding_enable_title">Клавиатурани улаймиз</string>
+    <string name="onboarding_enable_lead">Android созламаларида икки қадам — тахминан 20 сония. Кейин дарҳол шрифтларни синаб кўрасиз.</string>
+    <string name="onboarding_select_title">Яна бир қадам</string>
+    <string name="onboarding_select_lead">Клавиатура ёқилди. Энди уни матн киритиш учун танлаш қолди.</string>
+    <string name="onboarding_try_title">Синаб кўринг</string>
+    <string name="onboarding_try_lead">Тугмалар устидаги услубларни босинг — матн дарҳол ўзгаради.</string>
+    <string name="step_enable_title">Keyboard Fonts’ни ёқинг</string>
+    <string name="step_enable_subtitle">Android клавиатуралари рўйхатида</string>
+    <string name="step_enable_done_title">Keyboard Fonts ёқилди</string>
+    <string name="step_enable_done_subtitle">Тайёр</string>
+    <string name="step_enable_mock_caption">Созламалар › Экран клавиатураси</string>
+    <string name="step_enable_mock_poke">босинг</string>
+    <string name="step_enable_action">Созламаларни очиш</string>
+    <string name="step_select_title">Уни асосий қилинг</string>
+    <string name="step_select_subtitle">Тизим ойнасида танлаш</string>
+    <string name="step_select_subtitle_active">Тизимнинг танлаш ойнаси очилади</string>
+    <string name="step_select_mock_caption">Киритиш усулини танлаш</string>
+    <string name="step_select_mock_poke">танланг</string>
+    <string name="step_select_action">Клавиатурани танлаш</string>
+    <string name="step_try_title">Шрифтларни синаб кўринг</string>
+    <string name="step_try_subtitle">Шу ерда, илованинг ўзида</string>
+    <string name="hint_warning_title">Android нега огоҳлантиради?</string>
+    <string name="hint_warning_body">Тизим бу хабарни ҳар қандай ташқи клавиатура учун кўрсатади. Уни бемалол тасдиқлашингиз мумкин.</string>
+    <string name="hint_switch_back_title">Қайтиб алмаштириш осон</string>
+    <string name="hint_switch_back_body">Экран пастидаги клавиатура белгиси исталган иловада худди шу танловни очади.</string>
+    <string name="try_placeholder">Бирор нарса ёзинг…</string>
+    <string name="try_done">Тайёр, созламаларга</string>
+    <string name="coach_title">Шрифт шу ерда танланади</string>
+    <string name="coach_body">Услуб кейинги ҳарфларга қўлланади</string>
+</resources>

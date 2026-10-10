@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_title">Keyboard Fonts</string>
+    <string name="app_title" translatable="false">Keyboard Fonts</string>
 
     <string name="backgrounds">Шаблоны</string>
 
@@ -36,8 +36,8 @@
     <string name="step_try_subtitle">Прямо здесь, в приложении</string>
 
     <!-- Мини-копия системного экрана: соседняя клавиатура для узнаваемости -->
-    <string name="mock_other_keyboard">Gboard</string>
-    <string name="mock_our_keyboard">Keyboard Fonts</string>
+    <string name="mock_other_keyboard" translatable="false">Gboard</string>
+    <string name="mock_our_keyboard" translatable="false">Keyboard Fonts</string>
 
     <!-- Подсказки -->
     <string name="hint_warning_title">Почему Android предупреждает?</string>

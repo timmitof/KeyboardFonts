@@ -15,9 +15,11 @@ val keystoreProperties = Properties().apply {
 }
 
 android {
-    // Интерфейс только на русском и английском: переводы библиотек на другие языки лишь раздувают resources.arsc.
+    // Интерфейс — на языках клавиатуры (core/ui AppLocale): переводы библиотек на другие языки лишь раздувают resources.arsc.
     androidResources {
-        localeFilters += listOf("ru", "en")
+        localeFilters += listOf("ru", "en", "ky", "kk", "uz", "b+uz+Cyrl", "tg", "uk", "tr")
+        // Список языков для выбора в системных настройках приложения (Android 13+); язык values/ — в resources.properties.
+        generateLocaleConfig = true
         // Индекс опечаток Т9 (~1,5 МБ на язык) отображается в память прямо из APK — только если он не сжат.
         noCompress += "spell"
     }

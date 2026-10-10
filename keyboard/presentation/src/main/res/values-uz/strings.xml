@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="key_hide_keyboard">Klaviaturani yashirish</string>
+    <string name="quick_settings_split">Boʻlingan klaviatura</string>
+    <string name="emoji_recent_empty">Hozircha soʻnggi emojilar yoʻq</string>
+    <string name="emoji_search_hint">Emoji qidirish</string>
+    <string name="emoji_search_start_typing">Emoji topish uchun yozishni boshlang</string>
+    <string name="emoji_search_no_results">Hech narsa topilmadi</string>
+    <string name="cursor_mode_hint">Kursorni boshqarish uchun barmogʻingizni suring</string>
+    <string name="field_notice_password">Kiritilgan matn saqlanmaydi</string>
+    <string name="fonts_not_available">Shriftlar mavjud emas</string>
+    <string name="fonts_expand">Shriftlar</string>
+    <string name="fonts_collapse">Shriftlarni yigʻish</string>
+    <string name="keyboard_hide">Klaviaturani yigʻish</string>
+    <string name="quick_settings_title">Tezkor sozlamalar</string>
+    <string name="overlay_close">Yopish</string>
+    <string name="quick_settings_suggestions">T9 takliflari</string>
+    <string name="quick_settings_autocorrect_on">Avtotuzatish yoqilgan</string>
+    <string name="quick_settings_autocorrect_off">Avtotuzatish oʻchirilgan</string>
+    <string name="quick_settings_fonts">Shriftlar</string>
+    <string name="quick_settings_height">Balandlik</string>
+    <string name="quick_settings_vibration">Tebranish</string>
+    <string name="quick_settings_theme">Mavzu</string>
+    <string name="quick_settings_open_app">Barcha sozlamalar ilovada</string>
+    <string name="keyboard_theme_auto">Avto</string>
+    <string name="keyboard_theme_light">Yorugʻ</string>
+    <string name="keyboard_theme_dark">Qorongʻi</string>
+    <string name="clipboard_title">Almashuv buferi</string>
+    <string name="clipboard_clear">Soʻnggilarni tozalash</string>
+    <string name="clipboard_pinned">Qadalgan</string>
+    <string name="clipboard_recent">Soʻnggilar</string>
+    <string name="clipboard_empty">Matnni nusxalang — u shu yerda paydo boʻladi</string>
+    <string name="clipboard_pin">Qadash</string>
+    <string name="clipboard_unpin">Qadashni olib tashlash</string>
+    <string name="clipboard_delete">Oʻchirish</string>
+    <string name="clipboard_open_app">Bufer tarixi ilovada</string>
+    <string name="emoji_category_recent">Soʻnggilar</string>
+    <string name="emoji_category_smileys">Smayllar va hissiyotlar</string>
+    <string name="emoji_category_people">Odamlar va tana</string>
+    <string name="emoji_category_animals">Hayvonlar va tabiat</string>
+    <string name="emoji_category_food">Taom va ichimliklar</string>
+    <string name="emoji_category_activities">Faoliyat</string>
+    <string name="emoji_category_travel">Sayohat va joylar</string>
+    <string name="emoji_category_objects">Buyumlar</string>
+    <string name="emoji_category_symbols">Belgilar</string>
+    <string name="emoji_category_flags">Bayroqlar</string>
+</resources>

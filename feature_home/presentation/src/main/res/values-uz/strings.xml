@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="backgrounds">Andozalar</string>
+    <string name="onboarding_status_connected">Ulangan</string>
+    <string name="onboarding_enable_title">Klaviaturani ulaymiz</string>
+    <string name="onboarding_enable_lead">Android sozlamalarida ikki qadam — taxminan 20 soniya. Keyin darhol shriftlarni sinab koʻrasiz.</string>
+    <string name="onboarding_select_title">Yana bir qadam</string>
+    <string name="onboarding_select_lead">Klaviatura yoqildi. Endi uni matn kiritish uchun tanlash qoldi.</string>
+    <string name="onboarding_try_title">Sinab koʻring</string>
+    <string name="onboarding_try_lead">Tugmalar ustidagi uslublarni bosing — matn darhol oʻzgaradi.</string>
+    <string name="step_enable_title">Keyboard Fonts’ni yoqing</string>
+    <string name="step_enable_subtitle">Android klaviaturalari roʻyxatida</string>
+    <string name="step_enable_done_title">Keyboard Fonts yoqildi</string>
+    <string name="step_enable_done_subtitle">Tayyor</string>
+    <string name="step_enable_mock_caption">Sozlamalar › Ekran klaviaturasi</string>
+    <string name="step_enable_mock_poke">bosing</string>
+    <string name="step_enable_action">Sozlamalarni ochish</string>
+    <string name="step_select_title">Uni asosiy qiling</string>
+    <string name="step_select_subtitle">Tizim oynasida tanlash</string>
+    <string name="step_select_subtitle_active">Tizimning tanlash oynasi ochiladi</string>
+    <string name="step_select_mock_caption">Kiritish usulini tanlash</string>
+    <string name="step_select_mock_poke">tanlang</string>
+    <string name="step_select_action">Klaviaturani tanlash</string>
+    <string name="step_try_title">Shriftlarni sinab koʻring</string>
+    <string name="step_try_subtitle">Shu yerda, ilovaning oʻzida</string>
+    <string name="hint_warning_title">Android nega ogohlantiradi?</string>
+    <string name="hint_warning_body">Tizim bu xabarni har qanday tashqi klaviatura uchun koʻrsatadi. Uni bemalol tasdiqlashingiz mumkin.</string>
+    <string name="hint_switch_back_title">Qaytib almashtirish oson</string>
+    <string name="hint_switch_back_body">Ekran pastidagi klaviatura belgisi istalgan ilovada xuddi shu tanlovni ochadi.</string>
+    <string name="try_placeholder">Biror narsa yozing…</string>
+    <string name="try_done">Tayyor, sozlamalarga</string>
+    <string name="coach_title">Shrift shu yerda tanlanadi</string>
+    <string name="coach_body">Uslub keyingi harflarga qoʻllanadi</string>
+</resources>

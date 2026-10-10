@@ -27,10 +27,10 @@
     <string name="quick_settings_theme">Тема</string>
     <string name="quick_settings_open_app">Все настройки в приложении</string>
 
-    <string name="keyboard_height_s">S</string>
-    <string name="keyboard_height_m">M</string>
-    <string name="keyboard_height_l">L</string>
-    <string name="keyboard_height_xl">XL</string>
+    <string name="keyboard_height_s" translatable="false">S</string>
+    <string name="keyboard_height_m" translatable="false">M</string>
+    <string name="keyboard_height_l" translatable="false">L</string>
+    <string name="keyboard_height_xl" translatable="false">XL</string>
 
     <string name="keyboard_theme_auto">Авто</string>
     <string name="keyboard_theme_light">Светлая</string>

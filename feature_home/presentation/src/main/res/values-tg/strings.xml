@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="backgrounds">Қолабҳо</string>
+    <string name="onboarding_status_connected">Пайваст</string>
+    <string name="onboarding_enable_title">Клавиатураро пайваст мекунем</string>
+    <string name="onboarding_enable_lead">Ду қадам дар танзимоти Android — тақрибан 20 сония. Баъд дарҳол ҳарфҳоро месанҷед.</string>
+    <string name="onboarding_select_title">Боз як қадам</string>
+    <string name="onboarding_select_lead">Клавиатура фаъол шуд. Акнун танҳо онро барои воридкунии матн интихоб кардан лозим аст.</string>
+    <string name="onboarding_try_title">Санҷед</string>
+    <string name="onboarding_try_lead">Услубҳои болои тугмаҳоро пахш кунед — матн дарҳол тағйир меёбад.</string>
+    <string name="step_enable_title">Keyboard Fonts-ро фаъол кунед</string>
+    <string name="step_enable_subtitle">Дар рӯйхати клавиатураҳои Android</string>
+    <string name="step_enable_done_title">Keyboard Fonts фаъол аст</string>
+    <string name="step_enable_done_subtitle">Тайёр</string>
+    <string name="step_enable_mock_caption">Танзимот › Клавиатураи экранӣ</string>
+    <string name="step_enable_mock_poke">пахш кунед</string>
+    <string name="step_enable_action">Кушодани танзимот</string>
+    <string name="step_select_title">Онро асосӣ кунед</string>
+    <string name="step_select_subtitle">Интихоб дар равзанаи системавӣ</string>
+    <string name="step_select_subtitle_active">Равзанаи системавии интихоб кушода мешавад</string>
+    <string name="step_select_mock_caption">Интихоби усули воридкунӣ</string>
+    <string name="step_select_mock_poke">интихоб кунед</string>
+    <string name="step_select_action">Интихоби клавиатура</string>
+    <string name="step_try_title">Ҳарфҳоро санҷед</string>
+    <string name="step_try_subtitle">Ҳамин ҷо, дар барнома</string>
+    <string name="hint_warning_title">Чаро Android огоҳ мекунад?</string>
+    <string name="hint_warning_body">Система ин паёмро барои ҳар гуна клавиатураи бегона нишон медиҳад. Онро бемалол тасдиқ кардан мумкин аст.</string>
+    <string name="hint_switch_back_title">Баргаштан осон аст</string>
+    <string name="hint_switch_back_body">Нишонаи клавиатура дар поёни экран ҳамин интихобро дар ҳар барнома мекушояд.</string>
+    <string name="try_placeholder">Чизе нависед…</string>
+    <string name="try_done">Тайёр, ба танзимот</string>
+    <string name="coach_title">Ҳарф дар ин ҷо интихоб мешавад</string>
+    <string name="coach_body">Услуб ба ҳарфҳои навбатӣ татбиқ мешавад</string>
+</resources>

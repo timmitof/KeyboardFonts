@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="key_hide_keyboard">Пинҳон кардани клавиатура</string>
+    <string name="quick_settings_split">Клавиатураи тақсимшуда</string>
+    <string name="emoji_recent_empty">Ҳоло эмодзиҳои охирин нест</string>
+    <string name="emoji_search_hint">Ҷустуҷӯи эмодзи</string>
+    <string name="emoji_search_start_typing">Барои ёфтани эмодзи навиштанро оғоз кунед</string>
+    <string name="emoji_search_no_results">Ҳеҷ чиз ёфт нашуд</string>
+    <string name="cursor_mode_hint">Барои идораи курсор ангуштро кашед</string>
+    <string name="field_notice_password">Воридшуда нигоҳ дошта намешавад</string>
+    <string name="fonts_not_available">Ҳарфҳо дастрас нестанд</string>
+    <string name="fonts_expand">Ҳарфҳо</string>
+    <string name="fonts_collapse">Ҷамъ кардани ҳарфҳо</string>
+    <string name="keyboard_hide">Ҷамъ кардани клавиатура</string>
+    <string name="quick_settings_title">Танзимоти зуд</string>
+    <string name="overlay_close">Пӯшидан</string>
+    <string name="quick_settings_suggestions">Пешниҳодҳои T9</string>
+    <string name="quick_settings_autocorrect_on">Ислоҳи худкор фаъол аст</string>
+    <string name="quick_settings_autocorrect_off">Ислоҳи худкор хомӯш аст</string>
+    <string name="quick_settings_fonts">Ҳарфҳо</string>
+    <string name="quick_settings_height">Баландӣ</string>
+    <string name="quick_settings_vibration">Ларзиш</string>
+    <string name="quick_settings_theme">Мавзӯъ</string>
+    <string name="quick_settings_open_app">Ҳамаи танзимот дар барнома</string>
+    <string name="keyboard_theme_auto">Худкор</string>
+    <string name="keyboard_theme_light">Равшан</string>
+    <string name="keyboard_theme_dark">Торик</string>
+    <string name="clipboard_title">Буфери мубодила</string>
+    <string name="clipboard_clear">Тоза кардани охиринҳо</string>
+    <string name="clipboard_pinned">Васлшуда</string>
+    <string name="clipboard_recent">Охиринҳо</string>
+    <string name="clipboard_empty">Матнро нусха бардоред — он дар ин ҷо пайдо мешавад</string>
+    <string name="clipboard_pin">Васл кардан</string>
+    <string name="clipboard_unpin">Ҷудо кардан</string>
+    <string name="clipboard_delete">Нест кардан</string>
+    <string name="clipboard_open_app">Таърихи буфер дар барнома</string>
+    <string name="emoji_category_recent">Охиринҳо</string>
+    <string name="emoji_category_smileys">Табассумҳо ва эҳсосот</string>
+    <string name="emoji_category_people">Одамон ва бадан</string>
+    <string name="emoji_category_animals">Ҳайвонот ва табиат</string>
+    <string name="emoji_category_food">Хӯрок ва нӯшокӣ</string>
+    <string name="emoji_category_activities">Фаъолиятҳо</string>
+    <string name="emoji_category_travel">Сафар ва ҷойҳо</string>
+    <string name="emoji_category_objects">Ашё</string>
+    <string name="emoji_category_symbols">Рамзҳо</string>
+    <string name="emoji_category_flags">Парчамҳо</string>
+</resources>

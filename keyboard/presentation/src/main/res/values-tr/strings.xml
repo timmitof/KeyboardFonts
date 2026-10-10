@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="key_hide_keyboard">Klavyeyi gizle</string>
+    <string name="quick_settings_split">Bölünmüş klavye</string>
+    <string name="emoji_recent_empty">Henüz son kullanılan emoji yok</string>
+    <string name="emoji_search_hint">Emoji ara</string>
+    <string name="emoji_search_start_typing">Emoji bulmak için yazmaya başlayın</string>
+    <string name="emoji_search_no_results">Hiçbir şey bulunamadı</string>
+    <string name="cursor_mode_hint">İmleci hareket ettirmek için parmağınızı sürükleyin</string>
+    <string name="field_notice_password">Giriş kaydedilmez</string>
+    <string name="fonts_not_available">Yazı tipleri kullanılamıyor</string>
+    <string name="fonts_expand">Yazı tipleri</string>
+    <string name="fonts_collapse">Yazı tiplerini daralt</string>
+    <string name="keyboard_hide">Klavyeyi daralt</string>
+    <string name="quick_settings_title">Hızlı ayarlar</string>
+    <string name="overlay_close">Kapat</string>
+    <string name="quick_settings_suggestions">T9 önerileri</string>
+    <string name="quick_settings_autocorrect_on">Otomatik düzeltme açık</string>
+    <string name="quick_settings_autocorrect_off">Otomatik düzeltme kapalı</string>
+    <string name="quick_settings_fonts">Yazı tipleri</string>
+    <string name="quick_settings_height">Yükseklik</string>
+    <string name="quick_settings_vibration">Titreşim</string>
+    <string name="quick_settings_theme">Tema</string>
+    <string name="quick_settings_open_app">Tüm ayarlar uygulamada</string>
+    <string name="keyboard_theme_auto">Otomatik</string>
+    <string name="keyboard_theme_light">Açık</string>
+    <string name="keyboard_theme_dark">Koyu</string>
+    <string name="clipboard_title">Pano</string>
+    <string name="clipboard_clear">Son kullanılanları temizle</string>
+    <string name="clipboard_pinned">Sabitlenenler</string>
+    <string name="clipboard_recent">Son kullanılanlar</string>
+    <string name="clipboard_empty">Bir metin kopyalayın — burada görünecek</string>
+    <string name="clipboard_pin">Sabitle</string>
+    <string name="clipboard_unpin">Sabitlemeyi kaldır</string>
+    <string name="clipboard_delete">Sil</string>
+    <string name="clipboard_open_app">Pano geçmişi uygulamada</string>
+    <string name="emoji_category_recent">Son kullanılanlar</string>
+    <string name="emoji_category_smileys">İfadeler ve duygular</string>
+    <string name="emoji_category_people">İnsanlar ve vücut</string>
+    <string name="emoji_category_animals">Hayvanlar ve doğa</string>
+    <string name="emoji_category_food">Yiyecek ve içecek</string>
+    <string name="emoji_category_activities">Etkinlikler</string>
+    <string name="emoji_category_travel">Seyahat ve yerler</string>
+    <string name="emoji_category_objects">Nesneler</string>
+    <string name="emoji_category_symbols">Semboller</string>
+    <string name="emoji_category_flags">Bayraklar</string>
+</resources>

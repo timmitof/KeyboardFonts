@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="key_hide_keyboard">Пернетақтаны жасыру</string>
+    <string name="quick_settings_split">Бөлінген пернетақта</string>
+    <string name="emoji_recent_empty">Соңғы эмодзилер әзірге жоқ</string>
+    <string name="emoji_search_hint">Эмодзи іздеу</string>
+    <string name="emoji_search_start_typing">Эмодзи табу үшін тере бастаңыз</string>
+    <string name="emoji_search_no_results">Ештеңе табылмады</string>
+    <string name="cursor_mode_hint">Курсорды басқару үшін саусағыңызды жылжытыңыз</string>
+    <string name="field_notice_password">Енгізілгені сақталмайды</string>
+    <string name="fonts_not_available">Қаріптер қолжетімсіз</string>
+    <string name="fonts_expand">Қаріптер</string>
+    <string name="fonts_collapse">Қаріптерді жию</string>
+    <string name="keyboard_hide">Пернетақтаны жию</string>
+    <string name="quick_settings_title">Жылдам баптаулар</string>
+    <string name="overlay_close">Жабу</string>
+    <string name="quick_settings_suggestions">T9 ұсыныстары</string>
+    <string name="quick_settings_autocorrect_on">Автотүзету қосулы</string>
+    <string name="quick_settings_autocorrect_off">Автотүзету өшірулі</string>
+    <string name="quick_settings_fonts">Қаріптер</string>
+    <string name="quick_settings_height">Биіктік</string>
+    <string name="quick_settings_vibration">Діріл</string>
+    <string name="quick_settings_theme">Тақырып</string>
+    <string name="quick_settings_open_app">Барлық баптаулар қолданбада</string>
+    <string name="keyboard_theme_auto">Авто</string>
+    <string name="keyboard_theme_light">Ашық</string>
+    <string name="keyboard_theme_dark">Қараңғы</string>
+    <string name="clipboard_title">Алмасу буфері</string>
+    <string name="clipboard_clear">Соңғыларын тазалау</string>
+    <string name="clipboard_pinned">Бекітілген</string>
+    <string name="clipboard_recent">Соңғылары</string>
+    <string name="clipboard_empty">Мәтінді көшіріңіз — ол осында пайда болады</string>
+    <string name="clipboard_pin">Бекіту</string>
+    <string name="clipboard_unpin">Бекітуден алу</string>
+    <string name="clipboard_delete">Жою</string>
+    <string name="clipboard_open_app">Буфер тарихы қолданбада</string>
+    <string name="emoji_category_recent">Соңғылары</string>
+    <string name="emoji_category_smileys">Смайликтер мен эмоциялар</string>
+    <string name="emoji_category_people">Адамдар мен дене</string>
+    <string name="emoji_category_animals">Жануарлар мен табиғат</string>
+    <string name="emoji_category_food">Тағам мен сусын</string>
+    <string name="emoji_category_activities">Іс-шаралар</string>
+    <string name="emoji_category_travel">Саяхат пен орындар</string>
+    <string name="emoji_category_objects">Заттар</string>
+    <string name="emoji_category_symbols">Таңбалар</string>
+    <string name="emoji_category_flags">Жалаулар</string>
+</resources>

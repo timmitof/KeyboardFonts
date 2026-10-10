@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="backgrounds">Templates</string>
+    <string name="onboarding_status_connected">Connected</string>
+    <string name="onboarding_enable_title">Let\'s connect the keyboard</string>
+    <string name="onboarding_enable_lead">Two steps in Android settings — about 20 seconds. Then you can try the fonts right away.</string>
+    <string name="onboarding_select_title">One more step</string>
+    <string name="onboarding_select_lead">The keyboard is enabled. Now just select it for typing.</string>
+    <string name="onboarding_try_title">Try it</string>
+    <string name="onboarding_try_lead">Tap the styles above the keys — the text changes instantly.</string>
+    <string name="step_enable_title">Enable Keyboard Fonts</string>
+    <string name="step_enable_subtitle">In the Android keyboard list</string>
+    <string name="step_enable_done_title">Keyboard Fonts is enabled</string>
+    <string name="step_enable_done_subtitle">Done</string>
+    <string name="step_enable_mock_caption">Settings › On-screen keyboard</string>
+    <string name="step_enable_mock_poke">tap</string>
+    <string name="step_enable_action">Open settings</string>
+    <string name="step_select_title">Make it your main keyboard</string>
+    <string name="step_select_subtitle">Choose it in the system window</string>
+    <string name="step_select_subtitle_active">The system picker will open</string>
+    <string name="step_select_mock_caption">Choose input method</string>
+    <string name="step_select_mock_poke">select</string>
+    <string name="step_select_action">Choose keyboard</string>
+    <string name="step_try_title">Try the fonts</string>
+    <string name="step_try_subtitle">Right here in the app</string>
+    <string name="hint_warning_title">Why does Android show a warning?</string>
+    <string name="hint_warning_body">The system shows this message for any third-party keyboard. It\'s safe to confirm.</string>
+    <string name="hint_switch_back_title">Switching back is easy</string>
+    <string name="hint_switch_back_body">The keyboard icon at the bottom of the screen opens the same picker in any app.</string>
+    <string name="try_placeholder">Type something…</string>
+    <string name="try_done">Done, go to settings</string>
+    <string name="coach_title">Pick a font here</string>
+    <string name="coach_body">The style applies to the next letters</string>
+</resources>

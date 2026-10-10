@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="backgrounds">Үлгүлөр</string>
+    <string name="onboarding_status_connected">Туташкан</string>
+    <string name="onboarding_enable_title">Баскычтопту туташтыралы</string>
+    <string name="onboarding_enable_lead">Android жөндөөлөрүндө эки кадам — болжол менен 20 секунд. Андан кийин дароо ариптерди сынап көрөсүз.</string>
+    <string name="onboarding_select_title">Дагы бир кадам</string>
+    <string name="onboarding_select_lead">Баскычтоп күйгүзүлдү. Эми аны текст киргизүү үчүн тандоо гана калды.</string>
+    <string name="onboarding_try_title">Сынап көрүңүз</string>
+    <string name="onboarding_try_lead">Баскычтардын үстүндөгү стилдерди басыңыз — текст дароо өзгөрөт.</string>
+    <string name="step_enable_title">Keyboard Fonts\'ту күйгүзүңүз</string>
+    <string name="step_enable_subtitle">Android баскычтоптор тизмесинде</string>
+    <string name="step_enable_done_title">Keyboard Fonts күйгүзүлдү</string>
+    <string name="step_enable_done_subtitle">Даяр</string>
+    <string name="step_enable_mock_caption">Жөндөөлөр › Экрандагы баскычтоп</string>
+    <string name="step_enable_mock_poke">басыңыз</string>
+    <string name="step_enable_action">Жөндөөлөрдү ачуу</string>
+    <string name="step_select_title">Аны негизги кылыңыз</string>
+    <string name="step_select_subtitle">Системалык терезеден тандоо</string>
+    <string name="step_select_subtitle_active">Системалык тандоо терезеси ачылат</string>
+    <string name="step_select_mock_caption">Киргизүү ыкмасын тандоо</string>
+    <string name="step_select_mock_poke">тандаңыз</string>
+    <string name="step_select_action">Баскычтопту тандоо</string>
+    <string name="step_try_title">Ариптерди сынап көрүңүз</string>
+    <string name="step_try_subtitle">Ушул жерде, колдонмодо</string>
+    <string name="hint_warning_title">Android эмне үчүн эскертет?</string>
+    <string name="hint_warning_body">Система бул билдирүүнү ар кандай бөтөн баскычтоп үчүн көрсөтөт. Аны тайманбай ырастай берсеңиз болот.</string>
+    <string name="hint_switch_back_title">Кайра которулуу оңой</string>
+    <string name="hint_switch_back_body">Экрандын ылдыйкы жагындагы баскычтоп сөлөкөтү ар кандай колдонмодо ушул эле тандоону ачат.</string>
+    <string name="try_placeholder">Бир нерсе жазыңыз…</string>
+    <string name="try_done">Даяр, жөндөөлөргө өтүү</string>
+    <string name="coach_title">Арип ушул жерден тандалат</string>
+    <string name="coach_body">Стиль кийинки тамгаларга колдонулат</string>
+</resources>

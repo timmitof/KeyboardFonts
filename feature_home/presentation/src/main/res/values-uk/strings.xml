@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="backgrounds">Шаблони</string>
+    <string name="onboarding_status_connected">Підключена</string>
+    <string name="onboarding_enable_title">Підключимо клавіатуру</string>
+    <string name="onboarding_enable_lead">Два кроки в налаштуваннях Android — близько 20 секунд. Потім одразу спробуєте шрифти.</string>
+    <string name="onboarding_select_title">Ще один крок</string>
+    <string name="onboarding_select_lead">Клавіатуру ввімкнено. Залишилося вибрати її для введення тексту.</string>
+    <string name="onboarding_try_title">Спробуйте</string>
+    <string name="onboarding_try_lead">Натискайте на стилі над клавішами — текст змінюється одразу.</string>
+    <string name="step_enable_title">Увімкніть Keyboard Fonts</string>
+    <string name="step_enable_subtitle">У списку клавіатур Android</string>
+    <string name="step_enable_done_title">Keyboard Fonts увімкнено</string>
+    <string name="step_enable_done_subtitle">Готово</string>
+    <string name="step_enable_mock_caption">Налаштування › Екранна клавіатура</string>
+    <string name="step_enable_mock_poke">натисніть</string>
+    <string name="step_enable_action">Відкрити налаштування</string>
+    <string name="step_select_title">Зробіть її основною</string>
+    <string name="step_select_subtitle">Вибір у системному вікні</string>
+    <string name="step_select_subtitle_active">Відкриється системне вікно вибору</string>
+    <string name="step_select_mock_caption">Вибір способу введення</string>
+    <string name="step_select_mock_poke">виберіть</string>
+    <string name="step_select_action">Вибрати клавіатуру</string>
+    <string name="step_try_title">Спробуйте шрифти</string>
+    <string name="step_try_subtitle">Просто тут, у застосунку</string>
+    <string name="hint_warning_title">Чому Android попереджає?</string>
+    <string name="hint_warning_body">Система показує це повідомлення для будь-якої сторонньої клавіатури. Його можна сміливо підтвердити.</string>
+    <string name="hint_switch_back_title">Переключитися назад легко</string>
+    <string name="hint_switch_back_body">Значок клавіатури внизу екрана відкриває цей самий вибір у будь-якому застосунку.</string>
+    <string name="try_placeholder">Напишіть що-небудь…</string>
+    <string name="try_done">Готово, до налаштувань</string>
+    <string name="coach_title">Шрифт вибирається тут</string>
+    <string name="coach_body">Стиль застосовується до наступних літер</string>
+</resources>

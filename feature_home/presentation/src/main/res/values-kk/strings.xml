@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="backgrounds">Үлгілер</string>
+    <string name="onboarding_status_connected">Қосылған</string>
+    <string name="onboarding_enable_title">Пернетақтаны қосайық</string>
+    <string name="onboarding_enable_lead">Android баптауларында екі қадам — шамамен 20 секунд. Содан кейін бірден қаріптерді байқап көресіз.</string>
+    <string name="onboarding_select_title">Тағы бір қадам</string>
+    <string name="onboarding_select_lead">Пернетақта қосылды. Енді оны мәтін енгізу үшін таңдау қалды.</string>
+    <string name="onboarding_try_title">Байқап көріңіз</string>
+    <string name="onboarding_try_lead">Пернелердің үстіндегі стильдерді басыңыз — мәтін бірден өзгереді.</string>
+    <string name="step_enable_title">Keyboard Fonts қосыңыз</string>
+    <string name="step_enable_subtitle">Android пернетақталар тізімінде</string>
+    <string name="step_enable_done_title">Keyboard Fonts қосылды</string>
+    <string name="step_enable_done_subtitle">Дайын</string>
+    <string name="step_enable_mock_caption">Баптаулар › Экрандағы пернетақта</string>
+    <string name="step_enable_mock_poke">басыңыз</string>
+    <string name="step_enable_action">Баптауларды ашу</string>
+    <string name="step_select_title">Оны негізгі етіңіз</string>
+    <string name="step_select_subtitle">Жүйелік терезеде таңдау</string>
+    <string name="step_select_subtitle_active">Жүйелік таңдау терезесі ашылады</string>
+    <string name="step_select_mock_caption">Енгізу әдісін таңдау</string>
+    <string name="step_select_mock_poke">таңдаңыз</string>
+    <string name="step_select_action">Пернетақтаны таңдау</string>
+    <string name="step_try_title">Қаріптерді байқап көріңіз</string>
+    <string name="step_try_subtitle">Осы жерде, қолданбада</string>
+    <string name="hint_warning_title">Android неге ескертеді?</string>
+    <string name="hint_warning_body">Жүйе бұл хабарды кез келген бөгде пернетақта үшін көрсетеді. Оны қорықпай растай беруге болады.</string>
+    <string name="hint_switch_back_title">Кері ауысу оңай</string>
+    <string name="hint_switch_back_body">Экранның төменгі жағындағы пернетақта белгішесі кез келген қолданбада осы таңдауды ашады.</string>
+    <string name="try_placeholder">Бірдеңе жазыңыз…</string>
+    <string name="try_done">Дайын, баптауларға өту</string>
+    <string name="coach_title">Қаріп осы жерде таңдалады</string>
+    <string name="coach_body">Стиль келесі әріптерге қолданылады</string>
+</resources>

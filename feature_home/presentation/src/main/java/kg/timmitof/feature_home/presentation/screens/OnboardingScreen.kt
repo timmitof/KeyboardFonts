@@ -44,6 +44,7 @@ import androidx.lifecycle.compose.LifecycleResumeEffect
 import kg.timmitof.core.ui.R as UiR
 import kg.timmitof.core.ui.base.Container
 import kg.timmitof.core.ui.base.ContainerDSLBuilder
+import kg.timmitof.core.ui.components.brand.AppLanguageButton
 import kg.timmitof.core.ui.components.brand.BrandHeader
 import kg.timmitof.core.ui.components.brand.StatusPill
 import kg.timmitof.core.ui.components.hint.HintCard
@@ -103,6 +104,7 @@ internal fun ContainerDSLBuilder<OnboardingSideEffect, OnboardingEvent>.Onboardi
             .padding(horizontal = HorizontalPadding)
     ) {
         BrandHeader(title = stringResource(R.string.app_title)) {
+            AppLanguageButton()
             AnimatedVisibility(
                 visible = isReady,
                 enter = fadeIn() + scaleIn(spring(dampingRatio = 0.6f, stiffness = 500f)),

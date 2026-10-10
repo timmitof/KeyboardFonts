@@ -24,6 +24,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import kg.timmitof.core.ui.base.Container
 import kg.timmitof.core.ui.base.ContainerDSLBuilder
+import kg.timmitof.core.ui.components.brand.AppLanguageButton
 import kg.timmitof.core.ui.components.brand.BrandHeader
 import kg.timmitof.core.ui.components.brand.StatusPill
 import kg.timmitof.core.ui.components.hint.TipsCard
@@ -261,6 +262,7 @@ private fun StudioHeader(
         modifier = Modifier.padding(horizontal = HorizontalPadding),
         title = stringResource(R.string.studio_app_name),
     ) {
+        AppLanguageButton()
         if (isKeyboardReady) {
             StatusPill(
                 text = stringResource(R.string.studio_status_active),

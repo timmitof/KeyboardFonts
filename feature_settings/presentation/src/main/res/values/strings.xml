@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="studio_app_name">Keyboard Fonts</string>
+    <string name="studio_app_name" translatable="false">Keyboard Fonts</string>
     <string name="studio_status_active">Активна</string>
     <string name="studio_status_not_ready">Не подключена</string>
 
     <!-- Предпросмотр -->
-    <string name="studio_preview_sample">Hello</string>
-    <string name="studio_preview_sample_cyrillic">Привет</string>
+    <string name="studio_preview_sample" translatable="false">Hello</string>
+    <string name="studio_preview_sample_cyrillic" translatable="false">Привет</string>
     <string name="studio_preview_check">Проверить</string>
 
     <!-- Вкладки -->
@@ -134,10 +134,10 @@
 
     <!-- Размер -->
     <string name="size_height_title">Высота</string>
-    <string name="size_height_s">S</string>
-    <string name="size_height_m">M</string>
-    <string name="size_height_l">L</string>
-    <string name="size_height_xl">XL</string>
+    <string name="size_height_s" translatable="false">S</string>
+    <string name="size_height_m" translatable="false">M</string>
+    <string name="size_height_l" translatable="false">L</string>
+    <string name="size_height_xl" translatable="false">XL</string>
     <string name="size_digits_row_title">Цифровой ряд</string>
     <string name="size_digits_row_description">Цифры всегда над буквами</string>
     <string name="size_split_title">Разделённая клавиатура</string>
@@ -147,7 +147,7 @@
     <string name="sound_vibration_title">Вибрация при нажатии</string>
     <string name="sound_click_title">Звук нажатия</string>
     <string name="sound_volume_title">Громкость</string>
-    <string name="sound_volume_value">%1$d %%</string>
+    <string name="sound_volume_value" translatable="false">%1$d %%</string>
     <string name="sound_pack_header">Звук клавиш</string>
     <string name="sound_pack_system">Системный</string>
     <string name="sound_pack_mechanical">Механика</string>

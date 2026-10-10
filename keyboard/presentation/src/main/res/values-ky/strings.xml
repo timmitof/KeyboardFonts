@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="key_hide_keyboard">Баскычтопту жашыруу</string>
+    <string name="quick_settings_split">Бөлүнгөн баскычтоп</string>
+    <string name="emoji_recent_empty">Акыркы эмодзилер азырынча жок</string>
+    <string name="emoji_search_hint">Эмодзи издөө</string>
+    <string name="emoji_search_start_typing">Эмодзи табуу үчүн тере баштаңыз</string>
+    <string name="emoji_search_no_results">Эч нерсе табылган жок</string>
+    <string name="cursor_mode_hint">Курсорду башкаруу үчүн манжаңызды жылдырыңыз</string>
+    <string name="field_notice_password">Киргизилгени сакталбайт</string>
+    <string name="fonts_not_available">Ариптер жеткиликсиз</string>
+    <string name="fonts_expand">Ариптер</string>
+    <string name="fonts_collapse">Ариптерди жыйноо</string>
+    <string name="keyboard_hide">Баскычтопту жыйноо</string>
+    <string name="quick_settings_title">Ыкчам жөндөөлөр</string>
+    <string name="overlay_close">Жабуу</string>
+    <string name="quick_settings_suggestions">T9 сунуштары</string>
+    <string name="quick_settings_autocorrect_on">Автооңдоо күйгүзүлгөн</string>
+    <string name="quick_settings_autocorrect_off">Автооңдоо өчүрүлгөн</string>
+    <string name="quick_settings_fonts">Ариптер</string>
+    <string name="quick_settings_height">Бийиктик</string>
+    <string name="quick_settings_vibration">Титирөө</string>
+    <string name="quick_settings_theme">Тема</string>
+    <string name="quick_settings_open_app">Бардык жөндөөлөр колдонмодо</string>
+    <string name="keyboard_theme_auto">Авто</string>
+    <string name="keyboard_theme_light">Жарык</string>
+    <string name="keyboard_theme_dark">Караңгы</string>
+    <string name="clipboard_title">Алмашуу буфери</string>
+    <string name="clipboard_clear">Акыркыларды тазалоо</string>
+    <string name="clipboard_pinned">Кадалган</string>
+    <string name="clipboard_recent">Акыркылар</string>
+    <string name="clipboard_empty">Текстти көчүрүңүз — ал ушул жерде пайда болот</string>
+    <string name="clipboard_pin">Кадоо</string>
+    <string name="clipboard_unpin">Бошотуу</string>
+    <string name="clipboard_delete">Өчүрүү</string>
+    <string name="clipboard_open_app">Буфер таржымалы колдонмодо</string>
+    <string name="emoji_category_recent">Акыркылар</string>
+    <string name="emoji_category_smileys">Смайликтер жана сезимдер</string>
+    <string name="emoji_category_people">Адамдар жана дене</string>
+    <string name="emoji_category_animals">Жаныбарлар жана жаратылыш</string>
+    <string name="emoji_category_food">Тамак-аш жана суусундуктар</string>
+    <string name="emoji_category_activities">Иш-аракеттер</string>
+    <string name="emoji_category_travel">Саякат жана жерлер</string>
+    <string name="emoji_category_objects">Буюмдар</string>
+    <string name="emoji_category_symbols">Белгилер</string>
+    <string name="emoji_category_flags">Желектер</string>
+</resources>
