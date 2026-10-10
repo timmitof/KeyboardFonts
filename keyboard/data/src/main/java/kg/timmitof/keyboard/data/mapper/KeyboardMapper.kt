@@ -58,8 +58,8 @@ object KeyboardMapper {
     }
 
     private fun KeyLongPressDto.toSymbols(): LongPressAction.Symbols? {
-        val options = symbols.orEmpty().map { KeyCharacter(it) } +
-            characters.orEmpty().map { KeyCharacter(it.labelLower, it.labelUpper ?: it.labelLower) }
+        val options = characters.orEmpty().map { KeyCharacter(it.labelLower, it.labelUpper ?: it.labelLower) } +
+                symbols.orEmpty().map { KeyCharacter(it) }
 
         return options.takeIf { it.isNotEmpty() }?.let { LongPressAction.Symbols(it) }
     }

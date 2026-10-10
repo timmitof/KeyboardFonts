@@ -27,4 +27,12 @@ keyboardLanguages {
             singleLetters = "aio"
         }
     }
+    language("ky_kg") {
+        name = "Кыргызча"
+        alphabet = "абвгдеёжзийклмнңоөпрстуүфхцчшщъыьэюя"
+    }
+    language("kk_kz") {
+        name = "Қазақша"
+        alphabet = "аәбвгғдеёжзийкқлмнңоөпрстуұүфхһцчшщъыіьэюя"
+    }
 }
