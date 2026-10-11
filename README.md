@@ -24,22 +24,30 @@ Keyboard Fonts заменяет стандартную клавиатуру и �
 
 <table>
   <tr>
-    <td><img src="docs/screenshots/01-hero.png" width="200" alt="Красивые шрифты в любой переписке"></td>
-    <td><img src="docs/screenshots/03-background.png" width="200" alt="Свой фон: фото, цвет или узор"></td>
-    <td><img src="docs/screenshots/04-themes.png" width="200" alt="Светлая, тёмная или своя тема"></td>
+    <td><img src="docs/screenshots/phone/phone-fonts-chat.png" width="160" alt="Пишите красивыми шрифтами в любом чате"></td>
+    <td><img src="docs/screenshots/phone/phone-font-styles.png" width="160" alt="34 стиля, смена в одно касание"></td>
+    <td><img src="docs/screenshots/phone/phone-chat-how.png" width="160" alt="Удивляйте друзей каждым сообщением"></td>
+    <td><img src="docs/screenshots/phone/phone-chat-stories.png" width="160" alt="Подписи для сторис и обложек"></td>
+    <td><img src="docs/screenshots/phone/phone-custom-background.png" width="160" alt="Своё фото или рисунок под клавишами"></td>
   </tr>
   <tr>
-    <td align="center">Шрифты в переписке</td>
+    <td align="center">Шрифты в чате</td>
+    <td align="center">34 стиля</td>
+    <td align="center">Переписка</td>
+    <td align="center">Для сторис</td>
     <td align="center">Свой фон</td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/phone/phone-themes.png" width="160" alt="Светлая, тёмная или фирменная тема"></td>
+    <td><img src="docs/screenshots/phone/phone-smart-input.png" width="160" alt="Подсказки слов и автозамена"></td>
+    <td><img src="docs/screenshots/phone/phone-languages.png" width="160" alt="Раскладки для разных языков"></td>
+    <td><img src="docs/screenshots/phone/phone-spare-clipboard.png" width="160" alt="Буфер обмена"></td>
+    <td><img src="docs/screenshots/phone/phone-spare-quick-setup.png" width="160" alt="Подключение за 20 секунд"></td>
+  </tr>
+  <tr>
     <td align="center">Темы</td>
-  </tr>
-  <tr>
-    <td><img src="docs/screenshots/05-smart-input.png" width="200" alt="Подсказки слов и автозамена"></td>
-    <td><img src="docs/screenshots/06-clipboard.png" width="200" alt="Буфер обмена"></td>
-    <td><img src="docs/screenshots/07-setup.png" width="200" alt="Подключение за 20 секунд"></td>
-  </tr>
-  <tr>
     <td align="center">Умный ввод</td>
+    <td align="center">Языки</td>
     <td align="center">Буфер обмена</td>
     <td align="center">Быстрый старт</td>
   </tr>
@@ -48,14 +56,16 @@ Keyboard Fonts заменяет стандартную клавиатуру и �
 ## Возможности
 
 ### Шрифты
-- Множество стилей для ввода
+- 34 стиля: Script, Gothic, Bold, Bubble и другие
 - Панель стилей над клавишами: шрифт меняется в одно касание
 - Порядок стилей настраивается перетаскиванием, ненужные можно скрыть
+- Подходит для переписки, подписей к сторис и обложек
 
 ### Оформление
 - Свой фон: фото из галереи с кадрированием, цвет или узоры
+- Рисование прямо на клавиатуре: кисть, ластик, текст и стикеры
 - Цвета клавиш подбираются под фон автоматически, при желании задаются вручную
-- Темы: светлая, тёмная или как в системе
+- Темы: светлая, тёмная, фирменная или как в системе
 - Отдельные цвета для букв, служебных клавиш и Enter, контур вместо тени
 
 ### Умный ввод
@@ -64,8 +74,13 @@ Keyboard Fonts заменяет стандартную клавиатуру и �
 - Подсказка следующего слова
 - Всё работает на устройстве, без отправки текста на сервер
 
+### Языки
+- Раскладки: русская, английская, кыргызская, казахская, узбекская, турецкая
+- Порядок переключения настраивается перетаскиванием
+
 ### Буфер обмена
 - История скопированного доступна прямо с клавиатуры
+- Окошко «Вставить» над клавиатурой сразу после копирования
 - Важные записи можно закрепить
 
 ### Удобство
