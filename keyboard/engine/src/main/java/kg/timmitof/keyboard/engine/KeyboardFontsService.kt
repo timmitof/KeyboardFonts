@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Handler
 import android.os.Looper
+import android.view.LayoutInflater
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import dagger.hilt.android.AndroidEntryPoint
@@ -48,6 +49,13 @@ internal class KeyboardFontsService : ComposeInputMethodService() {
     override fun attachBaseContext(newBase: Context) {
         super.attachBaseContext(AppLocale.wrap(newBase))
     }
+
+    private val serviceInflater: LayoutInflater by lazy {
+        LayoutInflater.from(baseContext).cloneInContext(this)
+    }
+
+    override fun getSystemService(name: String): Any? =
+        if (name == LAYOUT_INFLATER_SERVICE) serviceInflater else super.getSystemService(name)
 
     private val actionHandler = KeyboardActionHandler(
         context = this,
