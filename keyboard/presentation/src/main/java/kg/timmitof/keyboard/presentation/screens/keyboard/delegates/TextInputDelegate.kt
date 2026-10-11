@@ -17,11 +17,13 @@ internal class TextInputDelegate(
     private val layerDelegate: LayerDelegate,
     private val emojiDelegate: EmojiDelegate,
     private val suggestionsDelegate: SuggestionsDelegate,
+    private val usageTracker: UsageTracker,
 ) {
 
     /** Регистр выбирается здесь, а не при отрисовке: при нескольких одновременных нажатиях Shift в клавише устаревает. */
     suspend fun KeyboardSyntax.typeCharacter(character: KeyCharacter) {
         val char = character.text(state.shiftState.isUpperCase())
+        if (state.layer != KeyboardLayer.EMOJI_SEARCH) usageTracker.onCharacter(isStyled = !state.activeFont.isDefault)
 
         // Точка, запятая и прочие разделители заканчивают слово так же, как пробел.
         if (char.isSeparator() && state.layer != KeyboardLayer.EMOJI_SEARCH) {
@@ -64,6 +66,7 @@ internal class TextInputDelegate(
     suspend fun KeyboardSyntax.applySuggestion(suggestion: WordSuggestion) {
         val styled = state.activeFont.apply(suggestion.text)
         replaceWord("$styled ")
+        usageTracker.onSuggestionPicked()
 
         suggestionsDelegate.learnWord(state, suggestion.text, isDeliberate = true)
         reduce { state.copy(suggestions = emptyList(), suggestionsWord = "", autoCorrection = null) }
@@ -110,10 +113,12 @@ internal class TextInputDelegate(
             ?.let { suggestionsDelegate.awaitCorrection(state) }
 
         if (separator.isSeparator()) releaseCapsLock()
+        if (typed.isNotEmpty()) usageTracker.onWord()
 
         if (correction != null) {
             val corrected = state.activeFont.apply(correction.text) + separator
             replaceWord(corrected)
+            usageTracker.onAutoCorrection()
 
             // Предыдущее слово берём до правки снимка: при отмене пару надо разучить ровно ту же.
             val previousWord = state.textContext.previousWord
@@ -289,7 +294,10 @@ internal class TextInputDelegate(
         with(suggestionsDelegate) {
             applyLocalEdit { it.removingLast(correction.corrected.length).appending(correction.original) }
         }
-        correction.rejection?.let { suggestionsDelegate.rejectAutoCorrection(state, it) }
+        correction.rejection?.let { rejection ->
+            usageTracker.onAutoCorrectionUndone()
+            suggestionsDelegate.rejectAutoCorrection(state, rejection)
+        }
         return true
     }
 

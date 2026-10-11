@@ -12,6 +12,8 @@ android {
 }
 
 dependencies {
+    // Analytics — в конструкторе BaseViewModel, поэтому виден всем наследникам.
+    api(project(":core:analytics"))
     implementation(project(":core:common"))
     implementation(project(":core:navigation"))
 

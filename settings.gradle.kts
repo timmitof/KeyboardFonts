@@ -44,6 +44,7 @@ rootProject.name = "KeyboardFonts"
 include(":app")
 
 include(
+    ":core:analytics",
     ":core:common",
     ":core:data",
     ":core:navigation",

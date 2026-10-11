@@ -1,6 +1,8 @@
 package kg.timmitof.feature_settings.presentation.screens
 
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kg.timmitof.core.analytics.Analytics
+import kg.timmitof.core.analytics.AnalyticsEvents
 import kg.timmitof.core.navigation.graphs.HomeGraph
 import kg.timmitof.core.navigation.graphs.SettingsGraph
 import kg.timmitof.core.ui.base.BaseSideEffect
@@ -14,12 +16,14 @@ import kg.timmitof.keyboard.domain.model.KeyboardSoundPack
 import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
 import kg.timmitof.keyboard.domain.model.KeyboardToggle
 import org.orbitmvi.orbit.syntax.Syntax
+import kotlin.math.roundToInt
 import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val settingsInteractor: SettingsInteractor
-) : BaseViewModel<SettingsState, SettingsSideEffect, SettingsEvent>(SettingsState()) {
+    private val settingsInteractor: SettingsInteractor,
+    analytics: Analytics,
+) : BaseViewModel<SettingsState, SettingsSideEffect, SettingsEvent>(SettingsState(), analytics) {
 
     init {
         observeSettings()
@@ -46,7 +50,10 @@ class SettingsViewModel @Inject constructor(
             is SettingsEvent.TabSelected -> selectTab(event.tab)
             is SettingsEvent.ClearRecentClipboardClicked -> clearRecentClipboard()
             is SettingsEvent.ScreenResumed -> loadSummary()
-            is SettingsEvent.ConnectKeyboardClicked -> navigateTo(HomeGraph.OnboardingScreen(isFromSettings = true))
+            is SettingsEvent.ConnectKeyboardClicked -> {
+                analytics.log(AnalyticsEvents.Settings.connectKeyboardClick())
+                navigateTo(HomeGraph.OnboardingScreen(isFromSettings = true))
+            }
         }
     }
 
@@ -84,31 +91,40 @@ class SettingsViewModel @Inject constructor(
     }
 
     private fun setEnabledLanguages(codes: List<String>) = intent {
-        if (codes.isNotEmpty()) settingsInteractor.setEnabledLanguages(codes)
+        if (codes.isEmpty()) return@intent
+
+        settingsInteractor.setEnabledLanguages(codes)
+        analytics.log(AnalyticsEvents.Settings.languages(codes))
     }
 
     private fun setPanelFonts(ids: List<String>) = intent {
         settingsInteractor.setPanelFonts(ids)
+        analytics.log(AnalyticsEvents.Settings.fontPanel(ids.size))
     }
 
     private fun resetFontPanel() = intent {
         settingsInteractor.resetFontPanel()
+        analytics.log(AnalyticsEvents.Settings.fontPanelReset())
     }
 
     private fun setToggle(toggle: KeyboardToggle, enabled: Boolean) = intent {
         settingsInteractor.setToggle(toggle, enabled)
+        analytics.log(AnalyticsEvents.Settings.toggle(toggle.key, enabled))
     }
 
     private fun setTheme(mode: KeyboardThemeMode) = intent {
         settingsInteractor.setTheme(mode)
+        analytics.log(AnalyticsEvents.Settings.theme(mode.key))
     }
 
     private fun setHeight(height: KeyboardHeight) = intent {
         settingsInteractor.setHeight(height)
+        analytics.log(AnalyticsEvents.Settings.height(height.key))
     }
 
     private fun setKeyColor(target: KeyColorTarget, argb: Long?) = intent {
         settingsInteractor.setKeyColor(target, argb)
+        analytics.log(AnalyticsEvents.Settings.keyColor(target.name.lowercase(), isCustom = argb != null))
     }
 
     private fun observePhotos() = intent {
@@ -120,27 +136,38 @@ class SettingsViewModel @Inject constructor(
     /** Фото копируется к нам целиком и сразу открывается настройка, какая его часть будет видна. */
     private fun addPhoto(uri: String) = intent {
         runCatching { settingsInteractor.addPhoto(uri) }
-            .onSuccess { photo -> navigateTo(SettingsGraph.BackgroundCropScreen(photo.id)) }
+            .onFailure(analytics::recordError)
+            .onSuccess { photo ->
+                analytics.log(AnalyticsEvents.Settings.photoAdd())
+                navigateTo(SettingsGraph.BackgroundCropScreen(photo.id))
+            }
     }
 
     private fun setBackground(background: KeyboardBackground) = intent {
         settingsInteractor.setBackground(background)
+        analytics.log(background.toAnalyticsEvent())
     }
 
     private fun setSoundPack(pack: KeyboardSoundPack) = intent {
         settingsInteractor.setSoundPack(pack)
+        analytics.log(AnalyticsEvents.Settings.soundPack(pack.key))
     }
 
     private fun setSoundVolume(volume: Float) = intent {
         settingsInteractor.setSoundVolume(volume)
+        analytics.log(AnalyticsEvents.Settings.soundVolume((volume * 10).roundToInt() * 10))
     }
 
     private fun selectTab(tab: StudioTab) = intent {
-        if (tab != state.selectedTab) reduce { state.copy(selectedTab = tab) }
+        if (tab == state.selectedTab) return@intent
+
+        reduce { state.copy(selectedTab = tab) }
+        analytics.log(AnalyticsEvents.Settings.tabOpen(tab.name.lowercase()))
     }
 
     private fun clearRecentClipboard() = intent {
         settingsInteractor.clearRecentClipboard()
+        analytics.log(AnalyticsEvents.Settings.clipboardClear())
     }
 
     private fun loadSummary() = intent {
@@ -148,5 +175,12 @@ class SettingsViewModel @Inject constructor(
         if (summary != state.summary) {
             reduce { state.copy(summary = summary) }
         }
+    }
+
+    private fun KeyboardBackground.toAnalyticsEvent() = when (this) {
+        KeyboardBackground.None -> AnalyticsEvents.Settings.background(type = "none", value = "")
+        is KeyboardBackground.Solid -> AnalyticsEvents.Settings.background(type = "solid", value = "")
+        is KeyboardBackground.Pattern -> AnalyticsEvents.Settings.background(type = "pattern", value = pattern.key)
+        is KeyboardBackground.Photo -> AnalyticsEvents.Settings.background(type = "photo", value = "")
     }
 }

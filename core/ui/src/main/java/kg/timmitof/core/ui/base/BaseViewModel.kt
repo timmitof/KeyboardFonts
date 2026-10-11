@@ -1,15 +1,20 @@
 package kg.timmitof.core.ui.base
 
 import androidx.lifecycle.ViewModel
+import kg.timmitof.core.analytics.Analytics
 import kotlinx.coroutines.CoroutineExceptionHandler
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.syntax.Syntax
 import org.orbitmvi.orbit.viewmodel.container
 
-/** База MVI ViewModel; [onBootstrap] вызывается один раз при создании, необработанные ошибки показываются тостом. */
+/**
+ * База MVI ViewModel; [onBootstrap] вызывается один раз при создании,
+ * необработанные ошибки показываются тостом и уходят в Crashlytics как non-fatal.
+ */
 abstract class BaseViewModel<STATE: BaseState, SIDE_EFFECT: BaseSideEffect.UiSideEffect, EVENT: BaseEvent.UiEvent>(
-    private val initialState: STATE
+    private val initialState: STATE,
+    protected val analytics: Analytics,
 ) : ViewModel(), ContainerHost<STATE, BaseSideEffect> {
 
     override val container: Container<STATE, BaseSideEffect> =
@@ -35,6 +40,7 @@ abstract class BaseViewModel<STATE: BaseState, SIDE_EFFECT: BaseSideEffect.UiSid
     protected open suspend fun Syntax<STATE, BaseSideEffect>.onBootstrap() {  }
 
     open fun defaultExceptionHandler(t: Throwable) = intent {
+        analytics.recordError(t)
         showToast(t.message ?: "error occurred")
     }
 

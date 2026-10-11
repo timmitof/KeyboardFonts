@@ -7,6 +7,12 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
+// Firebase настраивается файлом из консоли; без него сборка идёт, а аналитика молчит (см. AnalyticsModule).
+if (file("google-services.json").exists()) {
+    apply(plugin = libs.plugins.google.services.get().pluginId)
+    apply(plugin = libs.plugins.firebase.crashlytics.get().pluginId)
+}
+
 val keystorePropertiesFile = rootProject.file("keystore.properties")
 val keystoreProperties = Properties().apply {
     if (keystorePropertiesFile.exists()) {
@@ -46,7 +52,17 @@ android {
         }
     }
 
+    defaultConfig {
+        manifestPlaceholders["analyticsEnabled"] = true
+        buildConfigField("boolean", "ANALYTICS_ENABLED", "true")
+    }
+
     buildTypes {
+        // BuildConfig.DEBUG тут не годится: debug-сборка собирается с isDebuggable = false.
+        debug {
+            manifestPlaceholders["analyticsEnabled"] = false
+            buildConfigField("boolean", "ANALYTICS_ENABLED", "false")
+        }
         release {
             isMinifyEnabled = true
             isShrinkResources = true
@@ -63,6 +79,7 @@ android {
 dependencies {
     implementation(project(":keyboard:integration"))
     implementation(project(":keyboard:engine"))
+    implementation(project(":keyboard:domain"))
     // Hilt-модули собираются в графе приложения, поэтому di-слои подключаются здесь, а не в presentation.
     implementation(project(":keyboard:di"))
     implementation(project(":keyboard:suggestion:di"))
@@ -76,6 +93,7 @@ dependencies {
     implementation(project(":feature_home:feature_home_presentation"))
     implementation(project(":feature_settings:feature_settings_presentation"))
 
+    implementation(project(":core:analytics"))
     implementation(project(":core:common"))
     implementation(project(":core:data"))
     implementation(project(":core:navigation"))
@@ -90,6 +108,10 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.compose)
+
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.crashlytics)
 
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)

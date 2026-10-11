@@ -2,6 +2,7 @@ package kg.timmitof.keyboard.presentation.screens.keyboard
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import kg.timmitof.core.analytics.Analytics
 import kg.timmitof.keyboard.clipboard.domain.repository.ClipboardRepository
 import kg.timmitof.keyboard.domain.repository.EmojiRepository
 import kg.timmitof.keyboard.font.domain.repository.FontRepository
@@ -18,6 +19,7 @@ import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.LayerDelegat
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.SettingsDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.SuggestionsDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.TextInputDelegate
+import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.UsageTracker
 
 class KeyboardViewModelFactory(
     private val keyboardLayoutRepository: KeyboardLayoutRepository,
@@ -27,6 +29,7 @@ class KeyboardViewModelFactory(
     private val suggestionRepository: SuggestionRepository,
     private val keyboardSettingsRepository: KeyboardSettingsRepository,
     private val clipboardRepository: ClipboardRepository,
+    private val analytics: Analytics,
 ) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -34,11 +37,12 @@ class KeyboardViewModelFactory(
             val layerDelegate = LayerDelegate(keyboardLayoutRepository)
             val emojiDelegate = EmojiDelegate(emojiRepository, layerDelegate)
             val suggestionsDelegate = SuggestionsDelegate(suggestionRepository)
+            val usageTracker = UsageTracker(analytics)
 
             @Suppress("UNCHECKED_CAST")
             return KeyboardViewModel(
                 layerDelegate = layerDelegate,
-                textInputDelegate = TextInputDelegate(layerDelegate, emojiDelegate, suggestionsDelegate),
+                textInputDelegate = TextInputDelegate(layerDelegate, emojiDelegate, suggestionsDelegate, usageTracker),
                 emojiDelegate = emojiDelegate,
                 languageDelegate = LanguageDelegate(languageRepository, layerDelegate),
                 fontDelegate = FontDelegate(fontRepository),
@@ -46,6 +50,8 @@ class KeyboardViewModelFactory(
                 suggestionsDelegate = suggestionsDelegate,
                 settingsDelegate = SettingsDelegate(keyboardSettingsRepository),
                 clipboardDelegate = ClipboardDelegate(clipboardRepository),
+                usageTracker = usageTracker,
+                analytics = analytics,
             ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")

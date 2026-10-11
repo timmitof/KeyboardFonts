@@ -6,6 +6,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import dagger.hilt.android.AndroidEntryPoint
+import kg.timmitof.core.analytics.Analytics
+import javax.inject.Inject
 import kg.timmitof.keyboardfonts.ui.navigation.AppNavHost
 import kg.timmitof.core.navigation.LocalNavController
 import kg.timmitof.core.navigation.NavControllerProvider
@@ -14,6 +16,10 @@ import kg.timmitof.core.ui.theme.KeyboardFontsTheme
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var analytics: Analytics
+
     override fun attachBaseContext(newBase: Context) {
         super.attachBaseContext(AppLocale.wrap(newBase))
     }
@@ -25,7 +31,7 @@ class MainActivity : ComponentActivity() {
             KeyboardFontsTheme {
                 NavControllerProvider {
                     val navController = LocalNavController.current
-                    AppNavHost(navController = navController)
+                    AppNavHost(navController = navController, analytics = analytics)
                 }
             }
         }

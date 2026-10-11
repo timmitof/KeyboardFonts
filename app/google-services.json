@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "283602389735",
+    "project_id": "keyboardfonts-android",
+    "storage_bucket": "keyboardfonts-android.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:283602389735:android:92721bfe3eb8dd084c3042",
+        "android_client_info": {
+          "package_name": "kg.timmitof.keyboardfonts"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD0rnLRAhwNNLaEACGkbw1rfSU4cz86CgI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

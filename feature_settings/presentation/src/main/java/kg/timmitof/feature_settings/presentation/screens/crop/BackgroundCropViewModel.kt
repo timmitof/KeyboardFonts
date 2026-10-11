@@ -3,6 +3,7 @@ package kg.timmitof.feature_settings.presentation.screens.crop
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.toRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kg.timmitof.core.analytics.Analytics
 import kg.timmitof.core.navigation.graphs.SettingsGraph
 import kg.timmitof.core.ui.base.BaseSideEffect
 import kg.timmitof.core.ui.base.BaseViewModel
@@ -15,7 +16,8 @@ import javax.inject.Inject
 class BackgroundCropViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val settingsInteractor: SettingsInteractor,
-) : BaseViewModel<BackgroundCropState, BackgroundCropSideEffect, BackgroundCropEvent>(BackgroundCropState()) {
+    analytics: Analytics,
+) : BaseViewModel<BackgroundCropState, BackgroundCropSideEffect, BackgroundCropEvent>(BackgroundCropState(), analytics) {
 
     private val photoId = savedStateHandle.toRoute<SettingsGraph.BackgroundCropScreen>().photoId
 

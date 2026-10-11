@@ -7,6 +7,7 @@ import android.os.Looper
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import dagger.hilt.android.AndroidEntryPoint
+import kg.timmitof.core.analytics.Analytics
 import kg.timmitof.core.ui.locale.AppLocale
 import kg.timmitof.keyboard.suggestion.domain.model.TextContext
 import kg.timmitof.keyboard.clipboard.domain.repository.ClipboardRepository
@@ -45,6 +46,9 @@ internal class KeyboardFontsService : ComposeInputMethodService() {
     @Inject
     lateinit var clipboardRepository: ClipboardRepository
 
+    @Inject
+    lateinit var analytics: Analytics
+
     override fun attachBaseContext(newBase: Context) {
         super.attachBaseContext(AppLocale.wrap(newBase))
     }
@@ -72,6 +76,7 @@ internal class KeyboardFontsService : ComposeInputMethodService() {
             suggestionRepository = suggestionRepository,
             keyboardSettingsRepository = keyboardSettingsRepository,
             clipboardRepository = clipboardRepository,
+            analytics = analytics,
         ),
         onKeyboardAction = ::applyAction,
     ).also { keyboardView = it }

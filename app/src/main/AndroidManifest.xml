@@ -12,6 +12,19 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.KeyboardFonts" >
+
+        <!-- В debug-сборке сбор выключен (analyticsEnabled в app/build.gradle.kts): события идут только в Logcat. -->
+        <meta-data
+            android:name="firebase_analytics_collection_enabled"
+            android:value="${analyticsEnabled}" />
+        <meta-data
+            android:name="firebase_crashlytics_collection_enabled"
+            android:value="${analyticsEnabled}" />
+        <!-- Экраны — Compose-destination в одной активности, screen_view шлёт AppNavHost. -->
+        <meta-data
+            android:name="google_analytics_automatic_screen_reporting_enabled"
+            android:value="false" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"

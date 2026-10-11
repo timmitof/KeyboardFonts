@@ -1,6 +1,7 @@
 package kg.timmitof.feature_splash.presentation.screens
 
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kg.timmitof.core.analytics.Analytics
 import kg.timmitof.core.navigation.graphs.HomeGraph
 import kg.timmitof.core.navigation.graphs.SettingsGraph
 import kg.timmitof.core.navigation.graphs.SplashGraph
@@ -12,8 +13,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SplashViewModel @Inject constructor(
-    private val splashInteractor: SplashInteractor
-): BaseViewModel<SplashState, SplashSideEffect, SplashEvent>(SplashState()) {
+    private val splashInteractor: SplashInteractor,
+    analytics: Analytics,
+): BaseViewModel<SplashState, SplashSideEffect, SplashEvent>(SplashState(), analytics) {
     override fun onEvent(event: SplashEvent) {
         when (event) {
             SplashEvent.AnimationFinished -> navigateTo(

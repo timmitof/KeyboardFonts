@@ -21,6 +21,9 @@ import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardOverlay
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardSideEffect
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardState
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.QuickSetting
+import kg.timmitof.core.analytics.Analytics
+import kg.timmitof.core.analytics.AnalyticsEvents
+import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.UsageTracker
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -39,7 +42,9 @@ internal class KeyboardViewModel(
     private val suggestionsDelegate: SuggestionsDelegate,
     private val settingsDelegate: SettingsDelegate,
     private val clipboardDelegate: ClipboardDelegate,
-) : BaseViewModel<KeyboardState, KeyboardSideEffect, KeyboardEvent>(KeyboardState()) {
+    private val usageTracker: UsageTracker,
+    analytics: Analytics,
+) : BaseViewModel<KeyboardState, KeyboardSideEffect, KeyboardEvent>(KeyboardState(), analytics) {
 
     override fun onEvent(event: KeyboardEvent) {
         when (event) {
@@ -55,11 +60,18 @@ internal class KeyboardViewModel(
             is KeyboardEvent.OnBackspaceSelectChange -> intent { with(textInputDelegate) { changeBackspaceSelection(event.chars) } }
             is KeyboardEvent.OnBackspaceSelectCommit -> intent { with(textInputDelegate) { commitBackspaceSelection(event.chars) } }
             is KeyboardEvent.OnLanguageSelect -> intent {
+                usageTracker.log(AnalyticsEvents.Keyboard.languageSwitch(event.language.code))
                 with(languageDelegate) { selectLanguage(event.language) }
                 with(suggestionsDelegate) { requestSuggestions() }
             }
-            is KeyboardEvent.OnFontSelect -> intent { with(fontDelegate) { selectFont(event.font) } }
-            is KeyboardEvent.OnFontsExpandedChange -> intent { with(fontDelegate) { setFontsExpanded(event.expanded) } }
+            is KeyboardEvent.OnFontSelect -> intent {
+                with(fontDelegate) { selectFont(event.font) }
+                usageTracker.log(AnalyticsEvents.Keyboard.fontSelect(state.selectedFont.id))
+            }
+            is KeyboardEvent.OnFontsExpandedChange -> intent {
+                if (event.expanded) usageTracker.log(AnalyticsEvents.Keyboard.fontsOpen())
+                with(fontDelegate) { setFontsExpanded(event.expanded) }
+            }
             is KeyboardEvent.OnSymbolsSwitch -> intent { with(layerDelegate) { applyLayer(KeyboardLayer.SYMBOLS) } }
             is KeyboardEvent.OnSymbolsAltSwitch -> intent { with(layerDelegate) { toggleSymbolsAlt() } }
             is KeyboardEvent.OnAbcSwitch -> intent {
@@ -67,6 +79,7 @@ internal class KeyboardViewModel(
                 with(suggestionsDelegate) { requestSuggestions() }
             }
             is KeyboardEvent.OnEmojiSwitch -> {
+                usageTracker.log(AnalyticsEvents.Keyboard.emojiOpen())
                 intent {
                     with(textInputDelegate) { closeComposing() }
                     with(emojiDelegate) { openEmojiPanel() }
@@ -75,14 +88,19 @@ internal class KeyboardViewModel(
                 prefetchSearchIndex()
             }
             is KeyboardEvent.OnEmojiSelect -> intent {
+                usageTracker.onEmoji()
                 with(textInputDelegate) { closeComposing() }
                 with(emojiDelegate) { selectEmoji(event.emoji) }
             }
             is KeyboardEvent.OnEmojiVariantSelect -> intent {
+                usageTracker.onEmoji()
                 with(textInputDelegate) { closeComposing() }
                 with(emojiDelegate) { selectVariant(event.base, event.variant) }
             }
-            is KeyboardEvent.OnEmojiSearchOpen -> intent { with(emojiDelegate) { openSearch() } }
+            is KeyboardEvent.OnEmojiSearchOpen -> intent {
+                usageTracker.log(AnalyticsEvents.Keyboard.emojiSearch())
+                with(emojiDelegate) { openSearch() }
+            }
             is KeyboardEvent.OnEmojiSearchClose -> intent {
                 with(layerDelegate) { applyLayer(KeyboardLayer.EMOJI) }
                 with(suggestionsDelegate) { requestSuggestions() }
@@ -90,6 +108,7 @@ internal class KeyboardViewModel(
             is KeyboardEvent.OnEmojiSearchQueryChange -> intent { with(emojiDelegate) { updateSearchQuery(event.query) } }
             is KeyboardEvent.OnOverlayChange -> openOverlay(event.overlay)
             is KeyboardEvent.OnQuickSetting -> intent {
+                usageTracker.log(event.setting.toAnalyticsEvent())
                 when (val setting = event.setting) {
                     is QuickSetting.Toggle -> settingsDelegate.setToggle(setting.toggle, setting.isEnabled)
                     is QuickSetting.Height -> settingsDelegate.setHeight(setting.height)
@@ -97,17 +116,23 @@ internal class KeyboardViewModel(
                 }
             }
             is KeyboardEvent.OnClipboardPaste -> intent {
+                usageTracker.onClipboardPaste()
+                usageTracker.log(AnalyticsEvents.Keyboard.clipboardPaste(event.entry.isPinned))
                 with(textInputDelegate) { closeComposing() }
                 with(clipboardDelegate) { paste(event.entry.text) }
             }
             is KeyboardEvent.OnClipboardAction -> intent { clipboardDelegate.applyAction(event.action) }
             is KeyboardEvent.OnHideKeyboard -> intent { postSideEffect(KeyboardSideEffect.HideKeyboard) }
             is KeyboardEvent.OnOpenApp -> intent {
+                usageTracker.log(AnalyticsEvents.Keyboard.openApp())
                 reduce { state.copy(keyboardOverlay = null) }
                 postSideEffect(KeyboardSideEffect.OpenApp)
             }
             is KeyboardEvent.OnInputSessionChange -> resetInputSession()
-            is KeyboardEvent.OnInputSessionFinish -> viewModelScope.launch { suggestionsDelegate.flush() }
+            is KeyboardEvent.OnInputSessionFinish -> {
+                intent { usageTracker.finishSession(state) }
+                viewModelScope.launch { suggestionsDelegate.flush() }
+            }
             is KeyboardEvent.OnFieldContextChange -> intent {
                 with(fieldContextDelegate) { applyContext(event.context) }
                 with(suggestionsDelegate) { requestSuggestions() }
@@ -140,6 +165,9 @@ internal class KeyboardViewModel(
     }
 
     private fun openOverlay(overlay: KeyboardOverlay?) = intent {
+        if (overlay != null && overlay != state.keyboardOverlay) {
+            usageTracker.log(AnalyticsEvents.Keyboard.panelOpen(overlay.name.lowercase()))
+        }
         if (overlay == KeyboardOverlay.CLIPBOARD) clipboardDelegate.captureSystemClip()
 
         reduce { state.copy(keyboardOverlay = overlay) }
@@ -243,5 +271,11 @@ internal class KeyboardViewModel(
             )
         }
         with(layerDelegate) { applyLayer(KeyboardLayer.LETTERS) }
+    }
+
+    private fun QuickSetting.toAnalyticsEvent() = when (this) {
+        is QuickSetting.Toggle -> AnalyticsEvents.Keyboard.quickSetting(toggle.key, isEnabled.toString())
+        is QuickSetting.Height -> AnalyticsEvents.Keyboard.quickSetting("height", height.key)
+        is QuickSetting.Theme -> AnalyticsEvents.Keyboard.quickSetting("theme", theme.key)
     }
 }
