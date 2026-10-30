@@ -25,6 +25,10 @@ gradlePlugin {
             id = "keyboardfonts.library"
             implementationClass = "kg.timmitof.build_logic.convention.plugins.AndroidLibraryPlugin"
         }
+        register("keyboardfontsKmpLibrary") {
+            id = "keyboardfonts.kmp.library"
+            implementationClass = "kg.timmitof.build_logic.convention.plugins.KmpLibraryPlugin"
+        }
         register("presentationPlugin") {
             id = "keyboardfonts.presentation"
             implementationClass = "kg.timmitof.build_logic.convention.plugins.PresentationPlugin"

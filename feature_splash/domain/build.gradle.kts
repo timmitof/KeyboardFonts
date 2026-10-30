@@ -1,5 +1,7 @@
 plugins { id("keyboardfonts.domain") }
 
-dependencies {
-    api(project(":keyboard:integration"))
+kotlin {
+    sourceSets.commonMain.dependencies {
+        api(project(":keyboard:integration"))
+    }
 }
