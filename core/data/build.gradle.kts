@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.keyboardfonts.library)
-    alias(libs.plugins.hilt.android)
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin.serialization)
 }
@@ -16,8 +15,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.kotlin.kotlinx.serialization.json)
 
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.compiler)
+    implementation(libs.koin.android)
 
     implementation(libs.room.android)
     ksp(libs.room.compiler)

@@ -5,17 +5,13 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.webkit.MimeTypeMap
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /** Копия байт в байт: фото остаётся в полном размере и не зависит от галереи. */
-@Singleton
-class BackgroundPhotoStorage @Inject constructor(
-    @param:ApplicationContext private val context: Context,
+class BackgroundPhotoStorage(
+    private val context: Context,
 ) {
 
     private val directory = File(context.filesDir, DIRECTORY)

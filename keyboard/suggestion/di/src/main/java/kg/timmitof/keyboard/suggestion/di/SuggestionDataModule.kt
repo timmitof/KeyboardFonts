@@ -1,18 +1,19 @@
 package kg.timmitof.keyboard.suggestion.di
 
-import dagger.Binds
-import dagger.Module
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
+import kg.timmitof.keyboard.suggestion.data.LanguageModelLoader
+import kg.timmitof.keyboard.suggestion.data.SuggestionEngine
+import kg.timmitof.keyboard.suggestion.data.UserDictionaryStore
 import kg.timmitof.keyboard.suggestion.data.repository.SuggestionRepositoryImpl
 import kg.timmitof.keyboard.suggestion.domain.repository.SuggestionRepository
-import javax.inject.Singleton
+import org.koin.core.module.dsl.singleOf
+import org.koin.dsl.bind
+import org.koin.dsl.module
 
-@Module
-@InstallIn(SingletonComponent::class)
-abstract class SuggestionDataModule {
+val suggestionDataModule = module {
 
-    @Binds
-    @Singleton
-    abstract fun bindSuggestionRepository(impl: SuggestionRepositoryImpl): SuggestionRepository
+    singleOf(::SuggestionRepositoryImpl) bind SuggestionRepository::class
+
+    singleOf(::LanguageModelLoader)
+    singleOf(::UserDictionaryStore)
+    singleOf(::SuggestionEngine)
 }

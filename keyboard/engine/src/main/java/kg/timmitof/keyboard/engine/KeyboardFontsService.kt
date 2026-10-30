@@ -7,7 +7,6 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.inputmethod.EditorInfo
-import dagger.hilt.android.AndroidEntryPoint
 import kg.timmitof.core.ui.locale.AppLocale
 import kg.timmitof.keyboard.suggestion.domain.model.TextContext
 import kg.timmitof.keyboard.clipboard.domain.repository.ClipboardRepository
@@ -20,31 +19,23 @@ import kg.timmitof.keyboard.suggestion.domain.repository.SuggestionRepository
 import kg.timmitof.keyboard.presentation.KeyboardFontsView
 import kg.timmitof.keyboard.presentation.screens.keyboard.KeyboardViewModelFactory
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardSideEffect
-import javax.inject.Inject
+import org.koin.android.ext.android.inject
 
-@AndroidEntryPoint
 internal class KeyboardFontsService : ComposeInputMethodService() {
 
-    @Inject
-    lateinit var keyboardLayoutRepository: KeyboardLayoutRepository
+    private val keyboardLayoutRepository: KeyboardLayoutRepository by inject()
 
-    @Inject
-    lateinit var emojiRepository: EmojiRepository
+    private val emojiRepository: EmojiRepository by inject()
 
-    @Inject
-    lateinit var languageRepository: LanguageRepository
+    private val languageRepository: LanguageRepository by inject()
 
-    @Inject
-    lateinit var fontRepository: FontRepository
+    private val fontRepository: FontRepository by inject()
 
-    @Inject
-    lateinit var suggestionRepository: SuggestionRepository
+    private val suggestionRepository: SuggestionRepository by inject()
 
-    @Inject
-    lateinit var keyboardSettingsRepository: KeyboardSettingsRepository
+    private val keyboardSettingsRepository: KeyboardSettingsRepository by inject()
 
-    @Inject
-    lateinit var clipboardRepository: ClipboardRepository
+    private val clipboardRepository: ClipboardRepository by inject()
 
     override fun attachBaseContext(newBase: Context) {
         super.attachBaseContext(AppLocale.wrap(newBase))

@@ -11,14 +11,13 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import java.util.Locale
-import javax.inject.Inject
 
 /**
  * Сводит каталог и записанный выбор пользователя в [KeyboardLanguages]:
  * коды вне каталога отбрасываются, пустой список заменяется языками по умолчанию,
  * выбранный вне списка — первым включённым.
  */
-class LanguageRepositoryImpl @Inject constructor(
+class LanguageRepositoryImpl(
     private val catalogDataSource: LanguageCatalogDataSource,
     private val preferencesDataSource: LanguagePreferencesDataSource,
 ) : LanguageRepository {

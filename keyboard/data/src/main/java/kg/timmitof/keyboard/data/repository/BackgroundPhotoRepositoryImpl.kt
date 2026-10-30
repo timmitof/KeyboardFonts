@@ -9,9 +9,8 @@ import kg.timmitof.keyboard.domain.model.PhotoCrop
 import kg.timmitof.keyboard.domain.repository.BackgroundPhotoRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import javax.inject.Inject
 
-class BackgroundPhotoRepositoryImpl @Inject constructor(
+class BackgroundPhotoRepositoryImpl(
     private val dao: BackgroundPhotoDao,
     private val storage: BackgroundPhotoStorage,
 ) : BackgroundPhotoRepository {

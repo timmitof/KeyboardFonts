@@ -1,8 +1,7 @@
 package kg.timmitof.keyboard.data
 
-import javax.inject.Inject
 
-class AssetJsonKeyboardLayoutLoader @Inject constructor(
+class AssetJsonKeyboardLayoutLoader(
     private val assetTextLoader: AssetTextLoader
 ) : JsonKeyboardLayoutLoader {
 

@@ -9,15 +9,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Каталог языков из `assets/languages.json`. Файл собирает при сборке плагин `keyboardfonts.languageCatalog`
  * из `keyboard/build.gradle.kts`; руками его не правим.
  */
-@Singleton
-class LanguageCatalogDataSource @Inject constructor(
+class LanguageCatalogDataSource(
     private val assetTextLoader: AssetTextLoader,
 ) {
 

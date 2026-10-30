@@ -11,9 +11,8 @@ import kg.timmitof.keyboard.domain.model.KeyboardToggle
 import kg.timmitof.keyboard.domain.repository.KeyboardSettingsRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
-import javax.inject.Inject
 
-class KeyboardSettingsRepositoryImpl @Inject constructor(
+class KeyboardSettingsRepositoryImpl(
     private val dataSource: KeyboardSettingsDataSource,
 ) : KeyboardSettingsRepository {
 

@@ -39,7 +39,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import kg.timmitof.core.ui.R as UiR
 import kg.timmitof.core.ui.base.Container
@@ -59,10 +58,11 @@ import kg.timmitof.feature_home.presentation.components.TryFontsField
 import kg.timmitof.feature_home.presentation.components.steps.SetupStepStatus
 import kg.timmitof.feature_home.presentation.components.steps.SetupSteps
 import kg.timmitof.feature_home.presentation.components.steps.SystemMock
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun OnboardingScreen(
-    viewModel: OnboardingViewModel = hiltViewModel()
+    viewModel: OnboardingViewModel = koinViewModel()
 ) {
     Container(
         modifier = Modifier.fillMaxSize(),

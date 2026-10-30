@@ -3,8 +3,6 @@ import java.util.Properties
 
 plugins {
     alias(libs.plugins.keyboardfonts.application)
-    alias(libs.plugins.hilt.android)
-    alias(libs.plugins.ksp)
 }
 
 val keystorePropertiesFile = rootProject.file("keystore.properties")
@@ -63,7 +61,7 @@ android {
 dependencies {
     implementation(project(":keyboard:integration"))
     implementation(project(":keyboard:engine"))
-    // Hilt-модули собираются в графе приложения, поэтому di-слои подключаются здесь, а не в presentation.
+    // Koin-модули собираются в графе приложения, поэтому di-слои подключаются здесь, а не в presentation.
     implementation(project(":keyboard:di"))
     implementation(project(":keyboard:suggestion:di"))
     implementation(project(":keyboard:font:di"))
@@ -91,6 +89,8 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.compose)
 
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.compiler)
+    implementation(libs.koin.android)
+
+    testImplementation(libs.junit)
+    testImplementation(libs.koin.test)
 }

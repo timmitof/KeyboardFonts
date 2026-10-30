@@ -22,9 +22,8 @@ import kg.timmitof.keyboard.font.domain.model.FontPanel
 import kg.timmitof.keyboard.font.domain.repository.FontRepository
 import kg.timmitof.keyboard.integration.KeyboardContract
 import kotlinx.coroutines.flow.Flow
-import javax.inject.Inject
 
-class SettingsInteractorImpl @Inject constructor(
+class SettingsInteractorImpl(
     private val keyboardSettingsRepository: KeyboardSettingsRepository,
     private val languageRepository: LanguageRepository,
     private val fontRepository: FontRepository,

@@ -1,58 +1,51 @@
 package kg.timmitof.keyboard.di
 
-import dagger.Binds
-import dagger.Module
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
 import kg.timmitof.keyboard.data.AssetJsonKeyboardLayoutLoader
 import kg.timmitof.keyboard.data.AssetTextLoader
 import kg.timmitof.keyboard.data.AssetTextLoaderImpl
 import kg.timmitof.keyboard.data.JsonKeyboardLayoutLoader
+import kg.timmitof.keyboard.data.emoji.EmojiSearchIndex
+import kg.timmitof.keyboard.data.emoji.PreferredEmojiVariantDataSource
+import kg.timmitof.keyboard.data.emoji.RecentEmojiDataSource
+import kg.timmitof.keyboard.data.language.LanguageCatalogDataSource
+import kg.timmitof.keyboard.data.language.LanguagePreferencesDataSource
+import kg.timmitof.keyboard.data.repository.BackgroundPhotoRepositoryImpl
 import kg.timmitof.keyboard.data.repository.EmojiRepositoryImpl
 import kg.timmitof.keyboard.data.repository.KeyboardLayoutRepositoryImpl
-import kg.timmitof.keyboard.data.repository.BackgroundPhotoRepositoryImpl
 import kg.timmitof.keyboard.data.repository.KeyboardSettingsRepositoryImpl
 import kg.timmitof.keyboard.data.repository.LanguageRepositoryImpl
+import kg.timmitof.keyboard.data.settings.BackgroundPhotoStorage
+import kg.timmitof.keyboard.data.settings.KeyboardSettingsDataSource
+import kg.timmitof.keyboard.domain.repository.BackgroundPhotoRepository
 import kg.timmitof.keyboard.domain.repository.EmojiRepository
 import kg.timmitof.keyboard.domain.repository.KeyboardLayoutRepository
-import kg.timmitof.keyboard.domain.repository.BackgroundPhotoRepository
 import kg.timmitof.keyboard.domain.repository.KeyboardSettingsRepository
 import kg.timmitof.keyboard.domain.repository.LanguageRepository
-import javax.inject.Singleton
+import org.koin.core.module.dsl.singleOf
+import org.koin.dsl.bind
+import org.koin.dsl.module
 
-@Module
-@InstallIn(SingletonComponent::class)
-abstract class KeyboardDataModule {
+val keyboardDataModule = module {
 
-    @Binds
-    @Singleton
-    abstract fun bindAssetTextLoader(impl: AssetTextLoaderImpl): AssetTextLoader
+    singleOf(::AssetTextLoaderImpl) bind AssetTextLoader::class
 
-    @Binds
-    @Singleton
-    abstract fun bindJsonKeyboardLayoutLoader(impl: AssetJsonKeyboardLayoutLoader): JsonKeyboardLayoutLoader
+    singleOf(::AssetJsonKeyboardLayoutLoader) bind JsonKeyboardLayoutLoader::class
 
-    @Binds
-    @Singleton
-    abstract fun bindKeyboardLayoutRepository(impl: KeyboardLayoutRepositoryImpl): KeyboardLayoutRepository
+    singleOf(::KeyboardLayoutRepositoryImpl) bind KeyboardLayoutRepository::class
 
-    @Binds
-    @Singleton
-    abstract fun bindEmojiRepository(impl: EmojiRepositoryImpl): EmojiRepository
+    singleOf(::EmojiRepositoryImpl) bind EmojiRepository::class
 
-    @Binds
-    @Singleton
-    abstract fun bindLanguageRepository(impl: LanguageRepositoryImpl): LanguageRepository
+    singleOf(::LanguageRepositoryImpl) bind LanguageRepository::class
 
-    @Binds
-    @Singleton
-    abstract fun bindKeyboardSettingsRepository(
-        impl: KeyboardSettingsRepositoryImpl
-    ): KeyboardSettingsRepository
+    singleOf(::KeyboardSettingsRepositoryImpl) bind KeyboardSettingsRepository::class
 
-    @Binds
-    @Singleton
-    abstract fun bindBackgroundPhotoRepository(
-        impl: BackgroundPhotoRepositoryImpl
-    ): BackgroundPhotoRepository
+    singleOf(::BackgroundPhotoRepositoryImpl) bind BackgroundPhotoRepository::class
+
+    singleOf(::RecentEmojiDataSource)
+    singleOf(::PreferredEmojiVariantDataSource)
+    singleOf(::EmojiSearchIndex)
+    singleOf(::LanguageCatalogDataSource)
+    singleOf(::LanguagePreferencesDataSource)
+    singleOf(::KeyboardSettingsDataSource)
+    singleOf(::BackgroundPhotoStorage)
 }

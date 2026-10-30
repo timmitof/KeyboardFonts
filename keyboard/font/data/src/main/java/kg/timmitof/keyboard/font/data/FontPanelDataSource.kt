@@ -3,17 +3,13 @@ package kg.timmitof.keyboard.font.data
 import android.content.Context
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kg.timmitof.keyboard.data.language.keyboardPreferences
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /** `null` — пользователь панель не настраивал. */
-@Singleton
-class FontPanelDataSource @Inject constructor(
-    @param:ApplicationContext private val context: Context
+class FontPanelDataSource(
+    private val context: Context
 ) {
 
     fun observe(): Flow<List<String>?> = context.keyboardPreferences.data.map { prefs ->

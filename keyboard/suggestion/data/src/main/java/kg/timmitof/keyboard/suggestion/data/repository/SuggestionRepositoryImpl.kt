@@ -21,11 +21,8 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class SuggestionRepositoryImpl @Inject constructor(
+class SuggestionRepositoryImpl(
     private val languageModelLoader: LanguageModelLoader,
     private val userDictionaryStore: UserDictionaryStore,
     private val suggestionEngine: SuggestionEngine,

@@ -3,8 +3,6 @@ package kg.timmitof.keyboard.suggestion.data
 import kg.timmitof.keyboard.data.font.FontDecoder
 import kg.timmitof.keyboard.suggestion.domain.model.SuggestionRequest
 import kg.timmitof.keyboard.suggestion.domain.model.WordSuggestion
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlin.math.ln
 
 /**
@@ -12,8 +10,7 @@ import kotlin.math.ln
  * (словарные и выученные), личная статистика, слова текущего поля. Опечатки — через [SpellCorrector]:
  * слово целиком и, если дополнений мало, начало слова с одной правкой.
  */
-@Singleton
-class SuggestionEngine @Inject constructor() {
+class SuggestionEngine {
 
     internal suspend fun suggest(
         request: SuggestionRequest,

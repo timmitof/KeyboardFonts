@@ -9,11 +9,8 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.util.concurrent.ConcurrentHashMap
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class LanguageModelLoader @Inject constructor(
+class LanguageModelLoader(
     private val assetTextLoader: AssetTextLoader,
 ) {
 

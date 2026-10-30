@@ -3,15 +3,11 @@ package kg.timmitof.keyboard.data.emoji
 import android.content.Context
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /** Одна строка с несимвольным разделителем: свежие в начале, не больше [MAX_RECENT]. */
-@Singleton
-class RecentEmojiDataSource @Inject constructor(
-    @param:ApplicationContext private val context: Context
+class RecentEmojiDataSource(
+    private val context: Context
 ) {
 
     suspend fun getRecent(): List<String> =

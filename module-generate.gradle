@@ -46,28 +46,20 @@ tasks.register('generateFeatureModules') {
                     new File(packagePath, "RepositoryModule.kt"),
                     """package ${namespace}
 
-import dagger.Binds
-import dagger.Module
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
+import org.koin.dsl.module
 
-@Module
-@InstallIn(SingletonComponent::class)
-abstract class RepositoryModule {}""".stripIndent()
+val ${featureName}RepositoryModule = module {
+}""".stripIndent()
                 )
 
                 writeFileIfNotExists(
                     new File(packagePath, "InteractorModule.kt"),
                     """package ${namespace}
 
-import dagger.Binds
-import dagger.Module
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
+import org.koin.dsl.module
 
-@Module
-@InstallIn(SingletonComponent::class)
-abstract class InteractorModule {}""".stripIndent()
+val ${featureName}InteractorModule = module {
+}""".stripIndent()
                 )
             }
 

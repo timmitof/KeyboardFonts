@@ -1,18 +1,15 @@
 package kg.timmitof.keyboard.clipboard.di
 
-import dagger.Binds
-import dagger.Module
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
+import kg.timmitof.keyboard.clipboard.data.SystemClipboardSource
 import kg.timmitof.keyboard.clipboard.data.repository.ClipboardRepositoryImpl
 import kg.timmitof.keyboard.clipboard.domain.repository.ClipboardRepository
-import javax.inject.Singleton
+import org.koin.core.module.dsl.singleOf
+import org.koin.dsl.bind
+import org.koin.dsl.module
 
-@Module
-@InstallIn(SingletonComponent::class)
-abstract class ClipboardDataModule {
+val clipboardDataModule = module {
 
-    @Binds
-    @Singleton
-    abstract fun bindClipboardRepository(impl: ClipboardRepositoryImpl): ClipboardRepository
+    singleOf(::ClipboardRepositoryImpl) bind ClipboardRepository::class
+
+    singleOf(::SystemClipboardSource)
 }

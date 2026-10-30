@@ -9,15 +9,13 @@ import android.os.Looper
 import android.provider.Settings
 import android.util.Log
 import android.view.inputmethod.InputMethodManager
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
-import javax.inject.Inject
 
-class KeyboardContractImpl @Inject constructor(
-    @param:ApplicationContext private val context: Context
+class KeyboardContractImpl(
+    private val context: Context
 ) : KeyboardContract {
 
     private val inputMethodManager: InputMethodManager?

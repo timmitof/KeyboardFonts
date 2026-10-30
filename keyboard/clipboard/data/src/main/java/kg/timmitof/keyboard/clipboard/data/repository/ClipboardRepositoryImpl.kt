@@ -9,9 +9,8 @@ import kg.timmitof.keyboard.clipboard.domain.repository.ClipboardRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
-import javax.inject.Inject
 
-class ClipboardRepositoryImpl @Inject constructor(
+class ClipboardRepositoryImpl(
     private val clipboardDao: ClipboardDao,
     private val systemClipboard: SystemClipboardSource,
 ) : ClipboardRepository {

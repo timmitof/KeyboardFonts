@@ -1,16 +1,12 @@
 package kg.timmitof.feature_splash.di
 
-import dagger.Binds
-import dagger.Module
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
 import kg.timmitof.feature_splash.data.interactor.SplashInteractorImpl
 import kg.timmitof.feature_splash.domain.interactor.SplashInteractor
+import org.koin.core.module.dsl.factoryOf
+import org.koin.dsl.bind
+import org.koin.dsl.module
 
-@Module
-@InstallIn(SingletonComponent::class)
-abstract class InteractorModule {
+val splashInteractorModule = module {
 
-    @Binds
-    abstract fun bindSplashInteractor(impl: SplashInteractorImpl): SplashInteractor
+    factoryOf(::SplashInteractorImpl) bind SplashInteractor::class
 }

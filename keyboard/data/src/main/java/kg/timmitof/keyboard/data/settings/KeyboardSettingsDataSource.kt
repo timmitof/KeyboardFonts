@@ -8,7 +8,6 @@ import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kg.timmitof.core.data.local.dao.BackgroundPhotoDao
 import kg.timmitof.keyboard.data.language.keyboardPreferences
 import kg.timmitof.keyboard.domain.model.BackgroundPhoto
@@ -30,13 +29,10 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import java.io.IOException
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /** Ключи берутся из [KeyboardToggle] — новая настройка не требует правок хранилища. */
-@Singleton
-class KeyboardSettingsDataSource @Inject constructor(
-    @param:ApplicationContext private val context: Context,
+class KeyboardSettingsDataSource(
+    private val context: Context,
     private val photoDao: BackgroundPhotoDao,
 ) {
 

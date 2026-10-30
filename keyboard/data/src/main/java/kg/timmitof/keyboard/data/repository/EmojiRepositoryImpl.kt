@@ -7,9 +7,8 @@ import kg.timmitof.keyboard.data.emoji.PreferredEmojiVariantDataSource
 import kg.timmitof.keyboard.data.emoji.RecentEmojiDataSource
 import kg.timmitof.keyboard.domain.model.EmojiCategory
 import kg.timmitof.keyboard.domain.repository.EmojiRepository
-import javax.inject.Inject
 
-class EmojiRepositoryImpl @Inject constructor(
+class EmojiRepositoryImpl(
     private val recentEmojiDataSource: RecentEmojiDataSource,
     private val preferredVariantDataSource: PreferredEmojiVariantDataSource,
     private val emojiSearchIndex: EmojiSearchIndex,

@@ -1,18 +1,17 @@
 package kg.timmitof.keyboard.font.di
 
-import dagger.Binds
-import dagger.Module
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
+import kg.timmitof.keyboard.font.data.FontPanelDataSource
+import kg.timmitof.keyboard.font.data.SelectedFontDataSource
 import kg.timmitof.keyboard.font.data.repository.FontRepositoryImpl
 import kg.timmitof.keyboard.font.domain.repository.FontRepository
-import javax.inject.Singleton
+import org.koin.core.module.dsl.singleOf
+import org.koin.dsl.bind
+import org.koin.dsl.module
 
-@Module
-@InstallIn(SingletonComponent::class)
-abstract class FontDataModule {
+val fontDataModule = module {
 
-    @Binds
-    @Singleton
-    abstract fun bindFontRepository(impl: FontRepositoryImpl): FontRepository
+    singleOf(::FontRepositoryImpl) bind FontRepository::class
+
+    singleOf(::SelectedFontDataSource)
+    singleOf(::FontPanelDataSource)
 }

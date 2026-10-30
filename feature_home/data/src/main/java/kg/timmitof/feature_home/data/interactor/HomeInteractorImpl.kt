@@ -7,9 +7,8 @@ import kg.timmitof.feature_home.domain.model.KeyboardSetupStep
 import kg.timmitof.keyboard.integration.KeyboardContract
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import javax.inject.Inject
 
-class HomeInteractorImpl @Inject constructor(
+class HomeInteractorImpl(
     private val keyboardContract: KeyboardContract,
 ) : HomeInteractor {
 

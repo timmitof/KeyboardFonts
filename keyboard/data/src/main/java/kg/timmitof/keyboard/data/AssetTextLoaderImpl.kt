@@ -1,17 +1,15 @@
 package kg.timmitof.keyboard.data
 
 import android.content.Context
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.FileInputStream
 import java.io.IOException
 import java.nio.ByteBuffer
 import java.nio.channels.FileChannel
-import javax.inject.Inject
 
-class AssetTextLoaderImpl @Inject constructor(
-    @param:ApplicationContext private val context: Context
+class AssetTextLoaderImpl(
+    private val context: Context
 ) : AssetTextLoader {
 
     private val assetManager = context.assets

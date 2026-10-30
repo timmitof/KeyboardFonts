@@ -5,11 +5,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class EmojiSearchIndex @Inject constructor(
+class EmojiSearchIndex(
     private val assetTextLoader: AssetTextLoader,
 ) {
 

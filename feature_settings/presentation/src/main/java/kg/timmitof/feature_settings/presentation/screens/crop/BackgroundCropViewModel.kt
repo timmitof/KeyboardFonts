@@ -2,17 +2,14 @@ package kg.timmitof.feature_settings.presentation.screens.crop
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.toRoute
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kg.timmitof.core.navigation.graphs.SettingsGraph
 import kg.timmitof.core.ui.base.BaseSideEffect
 import kg.timmitof.core.ui.base.BaseViewModel
 import kg.timmitof.feature_settings.domain.interactor.SettingsInteractor
 import kg.timmitof.keyboard.domain.model.PhotoCrop
 import org.orbitmvi.orbit.syntax.Syntax
-import javax.inject.Inject
 
-@HiltViewModel
-class BackgroundCropViewModel @Inject constructor(
+class BackgroundCropViewModel(
     savedStateHandle: SavedStateHandle,
     private val settingsInteractor: SettingsInteractor,
 ) : BaseViewModel<BackgroundCropState, BackgroundCropSideEffect, BackgroundCropEvent>(BackgroundCropState()) {

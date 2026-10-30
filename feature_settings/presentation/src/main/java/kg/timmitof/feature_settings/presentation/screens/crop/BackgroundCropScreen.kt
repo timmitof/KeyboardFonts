@@ -31,7 +31,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import kg.timmitof.core.ui.base.Container
 import kg.timmitof.core.ui.base.ContainerDSLBuilder
 import kg.timmitof.core.ui.components.AppTopBar
@@ -42,10 +41,11 @@ import kg.timmitof.keyboard.domain.model.KeyboardBackground
 import kg.timmitof.keyboard.presentation.preview.keyboardHeight
 import kg.timmitof.keyboard.presentation.theme.appearance
 import kg.timmitof.keyboard.presentation.theme.colorScheme
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun BackgroundCropScreen(
-    viewModel: BackgroundCropViewModel = hiltViewModel()
+    viewModel: BackgroundCropViewModel = koinViewModel()
 ) {
     Container(
         modifier = Modifier.fillMaxSize(),

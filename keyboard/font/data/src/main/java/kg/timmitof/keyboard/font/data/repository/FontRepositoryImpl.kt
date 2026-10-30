@@ -9,9 +9,8 @@ import kg.timmitof.keyboard.font.domain.repository.FontRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
-import javax.inject.Inject
 
-class FontRepositoryImpl @Inject constructor(
+class FontRepositoryImpl(
     private val selectedFontDataSource: SelectedFontDataSource,
     private val panelDataSource: FontPanelDataSource,
 ) : FontRepository {

@@ -1,16 +1,12 @@
 package kg.timmitof.keyboard.integration.di
 
-import dagger.Binds
-import dagger.Module
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
 import kg.timmitof.keyboard.integration.KeyboardContract
 import kg.timmitof.keyboard.integration.KeyboardContractImpl
+import org.koin.core.module.dsl.factoryOf
+import org.koin.dsl.bind
+import org.koin.dsl.module
 
-@Module
-@InstallIn(SingletonComponent::class)
-abstract class KeyboardIntegrationModule {
+val keyboardIntegrationModule = module {
 
-    @Binds
-    abstract fun provideKeyboardContract(impl: KeyboardContractImpl): KeyboardContract
+    factoryOf(::KeyboardContractImpl) bind KeyboardContract::class
 }

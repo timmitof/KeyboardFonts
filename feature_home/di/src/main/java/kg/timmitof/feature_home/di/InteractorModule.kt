@@ -1,16 +1,12 @@
 package kg.timmitof.feature_home.di
 
-import dagger.Binds
-import dagger.Module
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
 import kg.timmitof.feature_home.data.interactor.HomeInteractorImpl
 import kg.timmitof.feature_home.domain.interactor.HomeInteractor
+import org.koin.core.module.dsl.factoryOf
+import org.koin.dsl.bind
+import org.koin.dsl.module
 
-@Module
-@InstallIn(SingletonComponent::class)
-abstract class InteractorModule {
+val homeInteractorModule = module {
 
-    @Binds
-    abstract fun bindHomeInteractor(impl: HomeInteractorImpl): HomeInteractor
+    factoryOf(::HomeInteractorImpl) bind HomeInteractor::class
 }

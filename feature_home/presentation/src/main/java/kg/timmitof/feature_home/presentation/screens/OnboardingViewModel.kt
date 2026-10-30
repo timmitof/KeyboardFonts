@@ -2,16 +2,13 @@ package kg.timmitof.feature_home.presentation.screens
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.toRoute
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kg.timmitof.core.navigation.graphs.HomeGraph
 import kg.timmitof.core.navigation.graphs.SettingsGraph
 import kg.timmitof.core.ui.base.BaseViewModel
 import kg.timmitof.feature_home.domain.interactor.HomeInteractor
 import kg.timmitof.feature_home.domain.model.KeyboardSetupStep
-import javax.inject.Inject
 
-@HiltViewModel
-class OnboardingViewModel @Inject constructor(
+class OnboardingViewModel(
     private val homeInteractor: HomeInteractor,
     savedStateHandle: SavedStateHandle,
 ) : BaseViewModel<OnboardingState, OnboardingSideEffect, OnboardingEvent>(

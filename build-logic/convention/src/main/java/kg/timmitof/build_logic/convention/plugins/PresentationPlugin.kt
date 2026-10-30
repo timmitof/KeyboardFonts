@@ -5,7 +5,6 @@ import kg.timmitof.build_logic.convention.debugImplementation
 import kg.timmitof.build_logic.convention.featureModulePath
 import kg.timmitof.build_logic.convention.featureNamespacePrefix
 import kg.timmitof.build_logic.convention.implementation
-import kg.timmitof.build_logic.convention.ksp
 import kg.timmitof.build_logic.convention.libs
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -16,8 +15,6 @@ class PresentationPlugin : Plugin<Project> {
     override fun apply(target: Project) = with(target) {
         pluginManager.apply("keyboardfonts.library")
         pluginManager.apply("org.jetbrains.kotlin.android")
-        pluginManager.apply("com.google.devtools.ksp")
-        pluginManager.apply("dagger.hilt.android.plugin")
         pluginManager.apply("org.jetbrains.kotlin.plugin.compose")
 
         extensions.configure<LibraryExtension> {
@@ -40,9 +37,8 @@ class PresentationPlugin : Plugin<Project> {
             implementation(libs.findLibrary("orbit-viewmodel").get())
             implementation(libs.findLibrary("orbit-compose").get())
 
-            implementation(libs.findLibrary("hilt-android").get())
-            ksp(libs.findLibrary("hilt-compiler").get())
-            implementation(libs.findLibrary("hilt-navigation").get())
+            implementation(libs.findLibrary("koin-core").get())
+            implementation(libs.findLibrary("koin-compose-viewmodel").get())
 
             implementation(project(":core:ui"))
             implementation(project(":core:navigation"))

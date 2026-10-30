@@ -2,9 +2,8 @@ package kg.timmitof.feature_splash.data.interactor
 
 import kg.timmitof.feature_splash.domain.interactor.SplashInteractor
 import kg.timmitof.keyboard.integration.KeyboardContract
-import javax.inject.Inject
 
-class SplashInteractorImpl @Inject constructor(
+class SplashInteractorImpl(
     private val keyboardContract: KeyboardContract,
 ) : SplashInteractor {
 

@@ -14,9 +14,8 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
-import javax.inject.Inject
 
-class KeyboardLayoutRepositoryImpl @Inject constructor(
+class KeyboardLayoutRepositoryImpl(
     private val loader: JsonKeyboardLayoutLoader
 ) : KeyboardLayoutRepository {
 

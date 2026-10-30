@@ -1,6 +1,5 @@
 package kg.timmitof.feature_settings.presentation.screens
 
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kg.timmitof.core.navigation.graphs.HomeGraph
 import kg.timmitof.core.navigation.graphs.SettingsGraph
 import kg.timmitof.core.ui.base.BaseSideEffect
@@ -14,10 +13,8 @@ import kg.timmitof.keyboard.domain.model.KeyboardSoundPack
 import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
 import kg.timmitof.keyboard.domain.model.KeyboardToggle
 import org.orbitmvi.orbit.syntax.Syntax
-import javax.inject.Inject
 
-@HiltViewModel
-class SettingsViewModel @Inject constructor(
+class SettingsViewModel(
     private val settingsInteractor: SettingsInteractor
 ) : BaseViewModel<SettingsState, SettingsSideEffect, SettingsEvent>(SettingsState()) {
 

@@ -4,13 +4,9 @@ import android.content.ClipDescription
 import android.content.ClipboardManager
 import android.content.Context
 import android.os.Build
-import dagger.hilt.android.qualifiers.ApplicationContext
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class SystemClipboardSource @Inject constructor(
-    @param:ApplicationContext private val context: Context,
+class SystemClipboardSource(
+    private val context: Context,
 ) {
 
     private val clipboardManager: ClipboardManager?
