@@ -15,11 +15,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import dev.icerock.moko.resources.compose.stringResource
 import kg.timmitof.core.ui.components.tabs.ChipTab
 import kg.timmitof.core.ui.components.tabs.ChipTabs
+import org.jetbrains.compose.resources.painterResource
 
 @DslMarker
 annotation class StudioDsl

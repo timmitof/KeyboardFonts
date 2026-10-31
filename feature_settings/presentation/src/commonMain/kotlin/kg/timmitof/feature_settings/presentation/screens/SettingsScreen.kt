@@ -16,11 +16,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import dev.icerock.moko.resources.compose.stringResource
@@ -46,7 +45,6 @@ import kg.timmitof.core.ui.components.brand.StatusPill
 import kg.timmitof.core.ui.components.hint.TipsCard
 import kg.timmitof.core.ui.theme.AccentRole
 import kg.timmitof.core.ui.theme.KeyboardFontsTheme
-import kotlinx.coroutines.flow.drop
 import kg.timmitof.feature_settings.presentation.components.StudioPreviewCard
 import kg.timmitof.feature_settings.presentation.studio.BackgroundPane
 import kg.timmitof.feature_settings.presentation.studio.ClipboardPane
@@ -66,6 +64,8 @@ import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
 import kg.timmitof.keyboard.domain.model.KeyboardToggle
 import kg.timmitof.keyboard.font.domain.model.FontScript
 import kg.timmitof.keyboard.presentation.components.fontScript
+import kotlinx.coroutines.flow.drop
+import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -296,12 +296,11 @@ private fun StudioHeader(
 @Composable
 private fun StudioTips(modifier: Modifier = Modifier) {
     val tips = StudioTipsRes.map { stringResource(it) }
-    val counter = stringResource(MR.strings.tip_counter)
 
     TipsCard(
         modifier = modifier,
         tips = tips,
-        counter = { index, total -> counter.format(index, total) },
+        counter = { index, total -> stringResource(MR.strings.tip_counter, index, total) },
     )
 }
 

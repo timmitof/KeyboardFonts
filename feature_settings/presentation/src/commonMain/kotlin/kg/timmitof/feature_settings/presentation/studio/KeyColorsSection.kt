@@ -1,6 +1,5 @@
 package kg.timmitof.feature_settings.presentation.studio
 
-import androidx.annotation.StringRes
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -109,7 +108,6 @@ private class KeyColorRow(
 
 private fun Color.toArgbLong(): Long = toArgb().toLong() and 0xFFFFFFFFL
 
-@get:StringRes
 private val KeyColorTarget.titleRes: StringResource
     get() = when (this) {
         KeyColorTarget.KEY -> MR.strings.key_color_letters
@@ -117,7 +115,6 @@ private val KeyColorTarget.titleRes: StringResource
         KeyColorTarget.ENTER -> MR.strings.key_color_enter
     }
 
-@get:StringRes
 private val KeyColorTarget.pickerTitleRes: StringResource
     get() = when (this) {
         KeyColorTarget.KEY -> MR.strings.key_color_letters_picker

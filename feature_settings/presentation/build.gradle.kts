@@ -1,7 +1,12 @@
-plugins { id("keyboardfonts.presentation.android") }
+plugins { id("keyboardfonts.presentation") }
 
-dependencies {
-    implementation(project(":keyboard:presentation"))
+kotlin {
+    sourceSets.commonMain.dependencies {
+        implementation(project(":keyboard:presentation"))
+        implementation(libs.filekit.dialogs.compose)
+    }
+}
 
-    implementation(libs.androidx.activity.compose)
+compose.resources {
+    packageOfResClass = "kg.timmitof.feature_settings.presentation.resources"
 }

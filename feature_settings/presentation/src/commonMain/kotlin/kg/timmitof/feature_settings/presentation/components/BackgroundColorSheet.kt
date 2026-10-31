@@ -16,8 +16,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kg.timmitof.core.ui.components.color.ColorSwatches
 import kg.timmitof.core.ui.components.color.HueSlider
+import kg.timmitof.core.ui.theme.toHsv
 import kotlinx.coroutines.launch
 
 /** Цвет сразу уходит в превью клавиатуры ([onPreview]); в настройки — только по «Применить» ([onApply]). */
@@ -110,8 +111,7 @@ internal fun BackgroundColorSheet(
     }
 }
 
-private fun Color.hue(): Float =
-    FloatArray(3).also { android.graphics.Color.colorToHSV(toArgb(), it) }[0]
+private fun Color.hue(): Float = toHsv()[0]
 
 private const val ToneSaturation = 0.22f
 private const val ToneValue = 0.96f

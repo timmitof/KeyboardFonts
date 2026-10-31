@@ -34,12 +34,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kg.timmitof.core.ui.resources.ic_check
 import kg.timmitof.core.ui.resources.ic_plus
-import kg.timmitof.feature_settings.presentation.R
+import kg.timmitof.feature_settings.presentation.resources.Res
+import kg.timmitof.feature_settings.presentation.resources.ic_edit
 import kg.timmitof.keyboard.domain.model.KeyboardBackground
 import kg.timmitof.keyboard.presentation.theme.KeyboardLightColor
 import kg.timmitof.keyboard.presentation.theme.keyboardBackground
@@ -140,7 +140,7 @@ private fun BackgroundTileItem(
 
             // У выбранного фото вместо галочки карандаш: повторное касание открывает настройку положения.
             SelectionBadge(
-                icon = if (tile.background is KeyboardBackground.Photo) painterResource(R.drawable.ic_edit) else painterResource(UiRes.drawable.ic_check),
+                icon = if (tile.background is KeyboardBackground.Photo) painterResource(Res.drawable.ic_edit) else painterResource(UiRes.drawable.ic_check),
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .offset(x = 5.dp, y = (-5).dp)

@@ -43,10 +43,6 @@ gradlePlugin {
             id = "keyboardfonts.presentation"
             implementationClass = "kg.timmitof.build_logic.convention.plugins.PresentationPlugin"
         }
-        register("androidPresentationPlugin") {
-            id = "keyboardfonts.presentation.android"
-            implementationClass = "kg.timmitof.build_logic.convention.plugins.AndroidPresentationPlugin"
-        }
         register("diPlugin") {
             id = "keyboardfonts.di"
             implementationClass = "kg.timmitof.build_logic.convention.plugins.DiPlugin"

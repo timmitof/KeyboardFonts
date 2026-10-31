@@ -27,7 +27,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.icerock.moko.resources.compose.stringResource
@@ -116,7 +117,7 @@ internal fun ContainerDSLBuilder<BackgroundCropSideEffect, BackgroundCropEvent>.
                     initialCrop = it.crop,
                     state = cropState,
                     keyboardHeight = settings.keyboardHeight(),
-                    screenWidth = LocalConfiguration.current.screenWidthDp.dp,
+                    screenWidth = with(LocalDensity.current) { LocalWindowInfo.current.containerSize.width.toDp() },
                     keyColors = keyColors,
                     errorText = stringResource(MR.strings.background_crop_error),
                 )

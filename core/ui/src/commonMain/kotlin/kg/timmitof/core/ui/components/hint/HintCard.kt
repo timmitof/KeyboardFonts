@@ -83,7 +83,7 @@ fun HintCard(
 @Composable
 fun TipsCard(
     tips: List<String>,
-    counter: (index: Int, total: Int) -> String,
+    counter: @Composable (index: Int, total: Int) -> String,
     modifier: Modifier = Modifier,
 ) {
     if (tips.isEmpty()) return

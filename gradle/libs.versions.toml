@@ -21,6 +21,8 @@ atomicfu = "0.29.0"
 datastorePreferences = "1.1.7"
 material3 = "1.5.0-alpha07"
 coilCompose = "3.3.0"
+# FileKit 0.12.0 собран под Kotlin 2.2.20 и Compose 1.9; выбор фото — системный (PickVisualMedia / PHPicker).
+filekit = "0.12.0"
 
 navigationCompose = "2.9.5"
 
@@ -43,6 +45,7 @@ sqlite = "2.6.1"
 [libraries]
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilCompose" }
+filekit-dialogs-compose = { module = "io.github.vinceglb:filekit-dialogs-compose", version.ref = "filekit" }
 kotlin-gradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }

@@ -7,8 +7,6 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalResources
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import dev.icerock.moko.resources.StringResource
 import dev.icerock.moko.resources.compose.stringResource
@@ -84,7 +82,6 @@ import kg.timmitof.core.resources.sound_pack_system
 import kg.timmitof.core.resources.sound_pack_typewriter
 import kg.timmitof.core.resources.sound_vibration_title
 import kg.timmitof.core.resources.sound_volume_title
-import kg.timmitof.core.resources.sound_volume_value
 import kg.timmitof.core.resources.theme_auto
 import kg.timmitof.core.resources.theme_dark
 import kg.timmitof.core.resources.theme_light
@@ -97,13 +94,17 @@ import kg.timmitof.core.ui.components.settings.SettingsSectionHeader
 import kg.timmitof.core.ui.components.tabs.ChipTab
 import kg.timmitof.core.ui.components.tabs.ChipTabs
 import kg.timmitof.core.ui.theme.AccentRole
-import kg.timmitof.feature_settings.presentation.R
 import kg.timmitof.feature_settings.presentation.components.ClipboardPins
 import kg.timmitof.feature_settings.presentation.components.FontItem
 import kg.timmitof.feature_settings.presentation.components.HiddenFontsList
 import kg.timmitof.feature_settings.presentation.components.ThemeTile
 import kg.timmitof.feature_settings.presentation.components.ThemeTiles
 import kg.timmitof.feature_settings.presentation.components.VisibleFontsList
+import kg.timmitof.feature_settings.presentation.resources.Res
+import kg.timmitof.feature_settings.presentation.resources.ic_sound_bubble
+import kg.timmitof.feature_settings.presentation.resources.ic_sound_mechanical
+import kg.timmitof.feature_settings.presentation.resources.ic_sound_system
+import kg.timmitof.feature_settings.presentation.resources.ic_sound_typewriter
 import kg.timmitof.keyboard.clipboard.domain.model.ClipboardBoard
 import kg.timmitof.keyboard.domain.model.KeyColorTarget
 import kg.timmitof.keyboard.domain.model.KeyboardHeight
@@ -118,6 +119,8 @@ import kg.timmitof.keyboard.presentation.components.fontSample
 import kg.timmitof.keyboard.presentation.sound.KeySound
 import kg.timmitof.keyboard.presentation.sound.rememberKeySoundPlayer
 import kg.timmitof.keyboard.presentation.theme.palette
+import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.painterResource
 import kotlin.math.roundToInt
 
 /** Ресурсы читаются до DSL: сборщик строк намеренно не композабельный. */
@@ -386,7 +389,6 @@ internal fun SoundPane(
     // Пока тянут ползунок, громкость живёт локально, в хранилище — по отпусканию.
     // Состояние читается только внутри строки-слайдера, поэтому панель не перекомпонуется на каждый кадр.
     val volume = remember(settings.soundVolume) { mutableFloatStateOf(settings.soundVolume) }
-    val resources = LocalResources.current
 
     val vibrationTitle = stringResource(MR.strings.sound_vibration_title)
     val soundTitle = stringResource(MR.strings.sound_click_title)
@@ -420,7 +422,7 @@ internal fun SoundPane(
         slider(
             title = volumeTitle,
             value = volume.floatValue,
-            valueLabel = resources.getString(MR.strings.sound_volume_value.resourceId, (volume.floatValue * 100).roundToInt()),
+            valueLabel = "${(volume.floatValue * 100).roundToInt()} %",
             isNested = true,
             isEnabled = isSoundOn,
             onValueChangeFinished = {
@@ -493,12 +495,12 @@ private val KeyboardSoundPack.labelRes: StringResource
         KeyboardSoundPack.TYPEWRITER -> MR.strings.sound_pack_typewriter
     }
 
-private val KeyboardSoundPack.iconRes: Int
+private val KeyboardSoundPack.iconRes: DrawableResource
     get() = when (this) {
-        KeyboardSoundPack.SYSTEM -> R.drawable.ic_sound_system
-        KeyboardSoundPack.MECHANICAL -> R.drawable.ic_sound_mechanical
-        KeyboardSoundPack.BUBBLE -> R.drawable.ic_sound_bubble
-        KeyboardSoundPack.TYPEWRITER -> R.drawable.ic_sound_typewriter
+        KeyboardSoundPack.SYSTEM -> Res.drawable.ic_sound_system
+        KeyboardSoundPack.MECHANICAL -> Res.drawable.ic_sound_mechanical
+        KeyboardSoundPack.BUBBLE -> Res.drawable.ic_sound_bubble
+        KeyboardSoundPack.TYPEWRITER -> Res.drawable.ic_sound_typewriter
     }
 
 private val KeyboardHeight.labelRes: StringResource

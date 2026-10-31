@@ -1,8 +1,5 @@
 package kg.timmitof.feature_settings.presentation.studio
 
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -12,9 +9,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.res.painterResource
 import dev.icerock.moko.resources.StringResource
 import dev.icerock.moko.resources.compose.stringResource
+import io.github.vinceglb.filekit.dialogs.FileKitType
+import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
 import kg.timmitof.core.resources.MR
 import kg.timmitof.core.resources.background_add_photo
 import kg.timmitof.core.resources.background_apply
@@ -37,17 +35,20 @@ import kg.timmitof.core.resources.background_waves
 import kg.timmitof.core.ui.components.settings.SettingsSectionFooter
 import kg.timmitof.core.ui.components.settings.SettingsSectionHeader
 import kg.timmitof.core.ui.theme.AccentRole
-import kg.timmitof.feature_settings.presentation.R
 import kg.timmitof.feature_settings.presentation.components.BackgroundAction
 import kg.timmitof.feature_settings.presentation.components.BackgroundActions
 import kg.timmitof.feature_settings.presentation.components.BackgroundColorSheet
 import kg.timmitof.feature_settings.presentation.components.BackgroundTile
 import kg.timmitof.feature_settings.presentation.components.BackgroundTiles
+import kg.timmitof.feature_settings.presentation.resources.Res
+import kg.timmitof.feature_settings.presentation.resources.ic_background_color
+import kg.timmitof.feature_settings.presentation.resources.ic_background_gallery
 import kg.timmitof.keyboard.domain.model.BackgroundPattern
 import kg.timmitof.keyboard.domain.model.BackgroundPhoto
 import kg.timmitof.keyboard.domain.model.KeyColorTarget
 import kg.timmitof.keyboard.domain.model.KeyboardBackground
 import kg.timmitof.keyboard.domain.model.KeyboardSettings
+import org.jetbrains.compose.resources.painterResource
 
 @Composable
 internal fun BackgroundPane(
@@ -59,20 +60,19 @@ internal fun BackgroundPane(
     onDraftPreview: (KeyboardBackground.Solid?) -> Unit,
     onKeyColor: (KeyColorTarget, Long?) -> Unit,
 ) {
-    val photoPicker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-        uri?.let { onPhotoPicked(it.toString()) }
+    // Системный выбор фото: PickVisualMedia на Android, PHPicker на iOS — без разрешения на всю галерею.
+    val photoPicker = rememberFilePickerLauncher(type = FileKitType.Image) { file ->
+        file?.let { onPhotoPicked(it.photoUri()) }
     }
-    val pickPhoto = remember {
-        { photoPicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }
-    }
+    val pickPhoto = remember { { photoPicker.launch() } }
     var isColorSheetOpen by rememberSaveable { mutableStateOf(false) }
     val openColorSheet = remember { { isColorSheetOpen = true } }
 
     // «Нарисовать» появится здесь вместе с редактором фона.
     val galleryLabel = stringResource(MR.strings.background_from_gallery)
-    val galleryIcon = painterResource(R.drawable.ic_background_gallery)
+    val galleryIcon = painterResource(Res.drawable.ic_background_gallery)
     val colorLabel = stringResource(MR.strings.background_color)
-    val colorIcon = painterResource(R.drawable.ic_background_color)
+    val colorIcon = painterResource(Res.drawable.ic_background_color)
     val actions = remember(galleryLabel, galleryIcon, colorLabel, colorIcon) {
         listOf(
             BackgroundAction(

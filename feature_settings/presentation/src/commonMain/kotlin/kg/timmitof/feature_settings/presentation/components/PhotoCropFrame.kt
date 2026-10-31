@@ -14,18 +14,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.isUnspecified
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.scale
@@ -45,7 +45,7 @@ import coil3.request.ImageRequest
 import kg.timmitof.keyboard.domain.model.PhotoCrop
 import kg.timmitof.keyboard.presentation.preview.drawKeyboardSilhouette
 import kg.timmitof.keyboard.presentation.theme.KeyboardColorScheme
-import java.io.File
+import okio.Path.Companion.toPath
 import kotlin.math.max
 
 /** Положение фото в рамке; пересчитывается в долю картинки только по «Готово». */
@@ -183,7 +183,7 @@ internal fun PhotoCropFrame(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalPlatformContext.current
-    val request = remember(path) { ImageRequest.Builder(context).data(File(path)).size(MaxDecodeSide).build() }
+    val request = remember(path) { ImageRequest.Builder(context).data(path.toPath()).size(MaxDecodeSide).build() }
     val painter = rememberAsyncImagePainter(request)
     val painterState by painter.state.collectAsState()
     val ratio = screenWidth / keyboardHeight
