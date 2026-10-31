@@ -6,7 +6,7 @@ import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 
 @Composable
-internal actual fun PlatformMaterialTheme(
+actual fun PlatformMaterialTheme(
     colorScheme: ColorScheme,
     typography: Typography,
     content: @Composable () -> Unit,

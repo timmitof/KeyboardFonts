@@ -9,7 +9,7 @@ import androidx.compose.runtime.Composable
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-internal actual fun PlatformMaterialTheme(
+actual fun PlatformMaterialTheme(
     colorScheme: ColorScheme,
     typography: Typography,
     content: @Composable () -> Unit,

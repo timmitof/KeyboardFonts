@@ -40,6 +40,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kg.timmitof.core.ui.theme.toHsv
 
 @Composable
 fun ColorPickerDialog(
@@ -185,22 +186,6 @@ private fun DrawScope.drawThumb(center: Offset, color: Color) {
 }
 
 private fun Color.toHex(): String = "#" + (toArgb() and 0xFFFFFF).toString(16).uppercase().padStart(6, '0')
-
-/** Тон 0–360, насыщенность и яркость 0–1 — как `android.graphics.Color.colorToHSV`. */
-internal fun Color.toHsv(): FloatArray {
-    val max = maxOf(red, green, blue)
-    val min = minOf(red, green, blue)
-    val delta = max - min
-
-    val hue = when {
-        delta == 0f -> 0f
-        max == red -> 60f * (((green - blue) / delta) % 6f)
-        max == green -> 60f * ((blue - red) / delta + 2f)
-        else -> 60f * ((red - green) / delta + 4f)
-    }.let { if (it < 0f) it + 360f else it }
-
-    return floatArrayOf(hue, if (max == 0f) 0f else delta / max, max)
-}
 
 private const val MaxHue = 360f
 

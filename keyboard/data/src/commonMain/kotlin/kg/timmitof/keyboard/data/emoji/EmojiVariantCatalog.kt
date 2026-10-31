@@ -1,8 +1,8 @@
 package kg.timmitof.keyboard.data.emoji
 
-import kg.timmitof.keyboard.data.text.codePointAtIndex
-import kg.timmitof.keyboard.data.text.codePointList
-import kg.timmitof.keyboard.data.text.codePointToString
+import kg.timmitof.keyboard.font.domain.text.codePointAtIndex
+import kg.timmitof.keyboard.font.domain.text.codePointList
+import kg.timmitof.keyboard.font.domain.text.codePointToString
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock

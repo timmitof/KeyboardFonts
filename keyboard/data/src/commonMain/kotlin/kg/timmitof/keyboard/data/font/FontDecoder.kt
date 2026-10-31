@@ -1,8 +1,8 @@
 package kg.timmitof.keyboard.data.font
 
-import kg.timmitof.keyboard.data.text.charCount
-import kg.timmitof.keyboard.data.text.codePointAtIndex
 import kg.timmitof.keyboard.font.domain.model.StyledText
+import kg.timmitof.keyboard.font.domain.text.charCount
+import kg.timmitof.keyboard.font.domain.text.codePointAtIndex
 
 object FontDecoder {
 

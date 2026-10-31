@@ -1,0 +1,48 @@
+package kg.timmitof.keyboard.presentation.components.keys
+
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.material3.Icon
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import kg.timmitof.core.ui.backspaceHoldSlideClickable
+import kg.timmitof.keyboard.presentation.resources.Res
+import kg.timmitof.keyboard.presentation.resources.ic_backspace_key
+import kg.timmitof.keyboard.presentation.sound.KeySound
+import kg.timmitof.keyboard.presentation.theme.KFTheme
+import org.jetbrains.compose.resources.vectorResource
+
+@Composable
+internal fun RowScope.BackspaceKeyButton(
+    weight: Float,
+    modifier: Modifier = Modifier,
+    onDeleteWord: () -> Unit = {},
+    onSelectChange: (chars: Int) -> Unit = {},
+    onSelectCommit: (chars: Int) -> Unit = {},
+    onClick: () -> Unit
+) {
+    KeyBase(
+        modifier = modifier.weight(weight).fillMaxHeight(),
+        background = KFTheme.color.keySpecialButtonBackground,
+        shadowColor = KFTheme.color.keyButtonShadow,
+        sound = KeySound.DELETE,
+        customGestures = { interactionSource, onPress ->
+            Modifier.backspaceHoldSlideClickable(
+                interactionSource = interactionSource,
+                onPress = onPress,
+                onTap = onClick,
+                onHold = onDeleteWord,
+                onSlideChange = onSelectChange,
+                onSlideFinish = onSelectCommit
+            )
+        },
+        onClick = onClick
+    ) {
+        Icon(
+            imageVector = vectorResource(Res.drawable.ic_backspace_key),
+            contentDescription = "Backspace",
+            tint = KFTheme.color.keySpecialLabelColor,
+        )
+    }
+}

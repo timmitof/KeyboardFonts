@@ -1,9 +1,9 @@
 package kg.timmitof.keyboard.data.font
 
-import kg.timmitof.keyboard.data.text.codePointToString
 import kg.timmitof.keyboard.font.domain.model.FontScript
 import kg.timmitof.keyboard.font.domain.model.KeyboardFont
 import kg.timmitof.keyboard.font.domain.model.StyledText
+import kg.timmitof.keyboard.font.domain.text.codePointToString
 
 object FontCatalog {
 

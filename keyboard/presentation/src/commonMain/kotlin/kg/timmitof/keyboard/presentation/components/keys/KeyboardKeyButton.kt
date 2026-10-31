@@ -1,0 +1,240 @@
+package kg.timmitof.keyboard.presentation.components.keys
+
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.LineHeightStyle
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import kg.timmitof.core.ui.keyClickable
+import kg.timmitof.keyboard.domain.model.KeyCharacter
+import kg.timmitof.keyboard.domain.model.KeyboardKey
+import kg.timmitof.keyboard.domain.model.LongPressAction
+import kg.timmitof.keyboard.font.domain.model.KeyboardFont
+import kg.timmitof.keyboard.font.domain.text.codePointCount
+import kg.timmitof.keyboard.presentation.theme.KFTheme
+import kotlin.math.roundToInt
+
+private val SingleGlyphSize = 23.sp
+private val WordLabelSize = 15.sp
+
+private val LargeLabelSize = 26.sp
+private val LargeWordLabelSize = 19.sp
+private val SubLabelSize = 11.5.sp
+
+private val SubLabelSpacing = 4.dp
+
+private val KeyLabelPadding = 6.dp
+
+private const val SubLabelAlpha = 0.5f
+
+private val HintSize = 10.sp
+
+private const val HintAlpha = 0.6f
+
+internal fun String.isWordLabel(): Boolean = codePointCount() > 1
+
+/**
+ * Наверх уходит [KeyCharacter] в обоих регистрах: регистр применяет ViewModel в момент ввода,
+ * а Shift к этому моменту мог измениться от соседнего нажатия.
+ */
+@Composable
+internal fun RowScope.KeyboardKeyButton(
+    modifier: Modifier = Modifier,
+    key: KeyboardKey.Character,
+    isUpperCase: Boolean = false,
+    isLargeLabel: Boolean = false,
+    hasSubLabels: Boolean = false,
+    font: KeyboardFont = KeyboardFont.Default,
+    onInput: (KeyCharacter) -> Unit,
+) {
+    val input = remember(key) {
+        key.output?.let(::KeyCharacter) ?: KeyCharacter(key.labelLower, key.labelUpper)
+    }
+    val symbols = remember(key) {
+        (key.longPress as? LongPressAction.Symbols)?.symbols.orEmpty()
+    }
+
+    val label = key.let { if (isUpperCase) it.labelUpper else it.labelLower }
+    val displayLabel = remember(label, font) { font.apply(label) }
+    val displaySymbols = remember(symbols, isUpperCase, font) {
+        symbols.map { font.apply(it.text(isUpperCase)) }
+    }
+
+    val cellWidthPx = with(LocalDensity.current) { LongPressSymbolCellSize.toPx() }
+    var isPickerVisible by remember { mutableStateOf(false) }
+    var pickOffsetPx by remember { mutableFloatStateOf(0f) }
+
+    val interactionSource = remember { MutableInteractionSource() }
+    // State не читаем в композиции: от нажатия перерисовываются только zIndex и превью.
+    val isPressed = interactionSource.collectIsPressedAsState()
+
+    val selectedIndexFor: (Float) -> Int = { offsetPx ->
+        (offsetPx / cellWidthPx).roundToInt().coerceIn(0, symbols.lastIndex)
+    }
+
+    KeyBase(
+        // Нажатая клавиша выше соседей: её шапка не должна уходить под соседнюю.
+        modifier = modifier
+            .weight(key.weight)
+            .liftedZIndex { isPressed.value || isPickerVisible }
+            .fillMaxHeight(),
+        background = if (key.isSpecial) {
+            KFTheme.color.keySpecialButtonBackground
+        } else {
+            KFTheme.color.keyButtonBackground
+        },
+        shadowColor = KFTheme.color.keyButtonShadow,
+        interactionSource = interactionSource,
+        customGestures = if (symbols.isEmpty()) null else { source, onPress ->
+            Modifier.keyClickable(
+                interactionSource = source,
+                onPress = onPress,
+                onTap = { onInput(input) },
+                onHoldStart = {
+                    pickOffsetPx = 0f
+                    isPickerVisible = true
+                },
+                onPickChange = { pickOffsetPx = it },
+                onPickFinish = { offsetPx ->
+                    isPickerVisible = false
+                    onInput(symbols[selectedIndexFor(offsetPx)])
+                }
+            )
+        },
+        onClick = { onInput(input) }
+    ) {
+        key.hint?.let { KeyHint(hint = it) }
+
+        KeyLabel(
+            label = displayLabel,
+            subLabel = key.subLabel ?: "".takeIf { hasSubLabels && !key.isSpecial },
+            isLarge = isLargeLabel,
+            color = if (key.isSpecial) {
+                KFTheme.color.keySpecialLabelColor
+            } else {
+                KFTheme.color.keyLabelColor
+            }
+        )
+
+        when {
+            isPickerVisible -> LongPressSymbolsPicker(
+                symbols = displaySymbols,
+                selectedIndex = { selectedIndexFor(pickOffsetPx) },
+                onDismiss = { isPickerVisible = false }
+            )
+
+            else -> PressedKeyPreview(isPressed = isPressed, label = displayLabel)
+        }
+    }
+}
+
+/** Отдельный composable: нажатие рекомпозирует только его, а не всю клавишу. */
+@Composable
+private fun BoxScope.PressedKeyPreview(isPressed: State<Boolean>, label: String) {
+    if (isPressed.value && LocalKeyFeedback.current.isPreviewEnabled) {
+        KeyPressPreview(label = label)
+    }
+}
+
+@Composable
+private fun KeyLabel(
+    label: String,
+    subLabel: String?,
+    isLarge: Boolean,
+    color: Color,
+) {
+    if (subLabel == null) {
+        Text(
+            text = label,
+            fontSize = remember(label, isLarge) { label.labelFontSize(isLarge) },
+            fontWeight = FontWeight.Medium,
+            color = color,
+            maxLines = 1,
+            letterSpacing = 0.5.sp
+        )
+        return
+    }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = KeyLabelPadding),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            modifier = Modifier.weight(1f).alignByBaseline(),
+            text = label,
+            fontSize = remember(label, isLarge) { label.labelFontSize(isLarge) },
+            fontWeight = FontWeight.Medium,
+            color = color,
+            textAlign = TextAlign.End,
+            maxLines = 1,
+            softWrap = false,
+            letterSpacing = 0.5.sp
+        )
+        Spacer(modifier = Modifier.width(SubLabelSpacing))
+        Text(
+            modifier = Modifier.weight(1f).alignByBaseline(),
+            text = subLabel,
+            fontSize = SubLabelSize,
+            fontWeight = FontWeight.Medium,
+            color = color.copy(alpha = SubLabelAlpha),
+            textAlign = TextAlign.Start,
+            maxLines = 1,
+            softWrap = false,
+            letterSpacing = 0.3.sp
+        )
+    }
+}
+
+@Composable
+private fun BoxScope.KeyHint(hint: String) {
+    Text(
+        modifier = Modifier
+            .align(Alignment.TopEnd)
+            .padding(top = 3.dp, end = 3.dp),
+        text = hint,
+        fontSize = HintSize,
+        color = KFTheme.color.keyLabelColor.copy(alpha = HintAlpha),
+        style = TextStyle(
+            platformStyle = KeyLabelPlatformStyle,
+            lineHeight = HintSize,
+            lineHeightStyle = LineHeightStyle(
+                alignment = LineHeightStyle.Alignment.Top,
+                trim = LineHeightStyle.Trim.Both
+            )
+        )
+    )
+}
+
+private fun String.labelFontSize(large: Boolean = false): TextUnit = when {
+    isWordLabel() -> if (large) LargeWordLabelSize else WordLabelSize
+    large -> LargeLabelSize
+    else -> SingleGlyphSize
+}
