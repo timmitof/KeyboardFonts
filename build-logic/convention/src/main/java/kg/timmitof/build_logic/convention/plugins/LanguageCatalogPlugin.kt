@@ -18,7 +18,7 @@ class LanguageCatalogPlugin : Plugin<Project> {
 
         val generate = tasks.register<GenerateLanguageCatalogTask>("generateLanguageCatalog") {
             languages.set(catalog.languages)
-            layouts.set(layout.projectDirectory.dir("src/main/assets/layouts"))
+            layouts.set(layout.projectDirectory.dir("src/androidMain/assets/layouts"))
             outputDirectory.set(layout.buildDirectory.dir("generated/languageCatalog"))
         }
 

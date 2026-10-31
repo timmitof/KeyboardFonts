@@ -1,6 +1,8 @@
 plugins { id("keyboardfonts.data") }
 
-dependencies {
-    implementation(project(":keyboard:data"))
-    implementation(libs.androidx.datastore.preferences.core)
+kotlin {
+    sourceSets.commonMain.dependencies {
+        implementation(project(":keyboard:data"))
+        implementation(libs.androidx.datastore.preferences.core)
+    }
 }

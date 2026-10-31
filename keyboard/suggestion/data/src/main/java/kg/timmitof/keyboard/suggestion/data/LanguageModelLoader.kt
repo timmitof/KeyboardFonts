@@ -2,7 +2,7 @@ package kg.timmitof.keyboard.suggestion.data
 
 import android.os.SystemClock
 import android.util.Log
-import kg.timmitof.keyboard.data.AssetTextLoader
+import kg.timmitof.keyboard.data.MappedAssetLoader
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -11,7 +11,7 @@ import kotlinx.coroutines.sync.withLock
 import java.util.concurrent.ConcurrentHashMap
 
 class LanguageModelLoader(
-    private val assetTextLoader: AssetTextLoader,
+    private val assetTextLoader: MappedAssetLoader,
 ) {
 
     private val models = ConcurrentHashMap<String, LanguageModel>(2)

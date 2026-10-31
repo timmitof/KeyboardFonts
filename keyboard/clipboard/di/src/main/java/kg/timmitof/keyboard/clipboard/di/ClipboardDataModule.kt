@@ -1,6 +1,6 @@
 package kg.timmitof.keyboard.clipboard.di
 
-import kg.timmitof.keyboard.clipboard.data.SystemClipboardSource
+import kg.timmitof.keyboard.clipboard.data.di.platformClipboardModule
 import kg.timmitof.keyboard.clipboard.data.repository.ClipboardRepositoryImpl
 import kg.timmitof.keyboard.clipboard.domain.repository.ClipboardRepository
 import org.koin.core.module.dsl.singleOf
@@ -9,7 +9,7 @@ import org.koin.dsl.module
 
 val clipboardDataModule = module {
 
-    singleOf(::ClipboardRepositoryImpl) bind ClipboardRepository::class
+    includes(platformClipboardModule)
 
-    singleOf(::SystemClipboardSource)
+    singleOf(::ClipboardRepositoryImpl) bind ClipboardRepository::class
 }

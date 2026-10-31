@@ -5,11 +5,17 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 }
 
-dependencies {
-    implementation(project(":core:data"))
-    implementation(libs.kotlin.kotlinx.serialization.json)
-    implementation(libs.androidx.datastore.preferences.core)
-    implementation(project(":keyboard:font:domain"))
-
-    testImplementation(libs.junit)
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+            implementation(project(":core:data"))
+            implementation(project(":keyboard:font:domain"))
+            implementation(libs.kotlin.kotlinx.serialization.json)
+            implementation(libs.androidx.datastore.preferences.core)
+            implementation(libs.koin.core)
+        }
+        androidMain.dependencies {
+            implementation(libs.koin.android)
+        }
+    }
 }
