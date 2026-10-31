@@ -1,4 +1,4 @@
-plugins { id("keyboardfonts.presentation") }
+plugins { id("keyboardfonts.presentation.android") }
 
 dependencies {
     implementation(project(":keyboard:presentation"))

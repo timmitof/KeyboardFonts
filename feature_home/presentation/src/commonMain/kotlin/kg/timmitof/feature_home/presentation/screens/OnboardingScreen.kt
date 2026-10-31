@@ -10,14 +10,13 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.isImeVisible
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -33,9 +32,8 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LifecycleResumeEffect
@@ -94,6 +92,7 @@ import kg.timmitof.feature_home.presentation.components.steps.SetupStepStatus
 import kg.timmitof.feature_home.presentation.components.steps.SetupSteps
 import kg.timmitof.feature_home.presentation.components.steps.SystemMock
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import kg.timmitof.core.ui.resources.Res as UiRes
 
@@ -277,7 +276,6 @@ private fun SetupContent(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun TryContent(onDone: () -> Unit) {
     val success = MaterialTheme.appColors.success
@@ -322,7 +320,7 @@ private fun TryContent(onDone: () -> Unit) {
 
         // Подсказка нужна, только пока клавиатура на экране — она указывает на её строку шрифтов.
         AnimatedVisibility(
-            visible = WindowInsets.isImeVisible,
+            visible = WindowInsets.ime.getBottom(LocalDensity.current) > 0,
             enter = fadeIn() + slideInVertically { it / 2 },
             exit = fadeOut(),
         ) {

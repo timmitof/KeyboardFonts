@@ -1,5 +1,7 @@
 plugins { id("keyboardfonts.presentation") }
 
-dependencies {
-    implementation(project(":core:common"))
+kotlin {
+    sourceSets.commonMain.dependencies {
+        implementation(project(":core:common"))
+    }
 }
