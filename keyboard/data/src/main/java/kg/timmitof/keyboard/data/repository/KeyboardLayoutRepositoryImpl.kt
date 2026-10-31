@@ -1,9 +1,8 @@
 package kg.timmitof.keyboard.data.repository
 
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import kg.timmitof.keyboard.data.JsonKeyboardLayoutLoader
 import kg.timmitof.keyboard.data.mapper.KeyboardMapper
+import kg.timmitof.keyboard.data.models.AssetJson
 import kg.timmitof.keyboard.data.models.KeyboardKeyDto
 import kg.timmitof.keyboard.data.models.KeyboardLayoutDto
 import kg.timmitof.keyboard.domain.model.KeyboardKey
@@ -19,7 +18,6 @@ class KeyboardLayoutRepositoryImpl(
     private val loader: JsonKeyboardLayoutLoader
 ) : KeyboardLayoutRepository {
 
-    private val gson = Gson()
     private val cache = ConcurrentHashMap<String, KeyboardLayout>()
 
     // Один JSON не разбираем дважды при параллельных запросах.
@@ -44,7 +42,7 @@ class KeyboardLayoutRepositoryImpl(
             ?: throw IllegalStateException("Keyboard layout not found: $filename")
 
         return withContext(Dispatchers.Default) {
-            val dto = gson.fromJson(jsonText, KeyboardLayoutDto::class.java)
+            val dto = AssetJson.decodeFromString<KeyboardLayoutDto>(jsonText)
             with(KeyboardMapper) { dto.toDomain() }
         }
     }
@@ -65,7 +63,7 @@ class KeyboardLayoutRepositoryImpl(
 
         return withContext(Dispatchers.Default) {
             val dto: Map<String, List<KeyboardKeyDto>> = jsonText
-                ?.let { gson.fromJson<Map<String, List<KeyboardKeyDto>>>(it, bottomRowsType) }
+                ?.let { AssetJson.decodeFromString<Map<String, List<KeyboardKeyDto>>>(it) }
                 .orEmpty()
 
             dto.mapValues { (_, row) ->
@@ -76,7 +74,5 @@ class KeyboardLayoutRepositoryImpl(
 
     private companion object {
         const val BOTTOM_ROWS_FILE = "bottom_rows.json"
-
-        val bottomRowsType = object : TypeToken<Map<String, List<KeyboardKeyDto>>>() {}.type
     }
 }

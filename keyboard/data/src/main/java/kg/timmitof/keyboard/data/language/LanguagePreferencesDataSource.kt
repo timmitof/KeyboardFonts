@@ -1,6 +1,5 @@
 package kg.timmitof.keyboard.data.language
 
-import android.content.Context
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
@@ -24,11 +23,11 @@ data class LanguagePreferences(
 
 /** Лежит в общем `keyboardPreferences` рядом с настройками клавиатуры. */
 class LanguagePreferencesDataSource(
-    private val context: Context,
+    private val keyboardPreferences: KeyboardPreferences,
 ) {
 
     /** Сбойное чтение не должно валить клавиатуру — откатываемся к языкам по умолчанию. */
-    private val preferences: Flow<Preferences> = context.keyboardPreferences.data
+    private val preferences: Flow<Preferences> = keyboardPreferences.data
         .catch { error -> if (error is IOException) emit(emptyPreferences()) else throw error }
 
     fun observe(): Flow<LanguagePreferences> = preferences
@@ -38,12 +37,12 @@ class LanguagePreferencesDataSource(
     suspend fun get(): LanguagePreferences = toLanguagePreferences(preferences.first())
 
     suspend fun setSelected(code: String) {
-        context.keyboardPreferences.edit { prefs -> prefs[SELECTED_LANGUAGE_KEY] = code }
+        keyboardPreferences.edit { prefs -> prefs[SELECTED_LANGUAGE_KEY] = code }
     }
 
     /** Список и выбранный пишутся одной транзакцией: клавиатура не увидит выбранный язык вне списка. */
     suspend fun setEnabled(codes: List<String>, selected: String) {
-        context.keyboardPreferences.edit { prefs ->
+        keyboardPreferences.edit { prefs ->
             prefs[ENABLED_LANGUAGES_KEY] = codes.joinToString(SEPARATOR)
             prefs[SELECTED_LANGUAGE_KEY] = selected
         }

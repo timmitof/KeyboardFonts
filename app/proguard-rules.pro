@@ -9,25 +9,11 @@
 -renamesourcefileattribute SourceFile
 
 # =====================================================================
-# Gson — раскладки клавиатуры парсятся рефлексией из JSON-ассетов
-# (keyboard/data/.../repository/KeyboardLayoutRepositoryImpl.kt).
-# Имена полей DTO берутся из JSON, поэтому их нельзя переименовывать.
+# kotlinx.serialization — type-safe навигация (core:navigation graphs)
+# и JSON-ассеты клавиатуры (keyboard/data/.../models).
 # =====================================================================
 -keepattributes Signature
 -keepattributes *Annotation*
--keep class com.google.gson.reflect.TypeToken { *; }
--keep class * extends com.google.gson.reflect.TypeToken
-
-# DTO-модели раскладок — сохраняем классы и все поля целиком.
--keep class kg.timmitof.keyboard.data.models.** { *; }
-
-# Общие правила Gson (на случай сериализации/десериализации через рефлексию).
--keep,allowobfuscation,allowshrinking class com.google.gson.reflect.TypeToken
--keep,allowobfuscation,allowshrinking class * extends com.google.gson.reflect.TypeToken
-
-# =====================================================================
-# kotlinx.serialization — type-safe навигация (core:navigation graphs).
-# =====================================================================
 -keepattributes RuntimeVisibleAnnotations,AnnotationDefault
 
 # Сохраняем сгенерированные сериализаторы.
@@ -50,7 +36,7 @@
 }
 
 # =====================================================================
-# Enum-ы (Gson/сериализация используют values()/valueOf()).
+# Enum-ы (сериализация использует values()/valueOf()).
 # =====================================================================
 -keepclassmembers enum * {
     public static **[] values();

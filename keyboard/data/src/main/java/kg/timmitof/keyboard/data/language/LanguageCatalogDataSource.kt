@@ -1,7 +1,7 @@
 package kg.timmitof.keyboard.data.language
 
-import com.google.gson.Gson
 import kg.timmitof.keyboard.data.AssetTextLoader
+import kg.timmitof.keyboard.data.models.AssetJson
 import kg.timmitof.keyboard.data.models.LanguageCatalogDto
 import kg.timmitof.keyboard.data.models.LanguageDto
 import kg.timmitof.keyboard.domain.model.KeyboardLanguage
@@ -18,8 +18,6 @@ class LanguageCatalogDataSource(
     private val assetTextLoader: AssetTextLoader,
 ) {
 
-    private val gson = Gson()
-
     private val mutex = Mutex()
 
     /** Каталог неизменен на время жизни процесса — разбираем один раз. */
@@ -35,7 +33,7 @@ class LanguageCatalogDataSource(
             ?: throw IllegalStateException("Language catalog not found: $FILE_NAME")
 
         val languages = withContext(Dispatchers.Default) {
-            gson.fromJson(json, LanguageCatalogDto::class.java)?.languages.orEmpty().map { it.toDomain() }
+            AssetJson.decodeFromString<LanguageCatalogDto>(json).languages.orEmpty().map { it.toDomain() }
         }
         check(languages.isNotEmpty()) { "Language catalog is empty: $FILE_NAME" }
         return languages

@@ -1,6 +1,5 @@
 package kg.timmitof.keyboard.data.settings
 
-import android.content.Context
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
@@ -9,7 +8,7 @@ import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import kg.timmitof.core.data.local.dao.BackgroundPhotoDao
-import kg.timmitof.keyboard.data.language.keyboardPreferences
+import kg.timmitof.keyboard.data.language.KeyboardPreferences
 import kg.timmitof.keyboard.domain.model.BackgroundPhoto
 import kg.timmitof.keyboard.domain.model.KeyColorTarget
 import kg.timmitof.keyboard.domain.model.KeyboardBackground
@@ -32,7 +31,7 @@ import java.io.IOException
 
 /** Ключи берутся из [KeyboardToggle] — новая настройка не требует правок хранилища. */
 class KeyboardSettingsDataSource(
-    private val context: Context,
+    private val keyboardPreferences: KeyboardPreferences,
     private val photoDao: BackgroundPhotoDao,
 ) {
 
@@ -41,7 +40,7 @@ class KeyboardSettingsDataSource(
         KeyboardToggle.entries.associateWith { booleanPreferencesKey(it.key) }
 
     /** Сбойное чтение не должно валить клавиатуру — откатываемся к значениям по умолчанию. */
-    private val preferences: Flow<Preferences> = context.keyboardPreferences.data
+    private val preferences: Flow<Preferences> = keyboardPreferences.data
         .catch { error -> if (error is IOException) emit(emptyPreferences()) else throw error }
 
     /** Фон-фото хранится ссылкой: сам кадр берём из базы, правка кадра приходит этим же потоком. */
@@ -72,32 +71,32 @@ class KeyboardSettingsDataSource(
     }
 
     suspend fun setToggle(toggle: KeyboardToggle, enabled: Boolean) {
-        context.keyboardPreferences.edit { prefs ->
+        keyboardPreferences.edit { prefs ->
             prefs[toggleKeys.getValue(toggle)] = enabled
         }
     }
 
     suspend fun setTheme(mode: KeyboardThemeMode) {
-        context.keyboardPreferences.edit { prefs -> prefs[THEME_KEY] = mode.key }
+        keyboardPreferences.edit { prefs -> prefs[THEME_KEY] = mode.key }
     }
 
     suspend fun setHeight(height: KeyboardHeight) {
-        context.keyboardPreferences.edit { prefs -> prefs[HEIGHT_KEY] = height.key }
+        keyboardPreferences.edit { prefs -> prefs[HEIGHT_KEY] = height.key }
     }
 
     suspend fun setKeyColor(target: KeyColorTarget, argb: Long?) {
         val key = target.preferenceKey
-        context.keyboardPreferences.edit { prefs ->
+        keyboardPreferences.edit { prefs ->
             if (argb == null) prefs.remove(key) else prefs[key] = argb
         }
     }
 
     suspend fun setSoundPack(pack: KeyboardSoundPack) {
-        context.keyboardPreferences.edit { prefs -> prefs[SOUND_PACK_KEY] = pack.key }
+        keyboardPreferences.edit { prefs -> prefs[SOUND_PACK_KEY] = pack.key }
     }
 
     suspend fun setSoundVolume(volume: Float) {
-        context.keyboardPreferences.edit { prefs -> prefs[SOUND_VOLUME_KEY] = volume.coerceIn(0f, 1f) }
+        keyboardPreferences.edit { prefs -> prefs[SOUND_VOLUME_KEY] = volume.coerceIn(0f, 1f) }
     }
 
     /**
@@ -106,7 +105,7 @@ class KeyboardSettingsDataSource(
      */
     suspend fun setBackground(background: KeyboardBackground) {
         val key = background.toKey()
-        context.keyboardPreferences.edit { prefs ->
+        keyboardPreferences.edit { prefs ->
             if (prefs[BACKGROUND_KEY] == key) return@edit
             key?.let { prefs[BACKGROUND_KEY] = it } ?: prefs.remove(BACKGROUND_KEY)
             prefs.remove(KEY_COLOR_KEY)

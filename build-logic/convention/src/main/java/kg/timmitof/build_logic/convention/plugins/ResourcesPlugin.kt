@@ -4,9 +4,7 @@ import dev.icerock.gradle.tasks.GenerateMultiplatformResourcesTask
 import kg.timmitof.build_logic.convention.resources.MokoAndroidResources
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.withType
-import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 
 /**
  * Общие ресурсы на moko-resources: `src/commonMain/moko-resources/<локаль>/strings.xml`, `base` — русский.
@@ -16,11 +14,6 @@ class ResourcesPlugin : Plugin<Project> {
     override fun apply(target: Project) = with(target) {
         pluginManager.apply("keyboardfonts.kmp.library")
         pluginManager.apply("dev.icerock.mobile.multiplatform-resources")
-
-        extensions.configure<KotlinMultiplatformExtension> {
-            // MR — expect object, который генерирует moko.
-            compilerOptions.freeCompilerArgs.add("-Xexpect-actual-classes")
-        }
 
         tasks.withType<GenerateMultiplatformResourcesTask>().configureEach {
             if (name != ANDROID_MAIN_TASK) return@configureEach

@@ -4,9 +4,11 @@ import kg.timmitof.keyboard.data.AssetJsonKeyboardLayoutLoader
 import kg.timmitof.keyboard.data.AssetTextLoader
 import kg.timmitof.keyboard.data.AssetTextLoaderImpl
 import kg.timmitof.keyboard.data.JsonKeyboardLayoutLoader
+import kg.timmitof.keyboard.data.emoji.EmojiPreferences
 import kg.timmitof.keyboard.data.emoji.EmojiSearchIndex
 import kg.timmitof.keyboard.data.emoji.PreferredEmojiVariantDataSource
 import kg.timmitof.keyboard.data.emoji.RecentEmojiDataSource
+import kg.timmitof.keyboard.data.language.KeyboardPreferences
 import kg.timmitof.keyboard.data.language.LanguageCatalogDataSource
 import kg.timmitof.keyboard.data.language.LanguagePreferencesDataSource
 import kg.timmitof.keyboard.data.repository.BackgroundPhotoRepositoryImpl
@@ -26,6 +28,10 @@ import org.koin.dsl.bind
 import org.koin.dsl.module
 
 val keyboardDataModule = module {
+
+    // DataStore допускает одно хранилище на файл в процессе — только single.
+    singleOf(::KeyboardPreferences)
+    singleOf(::EmojiPreferences)
 
     singleOf(::AssetTextLoaderImpl) bind AssetTextLoader::class
 

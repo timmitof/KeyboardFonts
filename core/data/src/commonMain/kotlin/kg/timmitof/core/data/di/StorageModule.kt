@@ -1,15 +1,17 @@
 package kg.timmitof.core.data.di
 
-import androidx.room.Room
+import androidx.room.RoomDatabase
 import kg.timmitof.core.data.local.AppDatabase
 import kg.timmitof.core.data.local.Migrations
-import org.koin.android.ext.koin.androidContext
+import org.koin.core.module.Module
 import org.koin.dsl.module
 
 val storageModule = module {
 
+    includes(platformStorageModule)
+
     single {
-        Room.databaseBuilder(androidContext(), AppDatabase::class.java, AppDatabase.TAG)
+        get<RoomDatabase.Builder<AppDatabase>>()
             .addMigrations(*Migrations.all)
             .build()
     }
@@ -18,3 +20,6 @@ val storageModule = module {
 
     single { get<AppDatabase>().backgroundPhotoDao() }
 }
+
+/** Платформенная часть: файл базы и каталог настроек. */
+internal expect val platformStorageModule: Module

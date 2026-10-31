@@ -1,21 +1,20 @@
 package kg.timmitof.keyboard.data.emoji
 
-import android.content.Context
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.first
 
 class PreferredEmojiVariantDataSource(
-    private val context: Context
+    private val emojiPreferences: EmojiPreferences
 ) {
 
     suspend fun getAll(): Map<String, String> =
-        context.emojiPreferences.data.first()[VARIANTS_KEY].toVariantMap()
+        emojiPreferences.data.first()[VARIANTS_KEY].toVariantMap()
 
     /** Выбор базового эмодзи сбрасывает предпочтение. */
     suspend fun setPreferred(base: String, variant: String): Map<String, String> {
         var updated: Map<String, String> = emptyMap()
-        context.emojiPreferences.edit { prefs ->
+        emojiPreferences.edit { prefs ->
             val current = prefs[VARIANTS_KEY].toVariantMap()
             updated = if (variant == base) current - base else current + (base to variant)
             prefs[VARIANTS_KEY] = updated.entries

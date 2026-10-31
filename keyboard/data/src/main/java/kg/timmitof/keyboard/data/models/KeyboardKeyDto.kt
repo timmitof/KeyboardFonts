@@ -1,5 +1,8 @@
 package kg.timmitof.keyboard.data.models
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class KeyboardKeyDto(
     val type: String,
     val weight: Float,

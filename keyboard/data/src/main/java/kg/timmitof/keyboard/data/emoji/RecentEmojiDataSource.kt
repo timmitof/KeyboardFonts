@@ -1,21 +1,20 @@
 package kg.timmitof.keyboard.data.emoji
 
-import android.content.Context
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.first
 
 /** Одна строка с несимвольным разделителем: свежие в начале, не больше [MAX_RECENT]. */
 class RecentEmojiDataSource(
-    private val context: Context
+    private val emojiPreferences: EmojiPreferences
 ) {
 
     suspend fun getRecent(): List<String> =
-        context.emojiPreferences.data.first()[RECENT_KEY].toEmojiList()
+        emojiPreferences.data.first()[RECENT_KEY].toEmojiList()
 
     suspend fun add(emoji: String): List<String> {
         var updated: List<String> = emptyList()
-        context.emojiPreferences.edit { prefs ->
+        emojiPreferences.edit { prefs ->
             val current = prefs[RECENT_KEY].toEmojiList()
             updated = (listOf(emoji) + (current - emoji)).take(MAX_RECENT)
             prefs[RECENT_KEY] = updated.joinToString(SEPARATOR)

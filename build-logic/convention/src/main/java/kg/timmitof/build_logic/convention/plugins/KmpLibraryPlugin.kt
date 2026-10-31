@@ -23,6 +23,9 @@ class KmpLibraryPlugin : Plugin<Project> {
             iosArm64()
             iosSimulatorArm64()
 
+            // expect object генерируют moko-resources (MR) и Room (конструктор базы).
+            compilerOptions.freeCompilerArgs.add("-Xexpect-actual-classes")
+
             sourceSets.commonTest.dependencies {
                 implementation(libs.findLibrary("kotlin-test").get())
             }

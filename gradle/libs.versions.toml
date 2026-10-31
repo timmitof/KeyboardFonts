@@ -15,7 +15,7 @@ lifecycleRuntimeKtx = "2.9.4"
 activityCompose = "1.11.0"
 composeBom = "2025.09.01"
 appcompat = "1.7.1"
-ksp = "2.2.0-2.0.2"
+ksp = "2.2.20-2.0.4"
 kotlinCoroutines = "1.10.2"
 datastorePreferences = "1.1.7"
 material3 = "1.5.0-alpha07"
@@ -23,7 +23,6 @@ coilCompose = "3.3.0"
 
 navigationCompose = "2.9.5"
 serializationJson = "1.9.0"
-gsonVersion = "2.13.2"
 
 orbit = "10.0.0"
 
@@ -32,6 +31,7 @@ koin = "4.1.1"
 moko = "0.27.1"
 
 room = "2.8.3"
+sqlite = "2.6.1"
 
 [libraries]
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }
@@ -51,11 +51,10 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3",
 androidx-compose-material-icons = { group = "androidx.compose.material", name = "material-icons-core" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinCoroutines" }
-androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
+androidx-datastore-preferences-core = { module = "androidx.datastore:datastore-preferences-core", version.ref = "datastorePreferences" }
 
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 kotlin-kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serializationJson" }
-gson = { group = "com.google.code.gson", name = "gson", version.ref = "gsonVersion" }
 
 orbit-compose = { module = "org.orbit-mvi:orbit-compose", version.ref = "orbit" }
 orbit-core = { module = "org.orbit-mvi:orbit-core", version.ref = "orbit" }
@@ -70,8 +69,9 @@ moko-resources = { module = "dev.icerock.moko:resources", version.ref = "moko" }
 moko-resources-compose = { module = "dev.icerock.moko:resources-compose", version.ref = "moko" }
 moko-resources-generator = { module = "dev.icerock.moko:resources-generator", version.ref = "moko" }
 
-room-android = { module = "androidx.room:room-ktx", version.ref = "room" }
+room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
+sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
 
 [plugins]
 keyboardfonts-application = { id = "keyboardfonts.application" }
