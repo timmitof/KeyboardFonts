@@ -15,10 +15,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import dev.icerock.moko.resources.compose.stringResource
+import kg.timmitof.core.resources.MR
+import kg.timmitof.core.resources.overlay_close
 import kg.timmitof.core.ui.interceptTouches
 import kg.timmitof.keyboard.presentation.R
 import kg.timmitof.keyboard.presentation.theme.KFTheme
@@ -65,7 +67,7 @@ internal fun OverlayHeader(
 
         OverlayIconButton(
             iconRes = R.drawable.ic_close,
-            contentDescription = stringResource(R.string.overlay_close),
+            contentDescription = stringResource(MR.strings.overlay_close),
             onClick = onClose
         )
     }

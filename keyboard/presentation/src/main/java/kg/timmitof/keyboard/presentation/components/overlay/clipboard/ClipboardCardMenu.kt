@@ -1,5 +1,10 @@
 package kg.timmitof.keyboard.presentation.components.overlay.clipboard
 
+import dev.icerock.moko.resources.compose.stringResource
+import kg.timmitof.core.resources.MR
+import kg.timmitof.core.resources.clipboard_delete
+import kg.timmitof.core.resources.clipboard_pin
+import kg.timmitof.core.resources.clipboard_unpin
 import kg.timmitof.core.ui.plainClickable
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
@@ -20,7 +25,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -57,7 +61,7 @@ internal fun ClipboardCardMenu(
             MenuItem(
                 iconRes = R.drawable.ic_clipboard_pin,
                 label = stringResource(
-                    if (entry.isPinned) R.string.clipboard_unpin else R.string.clipboard_pin
+                    if (entry.isPinned) MR.strings.clipboard_unpin else MR.strings.clipboard_pin
                 ),
             ) {
                 onEvent(KeyboardEvent.OnClipboardAction(ClipboardAction.Pin(entry, !entry.isPinned)))
@@ -66,7 +70,7 @@ internal fun ClipboardCardMenu(
 
             MenuItem(
                 iconRes = R.drawable.ic_trash,
-                label = stringResource(R.string.clipboard_delete),
+                label = stringResource(MR.strings.clipboard_delete),
             ) {
                 onEvent(KeyboardEvent.OnClipboardAction(ClipboardAction.Remove(entry)))
                 onDismiss()

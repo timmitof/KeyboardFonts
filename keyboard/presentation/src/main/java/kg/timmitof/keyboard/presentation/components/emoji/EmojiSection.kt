@@ -1,15 +1,25 @@
 package kg.timmitof.keyboard.presentation.components.emoji
 
-import androidx.annotation.StringRes
 import androidx.compose.runtime.Immutable
+import dev.icerock.moko.resources.StringResource
+import kg.timmitof.core.resources.MR
+import kg.timmitof.core.resources.emoji_category_activities
+import kg.timmitof.core.resources.emoji_category_animals
+import kg.timmitof.core.resources.emoji_category_flags
+import kg.timmitof.core.resources.emoji_category_food
+import kg.timmitof.core.resources.emoji_category_objects
+import kg.timmitof.core.resources.emoji_category_people
+import kg.timmitof.core.resources.emoji_category_recent
+import kg.timmitof.core.resources.emoji_category_smileys
+import kg.timmitof.core.resources.emoji_category_symbols
+import kg.timmitof.core.resources.emoji_category_travel
 import kg.timmitof.keyboard.domain.model.EmojiCategory
-import kg.timmitof.keyboard.presentation.R
 
 @Immutable
 internal data class EmojiSection(
     val id: String,
     val icon: String,
-    @field:StringRes val titleRes: Int,
+    val titleRes: StringResource,
     val emojis: List<String>,
 )
 
@@ -22,7 +32,7 @@ internal fun buildEmojiSections(
             EmojiSection(
                 id = RecentSectionId,
                 icon = "🕐",
-                titleRes = R.string.emoji_category_recent,
+                titleRes = MR.strings.emoji_category_recent,
                 emojis = recentEmojis
             )
         )
@@ -41,16 +51,15 @@ internal fun buildEmojiSections(
 
 internal const val RecentSectionId = "recent"
 
-@StringRes
-private fun EmojiCategory.titleRes(): Int = when (id) {
-    "smileys" -> R.string.emoji_category_smileys
-    "people" -> R.string.emoji_category_people
-    "animals" -> R.string.emoji_category_animals
-    "food" -> R.string.emoji_category_food
-    "activities" -> R.string.emoji_category_activities
-    "travel" -> R.string.emoji_category_travel
-    "objects" -> R.string.emoji_category_objects
-    "symbols" -> R.string.emoji_category_symbols
-    "flags" -> R.string.emoji_category_flags
-    else -> R.string.emoji_category_symbols
+private fun EmojiCategory.titleRes(): StringResource = when (id) {
+    "smileys" -> MR.strings.emoji_category_smileys
+    "people" -> MR.strings.emoji_category_people
+    "animals" -> MR.strings.emoji_category_animals
+    "food" -> MR.strings.emoji_category_food
+    "activities" -> MR.strings.emoji_category_activities
+    "travel" -> MR.strings.emoji_category_travel
+    "objects" -> MR.strings.emoji_category_objects
+    "symbols" -> MR.strings.emoji_category_symbols
+    "flags" -> MR.strings.emoji_category_flags
+    else -> MR.strings.emoji_category_symbols
 }

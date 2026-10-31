@@ -1,8 +1,9 @@
 package kg.timmitof.keyboard.presentation.components.topbar
 
+import dev.icerock.moko.resources.StringResource
+import dev.icerock.moko.resources.compose.stringResource
 import kg.timmitof.core.ui.plainClickable
 import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -28,7 +29,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -112,7 +112,7 @@ internal fun TopBarAnchorButton(
 
 @Composable
 internal fun NoticePill(
-    @StringRes textRes: Int,
+    textRes: StringResource,
     modifier: Modifier = Modifier,
 ) {
     Row(

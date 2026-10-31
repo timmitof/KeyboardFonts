@@ -33,14 +33,15 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import dev.icerock.moko.resources.compose.stringResource
 import kg.timmitof.core.common.R
-import kg.timmitof.feature_splash.presentation.R as SplashR
+import kg.timmitof.core.resources.MR
+import kg.timmitof.core.resources.app_name
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
@@ -105,7 +106,7 @@ internal fun DumpingSplash(
             ) {
                 Text(
                     modifier = Modifier.padding(end = 8.dp),
-                    text = stringResource(SplashR.string.app_name),
+                    text = stringResource(MR.strings.app_name),
                     style = MaterialTheme.typography.displaySmall,
                     color = MaterialTheme.colorScheme.onBackground,
                     fontFamily = FontFamily(Font(R.font.nunito_black)),

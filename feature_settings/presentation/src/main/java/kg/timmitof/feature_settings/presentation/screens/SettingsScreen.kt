@@ -20,10 +20,24 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
+import dev.icerock.moko.resources.compose.stringResource
+import kg.timmitof.core.resources.MR
+import kg.timmitof.core.resources.studio_app_name
+import kg.timmitof.core.resources.studio_preview_check
+import kg.timmitof.core.resources.studio_preview_sample
+import kg.timmitof.core.resources.studio_preview_sample_cyrillic
+import kg.timmitof.core.resources.studio_status_active
+import kg.timmitof.core.resources.studio_status_not_ready
+import kg.timmitof.core.resources.tip_backspace_slide
+import kg.timmitof.core.resources.tip_clipboard
+import kg.timmitof.core.resources.tip_counter
+import kg.timmitof.core.resources.tip_long_press
+import kg.timmitof.core.resources.tip_quick_settings
+import kg.timmitof.core.resources.tip_space_cursor
+import kg.timmitof.core.resources.tip_space_language
 import kg.timmitof.core.ui.base.Container
 import kg.timmitof.core.ui.base.ContainerDSLBuilder
 import kg.timmitof.core.ui.components.brand.AppLanguageButton
@@ -33,7 +47,6 @@ import kg.timmitof.core.ui.components.hint.TipsCard
 import kg.timmitof.core.ui.theme.AccentRole
 import kg.timmitof.core.ui.theme.KeyboardFontsTheme
 import kotlinx.coroutines.flow.drop
-import kg.timmitof.feature_settings.presentation.R
 import kg.timmitof.feature_settings.presentation.components.StudioPreviewCard
 import kg.timmitof.feature_settings.presentation.studio.BackgroundPane
 import kg.timmitof.feature_settings.presentation.studio.ClipboardPane
@@ -246,12 +259,12 @@ private fun StudioPreview(
         fonts = state.value.fontPanel.visible,
         sample = stringResource(
             if (state.value.summary.selectedLanguage.fontScript == FontScript.CYRILLIC) {
-                R.string.studio_preview_sample_cyrillic
+                MR.strings.studio_preview_sample_cyrillic
             } else {
-                R.string.studio_preview_sample
+                MR.strings.studio_preview_sample
             }
         ),
-        checkLabel = stringResource(R.string.studio_preview_check),
+        checkLabel = stringResource(MR.strings.studio_preview_check),
     )
 }
 
@@ -262,17 +275,17 @@ private fun StudioHeader(
 ) {
     BrandHeader(
         modifier = Modifier.padding(horizontal = HorizontalPadding),
-        title = stringResource(R.string.studio_app_name),
+        title = stringResource(MR.strings.studio_app_name),
     ) {
         AppLanguageButton()
         if (isKeyboardReady) {
             StatusPill(
-                text = stringResource(R.string.studio_status_active),
+                text = stringResource(MR.strings.studio_status_active),
                 role = AccentRole.SUCCESS,
             )
         } else {
             StatusPill(
-                text = stringResource(R.string.studio_status_not_ready),
+                text = stringResource(MR.strings.studio_status_not_ready),
                 role = AccentRole.HINT,
                 onClick = onConnect,
             )
@@ -283,7 +296,7 @@ private fun StudioHeader(
 @Composable
 private fun StudioTips(modifier: Modifier = Modifier) {
     val tips = StudioTipsRes.map { stringResource(it) }
-    val counter = stringResource(R.string.tip_counter)
+    val counter = stringResource(MR.strings.tip_counter)
 
     TipsCard(
         modifier = modifier,
@@ -293,12 +306,12 @@ private fun StudioTips(modifier: Modifier = Modifier) {
 }
 
 private val StudioTipsRes = listOf(
-    R.string.tip_space_language,
-    R.string.tip_space_cursor,
-    R.string.tip_backspace_slide,
-    R.string.tip_long_press,
-    R.string.tip_quick_settings,
-    R.string.tip_clipboard,
+    MR.strings.tip_space_language,
+    MR.strings.tip_space_cursor,
+    MR.strings.tip_backspace_slide,
+    MR.strings.tip_long_press,
+    MR.strings.tip_quick_settings,
+    MR.strings.tip_clipboard,
 )
 
 private val HorizontalPadding = 16.dp

@@ -14,6 +14,7 @@ android {
 dependencies {
     implementation(project(":core:common"))
     implementation(project(":core:navigation"))
+    implementation(project(":core:resources"))
 
     implementation(libs.androidx.core.ktx)
     implementation(platform(libs.androidx.compose.bom))

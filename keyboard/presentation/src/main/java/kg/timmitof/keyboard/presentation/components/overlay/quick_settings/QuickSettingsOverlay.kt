@@ -6,8 +6,25 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import dev.icerock.moko.resources.StringResource
+import dev.icerock.moko.resources.compose.stringResource
+import kg.timmitof.core.resources.MR
+import kg.timmitof.core.resources.keyboard_height_l
+import kg.timmitof.core.resources.keyboard_height_m
+import kg.timmitof.core.resources.keyboard_height_s
+import kg.timmitof.core.resources.keyboard_height_xl
+import kg.timmitof.core.resources.keyboard_theme_auto
+import kg.timmitof.core.resources.keyboard_theme_dark
+import kg.timmitof.core.resources.keyboard_theme_light
+import kg.timmitof.core.resources.quick_settings_fonts
+import kg.timmitof.core.resources.quick_settings_height
+import kg.timmitof.core.resources.quick_settings_open_app
+import kg.timmitof.core.resources.quick_settings_split
+import kg.timmitof.core.resources.quick_settings_suggestions
+import kg.timmitof.core.resources.quick_settings_theme
+import kg.timmitof.core.resources.quick_settings_title
+import kg.timmitof.core.resources.quick_settings_vibration
 import kg.timmitof.keyboard.domain.model.KeyboardHeight
 import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
 import kg.timmitof.keyboard.domain.model.KeyboardToggle
@@ -30,16 +47,16 @@ internal fun ColumnScope.QuickSettingsOverlay(
     val apply = { setting: QuickSetting -> onEvent(KeyboardEvent.OnQuickSetting(setting)) }
 
     OverlayHeader(
-        title = stringResource(R.string.quick_settings_title),
+        title = stringResource(MR.strings.quick_settings_title),
         onClose = { onEvent(KeyboardEvent.OnOverlayChange(null)) },
     )
 
-    val suggestionsTitle = stringResource(R.string.quick_settings_suggestions)
-    val fontsTitle = stringResource(R.string.quick_settings_fonts)
-    val vibrationTitle = stringResource(R.string.quick_settings_vibration)
-    val heightTitle = stringResource(R.string.quick_settings_height)
-    val themeTitle = stringResource(R.string.quick_settings_theme)
-    val splitTitle = stringResource(R.string.quick_settings_split)
+    val suggestionsTitle = stringResource(MR.strings.quick_settings_suggestions)
+    val fontsTitle = stringResource(MR.strings.quick_settings_fonts)
+    val vibrationTitle = stringResource(MR.strings.quick_settings_vibration)
+    val heightTitle = stringResource(MR.strings.quick_settings_height)
+    val themeTitle = stringResource(MR.strings.quick_settings_theme)
+    val splitTitle = stringResource(MR.strings.quick_settings_split)
     // Строка нужна только там, где клавиатуру вообще можно разделить.
     val canSplit = LocalKeyboardMetrics.current.formFactor.canSplit
     val heightOptions = KeyboardHeight.entries.map { stringResource(it.labelRes) }
@@ -96,7 +113,7 @@ internal fun ColumnScope.QuickSettingsOverlay(
     OverlayDivider()
 
     OverlayActionRow(
-        label = stringResource(R.string.quick_settings_open_app),
+        label = stringResource(MR.strings.quick_settings_open_app),
         onClick = { onEvent(KeyboardEvent.OnOpenApp) },
         modifier = Modifier
             .fillMaxWidth()
@@ -104,17 +121,17 @@ internal fun ColumnScope.QuickSettingsOverlay(
     )
 }
 
-private val KeyboardHeight.labelRes: Int
+private val KeyboardHeight.labelRes: StringResource
     get() = when (this) {
-        KeyboardHeight.S -> R.string.keyboard_height_s
-        KeyboardHeight.M -> R.string.keyboard_height_m
-        KeyboardHeight.L -> R.string.keyboard_height_l
-        KeyboardHeight.XL -> R.string.keyboard_height_xl
+        KeyboardHeight.S -> MR.strings.keyboard_height_s
+        KeyboardHeight.M -> MR.strings.keyboard_height_m
+        KeyboardHeight.L -> MR.strings.keyboard_height_l
+        KeyboardHeight.XL -> MR.strings.keyboard_height_xl
     }
 
-private val KeyboardThemeMode.labelRes: Int
+private val KeyboardThemeMode.labelRes: StringResource
     get() = when (this) {
-        KeyboardThemeMode.AUTO -> R.string.keyboard_theme_auto
-        KeyboardThemeMode.LIGHT -> R.string.keyboard_theme_light
-        KeyboardThemeMode.DARK -> R.string.keyboard_theme_dark
+        KeyboardThemeMode.AUTO -> MR.strings.keyboard_theme_auto
+        KeyboardThemeMode.LIGHT -> MR.strings.keyboard_theme_light
+        KeyboardThemeMode.DARK -> MR.strings.keyboard_theme_dark
     }

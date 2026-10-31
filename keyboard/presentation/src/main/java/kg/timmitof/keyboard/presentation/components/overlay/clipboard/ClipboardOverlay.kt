@@ -27,12 +27,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import dev.icerock.moko.resources.compose.stringResource
+import kg.timmitof.core.resources.MR
+import kg.timmitof.core.resources.clipboard_clear
+import kg.timmitof.core.resources.clipboard_empty
+import kg.timmitof.core.resources.clipboard_pinned
+import kg.timmitof.core.resources.clipboard_recent
+import kg.timmitof.core.resources.clipboard_title
 import kg.timmitof.keyboard.clipboard.domain.model.ClipboardEntry
 import kg.timmitof.keyboard.presentation.R
 import kg.timmitof.keyboard.presentation.components.KeyShape
@@ -54,13 +60,13 @@ internal fun ColumnScope.ClipboardOverlay(
     val close = { onEvent(KeyboardEvent.OnOverlayChange(null)) }
 
     OverlayHeader(
-        title = stringResource(R.string.clipboard_title),
+        title = stringResource(MR.strings.clipboard_title),
         onClose = close,
     ) {
         if (board.hasClearable) {
             OverlayIconButton(
                 iconRes = R.drawable.ic_trash,
-                contentDescription = stringResource(R.string.clipboard_clear),
+                contentDescription = stringResource(MR.strings.clipboard_clear),
                 onClick = { onEvent(KeyboardEvent.OnClipboardAction(ClipboardAction.ClearRecent)) }
             )
         }
@@ -69,8 +75,8 @@ internal fun ColumnScope.ClipboardOverlay(
     if (board.isEmpty) {
         EmptyClipboard(modifier = Modifier.weight(1f))
     } else {
-        val pinnedTitle = stringResource(R.string.clipboard_pinned)
-        val recentTitle = stringResource(R.string.clipboard_recent)
+        val pinnedTitle = stringResource(MR.strings.clipboard_pinned)
+        val recentTitle = stringResource(MR.strings.clipboard_recent)
 
         LazyVerticalGrid(
             columns = GridCells.Fixed(ClipboardColumns),
@@ -187,7 +193,7 @@ private fun EmptyClipboard(modifier: Modifier = Modifier) {
             modifier = Modifier.size(30.dp)
         )
         Text(
-            text = stringResource(R.string.clipboard_empty),
+            text = stringResource(MR.strings.clipboard_empty),
             fontSize = 12.sp,
             color = KFTheme.color.overlaySubtitleColor,
         )

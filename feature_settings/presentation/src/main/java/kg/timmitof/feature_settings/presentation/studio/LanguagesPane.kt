@@ -23,10 +23,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import dev.icerock.moko.resources.compose.stringResource
+import kg.timmitof.core.resources.MR
+import kg.timmitof.core.resources.languages_add
+import kg.timmitof.core.resources.languages_add_action
+import kg.timmitof.core.resources.languages_add_title
+import kg.timmitof.core.resources.languages_catalog_header
+import kg.timmitof.core.resources.languages_connected_header
+import kg.timmitof.core.resources.languages_current
+import kg.timmitof.core.resources.languages_header
+import kg.timmitof.core.resources.languages_remove
+import kg.timmitof.core.resources.languages_reorder_hint
+import kg.timmitof.core.resources.languages_search
+import kg.timmitof.core.resources.languages_with_suggestions
+import kg.timmitof.core.resources.languages_without_suggestions
 import kg.timmitof.core.ui.R as UiR
 import kg.timmitof.core.ui.components.settings.SettingsBadge
 import kg.timmitof.core.ui.components.settings.SettingsListTallRowHeight
@@ -37,7 +50,6 @@ import kg.timmitof.core.ui.components.settings.SettingsReorderList
 import kg.timmitof.core.ui.components.settings.SettingsSectionFooter
 import kg.timmitof.core.ui.components.settings.SettingsSectionHeader
 import kg.timmitof.core.ui.theme.appColors
-import kg.timmitof.feature_settings.presentation.R
 import kg.timmitof.keyboard.domain.model.KeyboardLanguage
 import kg.timmitof.keyboard.domain.model.KeyboardLanguages
 
@@ -61,9 +73,9 @@ internal fun LanguagesPane(
 
     var isPickerOpen by rememberSaveable { mutableStateOf(false) }
 
-    val currentLabel = stringResource(R.string.languages_current)
-    val withSuggestions = stringResource(R.string.languages_with_suggestions)
-    val withoutSuggestions = stringResource(R.string.languages_without_suggestions)
+    val currentLabel = stringResource(MR.strings.languages_current)
+    val withSuggestions = stringResource(MR.strings.languages_with_suggestions)
+    val withoutSuggestions = stringResource(MR.strings.languages_without_suggestions)
 
     val describe = remember(withSuggestions, withoutSuggestions) {
         { language: KeyboardLanguage -> if (language.hasDictionary) withSuggestions else withoutSuggestions }
@@ -86,7 +98,7 @@ internal fun LanguagesPane(
     val onAdd = remember { { language: KeyboardLanguage -> currentOnEnabled(currentCodes + language.code) } }
 
     Column {
-        SettingsSectionHeader(title = stringResource(R.string.languages_header))
+        SettingsSectionHeader(title = stringResource(MR.strings.languages_header))
         SettingsReorderList(
             items = enabled,
             key = { it.language.code },
@@ -96,12 +108,12 @@ internal fun LanguagesPane(
             LanguageRowContent(language = item.language, description = item.description)
             if (canRemove) RemoveButton(onClick = { onRemove(item.language.code) })
         }
-        SettingsSectionFooter(text = stringResource(R.string.languages_reorder_hint))
+        SettingsSectionFooter(text = stringResource(MR.strings.languages_reorder_hint))
     }
 
     SettingsPillButton(
         modifier = Modifier.fillMaxWidth(),
-        label = stringResource(R.string.languages_add),
+        label = stringResource(MR.strings.languages_add),
         icon = painterResource(UiR.drawable.ic_plus),
         onClick = { isPickerOpen = true },
     )
@@ -124,9 +136,9 @@ private fun LanguagePickSheet(
     onAdd: (KeyboardLanguage) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    val connectedTitle = stringResource(R.string.languages_connected_header)
-    val catalogTitle = stringResource(R.string.languages_catalog_header)
-    val addLabel = stringResource(R.string.languages_add_action)
+    val connectedTitle = stringResource(MR.strings.languages_connected_header)
+    val catalogTitle = stringResource(MR.strings.languages_catalog_header)
+    val addLabel = stringResource(MR.strings.languages_add_action)
 
     val sections = remember(languages, connectedTitle, catalogTitle, onAdd) {
         listOf(
@@ -140,8 +152,8 @@ private fun LanguagePickSheet(
     }
 
     SettingsPickSheet(
-        title = stringResource(R.string.languages_add_title),
-        searchPlaceholder = stringResource(R.string.languages_search),
+        title = stringResource(MR.strings.languages_add_title),
+        searchPlaceholder = stringResource(MR.strings.languages_search),
         sections = sections,
         key = KeyboardLanguage::code,
         matches = { language, query -> language.matches(query) },
@@ -192,7 +204,7 @@ private fun RemoveButton(onClick: () -> Unit) {
     ) {
         Icon(
             painter = painterResource(UiR.drawable.ic_close),
-            contentDescription = stringResource(R.string.languages_remove),
+            contentDescription = stringResource(MR.strings.languages_remove),
             tint = MaterialTheme.colorScheme.outline,
             modifier = Modifier.size(18.dp),
         )

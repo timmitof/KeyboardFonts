@@ -15,18 +15,23 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.annotation.StringRes
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import dev.icerock.moko.resources.StringResource
+import dev.icerock.moko.resources.compose.stringResource
+import kg.timmitof.core.resources.MR
+import kg.timmitof.core.resources.clipboard_title
+import kg.timmitof.core.resources.cursor_mode_hint
+import kg.timmitof.core.resources.fonts_collapse
+import kg.timmitof.core.resources.quick_settings_title
 import kg.timmitof.keyboard.font.domain.model.FontScript
 import kg.timmitof.keyboard.font.domain.model.KeyboardFont
 import kg.timmitof.keyboard.suggestion.domain.model.WordSuggestion
 import kg.timmitof.keyboard.presentation.screens.keyboard.rememberSlice
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -102,7 +107,7 @@ private fun TopBarAnchors(
     if (isCollapsible) {
         TopBarAnchorButton(
             iconRes = R.drawable.ic_close,
-            contentDescription = stringResource(R.string.fonts_collapse),
+            contentDescription = stringResource(MR.strings.fonts_collapse),
             isActive = true,
             onClick = { onEvent(KeyboardEvent.OnFontsExpandedChange(false)) }
         )
@@ -127,10 +132,10 @@ private val KeyboardOverlay.iconRes: Int
         KeyboardOverlay.QUICK_SETTINGS -> R.drawable.ic_settings_gear
     }
 
-private val KeyboardOverlay.titleRes: Int
+private val KeyboardOverlay.titleRes: StringResource
     get() = when (this) {
-        KeyboardOverlay.CLIPBOARD -> R.string.clipboard_title
-        KeyboardOverlay.QUICK_SETTINGS -> R.string.quick_settings_title
+        KeyboardOverlay.CLIPBOARD -> MR.strings.clipboard_title
+        KeyboardOverlay.QUICK_SETTINGS -> MR.strings.quick_settings_title
     }
 
 @Composable
@@ -193,7 +198,7 @@ private data class TopBarSlice(
     val fonts: List<KeyboardFont>,
     val fontScript: FontScript,
     val suggestions: List<WordSuggestion>,
-    @param:StringRes val noticeRes: Int?,
+    val noticeRes: StringResource?,
     val overlay: KeyboardOverlay?,
 )
 
@@ -227,7 +232,7 @@ private fun CursorModeHint() {
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = stringResource(R.string.cursor_mode_hint),
+            text = stringResource(MR.strings.cursor_mode_hint),
             fontSize = 13.sp,
             fontWeight = FontWeight.Medium,
             color = KFTheme.color.keySpecialTextColor,

@@ -1,5 +1,9 @@
 package kg.timmitof.keyboard.presentation.components.emoji
 
+import dev.icerock.moko.resources.compose.stringResource
+import kg.timmitof.core.resources.MR
+import kg.timmitof.core.resources.emoji_recent_empty
+import kg.timmitof.core.resources.emoji_search_hint
 import kg.timmitof.core.ui.plainClickable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -24,7 +28,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -185,7 +188,7 @@ private fun EmojiSearchField(
             modifier = Modifier.size(15.dp)
         )
         Text(
-            text = stringResource(R.string.emoji_search_hint),
+            text = stringResource(MR.strings.emoji_search_hint),
             fontSize = 13.sp,
             color = KFTheme.color.keySpecialTextColor
         )
@@ -235,7 +238,7 @@ private fun EmptyPlaceholder(modifier: Modifier = Modifier) {
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = stringResource(R.string.emoji_recent_empty),
+            text = stringResource(MR.strings.emoji_recent_empty),
             fontSize = 13.sp,
             color = KFTheme.color.keySpecialTextColor
         )

@@ -40,6 +40,7 @@ class PresentationPlugin : Plugin<Project> {
             implementation(libs.findLibrary("koin-core").get())
             implementation(libs.findLibrary("koin-compose-viewmodel").get())
 
+            implementation(project(":core:resources"))
             implementation(project(":core:ui"))
             implementation(project(":core:navigation"))
             featureModuleIfExists("domain")?.let { implementation(project(it)) }

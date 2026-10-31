@@ -47,6 +47,7 @@ include(
     ":core:common",
     ":core:data",
     ":core:navigation",
+    ":core:resources",
     ":core:ui",
 )
 

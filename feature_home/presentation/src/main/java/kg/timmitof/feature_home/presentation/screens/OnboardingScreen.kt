@@ -34,12 +34,46 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LifecycleResumeEffect
+import dev.icerock.moko.resources.compose.stringResource
+import kg.timmitof.core.resources.MR
+import kg.timmitof.core.resources.app_title
+import kg.timmitof.core.resources.coach_body
+import kg.timmitof.core.resources.coach_title
+import kg.timmitof.core.resources.hint_switch_back_body
+import kg.timmitof.core.resources.hint_switch_back_title
+import kg.timmitof.core.resources.hint_warning_body
+import kg.timmitof.core.resources.hint_warning_title
+import kg.timmitof.core.resources.mock_other_keyboard
+import kg.timmitof.core.resources.mock_our_keyboard
+import kg.timmitof.core.resources.onboarding_enable_lead
+import kg.timmitof.core.resources.onboarding_enable_title
+import kg.timmitof.core.resources.onboarding_select_lead
+import kg.timmitof.core.resources.onboarding_select_title
+import kg.timmitof.core.resources.onboarding_status_connected
+import kg.timmitof.core.resources.onboarding_try_lead
+import kg.timmitof.core.resources.onboarding_try_title
+import kg.timmitof.core.resources.step_enable_action
+import kg.timmitof.core.resources.step_enable_done_subtitle
+import kg.timmitof.core.resources.step_enable_done_title
+import kg.timmitof.core.resources.step_enable_mock_caption
+import kg.timmitof.core.resources.step_enable_mock_poke
+import kg.timmitof.core.resources.step_enable_subtitle
+import kg.timmitof.core.resources.step_enable_title
+import kg.timmitof.core.resources.step_select_action
+import kg.timmitof.core.resources.step_select_mock_caption
+import kg.timmitof.core.resources.step_select_mock_poke
+import kg.timmitof.core.resources.step_select_subtitle
+import kg.timmitof.core.resources.step_select_subtitle_active
+import kg.timmitof.core.resources.step_select_title
+import kg.timmitof.core.resources.step_try_subtitle
+import kg.timmitof.core.resources.step_try_title
+import kg.timmitof.core.resources.try_done
+import kg.timmitof.core.resources.try_placeholder
 import kg.timmitof.core.ui.R as UiR
 import kg.timmitof.core.ui.base.Container
 import kg.timmitof.core.ui.base.ContainerDSLBuilder
@@ -52,7 +86,6 @@ import kg.timmitof.core.ui.theme.KeyboardFontsTheme
 import kg.timmitof.core.ui.theme.appColors
 import kg.timmitof.feature_home.domain.model.KeyboardSetupModel
 import kg.timmitof.feature_home.domain.model.KeyboardSetupStep
-import kg.timmitof.feature_home.presentation.R
 import kg.timmitof.feature_home.presentation.components.CoachMark
 import kg.timmitof.feature_home.presentation.components.TryFontsField
 import kg.timmitof.feature_home.presentation.components.steps.SetupStepStatus
@@ -103,7 +136,7 @@ internal fun ContainerDSLBuilder<OnboardingSideEffect, OnboardingEvent>.Onboardi
             )
             .padding(horizontal = HorizontalPadding)
     ) {
-        BrandHeader(title = stringResource(R.string.app_title)) {
+        BrandHeader(title = stringResource(MR.strings.app_title)) {
             AppLanguageButton()
             AnimatedVisibility(
                 visible = isReady,
@@ -111,7 +144,7 @@ internal fun ContainerDSLBuilder<OnboardingSideEffect, OnboardingEvent>.Onboardi
                 exit = fadeOut(),
             ) {
                 StatusPill(
-                    text = stringResource(R.string.onboarding_status_connected),
+                    text = stringResource(MR.strings.onboarding_status_connected),
                     role = AccentRole.SUCCESS,
                 )
             }
@@ -150,32 +183,32 @@ private fun SetupContent(
     }
 
     val enableTitle = stringResource(
-        if (setup.isEnabled) R.string.step_enable_done_title else R.string.step_enable_title
+        if (setup.isEnabled) MR.strings.step_enable_done_title else MR.strings.step_enable_title
     )
     val enableSubtitle = stringResource(
-        if (setup.isEnabled) R.string.step_enable_done_subtitle else R.string.step_enable_subtitle
+        if (setup.isEnabled) MR.strings.step_enable_done_subtitle else MR.strings.step_enable_subtitle
     )
-    val enableCaption = stringResource(R.string.step_enable_mock_caption)
-    val enablePoke = stringResource(R.string.step_enable_mock_poke)
-    val enableAction = stringResource(R.string.step_enable_action)
+    val enableCaption = stringResource(MR.strings.step_enable_mock_caption)
+    val enablePoke = stringResource(MR.strings.step_enable_mock_poke)
+    val enableAction = stringResource(MR.strings.step_enable_action)
 
-    val selectTitle = stringResource(R.string.step_select_title)
+    val selectTitle = stringResource(MR.strings.step_select_title)
     val selectSubtitle = stringResource(
         if (selectStatus == SetupStepStatus.ACTIVE) {
-            R.string.step_select_subtitle_active
+            MR.strings.step_select_subtitle_active
         } else {
-            R.string.step_select_subtitle
+            MR.strings.step_select_subtitle
         }
     )
-    val selectCaption = stringResource(R.string.step_select_mock_caption)
-    val selectPoke = stringResource(R.string.step_select_mock_poke)
-    val selectAction = stringResource(R.string.step_select_action)
+    val selectCaption = stringResource(MR.strings.step_select_mock_caption)
+    val selectPoke = stringResource(MR.strings.step_select_mock_poke)
+    val selectAction = stringResource(MR.strings.step_select_action)
 
-    val tryTitle = stringResource(R.string.step_try_title)
-    val trySubtitle = stringResource(R.string.step_try_subtitle)
+    val tryTitle = stringResource(MR.strings.step_try_title)
+    val trySubtitle = stringResource(MR.strings.step_try_subtitle)
 
-    val otherKeyboard = stringResource(R.string.mock_other_keyboard)
-    val ourKeyboard = stringResource(R.string.mock_our_keyboard)
+    val otherKeyboard = stringResource(MR.strings.mock_other_keyboard)
+    val ourKeyboard = stringResource(MR.strings.mock_our_keyboard)
 
     Column(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -190,10 +223,10 @@ private fun SetupContent(
             ) { isEnable ->
                 ScreenTitle(
                     title = stringResource(
-                        if (isEnable) R.string.onboarding_enable_title else R.string.onboarding_select_title
+                        if (isEnable) MR.strings.onboarding_enable_title else MR.strings.onboarding_select_title
                     ),
                     lead = stringResource(
-                        if (isEnable) R.string.onboarding_enable_lead else R.string.onboarding_select_lead
+                        if (isEnable) MR.strings.onboarding_enable_lead else MR.strings.onboarding_select_lead
                     ),
                 )
             }
@@ -225,14 +258,14 @@ private fun SetupContent(
         ) { isEnable ->
             if (isEnable) {
                 HintCard(
-                    title = stringResource(R.string.hint_warning_title),
-                    body = stringResource(R.string.hint_warning_body),
+                    title = stringResource(MR.strings.hint_warning_title),
+                    body = stringResource(MR.strings.hint_warning_body),
                     icon = painterResource(UiR.drawable.ic_shield_check),
                 )
             } else {
                 HintCard(
-                    title = stringResource(R.string.hint_switch_back_title),
-                    body = stringResource(R.string.hint_switch_back_body),
+                    title = stringResource(MR.strings.hint_switch_back_title),
+                    body = stringResource(MR.strings.hint_switch_back_body),
                     icon = painterResource(UiR.drawable.ic_lightbulb),
                 )
             }
@@ -251,13 +284,13 @@ private fun TryContent(onDone: () -> Unit) {
             .verticalScroll(rememberScrollState())
     ) {
         ScreenTitle(
-            title = stringResource(R.string.onboarding_try_title),
-            lead = stringResource(R.string.onboarding_try_lead),
+            title = stringResource(MR.strings.onboarding_try_title),
+            lead = stringResource(MR.strings.onboarding_try_lead),
         )
 
         TryFontsField(
             modifier = Modifier.padding(top = 16.dp),
-            placeholder = stringResource(R.string.try_placeholder),
+            placeholder = stringResource(MR.strings.try_placeholder),
         )
 
         Button(
@@ -271,7 +304,7 @@ private fun TryContent(onDone: () -> Unit) {
                 contentColor = success.onContainer,
             ),
         ) {
-            Text(text = stringResource(R.string.try_done), fontSize = 14.5.sp, fontWeight = FontWeight.Medium)
+            Text(text = stringResource(MR.strings.try_done), fontSize = 14.5.sp, fontWeight = FontWeight.Medium)
             Icon(
                 painter = painterResource(UiR.drawable.ic_chevron_right),
                 contentDescription = null,
@@ -291,8 +324,8 @@ private fun TryContent(onDone: () -> Unit) {
         ) {
             CoachMark(
                 modifier = Modifier.padding(bottom = 6.dp),
-                title = stringResource(R.string.coach_title),
-                body = stringResource(R.string.coach_body),
+                title = stringResource(MR.strings.coach_title),
+                body = stringResource(MR.strings.coach_body),
             )
         }
     }

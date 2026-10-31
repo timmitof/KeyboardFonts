@@ -10,10 +10,23 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.res.stringResource
+import dev.icerock.moko.resources.StringResource
+import dev.icerock.moko.resources.compose.stringResource
+import kg.timmitof.core.resources.MR
+import kg.timmitof.core.resources.color_picker_confirm
+import kg.timmitof.core.resources.color_picker_dismiss
+import kg.timmitof.core.resources.key_color_auto
+import kg.timmitof.core.resources.key_color_enter
+import kg.timmitof.core.resources.key_color_enter_picker
+import kg.timmitof.core.resources.key_color_letters
+import kg.timmitof.core.resources.key_color_letters_picker
+import kg.timmitof.core.resources.key_color_special
+import kg.timmitof.core.resources.key_color_special_picker
+import kg.timmitof.core.resources.key_colors_header
+import kg.timmitof.core.resources.theme_key_outline_description
+import kg.timmitof.core.resources.theme_key_outline_title
 import kg.timmitof.core.ui.components.color.ColorPickerDialog
 import kg.timmitof.core.ui.components.settings.SettingsSection
-import kg.timmitof.feature_settings.presentation.R
 import kg.timmitof.keyboard.domain.model.KeyColorTarget
 import kg.timmitof.keyboard.domain.model.KeyboardSettings
 import kg.timmitof.keyboard.domain.model.KeyboardToggle
@@ -29,7 +42,7 @@ internal fun KeyColorsSection(
     val isSystemDark = isSystemInDarkTheme()
     var pickerTarget by rememberSaveable { mutableStateOf<KeyColorTarget?>(null) }
 
-    val autoLabel = stringResource(R.string.key_color_auto)
+    val autoLabel = stringResource(MR.strings.key_color_auto)
     val titles = KeyColorTarget.entries.map { stringResource(it.titleRes) }
     // «Авто» зависит только от фона, темы и системной темы — не от остальных настроек.
     val autoColors = remember(settings.background, settings.theme, isSystemDark) {
@@ -45,10 +58,10 @@ internal fun KeyColorsSection(
             )
         }
     }
-    val outlineTitle = stringResource(R.string.theme_key_outline_title)
-    val outlineDescription = stringResource(R.string.theme_key_outline_description)
+    val outlineTitle = stringResource(MR.strings.theme_key_outline_title)
+    val outlineDescription = stringResource(MR.strings.theme_key_outline_description)
 
-    SettingsSection(title = stringResource(R.string.key_colors_header)) {
+    SettingsSection(title = stringResource(MR.strings.key_colors_header)) {
         rows.forEach { row ->
             colors(
                 title = row.title,
@@ -76,8 +89,8 @@ internal fun KeyColorsSection(
         ColorPickerDialog(
             initial = row.selected ?: row.auto,
             title = stringResource(target.pickerTitleRes),
-            confirmLabel = stringResource(R.string.color_picker_confirm),
-            dismissLabel = stringResource(R.string.color_picker_dismiss),
+            confirmLabel = stringResource(MR.strings.color_picker_confirm),
+            dismissLabel = stringResource(MR.strings.color_picker_dismiss),
             onConfirm = { color ->
                 pickerTarget = null
                 onKeyColor(target, color.toArgbLong())
@@ -97,19 +110,19 @@ private class KeyColorRow(
 private fun Color.toArgbLong(): Long = toArgb().toLong() and 0xFFFFFFFFL
 
 @get:StringRes
-private val KeyColorTarget.titleRes: Int
+private val KeyColorTarget.titleRes: StringResource
     get() = when (this) {
-        KeyColorTarget.KEY -> R.string.key_color_letters
-        KeyColorTarget.SPECIAL -> R.string.key_color_special
-        KeyColorTarget.ENTER -> R.string.key_color_enter
+        KeyColorTarget.KEY -> MR.strings.key_color_letters
+        KeyColorTarget.SPECIAL -> MR.strings.key_color_special
+        KeyColorTarget.ENTER -> MR.strings.key_color_enter
     }
 
 @get:StringRes
-private val KeyColorTarget.pickerTitleRes: Int
+private val KeyColorTarget.pickerTitleRes: StringResource
     get() = when (this) {
-        KeyColorTarget.KEY -> R.string.key_color_letters_picker
-        KeyColorTarget.SPECIAL -> R.string.key_color_special_picker
-        KeyColorTarget.ENTER -> R.string.key_color_enter_picker
+        KeyColorTarget.KEY -> MR.strings.key_color_letters_picker
+        KeyColorTarget.SPECIAL -> MR.strings.key_color_special_picker
+        KeyColorTarget.ENTER -> MR.strings.key_color_enter_picker
     }
 
 private val KeyColorTarget.presets: List<Color>

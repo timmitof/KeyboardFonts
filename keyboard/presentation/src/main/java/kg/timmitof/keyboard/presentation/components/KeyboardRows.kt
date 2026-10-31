@@ -16,9 +16,11 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import dev.icerock.moko.resources.compose.stringResource
+import kg.timmitof.core.resources.MR
+import kg.timmitof.core.resources.key_hide_keyboard
 import kg.timmitof.keyboard.domain.model.KeyboardLanguage
 import kg.timmitof.keyboard.font.domain.model.KeyboardFont
 import kg.timmitof.keyboard.presentation.screens.keyboard.rememberSlice
@@ -248,7 +250,7 @@ private fun RowScope.KeyboardKeySlot(
 
         is KeyboardKey.HideKeyboard -> SpecialIconKeyButton(
             iconRes = R.drawable.ic_keyboard_hide,
-            contentDescription = stringResource(R.string.key_hide_keyboard),
+            contentDescription = stringResource(MR.strings.key_hide_keyboard),
             weight = key.weight,
             onClick = { onEvent(KeyboardEvent.OnHideKeyboard) }
         )

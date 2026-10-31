@@ -30,12 +30,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import dev.icerock.moko.resources.compose.stringResource
+import kg.timmitof.core.resources.MR
+import kg.timmitof.core.resources.app_language_change
+import kg.timmitof.core.resources.app_language_title
 import kg.timmitof.core.ui.R
 import kg.timmitof.core.ui.components.settings.SettingsBadge
 import kg.timmitof.core.ui.components.settings.SettingsCheckList
@@ -52,7 +55,7 @@ fun AppLanguageButton(modifier: Modifier = Modifier) {
     var isSheetOpen by rememberSaveable { mutableStateOf(false) }
 
     val tones = MaterialTheme.appColors.brand
-    val description = stringResource(R.string.app_language_change)
+    val description = stringResource(MR.strings.app_language_change)
 
     Row(
         modifier = modifier
@@ -108,7 +111,7 @@ private fun AppLanguageSheet(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Text(
-                text = stringResource(R.string.app_language_title),
+                text = stringResource(MR.strings.app_language_title),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onBackground,

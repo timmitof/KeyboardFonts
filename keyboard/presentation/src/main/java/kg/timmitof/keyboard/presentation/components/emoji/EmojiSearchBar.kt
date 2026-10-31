@@ -1,5 +1,10 @@
 package kg.timmitof.keyboard.presentation.components.emoji
 
+import dev.icerock.moko.resources.compose.stringResource
+import kg.timmitof.core.resources.MR
+import kg.timmitof.core.resources.emoji_search_hint
+import kg.timmitof.core.resources.emoji_search_no_results
+import kg.timmitof.core.resources.emoji_search_start_typing
 import kg.timmitof.keyboard.presentation.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -28,7 +33,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -132,7 +136,7 @@ private fun SearchQueryField(
                 query.isEmpty() -> {
                     BlinkingCaret(color = textColor, resetKey = query)
                     Text(
-                        text = stringResource(R.string.emoji_search_hint),
+                        text = stringResource(MR.strings.emoji_search_hint),
                         fontSize = 14.sp,
                         color = KFTheme.color.keyLabelColor.copy(alpha = MutedAlpha)
                     )
@@ -225,9 +229,9 @@ private fun SearchResultsRow(
         ) {
             Text(
                 text = if (query.isEmpty()) {
-                    stringResource(R.string.emoji_search_start_typing)
+                    stringResource(MR.strings.emoji_search_start_typing)
                 } else {
-                    stringResource(R.string.emoji_search_no_results)
+                    stringResource(MR.strings.emoji_search_no_results)
                 },
                 fontSize = 13.sp,
                 color = KFTheme.color.keySpecialTextColor

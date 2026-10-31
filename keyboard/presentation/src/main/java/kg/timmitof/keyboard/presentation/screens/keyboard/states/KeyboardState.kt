@@ -2,6 +2,7 @@ package kg.timmitof.keyboard.presentation.screens.keyboard.states
 
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Stable
+import dev.icerock.moko.resources.StringResource
 import kg.timmitof.core.ui.base.BaseEvent
 import kg.timmitof.core.ui.base.BaseSideEffect
 import kg.timmitof.core.ui.base.BaseState
@@ -108,7 +109,7 @@ internal data class KeyboardState(
         get() = suggestionsWord == textContext.composingWord
 
     @get:StringRes
-    val noticeRes: Int?
+    val noticeRes: StringResource?
         get() = fieldType.noticeRes
 
     /** Тип поля важнее Enter: в адресе нужен `@`, даже если поле просит «Найти». */

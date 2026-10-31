@@ -8,8 +8,86 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalResources
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import dev.icerock.moko.resources.StringResource
+import dev.icerock.moko.resources.compose.stringResource
+import kg.timmitof.core.resources.MR
+import kg.timmitof.core.resources.clipboard_clear_recent
+import kg.timmitof.core.resources.clipboard_pinned_empty
+import kg.timmitof.core.resources.clipboard_pinned_header
+import kg.timmitof.core.resources.clipboard_recent_description
+import kg.timmitof.core.resources.clipboard_recent_title
+import kg.timmitof.core.resources.font_name_arc
+import kg.timmitof.core.resources.font_name_bold
+import kg.timmitof.core.resources.font_name_bold_fraktur
+import kg.timmitof.core.resources.font_name_bold_italic
+import kg.timmitof.core.resources.font_name_bold_script
+import kg.timmitof.core.resources.font_name_circled
+import kg.timmitof.core.resources.font_name_clouds
+import kg.timmitof.core.resources.font_name_default
+import kg.timmitof.core.resources.font_name_dot_above
+import kg.timmitof.core.resources.font_name_double_struck
+import kg.timmitof.core.resources.font_name_double_underline
+import kg.timmitof.core.resources.font_name_fraktur
+import kg.timmitof.core.resources.font_name_italic
+import kg.timmitof.core.resources.font_name_latin_only
+import kg.timmitof.core.resources.font_name_monospace
+import kg.timmitof.core.resources.font_name_old_slavonic
+import kg.timmitof.core.resources.font_name_sans
+import kg.timmitof.core.resources.font_name_sans_bold
+import kg.timmitof.core.resources.font_name_sans_bold_italic
+import kg.timmitof.core.resources.font_name_sans_italic
+import kg.timmitof.core.resources.font_name_script
+import kg.timmitof.core.resources.font_name_slashed
+import kg.timmitof.core.resources.font_name_small_caps
+import kg.timmitof.core.resources.font_name_spaced_caps
+import kg.timmitof.core.resources.font_name_squared
+import kg.timmitof.core.resources.font_name_strikethrough
+import kg.timmitof.core.resources.font_name_tilde_above
+import kg.timmitof.core.resources.font_name_underline
+import kg.timmitof.core.resources.fonts_catalog_header
+import kg.timmitof.core.resources.fonts_hidden_header
+import kg.timmitof.core.resources.fonts_panel_description
+import kg.timmitof.core.resources.fonts_panel_title
+import kg.timmitof.core.resources.fonts_remember_description
+import kg.timmitof.core.resources.fonts_remember_title
+import kg.timmitof.core.resources.fonts_reorder_hint
+import kg.timmitof.core.resources.fonts_reset
+import kg.timmitof.core.resources.input_autocorrect_description
+import kg.timmitof.core.resources.input_autocorrect_title
+import kg.timmitof.core.resources.input_learn_description
+import kg.timmitof.core.resources.input_learn_title
+import kg.timmitof.core.resources.input_next_word_description
+import kg.timmitof.core.resources.input_next_word_title
+import kg.timmitof.core.resources.input_space_commit_description
+import kg.timmitof.core.resources.input_space_commit_title
+import kg.timmitof.core.resources.input_suggestions_description
+import kg.timmitof.core.resources.input_suggestions_description_off
+import kg.timmitof.core.resources.input_suggestions_title
+import kg.timmitof.core.resources.size_digits_row_description
+import kg.timmitof.core.resources.size_digits_row_title
+import kg.timmitof.core.resources.size_height_l
+import kg.timmitof.core.resources.size_height_m
+import kg.timmitof.core.resources.size_height_s
+import kg.timmitof.core.resources.size_height_title
+import kg.timmitof.core.resources.size_height_xl
+import kg.timmitof.core.resources.size_split_description
+import kg.timmitof.core.resources.size_split_title
+import kg.timmitof.core.resources.sound_click_title
+import kg.timmitof.core.resources.sound_key_preview_description
+import kg.timmitof.core.resources.sound_key_preview_title
+import kg.timmitof.core.resources.sound_pack_bubble
+import kg.timmitof.core.resources.sound_pack_header
+import kg.timmitof.core.resources.sound_pack_mechanical
+import kg.timmitof.core.resources.sound_pack_system
+import kg.timmitof.core.resources.sound_pack_typewriter
+import kg.timmitof.core.resources.sound_vibration_title
+import kg.timmitof.core.resources.sound_volume_title
+import kg.timmitof.core.resources.sound_volume_value
+import kg.timmitof.core.resources.theme_auto
+import kg.timmitof.core.resources.theme_dark
+import kg.timmitof.core.resources.theme_light
+import kg.timmitof.core.resources.theme_overridden_by_background
 import kg.timmitof.core.ui.components.color.ColorPickerDialog
 import kg.timmitof.core.ui.components.settings.SettingsSection
 import kg.timmitof.core.ui.components.tabs.ChipTab
@@ -49,9 +127,9 @@ internal fun ThemePane(
     onKeyColor: (KeyColorTarget, Long?) -> Unit,
     onToggle: (KeyboardToggle, Boolean) -> Unit,
 ) {
-    val lightLabel = stringResource(R.string.theme_light)
-    val darkLabel = stringResource(R.string.theme_dark)
-    val autoLabel = stringResource(R.string.theme_auto)
+    val lightLabel = stringResource(MR.strings.theme_light)
+    val darkLabel = stringResource(MR.strings.theme_dark)
+    val autoLabel = stringResource(MR.strings.theme_auto)
     val tiles = remember(lightLabel, darkLabel, autoLabel) {
         listOf(
             ThemeTile(KeyboardThemeMode.LIGHT, lightLabel),
@@ -65,7 +143,7 @@ internal fun ThemePane(
     Column {
         ThemeTiles(tiles = tiles, selected = settings.theme, onSelect = onTheme)
         if (hasBackgroundPalette) {
-            SettingsSectionFooter(text = stringResource(R.string.theme_overridden_by_background))
+            SettingsSectionFooter(text = stringResource(MR.strings.theme_overridden_by_background))
         }
     }
 
@@ -83,10 +161,10 @@ internal fun FontsPane(
 ) {
     val isPanelOn = settings[KeyboardToggle.STYLED_FONTS]
 
-    val panelTitle = stringResource(R.string.fonts_panel_title)
-    val panelDescription = stringResource(R.string.fonts_panel_description)
-    val rememberTitle = stringResource(R.string.fonts_remember_title)
-    val rememberDescription = stringResource(R.string.fonts_remember_description)
+    val panelTitle = stringResource(MR.strings.fonts_panel_title)
+    val panelDescription = stringResource(MR.strings.fonts_panel_description)
+    val rememberTitle = stringResource(MR.strings.fonts_remember_title)
+    val rememberDescription = stringResource(MR.strings.fonts_remember_description)
     val visible = fontItems(panel.visible, script)
     val hidden = fontItems(panel.hidden, script)
     val visibleIds = remember(visible) { visible.map(FontItem::id) }
@@ -111,9 +189,9 @@ internal fun FontsPane(
     if (visible.isNotEmpty()) {
         Column {
             SettingsSectionHeader(
-                title = stringResource(R.string.fonts_catalog_header, visible.size),
+                title = stringResource(MR.strings.fonts_catalog_header, visible.size),
                 action = SettingsSectionAction(
-                    label = stringResource(R.string.fonts_reset),
+                    label = stringResource(MR.strings.fonts_reset),
                     isEnabled = panel.isCustom,
                     onClick = onReset,
                 ),
@@ -126,14 +204,14 @@ internal fun FontsPane(
                 onReorder = { fonts -> onPanelFonts(fonts.map(FontItem::id)) },
             )
             if (visible.size > 1) {
-                SettingsSectionFooter(text = stringResource(R.string.fonts_reorder_hint))
+                SettingsSectionFooter(text = stringResource(MR.strings.fonts_reorder_hint))
             }
         }
     }
 
     if (hidden.isNotEmpty()) {
         Column {
-            SettingsSectionHeader(title = stringResource(R.string.fonts_hidden_header, hidden.size))
+            SettingsSectionHeader(title = stringResource(MR.strings.fonts_hidden_header, hidden.size))
             HiddenFontsList(
                 fonts = hidden,
                 onShow = { font -> onPanelFonts(visibleIds + font.id) },
@@ -150,7 +228,7 @@ internal fun FontsPane(
 private fun fontItems(fonts: List<KeyboardFont>, script: FontScript): List<FontItem> {
     val names = fonts.map { font ->
         val name = font.nameRes?.let { stringResource(it) } ?: font.id
-        if (font.supports(script)) name else stringResource(R.string.font_name_latin_only, name)
+        if (font.supports(script)) name else stringResource(MR.strings.font_name_latin_only, name)
     }
     return remember(fonts, names, script) {
         fonts.mapIndexed { index, font ->
@@ -160,35 +238,35 @@ private fun fontItems(fonts: List<KeyboardFont>, script: FontScript): List<FontI
     }
 }
 
-private val KeyboardFont.nameRes: Int?
+private val KeyboardFont.nameRes: StringResource?
     get() = when (id) {
-        KeyboardFont.DEFAULT_ID -> R.string.font_name_default
-        "script" -> R.string.font_name_script
-        "bold_script" -> R.string.font_name_bold_script
-        "fraktur" -> R.string.font_name_fraktur
-        "bold_fraktur" -> R.string.font_name_bold_fraktur
-        "double_struck" -> R.string.font_name_double_struck
-        "circled" -> R.string.font_name_circled
-        "squared" -> R.string.font_name_squared
-        "small_caps" -> R.string.font_name_small_caps
-        "bold" -> R.string.font_name_bold
-        "italic" -> R.string.font_name_italic
-        "bold_italic" -> R.string.font_name_bold_italic
-        "sans" -> R.string.font_name_sans
-        "sans_bold" -> R.string.font_name_sans_bold
-        "sans_italic" -> R.string.font_name_sans_italic
-        "sans_bold_italic" -> R.string.font_name_sans_bold_italic
-        "monospace" -> R.string.font_name_monospace
-        "underline" -> R.string.font_name_underline
-        "strikethrough" -> R.string.font_name_strikethrough
-        "double_underline" -> R.string.font_name_double_underline
-        "slashed" -> R.string.font_name_slashed
-        "clouds" -> R.string.font_name_clouds
-        "arc" -> R.string.font_name_arc
-        "dot_above" -> R.string.font_name_dot_above
-        "tilde_above" -> R.string.font_name_tilde_above
-        "spaced_caps" -> R.string.font_name_spaced_caps
-        "old_slavonic" -> R.string.font_name_old_slavonic
+        KeyboardFont.DEFAULT_ID -> MR.strings.font_name_default
+        "script" -> MR.strings.font_name_script
+        "bold_script" -> MR.strings.font_name_bold_script
+        "fraktur" -> MR.strings.font_name_fraktur
+        "bold_fraktur" -> MR.strings.font_name_bold_fraktur
+        "double_struck" -> MR.strings.font_name_double_struck
+        "circled" -> MR.strings.font_name_circled
+        "squared" -> MR.strings.font_name_squared
+        "small_caps" -> MR.strings.font_name_small_caps
+        "bold" -> MR.strings.font_name_bold
+        "italic" -> MR.strings.font_name_italic
+        "bold_italic" -> MR.strings.font_name_bold_italic
+        "sans" -> MR.strings.font_name_sans
+        "sans_bold" -> MR.strings.font_name_sans_bold
+        "sans_italic" -> MR.strings.font_name_sans_italic
+        "sans_bold_italic" -> MR.strings.font_name_sans_bold_italic
+        "monospace" -> MR.strings.font_name_monospace
+        "underline" -> MR.strings.font_name_underline
+        "strikethrough" -> MR.strings.font_name_strikethrough
+        "double_underline" -> MR.strings.font_name_double_underline
+        "slashed" -> MR.strings.font_name_slashed
+        "clouds" -> MR.strings.font_name_clouds
+        "arc" -> MR.strings.font_name_arc
+        "dot_above" -> MR.strings.font_name_dot_above
+        "tilde_above" -> MR.strings.font_name_tilde_above
+        "spaced_caps" -> MR.strings.font_name_spaced_caps
+        "old_slavonic" -> MR.strings.font_name_old_slavonic
         else -> null
     }
 
@@ -199,22 +277,22 @@ internal fun InputPane(
 ) {
     val isSuggestionsOn = settings[KeyboardToggle.SUGGESTIONS]
 
-    val suggestionsTitle = stringResource(R.string.input_suggestions_title)
+    val suggestionsTitle = stringResource(MR.strings.input_suggestions_title)
     val suggestionsDescription = stringResource(
         if (isSuggestionsOn) {
-            R.string.input_suggestions_description
+            MR.strings.input_suggestions_description
         } else {
-            R.string.input_suggestions_description_off
+            MR.strings.input_suggestions_description_off
         }
     )
-    val autoCorrectTitle = stringResource(R.string.input_autocorrect_title)
-    val autoCorrectDescription = stringResource(R.string.input_autocorrect_description)
-    val spaceCommitTitle = stringResource(R.string.input_space_commit_title)
-    val spaceCommitDescription = stringResource(R.string.input_space_commit_description)
-    val nextWordTitle = stringResource(R.string.input_next_word_title)
-    val nextWordDescription = stringResource(R.string.input_next_word_description)
-    val learnTitle = stringResource(R.string.input_learn_title)
-    val learnDescription = stringResource(R.string.input_learn_description)
+    val autoCorrectTitle = stringResource(MR.strings.input_autocorrect_title)
+    val autoCorrectDescription = stringResource(MR.strings.input_autocorrect_description)
+    val spaceCommitTitle = stringResource(MR.strings.input_space_commit_title)
+    val spaceCommitDescription = stringResource(MR.strings.input_space_commit_description)
+    val nextWordTitle = stringResource(MR.strings.input_next_word_title)
+    val nextWordDescription = stringResource(MR.strings.input_next_word_description)
+    val learnTitle = stringResource(MR.strings.input_learn_title)
+    val learnDescription = stringResource(MR.strings.input_learn_description)
 
     SettingsSection {
         toggle(
@@ -264,13 +342,13 @@ internal fun SizePane(
     onHeight: (KeyboardHeight) -> Unit,
     onToggle: (KeyboardToggle, Boolean) -> Unit,
 ) {
-    val heightTitle = stringResource(R.string.size_height_title)
+    val heightTitle = stringResource(MR.strings.size_height_title)
     val heightLabels = KeyboardHeight.entries.map { stringResource(it.labelRes) }
     val heightOptions = remember(heightLabels) { heightLabels }
-    val digitsTitle = stringResource(R.string.size_digits_row_title)
-    val digitsDescription = stringResource(R.string.size_digits_row_description)
-    val splitTitle = stringResource(R.string.size_split_title)
-    val splitDescription = stringResource(R.string.size_split_description)
+    val digitsTitle = stringResource(MR.strings.size_digits_row_title)
+    val digitsDescription = stringResource(MR.strings.size_digits_row_description)
+    val splitTitle = stringResource(MR.strings.size_split_title)
+    val splitDescription = stringResource(MR.strings.size_split_description)
 
     SettingsSection {
         segmented(
@@ -309,9 +387,9 @@ internal fun SoundPane(
     val volume = remember(settings.soundVolume) { mutableFloatStateOf(settings.soundVolume) }
     val resources = LocalResources.current
 
-    val vibrationTitle = stringResource(R.string.sound_vibration_title)
-    val soundTitle = stringResource(R.string.sound_click_title)
-    val volumeTitle = stringResource(R.string.sound_volume_title)
+    val vibrationTitle = stringResource(MR.strings.sound_vibration_title)
+    val soundTitle = stringResource(MR.strings.sound_click_title)
+    val volumeTitle = stringResource(MR.strings.sound_volume_title)
     val packLabels = KeyboardSoundPack.entries.map { stringResource(it.labelRes) }
     val packs = remember(packLabels) {
         KeyboardSoundPack.entries.mapIndexed { index, pack ->
@@ -323,8 +401,8 @@ internal fun SoundPane(
             )
         }
     }
-    val keyPreviewTitle = stringResource(R.string.sound_key_preview_title)
-    val keyPreviewDescription = stringResource(R.string.sound_key_preview_description)
+    val keyPreviewTitle = stringResource(MR.strings.sound_key_preview_title)
+    val keyPreviewDescription = stringResource(MR.strings.sound_key_preview_description)
 
     SettingsSection {
         toggle(
@@ -340,7 +418,7 @@ internal fun SoundPane(
         slider(
             title = volumeTitle,
             value = volume.floatValue,
-            valueLabel = resources.getString(R.string.sound_volume_value, (volume.floatValue * 100).roundToInt()),
+            valueLabel = resources.getString(MR.strings.sound_volume_value.resourceId, (volume.floatValue * 100).roundToInt()),
             isNested = true,
             isEnabled = isSoundOn,
             onValueChangeFinished = {
@@ -359,7 +437,7 @@ internal fun SoundPane(
 
     if (isSoundOn) {
         Column {
-            SettingsSectionHeader(title = stringResource(R.string.sound_pack_header))
+            SettingsSectionHeader(title = stringResource(MR.strings.sound_pack_header))
             ChipTabs(
                 tabs = packs,
                 selected = settings.soundPack,
@@ -378,11 +456,11 @@ internal fun ClipboardPane(
     board: ClipboardBoard,
     onClearRecent: () -> Unit,
 ) {
-    val pinnedHeader = stringResource(R.string.clipboard_pinned_header)
-    val clearLabel = stringResource(R.string.clipboard_clear_recent)
-    val emptyText = stringResource(R.string.clipboard_pinned_empty)
-    val recentTitle = stringResource(R.string.clipboard_recent_title)
-    val recentDescription = stringResource(R.string.clipboard_recent_description)
+    val pinnedHeader = stringResource(MR.strings.clipboard_pinned_header)
+    val clearLabel = stringResource(MR.strings.clipboard_clear_recent)
+    val emptyText = stringResource(MR.strings.clipboard_pinned_empty)
+    val recentTitle = stringResource(MR.strings.clipboard_recent_title)
+    val recentDescription = stringResource(MR.strings.clipboard_recent_description)
 
     Column {
         SettingsSectionHeader(
@@ -405,12 +483,12 @@ internal fun ClipboardPane(
     }
 }
 
-private val KeyboardSoundPack.labelRes: Int
+private val KeyboardSoundPack.labelRes: StringResource
     get() = when (this) {
-        KeyboardSoundPack.SYSTEM -> R.string.sound_pack_system
-        KeyboardSoundPack.MECHANICAL -> R.string.sound_pack_mechanical
-        KeyboardSoundPack.BUBBLE -> R.string.sound_pack_bubble
-        KeyboardSoundPack.TYPEWRITER -> R.string.sound_pack_typewriter
+        KeyboardSoundPack.SYSTEM -> MR.strings.sound_pack_system
+        KeyboardSoundPack.MECHANICAL -> MR.strings.sound_pack_mechanical
+        KeyboardSoundPack.BUBBLE -> MR.strings.sound_pack_bubble
+        KeyboardSoundPack.TYPEWRITER -> MR.strings.sound_pack_typewriter
     }
 
 private val KeyboardSoundPack.iconRes: Int
@@ -421,10 +499,10 @@ private val KeyboardSoundPack.iconRes: Int
         KeyboardSoundPack.TYPEWRITER -> R.drawable.ic_sound_typewriter
     }
 
-private val KeyboardHeight.labelRes: Int
+private val KeyboardHeight.labelRes: StringResource
     get() = when (this) {
-        KeyboardHeight.S -> R.string.size_height_s
-        KeyboardHeight.M -> R.string.size_height_m
-        KeyboardHeight.L -> R.string.size_height_l
-        KeyboardHeight.XL -> R.string.size_height_xl
+        KeyboardHeight.S -> MR.strings.size_height_s
+        KeyboardHeight.M -> MR.strings.size_height_m
+        KeyboardHeight.L -> MR.strings.size_height_l
+        KeyboardHeight.XL -> MR.strings.size_height_xl
     }

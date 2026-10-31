@@ -29,6 +29,8 @@ orbit = "10.0.0"
 
 koin = "4.1.1"
 
+moko = "0.27.1"
+
 room = "2.8.3"
 
 [libraries]
@@ -64,6 +66,10 @@ koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel", version.ref = "koin" }
 koin-test = { module = "io.insert-koin:koin-test", version.ref = "koin" }
 
+moko-resources = { module = "dev.icerock.moko:resources", version.ref = "moko" }
+moko-resources-compose = { module = "dev.icerock.moko:resources-compose", version.ref = "moko" }
+moko-resources-generator = { module = "dev.icerock.moko:resources-generator", version.ref = "moko" }
+
 room-android = { module = "androidx.room:room-ktx", version.ref = "room" }
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 
@@ -71,6 +77,7 @@ room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 keyboardfonts-application = { id = "keyboardfonts.application" }
 keyboardfonts-library = { id = "keyboardfonts.library" }
 keyboardfonts-kmp-library = { id = "keyboardfonts.kmp.library" }
+keyboardfonts-resources = { id = "keyboardfonts.resources" }
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
@@ -78,4 +85,5 @@ kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "ko
 android-library = { id = "com.android.library", version.ref = "agp" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin"}
+moko-resources = { id = "dev.icerock.mobile.multiplatform-resources", version.ref = "moko" }
 

@@ -28,13 +28,21 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import dev.icerock.moko.resources.compose.stringResource
+import kg.timmitof.core.resources.MR
+import kg.timmitof.core.resources.background_crop_delete
+import kg.timmitof.core.resources.background_crop_delete_confirm
+import kg.timmitof.core.resources.background_crop_delete_question
+import kg.timmitof.core.resources.background_crop_done
+import kg.timmitof.core.resources.background_crop_error
+import kg.timmitof.core.resources.background_crop_hint
+import kg.timmitof.core.resources.background_crop_title
+import kg.timmitof.core.resources.color_picker_dismiss
 import kg.timmitof.core.ui.base.Container
 import kg.timmitof.core.ui.base.ContainerDSLBuilder
 import kg.timmitof.core.ui.components.AppTopBar
-import kg.timmitof.feature_settings.presentation.R
 import kg.timmitof.feature_settings.presentation.components.PhotoCropFrame
 import kg.timmitof.feature_settings.presentation.components.PhotoCropState
 import kg.timmitof.keyboard.domain.model.KeyboardBackground
@@ -86,7 +94,7 @@ internal fun ContainerDSLBuilder<BackgroundCropSideEffect, BackgroundCropEvent>.
             ),
     ) {
         AppTopBar(
-            title = stringResource(R.string.background_crop_title),
+            title = stringResource(MR.strings.background_crop_title),
             onBack = { sendEvent(BackgroundCropEvent.BackClicked) },
         )
 
@@ -97,7 +105,7 @@ internal fun ContainerDSLBuilder<BackgroundCropSideEffect, BackgroundCropEvent>.
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             Text(
-                text = stringResource(R.string.background_crop_hint),
+                text = stringResource(MR.strings.background_crop_hint),
                 fontSize = 15.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -110,7 +118,7 @@ internal fun ContainerDSLBuilder<BackgroundCropSideEffect, BackgroundCropEvent>.
                     keyboardHeight = settings.keyboardHeight(),
                     screenWidth = LocalConfiguration.current.screenWidthDp.dp,
                     keyColors = keyColors,
-                    errorText = stringResource(R.string.background_crop_error),
+                    errorText = stringResource(MR.strings.background_crop_error),
                 )
             }
         }
@@ -128,7 +136,7 @@ internal fun ContainerDSLBuilder<BackgroundCropSideEffect, BackgroundCropEvent>.
                 enabled = !state.value.isSaving && photo != null,
                 onClick = { isDeleteAsked = true },
             ) {
-                Text(text = stringResource(R.string.background_crop_delete))
+                Text(text = stringResource(MR.strings.background_crop_delete))
             }
             Button(
                 modifier = Modifier
@@ -144,7 +152,7 @@ internal fun ContainerDSLBuilder<BackgroundCropSideEffect, BackgroundCropEvent>.
                         color = MaterialTheme.colorScheme.onPrimary,
                     )
                 } else {
-                    Text(text = stringResource(R.string.background_crop_done))
+                    Text(text = stringResource(MR.strings.background_crop_done))
                 }
             }
         }
@@ -155,7 +163,7 @@ internal fun ContainerDSLBuilder<BackgroundCropSideEffect, BackgroundCropEvent>.
     if (isDeleteAsked) {
         AlertDialog(
             onDismissRequest = { isDeleteAsked = false },
-            text = { Text(text = stringResource(R.string.background_crop_delete_question)) },
+            text = { Text(text = stringResource(MR.strings.background_crop_delete_question)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -163,12 +171,12 @@ internal fun ContainerDSLBuilder<BackgroundCropSideEffect, BackgroundCropEvent>.
                         sendEvent(BackgroundCropEvent.DeleteClicked)
                     },
                 ) {
-                    Text(text = stringResource(R.string.background_crop_delete_confirm))
+                    Text(text = stringResource(MR.strings.background_crop_delete_confirm))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { isDeleteAsked = false }) {
-                    Text(text = stringResource(R.string.color_picker_dismiss))
+                    Text(text = stringResource(MR.strings.color_picker_dismiss))
                 }
             },
         )

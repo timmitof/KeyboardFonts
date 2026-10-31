@@ -6,6 +6,8 @@ plugins {
 dependencies {
     compileOnly(libs.android.gradlePlugin)
     compileOnly(libs.kotlin.gradlePlugin)
+    // Нужен только тип задачи генерации; транзитивный kotlin-stdlib 2.3 не читается kotlin-dsl Gradle 8.13.
+    compileOnly(libs.moko.resources.generator) { isTransitive = false }
 }
 
 tasks {
@@ -28,6 +30,10 @@ gradlePlugin {
         register("keyboardfontsKmpLibrary") {
             id = "keyboardfonts.kmp.library"
             implementationClass = "kg.timmitof.build_logic.convention.plugins.KmpLibraryPlugin"
+        }
+        register("keyboardfontsResources") {
+            id = "keyboardfonts.resources"
+            implementationClass = "kg.timmitof.build_logic.convention.plugins.ResourcesPlugin"
         }
         register("presentationPlugin") {
             id = "keyboardfonts.presentation"

@@ -13,7 +13,27 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
+import dev.icerock.moko.resources.StringResource
+import dev.icerock.moko.resources.compose.stringResource
+import kg.timmitof.core.resources.MR
+import kg.timmitof.core.resources.background_add_photo
+import kg.timmitof.core.resources.background_apply
+import kg.timmitof.core.resources.background_bubbles
+import kg.timmitof.core.resources.background_cancel
+import kg.timmitof.core.resources.background_color
+import kg.timmitof.core.resources.background_color_title
+import kg.timmitof.core.resources.background_colors_hint
+import kg.timmitof.core.resources.background_custom_tone
+import kg.timmitof.core.resources.background_from_gallery
+import kg.timmitof.core.resources.background_grid
+import kg.timmitof.core.resources.background_mint
+import kg.timmitof.core.resources.background_my_photos
+import kg.timmitof.core.resources.background_night
+import kg.timmitof.core.resources.background_none
+import kg.timmitof.core.resources.background_photos_hint
+import kg.timmitof.core.resources.background_presets_header
+import kg.timmitof.core.resources.background_stripes
+import kg.timmitof.core.resources.background_waves
 import kg.timmitof.core.ui.components.settings.SettingsSectionFooter
 import kg.timmitof.core.ui.components.settings.SettingsSectionHeader
 import kg.timmitof.core.ui.theme.AccentRole
@@ -49,9 +69,9 @@ internal fun BackgroundPane(
     val openColorSheet = remember { { isColorSheetOpen = true } }
 
     // «Нарисовать» появится здесь вместе с редактором фона.
-    val galleryLabel = stringResource(R.string.background_from_gallery)
+    val galleryLabel = stringResource(MR.strings.background_from_gallery)
     val galleryIcon = painterResource(R.drawable.ic_background_gallery)
-    val colorLabel = stringResource(R.string.background_color)
+    val colorLabel = stringResource(MR.strings.background_color)
     val colorIcon = painterResource(R.drawable.ic_background_color)
     val actions = remember(galleryLabel, galleryIcon, colorLabel, colorIcon) {
         listOf(
@@ -69,7 +89,7 @@ internal fun BackgroundPane(
             ),
         )
     }
-    val noneLabel = stringResource(R.string.background_none)
+    val noneLabel = stringResource(MR.strings.background_none)
     val patternLabels = BackgroundPattern.entries.map { stringResource(it.labelRes) }
     val tiles = remember(noneLabel, patternLabels) {
         listOf(BackgroundTile(noneLabel, KeyboardBackground.None)) +
@@ -77,7 +97,7 @@ internal fun BackgroundPane(
                 BackgroundTile(patternLabels[index], KeyboardBackground.Pattern(pattern))
             }
     }
-    val addPhotoLabel = stringResource(R.string.background_add_photo)
+    val addPhotoLabel = stringResource(MR.strings.background_add_photo)
     val photoTiles = remember(addPhotoLabel, photos) {
         listOf(BackgroundTile(addPhotoLabel, null)) +
             photos.map { BackgroundTile(label = null, background = KeyboardBackground.Photo(it)) }
@@ -87,7 +107,7 @@ internal fun BackgroundPane(
     BackgroundActions(actions = actions)
 
     Column {
-        SettingsSectionHeader(title = stringResource(R.string.background_presets_header))
+        SettingsSectionHeader(title = stringResource(MR.strings.background_presets_header))
         BackgroundTiles(
             tiles = tiles,
             selected = settings.background,
@@ -96,7 +116,7 @@ internal fun BackgroundPane(
     }
 
     Column {
-        SettingsSectionHeader(title = stringResource(R.string.background_my_photos))
+        SettingsSectionHeader(title = stringResource(MR.strings.background_my_photos))
         BackgroundTiles(
             tiles = photoTiles,
             selected = settings.background,
@@ -110,10 +130,10 @@ internal fun BackgroundPane(
             },
         )
         if (photos.isNotEmpty()) {
-            SettingsSectionFooter(text = stringResource(R.string.background_photos_hint))
+            SettingsSectionFooter(text = stringResource(MR.strings.background_photos_hint))
         }
         if (settings.background != KeyboardBackground.None) {
-            SettingsSectionFooter(text = stringResource(R.string.background_colors_hint))
+            SettingsSectionFooter(text = stringResource(MR.strings.background_colors_hint))
         }
     }
 
@@ -126,10 +146,10 @@ internal fun BackgroundPane(
         }
         BackgroundColorSheet(
             initial = initial,
-            title = stringResource(R.string.background_color_title),
-            toneLabel = stringResource(R.string.background_custom_tone),
-            cancelLabel = stringResource(R.string.background_cancel),
-            applyLabel = stringResource(R.string.background_apply),
+            title = stringResource(MR.strings.background_color_title),
+            toneLabel = stringResource(MR.strings.background_custom_tone),
+            cancelLabel = stringResource(MR.strings.background_cancel),
+            applyLabel = stringResource(MR.strings.background_apply),
             onPreview = { color -> onDraftPreview(KeyboardBackground.Solid(color.toArgbLong())) },
             onApply = { color ->
                 onSelect(KeyboardBackground.Solid(color.toArgbLong()))
@@ -147,12 +167,12 @@ private fun Color.toArgbLong(): Long = toArgb().toLong() and 0xFFFFFFFFL
 
 private const val DefaultBackgroundColor = 0xFFCDEFE7L
 
-private val BackgroundPattern.labelRes: Int
+private val BackgroundPattern.labelRes: StringResource
     get() = when (this) {
-        BackgroundPattern.MINT -> R.string.background_mint
-        BackgroundPattern.STRIPES -> R.string.background_stripes
-        BackgroundPattern.BUBBLES -> R.string.background_bubbles
-        BackgroundPattern.GRID -> R.string.background_grid
-        BackgroundPattern.WAVES -> R.string.background_waves
-        BackgroundPattern.NIGHT -> R.string.background_night
+        BackgroundPattern.MINT -> MR.strings.background_mint
+        BackgroundPattern.STRIPES -> MR.strings.background_stripes
+        BackgroundPattern.BUBBLES -> MR.strings.background_bubbles
+        BackgroundPattern.GRID -> MR.strings.background_grid
+        BackgroundPattern.WAVES -> MR.strings.background_waves
+        BackgroundPattern.NIGHT -> MR.strings.background_night
     }

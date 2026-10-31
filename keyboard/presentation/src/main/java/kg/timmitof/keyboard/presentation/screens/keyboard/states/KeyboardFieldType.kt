@@ -1,7 +1,9 @@
 package kg.timmitof.keyboard.presentation.screens.keyboard.states
 
-import androidx.annotation.StringRes
-import kg.timmitof.keyboard.presentation.R
+import dev.icerock.moko.resources.StringResource
+import kg.timmitof.core.resources.MR
+import kg.timmitof.core.resources.field_notice_password
+import kg.timmitof.core.resources.fonts_not_available
 
 /**
  * Единственный источник правды о том, чем клавиатура в поле отличается от базовой.
@@ -17,7 +19,7 @@ enum class KeyboardFieldType(
     val allowsLanguageSlide: Boolean = true,
     val requiresLatinLayout: Boolean = false,
     val autoCapitalize: Boolean = true,
-    @field:StringRes val noticeRes: Int? = null,
+    val noticeRes: StringResource? = null,
 ) {
     TEXT,
 
@@ -27,7 +29,7 @@ enum class KeyboardFieldType(
         allowsAutoCorrect = false,
         autoCapitalize = false,
         requiresLatinLayout = true,
-        noticeRes = R.string.fonts_not_available,
+        noticeRes = MR.strings.fonts_not_available,
     ),
 
     PASSWORD(
@@ -38,7 +40,7 @@ enum class KeyboardFieldType(
         allowsLanguageSlide = true,
         requiresLatinLayout = true,
         autoCapitalize = false,
-        noticeRes = R.string.field_notice_password,
+        noticeRes = MR.strings.field_notice_password,
     ),
 
     NUMBER(

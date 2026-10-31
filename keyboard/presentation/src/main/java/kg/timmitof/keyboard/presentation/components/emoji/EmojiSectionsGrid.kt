@@ -1,6 +1,5 @@
 package kg.timmitof.keyboard.presentation.components.emoji
 
-import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,10 +17,11 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import dev.icerock.moko.resources.StringResource
+import dev.icerock.moko.resources.compose.stringResource
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardEvent
 import kg.timmitof.keyboard.presentation.theme.KFTheme
 
@@ -107,7 +107,7 @@ internal fun EmojiSectionsGrid(
 
 @Composable
 private fun SectionHeader(
-    @StringRes titleRes: Int,
+    titleRes: StringResource,
     modifier: Modifier = Modifier,
 ) {
     Box(
