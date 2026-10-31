@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import dev.icerock.moko.resources.compose.stringResource
 import kg.timmitof.core.ui.components.tabs.ChipTab
@@ -51,12 +52,13 @@ fun StudioTabs(
     val current = selected().takeIf { it in panes } ?: available.first()
 
     val labels = available.map { stringResource(it.labelRes) }
-    val chips = remember(available, labels) {
+    val icons = available.map { painterResource(it.iconRes) }
+    val chips = remember(available, labels, icons) {
         available.mapIndexed { index, tab ->
             ChipTab(
                 key = tab,
                 label = labels[index],
-                iconRes = tab.iconRes,
+                icon = icons[index],
                 role = tab.role,
             )
         }

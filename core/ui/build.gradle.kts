@@ -1,33 +1,35 @@
 plugins {
-    alias(libs.plugins.keyboardfonts.library)
-    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.keyboardfonts.kmp.compose)
 }
 
 android {
     namespace = "kg.timmitof.core.ui"
+}
 
-    buildFeatures {
-        compose = true
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+            api(project(":core:common"))
+            implementation(project(":core:navigation"))
+            implementation(project(":core:resources"))
+
+            implementation(libs.jetbrains.compose.ui.backhandler)
+            implementation(libs.jetbrains.compose.material.icons.core)
+            implementation(libs.jetbrains.lifecycle.viewmodel.compose)
+
+            implementation(libs.orbit.core)
+            implementation(libs.orbit.compose)
+            implementation(libs.orbit.viewmodel)
+        }
+        androidMain.dependencies {
+            implementation(libs.androidx.core.ktx)
+            // На Android — та же material3, что и раньше (1.5 alpha): expressive-анимации и отступы шапки.
+            implementation(libs.androidx.material3)
+        }
     }
 }
 
-dependencies {
-    implementation(project(":core:common"))
-    implementation(project(":core:navigation"))
-    implementation(project(":core:resources"))
-
-    implementation(libs.androidx.core.ktx)
-    implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.androidx.activity.compose)
-    implementation(libs.androidx.ui)
-    implementation(libs.androidx.ui.graphics)
-    implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.material3)
-    implementation(libs.androidx.compose.material.icons)
-
-    implementation(libs.androidx.navigation.compose)
-
-    implementation(libs.orbit.core)
-    implementation(libs.orbit.compose)
-    implementation(libs.orbit.viewmodel)
+compose.resources {
+    publicResClass = true
+    packageOfResClass = "kg.timmitof.core.ui.resources"
 }

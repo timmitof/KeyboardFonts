@@ -40,7 +40,6 @@ import kg.timmitof.core.resources.languages_reorder_hint
 import kg.timmitof.core.resources.languages_search
 import kg.timmitof.core.resources.languages_with_suggestions
 import kg.timmitof.core.resources.languages_without_suggestions
-import kg.timmitof.core.ui.R as UiR
 import kg.timmitof.core.ui.components.settings.SettingsBadge
 import kg.timmitof.core.ui.components.settings.SettingsListTallRowHeight
 import kg.timmitof.core.ui.components.settings.SettingsPickSection
@@ -49,9 +48,14 @@ import kg.timmitof.core.ui.components.settings.SettingsPillButton
 import kg.timmitof.core.ui.components.settings.SettingsReorderList
 import kg.timmitof.core.ui.components.settings.SettingsSectionFooter
 import kg.timmitof.core.ui.components.settings.SettingsSectionHeader
+import kg.timmitof.core.ui.resources.ic_check
+import kg.timmitof.core.ui.resources.ic_close
+import kg.timmitof.core.ui.resources.ic_plus
 import kg.timmitof.core.ui.theme.appColors
 import kg.timmitof.keyboard.domain.model.KeyboardLanguage
 import kg.timmitof.keyboard.domain.model.KeyboardLanguages
+import org.jetbrains.compose.resources.painterResource
+import kg.timmitof.core.ui.resources.Res as UiRes
 
 /** Строка списка: подпись под названием считается заранее, чтобы строка не читала ресурсы. */
 @Immutable
@@ -114,7 +118,7 @@ internal fun LanguagesPane(
     SettingsPillButton(
         modifier = Modifier.fillMaxWidth(),
         label = stringResource(MR.strings.languages_add),
-        icon = painterResource(UiR.drawable.ic_plus),
+        icon = painterResource(UiRes.drawable.ic_plus),
         onClick = { isPickerOpen = true },
     )
 
@@ -203,7 +207,7 @@ private fun RemoveButton(onClick: () -> Unit) {
         contentAlignment = Alignment.Center,
     ) {
         Icon(
-            painter = painterResource(UiR.drawable.ic_close),
+            painter = painterResource(UiRes.drawable.ic_close),
             contentDescription = stringResource(MR.strings.languages_remove),
             tint = MaterialTheme.colorScheme.outline,
             modifier = Modifier.size(18.dp),
@@ -223,7 +227,7 @@ private fun ConnectedMark() {
         contentAlignment = Alignment.Center,
     ) {
         Icon(
-            painter = painterResource(UiR.drawable.ic_check),
+            painter = painterResource(UiRes.drawable.ic_check),
             contentDescription = null,
             tint = tones.solid,
             modifier = Modifier.size(13.dp),

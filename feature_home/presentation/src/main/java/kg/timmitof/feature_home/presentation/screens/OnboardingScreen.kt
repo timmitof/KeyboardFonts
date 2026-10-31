@@ -74,13 +74,15 @@ import kg.timmitof.core.resources.step_try_subtitle
 import kg.timmitof.core.resources.step_try_title
 import kg.timmitof.core.resources.try_done
 import kg.timmitof.core.resources.try_placeholder
-import kg.timmitof.core.ui.R as UiR
 import kg.timmitof.core.ui.base.Container
 import kg.timmitof.core.ui.base.ContainerDSLBuilder
 import kg.timmitof.core.ui.components.brand.AppLanguageButton
 import kg.timmitof.core.ui.components.brand.BrandHeader
 import kg.timmitof.core.ui.components.brand.StatusPill
 import kg.timmitof.core.ui.components.hint.HintCard
+import kg.timmitof.core.ui.resources.ic_chevron_right
+import kg.timmitof.core.ui.resources.ic_lightbulb
+import kg.timmitof.core.ui.resources.ic_shield_check
 import kg.timmitof.core.ui.theme.AccentRole
 import kg.timmitof.core.ui.theme.KeyboardFontsTheme
 import kg.timmitof.core.ui.theme.appColors
@@ -91,7 +93,9 @@ import kg.timmitof.feature_home.presentation.components.TryFontsField
 import kg.timmitof.feature_home.presentation.components.steps.SetupStepStatus
 import kg.timmitof.feature_home.presentation.components.steps.SetupSteps
 import kg.timmitof.feature_home.presentation.components.steps.SystemMock
+import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
+import kg.timmitof.core.ui.resources.Res as UiRes
 
 @Composable
 fun OnboardingScreen(
@@ -260,13 +264,13 @@ private fun SetupContent(
                 HintCard(
                     title = stringResource(MR.strings.hint_warning_title),
                     body = stringResource(MR.strings.hint_warning_body),
-                    icon = painterResource(UiR.drawable.ic_shield_check),
+                    icon = painterResource(UiRes.drawable.ic_shield_check),
                 )
             } else {
                 HintCard(
                     title = stringResource(MR.strings.hint_switch_back_title),
                     body = stringResource(MR.strings.hint_switch_back_body),
-                    icon = painterResource(UiR.drawable.ic_lightbulb),
+                    icon = painterResource(UiRes.drawable.ic_lightbulb),
                 )
             }
         }
@@ -306,7 +310,7 @@ private fun TryContent(onDone: () -> Unit) {
         ) {
             Text(text = stringResource(MR.strings.try_done), fontSize = 14.5.sp, fontWeight = FontWeight.Medium)
             Icon(
-                painter = painterResource(UiR.drawable.ic_chevron_right),
+                painter = painterResource(UiRes.drawable.ic_chevron_right),
                 contentDescription = null,
                 modifier = Modifier
                     .padding(start = 6.dp)

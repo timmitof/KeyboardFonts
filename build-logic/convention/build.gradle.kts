@@ -31,6 +31,10 @@ gradlePlugin {
             id = "keyboardfonts.kmp.library"
             implementationClass = "kg.timmitof.build_logic.convention.plugins.KmpLibraryPlugin"
         }
+        register("keyboardfontsKmpCompose") {
+            id = "keyboardfonts.kmp.compose"
+            implementationClass = "kg.timmitof.build_logic.convention.plugins.KmpComposePlugin"
+        }
         register("keyboardfontsResources") {
             id = "keyboardfonts.resources"
             implementationClass = "kg.timmitof.build_logic.convention.plugins.ResourcesPlugin"

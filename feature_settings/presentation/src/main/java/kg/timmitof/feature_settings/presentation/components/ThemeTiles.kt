@@ -36,13 +36,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kg.timmitof.core.ui.R as UiR
+import kg.timmitof.core.ui.resources.ic_check
 import kg.timmitof.core.ui.theme.appColors
 import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
 import kg.timmitof.keyboard.presentation.preview.drawKeyboardSilhouette
 import kg.timmitof.keyboard.presentation.theme.KeyboardColorScheme
 import kg.timmitof.keyboard.presentation.theme.KeyboardDarkColor
 import kg.timmitof.keyboard.presentation.theme.KeyboardLightColor
+import org.jetbrains.compose.resources.painterResource
+import kg.timmitof.core.ui.resources.Res as UiRes
 
 @Immutable
 data class ThemeTile(
@@ -135,7 +137,7 @@ private fun ThemeTileItem(
             contentAlignment = Alignment.Center,
         ) {
             Icon(
-                painter = painterResource(UiR.drawable.ic_check),
+                painter = painterResource(UiRes.drawable.ic_check),
                 contentDescription = null,
                 tint = tones.onSolid,
                 modifier = Modifier.size(11.dp),

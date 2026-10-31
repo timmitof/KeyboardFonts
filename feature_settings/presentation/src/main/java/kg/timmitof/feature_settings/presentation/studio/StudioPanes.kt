@@ -8,6 +8,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalResources
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import dev.icerock.moko.resources.StringResource
 import dev.icerock.moko.resources.compose.stringResource
@@ -90,12 +91,12 @@ import kg.timmitof.core.resources.theme_light
 import kg.timmitof.core.resources.theme_overridden_by_background
 import kg.timmitof.core.ui.components.color.ColorPickerDialog
 import kg.timmitof.core.ui.components.settings.SettingsSection
-import kg.timmitof.core.ui.components.tabs.ChipTab
-import kg.timmitof.core.ui.components.tabs.ChipTabs
-import kg.timmitof.core.ui.theme.AccentRole
 import kg.timmitof.core.ui.components.settings.SettingsSectionAction
 import kg.timmitof.core.ui.components.settings.SettingsSectionFooter
 import kg.timmitof.core.ui.components.settings.SettingsSectionHeader
+import kg.timmitof.core.ui.components.tabs.ChipTab
+import kg.timmitof.core.ui.components.tabs.ChipTabs
+import kg.timmitof.core.ui.theme.AccentRole
 import kg.timmitof.feature_settings.presentation.R
 import kg.timmitof.feature_settings.presentation.components.ClipboardPins
 import kg.timmitof.feature_settings.presentation.components.FontItem
@@ -115,8 +116,8 @@ import kg.timmitof.keyboard.font.domain.model.FontScript
 import kg.timmitof.keyboard.font.domain.model.KeyboardFont
 import kg.timmitof.keyboard.presentation.components.fontSample
 import kg.timmitof.keyboard.presentation.sound.KeySound
-import kg.timmitof.keyboard.presentation.theme.palette
 import kg.timmitof.keyboard.presentation.sound.rememberKeySoundPlayer
+import kg.timmitof.keyboard.presentation.theme.palette
 import kotlin.math.roundToInt
 
 /** Ресурсы читаются до DSL: сборщик строк намеренно не композабельный. */
@@ -391,12 +392,13 @@ internal fun SoundPane(
     val soundTitle = stringResource(MR.strings.sound_click_title)
     val volumeTitle = stringResource(MR.strings.sound_volume_title)
     val packLabels = KeyboardSoundPack.entries.map { stringResource(it.labelRes) }
-    val packs = remember(packLabels) {
+    val packIcons = KeyboardSoundPack.entries.map { painterResource(it.iconRes) }
+    val packs = remember(packLabels, packIcons) {
         KeyboardSoundPack.entries.mapIndexed { index, pack ->
             ChipTab(
                 key = pack,
                 label = packLabels[index],
-                iconRes = pack.iconRes,
+                icon = packIcons[index],
                 role = AccentRole.HINT,
             )
         }

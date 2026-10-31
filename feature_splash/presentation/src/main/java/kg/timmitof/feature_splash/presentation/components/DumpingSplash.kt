@@ -30,22 +30,25 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.layout
-import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.platform.LocalWindowInfo
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import dev.icerock.moko.resources.compose.stringResource
-import kg.timmitof.core.common.R
+import kg.timmitof.core.common.resources.ic_logo
+import kg.timmitof.core.common.resources.ic_logo_background
+import kg.timmitof.core.common.resources.nunito_black
 import kg.timmitof.core.resources.MR
 import kg.timmitof.core.resources.app_name
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.Font
+import org.jetbrains.compose.resources.painterResource
+import kg.timmitof.core.common.resources.Res as CommonRes
 
 @Composable
 internal fun DumpingSplash(
@@ -64,8 +67,8 @@ internal fun DumpingSplash(
     var showOnlyBgLogo by remember { mutableStateOf(false) }
     var showText by remember { mutableStateOf(false) }
 
-    val logo = painterResource(R.drawable.ic_logo)
-    val logoBg = painterResource(R.drawable.ic_logo_background)
+    val logo = painterResource(CommonRes.drawable.ic_logo)
+    val logoBg = painterResource(CommonRes.drawable.ic_logo_background)
 
     val currentIsLoading = rememberUpdatedState(isLoading)
     val currentOnFinish = rememberUpdatedState(onFinish)
@@ -109,7 +112,7 @@ internal fun DumpingSplash(
                     text = stringResource(MR.strings.app_name),
                     style = MaterialTheme.typography.displaySmall,
                     color = MaterialTheme.colorScheme.onBackground,
-                    fontFamily = FontFamily(Font(R.font.nunito_black)),
+                    fontFamily = FontFamily(Font(CommonRes.font.nunito_black)),
                     fontWeight = FontWeight.Bold
                 )
             }

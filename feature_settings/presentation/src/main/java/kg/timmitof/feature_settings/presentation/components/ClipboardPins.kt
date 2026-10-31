@@ -21,9 +21,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kg.timmitof.core.ui.R as UiR
+import kg.timmitof.core.ui.resources.ic_pin
 import kg.timmitof.core.ui.theme.appColors
 import kg.timmitof.keyboard.clipboard.domain.model.ClipboardEntry
+import org.jetbrains.compose.resources.painterResource
+import kg.timmitof.core.ui.resources.Res as UiRes
 
 @Composable
 internal fun ClipboardPins(
@@ -73,7 +75,7 @@ private fun PinCard(entry: ClipboardEntry, modifier: Modifier = Modifier) {
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
             Icon(
-                painter = painterResource(UiR.drawable.ic_pin),
+                painter = painterResource(UiRes.drawable.ic_pin),
                 contentDescription = null,
                 tint = MaterialTheme.appColors.success.solid,
                 modifier = Modifier.size(14.dp),

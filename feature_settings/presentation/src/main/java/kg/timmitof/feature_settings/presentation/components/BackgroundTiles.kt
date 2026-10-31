@@ -1,6 +1,5 @@
 package kg.timmitof.feature_settings.presentation.components
 
-import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
@@ -34,14 +33,18 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kg.timmitof.core.ui.R as UiR
+import kg.timmitof.core.ui.resources.ic_check
+import kg.timmitof.core.ui.resources.ic_plus
 import kg.timmitof.feature_settings.presentation.R
 import kg.timmitof.keyboard.domain.model.KeyboardBackground
 import kg.timmitof.keyboard.presentation.theme.KeyboardLightColor
 import kg.timmitof.keyboard.presentation.theme.keyboardBackground
+import org.jetbrains.compose.resources.painterResource
+import kg.timmitof.core.ui.resources.Res as UiRes
 
 /** [background] = `null` — плитка «Добавить»: открывает выбор фото. [label] = `null` — без подписи. */
 @Immutable
@@ -127,7 +130,7 @@ private fun BackgroundTileItem(
             ) {
                 if (tile.background == null) {
                     Icon(
-                        painter = painterResource(UiR.drawable.ic_plus),
+                        painter = painterResource(UiRes.drawable.ic_plus),
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.outline,
                         modifier = Modifier.size(18.dp),
@@ -137,7 +140,7 @@ private fun BackgroundTileItem(
 
             // У выбранного фото вместо галочки карандаш: повторное касание открывает настройку положения.
             SelectionBadge(
-                iconRes = if (tile.background is KeyboardBackground.Photo) R.drawable.ic_edit else UiR.drawable.ic_check,
+                icon = if (tile.background is KeyboardBackground.Photo) painterResource(R.drawable.ic_edit) else painterResource(UiRes.drawable.ic_check),
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .offset(x = 5.dp, y = (-5).dp)
@@ -171,7 +174,7 @@ private fun KeyboardBackground.isSameAs(other: KeyboardBackground): Boolean =
     if (this is KeyboardBackground.Photo && other is KeyboardBackground.Photo) photo.id == other.photo.id else this == other
 
 @Composable
-private fun SelectionBadge(@DrawableRes iconRes: Int, modifier: Modifier = Modifier) {
+private fun SelectionBadge(icon: Painter, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .size(20.dp)
@@ -180,7 +183,7 @@ private fun SelectionBadge(@DrawableRes iconRes: Int, modifier: Modifier = Modif
         contentAlignment = Alignment.Center,
     ) {
         Icon(
-            painter = painterResource(iconRes),
+            painter = icon,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.background,
             modifier = Modifier.size(11.dp),

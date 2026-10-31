@@ -37,8 +37,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kg.timmitof.core.ui.R as UiR
+import kg.timmitof.core.ui.resources.ic_check
 import kg.timmitof.core.ui.theme.appColors
+import org.jetbrains.compose.resources.painterResource
+import kg.timmitof.core.ui.resources.Res as UiRes
 
 @DslMarker
 annotation class SetupDsl
@@ -211,7 +213,7 @@ private fun StepBadge(number: Int, status: SetupStepStatus) {
     ) {
         if (status == SetupStepStatus.DONE) {
             Icon(
-                painter = painterResource(UiR.drawable.ic_check),
+                painter = painterResource(UiRes.drawable.ic_check),
                 contentDescription = null,
                 tint = content,
                 modifier = Modifier.size(15.dp),
