@@ -2,8 +2,8 @@ package kg.timmitof.core.data.di
 
 import androidx.room.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import kg.timmitof.core.data.AppDirectory
 import kg.timmitof.core.data.local.AppDatabase
-import kg.timmitof.core.data.preferences.PreferencesDataStoreFactory
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -17,13 +17,13 @@ import platform.Foundation.NSUserDomainMask
 // TODO: клавиатуре нужны те же файлы, что приложению, — перенести в контейнер App Group, когда появится iosApp.
 internal actual val platformStorageModule: Module = module {
 
+    single { AppDirectory(documentDirectory()) }
+
     single {
-        Room.databaseBuilder<AppDatabase>(name = "${documentDirectory()}/${AppDatabase.TAG}")
+        Room.databaseBuilder<AppDatabase>(name = "${get<AppDirectory>().path}/${AppDatabase.TAG}")
             .setDriver(BundledSQLiteDriver())
             .setQueryCoroutineContext(Dispatchers.IO)
     }
-
-    single { PreferencesDataStoreFactory("${documentDirectory()}/datastore") }
 }
 
 @OptIn(ExperimentalForeignApi::class)

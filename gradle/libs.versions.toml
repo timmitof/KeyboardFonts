@@ -17,6 +17,7 @@ composeBom = "2025.09.01"
 appcompat = "1.7.1"
 ksp = "2.2.20-2.0.4"
 kotlinCoroutines = "1.10.2"
+atomicfu = "0.29.0"
 datastorePreferences = "1.1.7"
 material3 = "1.5.0-alpha07"
 coilCompose = "3.3.0"
@@ -51,6 +52,8 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3",
 androidx-compose-material-icons = { group = "androidx.compose.material", name = "material-icons-core" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinCoroutines" }
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinCoroutines" }
+kotlinx-atomicfu = { module = "org.jetbrains.kotlinx:atomicfu", version.ref = "atomicfu" }
 androidx-datastore-preferences-core = { module = "androidx.datastore:datastore-preferences-core", version.ref = "datastorePreferences" }
 
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }

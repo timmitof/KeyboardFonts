@@ -8,6 +8,7 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
 import platform.Foundation.NSBundle
 import platform.Foundation.NSData
+import platform.Foundation.NSDataReadingMappedIfSafe
 import platform.Foundation.NSFileManager
 import platform.Foundation.NSString
 import platform.Foundation.NSUTF8StringEncoding
@@ -28,6 +29,12 @@ class IosAssetTextLoader : AssetTextLoader {
         ByteArray(data.length.toInt()).apply {
             if (isNotEmpty()) usePinned { memcpy(it.addressOf(0), data.bytes, data.length) }
         }
+    }
+
+    override suspend fun loadMapped(path: String): MappedBytes? = withContext(Dispatchers.IO) {
+        resourcePath(path)
+            ?.let { NSData.dataWithContentsOfFile(it, NSDataReadingMappedIfSafe, null) }
+            ?.let(::MappedBytes)
     }
 
     private fun resourcePath(path: String): String? {

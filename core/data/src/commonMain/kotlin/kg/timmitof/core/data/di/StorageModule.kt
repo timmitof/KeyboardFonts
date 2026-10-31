@@ -3,7 +3,9 @@ package kg.timmitof.core.data.di
 import androidx.room.RoomDatabase
 import kg.timmitof.core.data.local.AppDatabase
 import kg.timmitof.core.data.local.Migrations
+import kg.timmitof.core.data.preferences.PreferencesDataStoreFactory
 import org.koin.core.module.Module
+import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 
 val storageModule = module {
@@ -19,7 +21,9 @@ val storageModule = module {
     single { get<AppDatabase>().clipboardDao() }
 
     single { get<AppDatabase>().backgroundPhotoDao() }
+
+    singleOf(::PreferencesDataStoreFactory)
 }
 
-/** Платформенная часть: файл базы и каталог настроек. */
+/** Платформенная часть: файл базы и каталог файлов приложения. */
 internal expect val platformStorageModule: Module

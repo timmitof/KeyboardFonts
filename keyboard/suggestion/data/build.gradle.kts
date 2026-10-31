@@ -4,8 +4,20 @@ plugins {
     id("keyboardfonts.dictionaries")
 }
 
-dependencies {
-    implementation(project(":keyboard:data"))
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+            implementation(project(":core:data"))
+            implementation(project(":keyboard:data"))
+            implementation(libs.kotlinx.atomicfu)
+        }
+        commonTest.dependencies {
+            implementation(libs.kotlinx.coroutines.test)
+        }
+    }
+}
 
-    testImplementation(libs.junit)
+// GeneratedDictionariesTest читает словари, которые собирает generateDictionaries.
+tasks.withType<Test>().configureEach {
+    dependsOn("generateDictionaries")
 }

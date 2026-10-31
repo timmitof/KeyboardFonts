@@ -28,9 +28,10 @@ tasks.register('generateFeatureModules') {
         modules.each { module ->
             def modulePath = new File(featureDir, module)
             def namespace = "${basePackage}.feature_${featureName}.${module}"
-            def javaDir = new File(modulePath, "src/main/java")
+            // domain, data и di — мультиплатформенные (KMP), presentation пока только Android.
+            def javaDir = new File(modulePath, module == 'presentation' ? "src/main/java" : "src/commonMain/kotlin")
 
-            javaDir.mkdir()
+            javaDir.mkdirs()
 
             writeFileIfNotExists(new File(modulePath, ".gitignore"), "*.iml\n.gradle\n/local.properties\n/.idea\n/build")
 

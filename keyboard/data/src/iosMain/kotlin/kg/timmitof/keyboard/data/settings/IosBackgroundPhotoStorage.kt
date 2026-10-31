@@ -1,30 +1,26 @@
 package kg.timmitof.keyboard.data.settings
 
+import kg.timmitof.core.data.AppDirectory
 import kg.timmitof.keyboard.data.settings.BackgroundPhotoStorage.StoredPhoto
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
-import platform.Foundation.NSDocumentDirectory
 import platform.Foundation.NSFileManager
 import platform.Foundation.NSURL
-import platform.Foundation.NSUserDomainMask
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
 /**
- * Фото приходит из системного выбора файлом (`file://`) и копируется в `Documents/backgrounds`.
- * TODO: средний цвет для оттенка (на Android — уменьшенный Bitmap) и общий с клавиатурой контейнер App Group.
+ * Фото приходит из системного выбора файлом (`file://`) и копируется в `backgrounds` каталога приложения.
+ * TODO: средний цвет для оттенка (на Android — уменьшенный Bitmap).
  */
 @OptIn(ExperimentalForeignApi::class)
-class IosBackgroundPhotoStorage : BackgroundPhotoStorage {
+class IosBackgroundPhotoStorage(appDirectory: AppDirectory) : BackgroundPhotoStorage {
 
     private val fileManager = NSFileManager.defaultManager
 
-    private val directory: String by lazy {
-        val documents = fileManager.URLForDirectory(NSDocumentDirectory, NSUserDomainMask, null, true, null)?.path
-        "${requireNotNull(documents) { "Documents directory is unavailable" }}/$DIRECTORY"
-    }
+    private val directory = "${appDirectory.path}/$DIRECTORY"
 
     @OptIn(ExperimentalTime::class)
     override suspend fun copy(uri: String): StoredPhoto = withContext(Dispatchers.IO) {

@@ -29,7 +29,7 @@ class DictionariesPlugin : Plugin<Project> {
                     list.flatMap { spec -> listOfNotNull(spec.source, spec.forms).map(sourceDirectory::file) }
                 }
             )
-            staticAssets.set(layout.projectDirectory.dir("src/main/assets"))
+            staticAssets.set(layout.projectDirectory.dir("src/androidMain/assets"))
             outputDirectory.set(layout.buildDirectory.dir("generated/dictionaries"))
         }
 

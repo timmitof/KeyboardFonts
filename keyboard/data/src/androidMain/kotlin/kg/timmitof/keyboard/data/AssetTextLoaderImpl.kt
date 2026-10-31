@@ -10,7 +10,7 @@ import java.nio.channels.FileChannel
 
 class AssetTextLoaderImpl(
     private val context: Context
-) : MappedAssetLoader {
+) : AssetTextLoader {
 
     private val assetManager = context.assets
 
@@ -34,15 +34,18 @@ class AssetTextLoaderImpl(
      * `openFd` работает только для несжатого ассета; сжатый (или отсутствующий) бросает исключение —
      * тогда читаем как обычно. Отображение живёт и после закрытия дескриптора.
      */
-    override suspend fun loadBuffer(path: String): ByteBuffer? = withContext(Dispatchers.IO) {
+    override suspend fun loadMapped(path: String): MappedBytes? = withContext(Dispatchers.IO) {
         try {
             assetManager.openFd(path).use { descriptor ->
                 FileInputStream(descriptor.fileDescriptor).use { stream ->
-                    stream.channel.map(FileChannel.MapMode.READ_ONLY, descriptor.startOffset, descriptor.declaredLength)
+                    val mapped = stream.channel.map(
+                        FileChannel.MapMode.READ_ONLY, descriptor.startOffset, descriptor.declaredLength,
+                    )
+                    MappedBytes(mapped)
                 }
             }
         } catch (e: IOException) {
-            loadBytes(path)?.let(ByteBuffer::wrap)
+            loadBytes(path)?.let { MappedBytes(ByteBuffer.wrap(it)) }
         }
     }
 }
