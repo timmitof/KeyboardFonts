@@ -42,6 +42,7 @@ fun includeFeature(name: String) {
 rootProject.name = "KeyboardFonts"
 
 include(":app")
+include(":shared")
 
 include(
     ":core:common",

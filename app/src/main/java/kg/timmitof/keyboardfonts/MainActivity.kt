@@ -5,11 +5,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import kg.timmitof.keyboardfonts.ui.navigation.AppNavHost
-import kg.timmitof.core.navigation.LocalNavController
-import kg.timmitof.core.navigation.NavControllerProvider
 import kg.timmitof.core.ui.locale.AppLocale
-import kg.timmitof.core.ui.theme.KeyboardFontsTheme
+import kg.timmitof.shared.App
 
 class MainActivity : ComponentActivity() {
     override fun attachBaseContext(newBase: Context) {
@@ -19,13 +16,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContent {
-            KeyboardFontsTheme {
-                NavControllerProvider {
-                    val navController = LocalNavController.current
-                    AppNavHost(navController = navController)
-                }
-            }
-        }
+        setContent { App() }
     }
 }

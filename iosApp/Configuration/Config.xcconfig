@@ -1,0 +1,4 @@
+// Команда разработчика для подписи (Xcode › Signing & Capabilities) — у каждого своя.
+TEAM_ID=
+BUNDLE_ID=kg.timmitof.keyboardfonts
+APP_NAME=Keyboard Fonts

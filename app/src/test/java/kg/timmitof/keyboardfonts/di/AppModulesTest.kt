@@ -2,6 +2,7 @@ package kg.timmitof.keyboardfonts.di
 
 import android.content.Context
 import androidx.lifecycle.SavedStateHandle
+import kg.timmitof.shared.di.sharedModules
 import org.junit.Test
 import org.koin.core.annotation.KoinExperimentalAPI
 import org.koin.dsl.module
@@ -13,7 +14,7 @@ class AppModulesTest {
     @OptIn(KoinExperimentalAPI::class)
     @Test
     fun appModulesAreComplete() {
-        module { includes(appModules) }.verify(
+        module { includes(sharedModules) }.verify(
             extraTypes = listOf(Context::class, SavedStateHandle::class),
         )
     }

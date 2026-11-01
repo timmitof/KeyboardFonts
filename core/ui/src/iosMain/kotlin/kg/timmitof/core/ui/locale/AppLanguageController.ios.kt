@@ -13,7 +13,8 @@ actual fun rememberAppLanguageController(): AppLanguageController = remember { I
 /** Язык приложения на iOS выбирают в «Настройки › приложение › Язык»; после выбора система перезапускает приложение. */
 private class IosAppLanguageController : AppLanguageController {
 
-    override val current: AppLanguage = NSBundle.mainBundle.preferredLocalizations
+    // Тот же выбор, что у строк: язык из «Настроек» приложения, иначе первый подходящий язык устройства.
+    override val current: AppLanguage = NSBundle.preferredLocalizationsFromArray(appLanguages.map { it.tag })
         .firstOrNull()
         .let { it as? String }
         ?.split('-')
