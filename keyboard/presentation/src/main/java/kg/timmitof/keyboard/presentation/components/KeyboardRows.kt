@@ -203,7 +203,7 @@ private fun RowScope.KeyboardKeySlot(
             isLargeLabel = isLargeLabel,
             hasSubLabels = hasSubLabels,
             font = slice.font,
-            onInput = { onEvent(KeyboardEvent.OnKeySelect(it)) }
+            onInput = { character, touch -> onEvent(KeyboardEvent.OnKeySelect(character, touch)) }
         )
 
         is KeyboardKey.Shift -> ShiftKeyButton(

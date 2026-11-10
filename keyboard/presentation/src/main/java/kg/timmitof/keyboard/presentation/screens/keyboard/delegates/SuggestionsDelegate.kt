@@ -1,6 +1,10 @@
 package kg.timmitof.keyboard.presentation.screens.keyboard.delegates
 
+import kg.timmitof.keyboard.domain.model.KeyboardKey
+import kg.timmitof.keyboard.domain.model.KeyboardLayout
+import kg.timmitof.keyboard.suggestion.domain.model.KeyGeometry
 import kg.timmitof.keyboard.suggestion.domain.model.SuggestionRequest
+import kg.timmitof.keyboard.suggestion.domain.model.keyGeometry
 import kg.timmitof.keyboard.suggestion.domain.model.TextContext
 import kg.timmitof.keyboard.suggestion.domain.model.WordSuggestion
 import kg.timmitof.keyboard.suggestion.domain.repository.SuggestionRepository
@@ -27,6 +31,10 @@ internal class SuggestionsDelegate(
 ) {
 
     private val requests = MutableStateFlow<SuggestionRequest?>(null)
+
+    /** Геометрия строится раз на раскладку: запрос уходит на каждую букву. */
+    @Volatile
+    private var geometryCache: Pair<KeyboardLayout, KeyGeometry>? = null
 
     /**
      * Пауза в несколько кадров: при быстром наборе промежуточные слова не видны, а словарь перебирать дорого.
@@ -110,7 +118,30 @@ internal class SuggestionsDelegate(
             context = textContext,
             isShifted = shiftState.isUpperCase(),
             allowsAutoCorrect = fieldType.allowsAutoCorrect && settings.isAutoCorrectEnabled,
+            geometry = geometryOf(keyboardLayout),
+            touches = composing.touches,
         )
+    }
+
+    private fun geometryOf(layout: KeyboardLayout): KeyGeometry {
+        geometryCache?.let { (cached, geometry) -> if (cached === layout) return geometry }
+
+        return layout.toKeyGeometry().also { geometryCache = layout to it }
+    }
+
+    /** Буквы — клавиши с одним символом; служебные и многосимвольные только занимают место в ряду. */
+    private fun KeyboardLayout.toKeyGeometry(): KeyGeometry = keyGeometry {
+        rows.forEach { keys ->
+            row {
+                keys.forEach { slot ->
+                    val letter = (slot as? KeyboardKey.Character)
+                        ?.takeUnless { it.isSpecial }
+                        ?.let { it.output ?: it.labelLower }
+                        ?.singleOrNull()
+                    if (letter != null) key(letter.lowercaseChar(), slot.weight) else gap(slot.weight)
+                }
+            }
+        }
     }
 
     /**

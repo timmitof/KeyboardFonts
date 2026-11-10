@@ -77,7 +77,7 @@ internal fun KeyBase(
     val outline = KFTheme.color.keyOutline.takeIf { KFTheme.isKeyOutlined }
 
     val clickModifier = customGestures?.invoke(source, onPress)
-        ?: Modifier.keyClickable(interactionSource = source, onPress = onPress, onTap = onClick)
+        ?: Modifier.keyClickable(interactionSource = source, onPress = onPress, onTap = { onClick() })
 
     Box(
         modifier = modifier

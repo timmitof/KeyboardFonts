@@ -20,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.PlatformTextStyle
@@ -61,6 +62,9 @@ internal fun String.isWordLabel(): Boolean = codePointCount(0, length) > 1
 /**
  * Наверх уходит [KeyCharacter] в обоих регистрах: регистр применяет ViewModel в момент ввода,
  * а Shift к этому моменту мог измениться от соседнего нажатия.
+ *
+ * Вместе с символом — точка касания (см. `keyClickable`): по ней Т9 понимает, в какого соседа палец
+ * мог метить. У вариантов из пикера и ввода через доступность её нет — [Offset.Unspecified].
  */
 @Composable
 internal fun RowScope.KeyboardKeyButton(
@@ -70,7 +74,7 @@ internal fun RowScope.KeyboardKeyButton(
     isLargeLabel: Boolean = false,
     hasSubLabels: Boolean = false,
     font: KeyboardFont = KeyboardFont.Default,
-    onInput: (KeyCharacter) -> Unit,
+    onInput: (KeyCharacter, touch: Offset) -> Unit,
 ) {
     val input = remember(key) {
         key.output?.let(::KeyCharacter) ?: KeyCharacter(key.labelLower, key.labelUpper)
@@ -110,23 +114,25 @@ internal fun RowScope.KeyboardKeyButton(
         },
         shadowColor = KFTheme.color.keyButtonShadow,
         interactionSource = interactionSource,
-        customGestures = if (symbols.isEmpty()) null else { source, onPress ->
+        customGestures = { source, onPress ->
             Modifier.keyClickable(
                 interactionSource = source,
                 onPress = onPress,
-                onTap = { onInput(input) },
-                onHoldStart = {
-                    pickOffsetPx = 0f
-                    isPickerVisible = true
+                onTap = { touch -> onInput(input, touch) },
+                onHoldStart = if (symbols.isEmpty()) null else {
+                    {
+                        pickOffsetPx = 0f
+                        isPickerVisible = true
+                    }
                 },
                 onPickChange = { pickOffsetPx = it },
                 onPickFinish = { offsetPx ->
                     isPickerVisible = false
-                    onInput(symbols[selectedIndexFor(offsetPx)])
+                    onInput(symbols[selectedIndexFor(offsetPx)], Offset.Unspecified)
                 }
             )
         },
-        onClick = { onInput(input) }
+        onClick = { onInput(input, Offset.Unspecified) }
     ) {
         key.hint?.let { KeyHint(hint = it) }
 

@@ -81,6 +81,7 @@ class SuggestionEngine @Inject constructor() {
         val dictionary = model.dictionary
 
         val candidates = HashMap<String, Candidate>(32)
+        val spatial = SpatialModel.of(request.geometry, query, request.touches)
 
         fun offer(word: String, score: Int, distance: Int) {
             if (word == query) return
@@ -120,7 +121,7 @@ class SuggestionEngine @Inject constructor() {
                     val base = correction.score.takeIf { it > 0 } ?: personalScore(user.countOf(correction.word))
                     offer(
                         word = correction.word,
-                        score = base - typoPenalty(correction.distance) + proximityBonus(query, correction.word),
+                        score = base - typoPenalty(correction.distance) + spatial.bonus(correction.word),
                         distance = correction.distance,
                     )
                 }
@@ -141,7 +142,7 @@ class SuggestionEngine @Inject constructor() {
                 offerPrefixTypo(
                     word = correction.word,
                     score = base - typoPenalty(correction.distance) +
-                            proximityBonus(query, correction.word.take(query.length)),
+                            spatial.bonus(correction.word.take(query.length)),
                 )
             }
         }
@@ -250,21 +251,6 @@ class SuggestionEngine @Inject constructor() {
         else -> SpellCorrector.MAX_EDIT_DISTANCE
     }
 
-    private fun proximityBonus(query: String, word: String): Int {
-        if (query.length != word.length) return 0
-
-        var mismatch = -1
-        query.indices.forEach { index ->
-            if (query[index] != word[index]) {
-                if (mismatch >= 0) return 0
-                mismatch = index
-            }
-        }
-        return mismatch.takeIf { it >= 0 && KeyProximity.areAdjacent(query[it], word[it]) }
-            ?.let { ADJACENT_KEY_BONUS }
-            ?: 0
-    }
-
     private fun WordDictionary.rankByPrefix(query: String): IntArray {
         val ranking = TopIndices(RANKING_SIZE)
         prefixRange(query).forEach { index ->
@@ -343,7 +329,6 @@ class SuggestionEngine @Inject constructor() {
         const val COMPLETION_PENALTY = 24
         const val TYPO_PENALTY = 120
         const val TYPO_BASE_PENALTY = 150
-        const val ADJACENT_KEY_BONUS = TYPO_PENALTY
         const val SURROUNDING_BONUS = 220
         const val RECENT_BONUS = 140
         const val USER_WORD_SCORE = 500

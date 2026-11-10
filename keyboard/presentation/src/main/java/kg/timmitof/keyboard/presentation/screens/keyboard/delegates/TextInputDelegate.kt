@@ -1,8 +1,11 @@
 package kg.timmitof.keyboard.presentation.screens.keyboard.delegates
 
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.isSpecified
 import kg.timmitof.keyboard.domain.model.KeyCharacter
 import kg.timmitof.keyboard.font.domain.model.StyledText
 import kg.timmitof.keyboard.suggestion.domain.model.TextContext
+import kg.timmitof.keyboard.suggestion.domain.model.TypedKey
 import kg.timmitof.keyboard.suggestion.domain.model.WordSuggestion
 import kg.timmitof.keyboard.presentation.screens.keyboard.KeyboardSyntax
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.AutoCorrection
@@ -19,8 +22,12 @@ internal class TextInputDelegate(
     private val suggestionsDelegate: SuggestionsDelegate,
 ) {
 
-    /** Регистр выбирается здесь, а не при отрисовке: при нескольких одновременных нажатиях Shift в клавише устаревает. */
-    suspend fun KeyboardSyntax.typeCharacter(character: KeyCharacter) {
+    /**
+     * Регистр выбирается здесь, а не при отрисовке: при нескольких одновременных нажатиях Shift в клавише устаревает.
+     *
+     * @param touch куда палец попал по клавише (см. `keyClickable`); запоминается в черновике для Т9.
+     */
+    suspend fun KeyboardSyntax.typeCharacter(character: KeyCharacter, touch: Offset = Offset.Unspecified) {
         val char = character.text(state.shiftState.isUpperCase())
 
         // Точка, запятая и прочие разделители заканчивают слово так же, как пробел.
@@ -30,7 +37,7 @@ internal class TextInputDelegate(
         }
 
         val styled = state.activeFont.apply(char)
-        editText(typeEffect(styled)) { query -> query + char }
+        editText(typeEffect(styled, typedKeys(character.text(isUpperCase = false), touch))) { query -> query + char }
 
         // Сброс одноразового Shift и автозамены — одним reduce: на каждый символ их и так хватает.
         val isSearch = state.layer == KeyboardLayer.EMOJI_SEARCH
@@ -49,13 +56,13 @@ internal class TextInputDelegate(
     }
 
     /** `setComposingText` заменяет всю область компоновки, поэтому черновик шлём целиком. */
-    private suspend fun KeyboardSyntax.typeEffect(styled: String): KeyboardSideEffect.Input {
+    private suspend fun KeyboardSyntax.typeEffect(styled: String, typed: List<TypedKey>): KeyboardSideEffect.Input {
         if (!state.canStartComposing || !styled.isWordText()) {
             closeComposing()
             return KeyboardSideEffect.Input.CommitText(styled)
         }
 
-        val composing = state.composing.let { it.copy(text = it.text + styled) }
+        val composing = state.composing.let { it.copy(text = it.text + styled, touches = it.touches + typed) }
         reduce { state.copy(composing = composing) }
 
         return KeyboardSideEffect.Input.SetComposingText(composing.text, composing.hasCorrection)
@@ -245,7 +252,10 @@ internal class TextInputDelegate(
         val composing = state.composing
         if (!composing.isActive) return false
 
-        val shortened = composing.copy(text = composing.text.dropLastSymbol())
+        val shortened = composing.copy(
+            text = composing.text.dropLastSymbol(),
+            touches = composing.touches.dropLast(1),
+        )
         postSideEffect(
             KeyboardSideEffect.Input.SetComposingText(shortened.text, shortened.hasCorrection)
         )
@@ -340,6 +350,17 @@ internal class TextInputDelegate(
 
     /** Стилизованная буква — суррогатная пара или буква со знаками стиля, поэтому убираем её целиком. */
     private fun String.dropLastSymbol(): String = dropLast(StyledText.lastSymbolLength(this))
+
+    /**
+     * Касание — по одному на букву черновика: Т9 сверяет их со словом буква в букву.
+     * Символ из нескольких букв или ввод без касания — центр клавиши.
+     */
+    private fun typedKeys(plain: String, touch: Offset): List<TypedKey> =
+        if (plain.length == 1 && touch.isSpecified) {
+            listOf(TypedKey(plain[0], touch.x, touch.y))
+        } else {
+            plain.map(::TypedKey)
+        }
 
     private fun String.isWordText(): Boolean = all(TextContext.Companion::isWordChar)
 

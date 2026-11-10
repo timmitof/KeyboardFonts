@@ -43,7 +43,7 @@ internal class KeyboardViewModel(
 
     override fun onEvent(event: KeyboardEvent) {
         when (event) {
-            is KeyboardEvent.OnKeySelect -> intent { with(textInputDelegate) { typeCharacter(event.character) } }
+            is KeyboardEvent.OnKeySelect -> intent { with(textInputDelegate) { typeCharacter(event.character, event.touch) } }
             is KeyboardEvent.OnSpace -> intent { with(textInputDelegate) { typeSpace() } }
             is KeyboardEvent.OnCursorMove -> intent { with(textInputDelegate) { moveCursor(event.horizontal, event.vertical) } }
             is KeyboardEvent.OnCursorModeChange -> intent { with(textInputDelegate) { setCursorMode(event.active) } }

@@ -2,6 +2,7 @@ package kg.timmitof.keyboard.presentation.screens.keyboard.states
 
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Stable
+import androidx.compose.ui.geometry.Offset
 import kg.timmitof.core.ui.base.BaseEvent
 import kg.timmitof.core.ui.base.BaseSideEffect
 import kg.timmitof.core.ui.base.BaseState
@@ -21,6 +22,7 @@ import kg.timmitof.keyboard.domain.model.KeyboardSettings
 import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
 import kg.timmitof.keyboard.domain.model.KeyboardToggle
 import kg.timmitof.keyboard.suggestion.domain.model.TextContext
+import kg.timmitof.keyboard.suggestion.domain.model.TypedKey
 import kg.timmitof.keyboard.suggestion.domain.model.WordSuggestion
 
 @Stable
@@ -132,10 +134,12 @@ internal sealed class ClipboardAction {
     data object ClearRecent : ClipboardAction()
 }
 
+/** @param touches касания по буквам черновика, одно на букву: по ним Т9 ищет промахи пальцем. */
 @Stable
 internal data class ComposingText(
     val text: String = "",
     val hasCorrection: Boolean = false,
+    val touches: List<TypedKey> = emptyList(),
 ) {
     val isActive: Boolean get() = text.isNotEmpty()
 }
@@ -188,7 +192,7 @@ sealed class KeyboardSideEffect : BaseSideEffect.UiSideEffect() {
 }
 
 internal sealed class KeyboardEvent : BaseEvent.UiEvent() {
-    data class OnKeySelect(val character: KeyCharacter) : KeyboardEvent()
+    data class OnKeySelect(val character: KeyCharacter, val touch: Offset = Offset.Unspecified) : KeyboardEvent()
     data class OnEmojiSelect(val emoji: String) : KeyboardEvent()
     data class OnEmojiVariantSelect(val base: String, val variant: String) : KeyboardEvent()
     data object OnInputSessionChange : KeyboardEvent()

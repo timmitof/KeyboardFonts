@@ -12,6 +12,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.unit.Dp
@@ -212,12 +213,17 @@ fun Modifier.spaceCursorClickable(
     }
 }
 
-/** [onHoldStart] = `null` — у клавиши нет вариантов, зажатие ничего не делает. */
+/**
+ * [onHoldStart] = `null` — у клавиши нет вариантов, зажатие ничего не делает.
+ *
+ * [onTap] получает точку касания: смещение от центра в долях размера, `-0.5..0.5` по осям.
+ * Берётся точка опускания пальца — к отпусканию он успевает съехать.
+ */
 fun Modifier.keyClickable(
     interactionSource: MutableInteractionSource,
     holdDelayMillis: Long = 350L,
     onPress: () -> Unit = {},
-    onTap: () -> Unit,
+    onTap: (touch: Offset) -> Unit,
     onHoldStart: (() -> Unit)? = null,
     onPickChange: ((offsetPx: Float) -> Unit)? = null,
     onPickFinish: ((offsetPx: Float) -> Unit)? = null,
@@ -262,13 +268,20 @@ fun Modifier.keyClickable(
 
                 holdJob?.cancel()
 
-                if (holdFired) currentOnPickFinish?.invoke(totalDx) else currentOnTap()
+                if (holdFired) {
+                    currentOnPickFinish?.invoke(totalDx)
+                } else {
+                    currentOnTap(down.position.relativeToCenter(size.width, size.height))
+                }
 
                 launch { interactionSource.emit(PressInteraction.Release(press)) }
             }
         }
     }
 }
+
+private fun Offset.relativeToCenter(width: Int, height: Int): Offset =
+    if (width <= 0 || height <= 0) Offset.Zero else Offset(x / width - 0.5f, y / height - 0.5f)
 
 /** Клик без индикации; interactionSource запоминается внутри, не нужно создавать его на каждом месте вызова. */
 fun Modifier.plainClickable(onClick: () -> Unit): Modifier = composed {
