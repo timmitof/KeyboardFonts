@@ -51,10 +51,10 @@ class SpatialModelTest {
     }
 
     @Test
-    fun `слово другой длины или с тремя заменами бонуса не получает`() {
+    fun `слово на две буквы короче или с тремя заменами бонуса не получает`() {
         val model = SpatialModel.of(qwerty, query = "qwer", touches = emptyList())
 
-        assertEquals(0, model.bonus("qwe"))
+        assertEquals(0, model.bonus("qw"))
         assertEquals(0, model.bonus("wert"))
     }
 
@@ -102,6 +102,40 @@ class SpatialModelTest {
 
         assertTrue(onEdge.toString(), "hello" in onEdge)
         assertFalse(inCenter.toString(), "hello" in inCenter)
+    }
+
+    @Test
+    fun `лишняя буква — двойное касание или клавиша рядом с соседней буквой`() {
+        val model = SpatialModel.of(qwerty, query = "thhre", touches = emptyList())
+
+        assertEquals(SpatialModel.REPEAT_BONUS, SpatialModel.of(qwerty, "thhe", emptyList()).bonus("the"))
+        // «r» рядом с «e»: задели, нажимая «e».
+        assertEquals(SpatialModel.NEIGHBOR_BONUS, SpatialModel.of(qwerty, "thre", emptyList()).bonus("the"))
+        // «p» далеко и от «h», и от «e».
+        assertEquals(0, SpatialModel.of(qwerty, "thpe", emptyList()).bonus("the"))
+        // Две лишние — уже не промах пальцем.
+        assertEquals(0, model.bonus("the"))
+    }
+
+    @Test
+    fun `лишняя буква у самой соседней клавиши дает больше, чем в дальнем краю`() {
+        val nearE = SpatialModel.of(qwerty, "thre", touches("th", TypedKey('r', offsetX = -0.48f)) + TypedKey('e'))
+        val farFromE = SpatialModel.of(qwerty, "thre", touches("th", TypedKey('r', offsetX = 0.45f)) + TypedKey('e'))
+
+        assertTrue(nearE.bonus("the") > SpatialModel.NEIGHBOR_BONUS)
+        assertTrue(farFromE.bonus("the") < SpatialModel.NEIGHBOR_BONUS)
+    }
+
+    @Test
+    fun `пропущенная буква получает бонус, только если она удвоенная`() {
+        assertEquals(SpatialModel.REPEAT_BONUS, SpatialModel.of(qwerty, "leter", emptyList()).bonus("letter"))
+        assertEquals(0, SpatialModel.of(qwerty, "lter", emptyList()).bonus("later"))
+    }
+
+    @Test
+    fun `начало слова сравнивается с учетом лишней и пропущенной буквы`() {
+        assertEquals(SpatialModel.REPEAT_BONUS, SpatialModel.of(qwerty, "thhes", emptyList()).prefixBonus("these"))
+        assertEquals(SpatialModel.REPEAT_BONUS, SpatialModel.of(qwerty, "lete", emptyList()).prefixBonus("letters"))
     }
 
     private fun touches(centered: String, last: TypedKey): List<TypedKey> =

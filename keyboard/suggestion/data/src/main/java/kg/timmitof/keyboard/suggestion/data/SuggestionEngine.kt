@@ -154,7 +154,7 @@ class SuggestionEngine @Inject constructor() {
                 offerPrefixTypo(
                     word = correction.word,
                     score = base - typoPenalty(correction.distance) +
-                            spatial.bonus(correction.word.take(query.length)),
+                            spatial.prefixBonus(correction.word),
                 )
             }
         }

@@ -8,13 +8,19 @@ import kotlin.math.exp
 import kotlin.math.roundToInt
 
 /**
- * Насколько замена буквы похожа на промах пальцем. Палец ложится вокруг центра клавиши
+ * Насколько опечатка похожа на промах пальцем.
+ *
+ * Замена буквы. Палец ложится вокруг центра клавиши
  * нормальным разбросом, поэтому вероятность «хотел нажать K, попал сюда» — гауссиана от расстояния
  * до центра K. Отношение её к той же величине для нажатой клавиши и есть бонус замене:
  * ткнул в край «к» у самой «е» — замена на «е» почти бесплатна, попал в центр «к» — почти не помогает.
  *
  * Без точек касания (ввод не с клавиш, черновик разошёлся с текстом) — прежнее правило:
  * соседние клавиши получают постоянный бонус.
+ *
+ * Лишняя буква: палец стукнул клавишу дважды («приввет») или задел соседнюю, нажимая букву рядом
+ * («привнет» — «н» у самой «в»). Пропущенная — только удвоенная буква, нажатая один раз («клас»):
+ * у потерянного касания точки нет, и о других пропусках пальцы ничего не говорят.
  */
 internal class SpatialModel private constructor(
     private val geometry: KeyGeometry?,
@@ -22,13 +28,27 @@ internal class SpatialModel private constructor(
     private val touches: Array<KeyPoint>?,
 ) {
 
-    /**
-     * Бонус слову той же длины, что набранное, за буквы, заменённые соседними.
-     * Больше [MAX_SUBSTITUTIONS] замен — уже не промах пальцем, бонуса нет.
-     */
+    /** Бонус исправлению [word]: замены, одна лишняя или одна пропущенная буква. Иные правки — 0. */
     fun bonus(word: String): Int {
-        if (geometry == null || word.length != query.length) return 0
+        if (geometry == null) return 0
 
+        return when (word.length - query.length) {
+            0 -> substitutionsBonus(word)
+            -1 -> extraLetterBonus(word)
+            1 -> missedLetterBonus(word)
+            else -> 0
+        }
+    }
+
+    /**
+     * Бонус слову, чьё начало — исправление набранного. Начало берём той длины, что даёт лучший бонус:
+     * при лишней букве оно на одну короче набранного, при пропущенной — на одну длиннее.
+     */
+    fun prefixBonus(word: String): Int =
+        PREFIX_LENGTH_SHIFTS.maxOf { shift -> bonus(word.take(query.length + shift)) }
+
+    /** Больше [MAX_SUBSTITUTIONS] замен — уже не промах пальцем, бонуса нет. */
+    private fun substitutionsBonus(word: String): Int {
         var mismatches = 0
         var total = 0
         query.indices.forEach { index ->
@@ -62,6 +82,38 @@ internal class SpatialModel private constructor(
             beams = (beams + expanded).sortedByDescending { it.likelihood }.take(MAX_VARIANTS + 1)
         }
         return beams.filter { it.substitutions > 0 }.map { it.prefix }
+    }
+
+    /** Лишняя буква может стоять в нескольких местах («приввет»): берём лучшее объяснение. */
+    private fun extraLetterBonus(word: String): Int {
+        var best = 0
+        query.indices.forEach { index ->
+            val isRemovable = query.regionMatches(0, word, 0, index) &&
+                    query.regionMatches(index + 1, word, index, word.length - index)
+            if (isRemovable) best = maxOf(best, extraTouchBonus(index))
+        }
+        return best
+    }
+
+    /** Лишнее касание [index] — повтор соседней буквы или промах по клавише рядом с ней. */
+    private fun extraTouchBonus(index: Int): Int {
+        val extra = query[index]
+        val around = listOfNotNull(query.getOrNull(index - 1), query.getOrNull(index + 1))
+        if (extra in around) return REPEAT_BONUS
+
+        return around.maxOfOrNull { letter -> substitutionBonus(index, letter) } ?: 0
+    }
+
+    /** Пропущена буква, стоявшая рядом с такой же: удвоенную нажали один раз. */
+    private fun missedLetterBonus(word: String): Int {
+        word.indices.forEach { index ->
+            val isMissed = word.regionMatches(0, query, 0, index) &&
+                    word.regionMatches(index + 1, query, index, query.length - index)
+            if (isMissed && (word.getOrNull(index - 1) == word[index] || word.getOrNull(index + 1) == word[index])) {
+                return REPEAT_BONUS
+            }
+        }
+        return 0
     }
 
     private fun substitutionBonus(index: Int, intended: Char): Int {
@@ -147,5 +199,10 @@ internal class SpatialModel private constructor(
 
         /** Без точки касания: соседняя клавиша. Совпадает с прежним бонусом за соседство. */
         const val NEIGHBOR_BONUS = 120
+
+        /** Двойное касание одной клавиши или удвоенная буква, нажатая один раз. */
+        const val REPEAT_BONUS = NEIGHBOR_BONUS
+
+        private val PREFIX_LENGTH_SHIFTS = intArrayOf(-1, 0, 1)
     }
 }
