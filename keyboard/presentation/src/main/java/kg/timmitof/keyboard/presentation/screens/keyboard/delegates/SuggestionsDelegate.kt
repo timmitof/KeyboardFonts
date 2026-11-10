@@ -6,8 +6,10 @@ import kg.timmitof.keyboard.suggestion.domain.model.KeyGeometry
 import kg.timmitof.keyboard.suggestion.domain.model.SuggestionRequest
 import kg.timmitof.keyboard.suggestion.domain.model.keyGeometry
 import kg.timmitof.keyboard.suggestion.domain.model.TextContext
+import kg.timmitof.keyboard.suggestion.domain.model.TypingEvent
 import kg.timmitof.keyboard.suggestion.domain.model.WordSuggestion
 import kg.timmitof.keyboard.suggestion.domain.repository.SuggestionRepository
+import kg.timmitof.keyboard.suggestion.domain.repository.TypingStatsRepository
 import kg.timmitof.keyboard.presentation.screens.keyboard.KeyboardSyntax
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.CorrectionRejection
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardSideEffect
@@ -28,6 +30,7 @@ import kotlinx.coroutines.flow.mapLatest
  */
 internal class SuggestionsDelegate(
     private val suggestionRepository: SuggestionRepository,
+    private val typingStatsRepository: TypingStatsRepository,
 ) {
 
     private val requests = MutableStateFlow<SuggestionRequest?>(null)
@@ -177,8 +180,16 @@ internal class SuggestionsDelegate(
 
     suspend fun prefetch(languageCode: String) = suggestionRepository.prefetch(languageCode)
 
-    /** Сбрасывает выученное на диск при завершении сессии ввода. */
-    suspend fun flush() = suggestionRepository.flush()
+    /** Считаем только там, где Т9 работает: в паролях и без словаря автозамене нечего оценивать. */
+    fun record(state: KeyboardState, event: TypingEvent) {
+        if (state.allowsSuggestions) typingStatsRepository.record(event)
+    }
+
+    /** Сбрасывает выученное и статистику на диск при завершении сессии ввода. */
+    suspend fun flush() {
+        suggestionRepository.flush()
+        typingStatsRepository.flush()
+    }
 
     /**
      * Shift решаем только на границе слова: внутри слова он мог быть поднят вручную (имя).

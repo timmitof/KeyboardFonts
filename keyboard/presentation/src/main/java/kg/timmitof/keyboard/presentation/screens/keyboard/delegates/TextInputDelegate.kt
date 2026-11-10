@@ -6,6 +6,7 @@ import kg.timmitof.keyboard.domain.model.KeyCharacter
 import kg.timmitof.keyboard.font.domain.model.StyledText
 import kg.timmitof.keyboard.suggestion.domain.model.TextContext
 import kg.timmitof.keyboard.suggestion.domain.model.TypedKey
+import kg.timmitof.keyboard.suggestion.domain.model.TypingEvent
 import kg.timmitof.keyboard.suggestion.domain.model.WordSuggestion
 import kg.timmitof.keyboard.presentation.screens.keyboard.KeyboardSyntax
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.AutoCorrection
@@ -71,6 +72,7 @@ internal class TextInputDelegate(
     suspend fun KeyboardSyntax.applySuggestion(suggestion: WordSuggestion) {
         val styled = state.activeFont.apply(suggestion.text)
         replaceWord("$styled ")
+        recordPick(suggestion)
 
         suggestionsDelegate.learnWord(state, suggestion.text, isDeliberate = true)
         reduce { state.copy(suggestions = emptyList(), suggestionsWord = "", autoCorrection = null) }
@@ -125,6 +127,7 @@ internal class TextInputDelegate(
             // Предыдущее слово берём до правки снимка: при отмене пару надо разучить ровно ту же.
             val previousWord = state.textContext.previousWord
             val wasLearned = suggestionsDelegate.learnWord(state, correction.text)
+            suggestionsDelegate.record(state, TypingEvent.AutoCorrected)
             reduce {
                 state.copy(
                     suggestions = emptyList(),
@@ -147,9 +150,15 @@ internal class TextInputDelegate(
         } else {
             closeComposing()
             postSideEffect(KeyboardSideEffect.Input.CommitText(separator))
-            if (typed.isNotEmpty()) learnTyped(typed)
+            if (typed.isNotEmpty()) {
+                learnTyped(typed)
+                suggestionsDelegate.record(state, TypingEvent.WordKept)
+            }
 
-            forgetAutoCorrection()
+            val keptWord = (typed + separator).takeIf { typed.isNotEmpty() }
+            if (state.autoCorrection != null || state.keptWord != keptWord) {
+                reduce { state.copy(autoCorrection = null, keptWord = keptWord) }
+            }
             with(suggestionsDelegate) { applyLocalEdit { it.appending(separator) } }
         }
     }
@@ -240,6 +249,7 @@ internal class TextInputDelegate(
 
     suspend fun KeyboardSyntax.deleteBackward() {
         if (undoAutoCorrection()) return
+        checkKeptWordErased()
         if (shrinkComposing()) return
 
         editText(KeyboardSideEffect.Input.DeleteBackward) { query ->
@@ -299,8 +309,30 @@ internal class TextInputDelegate(
         with(suggestionsDelegate) {
             applyLocalEdit { it.removingLast(correction.corrected.length).appending(correction.original) }
         }
-        correction.rejection?.let { suggestionsDelegate.rejectAutoCorrection(state, it) }
+        correction.rejection?.let {
+            suggestionsDelegate.rejectAutoCorrection(state, it)
+            suggestionsDelegate.record(state, TypingEvent.AutoCorrectionUndone)
+        }
         return true
+    }
+
+    /** Стирают сразу за словом, которое Т9 оставил как есть, — вероятно, в нём ошибка. */
+    private suspend fun KeyboardSyntax.checkKeptWordErased() {
+        val keptWord = state.keptWord ?: return
+        if (state.textContext.before.endsWith(keptWord)) {
+            suggestionsDelegate.record(state, TypingEvent.KeptWordErased)
+        }
+        reduce { state.copy(keptWord = null) }
+    }
+
+    /** Место считаем по списку движка: у дописываемого слова 0 — само набранное. */
+    private fun KeyboardSyntax.recordPick(suggestion: WordSuggestion) {
+        val event = if (state.suggestionsWord.isEmpty()) {
+            TypingEvent.PredictionPicked
+        } else {
+            TypingEvent.SuggestionPicked(state.suggestions.indexOf(suggestion))
+        }
+        suggestionsDelegate.record(state, event)
     }
 
     private suspend fun KeyboardSyntax.forgetAutoCorrection() {

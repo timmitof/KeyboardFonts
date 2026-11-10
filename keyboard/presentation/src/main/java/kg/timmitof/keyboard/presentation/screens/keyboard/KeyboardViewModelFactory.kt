@@ -9,6 +9,7 @@ import kg.timmitof.keyboard.domain.repository.KeyboardLayoutRepository
 import kg.timmitof.keyboard.domain.repository.KeyboardSettingsRepository
 import kg.timmitof.keyboard.domain.repository.LanguageRepository
 import kg.timmitof.keyboard.suggestion.domain.repository.SuggestionRepository
+import kg.timmitof.keyboard.suggestion.domain.repository.TypingStatsRepository
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.ClipboardDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.EmojiDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.FieldContextDelegate
@@ -25,6 +26,7 @@ class KeyboardViewModelFactory(
     private val languageRepository: LanguageRepository,
     private val fontRepository: FontRepository,
     private val suggestionRepository: SuggestionRepository,
+    private val typingStatsRepository: TypingStatsRepository,
     private val keyboardSettingsRepository: KeyboardSettingsRepository,
     private val clipboardRepository: ClipboardRepository,
 ) : ViewModelProvider.Factory {
@@ -33,7 +35,7 @@ class KeyboardViewModelFactory(
         if (modelClass.isAssignableFrom(KeyboardViewModel::class.java)) {
             val layerDelegate = LayerDelegate(keyboardLayoutRepository)
             val emojiDelegate = EmojiDelegate(emojiRepository, layerDelegate)
-            val suggestionsDelegate = SuggestionsDelegate(suggestionRepository)
+            val suggestionsDelegate = SuggestionsDelegate(suggestionRepository, typingStatsRepository)
 
             @Suppress("UNCHECKED_CAST")
             return KeyboardViewModel(

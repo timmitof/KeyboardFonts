@@ -39,16 +39,60 @@ internal class SpatialModel private constructor(
         return total
     }
 
+    /**
+     * Начала слова, где буквы заменены соседними, в которые палец почти попал: касание легло
+     * между клавишами, и точный префикс может оказаться не тем. Самые вероятные первыми, без самого [query].
+     * Без точек касания вариантов нет: по центру клавиши гадать не о чем.
+     */
+    fun prefixVariants(): List<String> {
+        val geometry = geometry ?: return emptyList()
+        if (touches == null || query.length < MIN_VARIANT_LENGTH) return emptyList()
+
+        var beams = listOf(Variant(query, likelihood = 1f, substitutions = 0))
+        query.indices.forEach { index ->
+            val alternatives = geometry.letters.mapNotNull { char ->
+                if (char == query[index]) return@mapNotNull null
+                likelihood(index, char)?.takeIf { it >= MIN_VARIANT_LIKELIHOOD }?.let { char to it }
+            }
+            if (alternatives.isEmpty()) return@forEach
+
+            val expanded = beams.filter { it.substitutions < MAX_SUBSTITUTIONS }.flatMap { beam ->
+                alternatives.map { (char, likelihood) -> beam.replaced(index, char, likelihood) }
+            }
+            beams = (beams + expanded).sortedByDescending { it.likelihood }.take(MAX_VARIANTS + 1)
+        }
+        return beams.filter { it.substitutions > 0 }.map { it.prefix }
+    }
+
     private fun substitutionBonus(index: Int, intended: Char): Int {
+        likelihood(index, intended)?.let { return (MAX_TOUCH_BONUS * it).roundToInt() }
+
         val geometry = geometry ?: return 0
         val typedCenter = geometry.centerOf(query[index]) ?: return 0
         val intendedCenter = geometry.centerOf(intended) ?: return 0
+        return if (typedCenter.isNeighborOf(intendedCenter)) NEIGHBOR_BONUS else 0
+    }
 
-        val touch = touches?.get(index) ?: return if (typedCenter.isNeighborOf(intendedCenter)) NEIGHBOR_BONUS else 0
+    /**
+     * exp(-(d²(K) - d²(нажатая)) / 2): во сколько раз касание вероятнее для K, чем для нажатой клавиши,
+     * не больше 1. `null` — нет точки касания или буквы на раскладке.
+     */
+    private fun likelihood(index: Int, intended: Char): Float? {
+        val touch = touches?.get(index) ?: return null
+        val geometry = geometry ?: return null
+        val typedCenter = geometry.centerOf(query[index]) ?: return null
+        val intendedCenter = geometry.centerOf(intended) ?: return null
 
-        // exp(-(d²(K) - d²(нажатая)) / 2): во сколько раз касание вероятнее для K, чем для нажатой клавиши.
-        val likelihood = exp((touch.spread(typedCenter) - touch.spread(intendedCenter)) / 2f)
-        return (MAX_TOUCH_BONUS * likelihood.coerceAtMost(1f)).roundToInt()
+        return exp((touch.spread(typedCenter) - touch.spread(intendedCenter)) / 2f).coerceAtMost(1f)
+    }
+
+    private class Variant(val prefix: String, val likelihood: Float, val substitutions: Int) {
+
+        fun replaced(index: Int, char: Char, charLikelihood: Float) = Variant(
+            prefix = StringBuilder(prefix).apply { setCharAt(index, char) }.toString(),
+            likelihood = likelihood * charLikelihood,
+            substitutions = substitutions + 1,
+        )
     }
 
     /** Квадрат расстояния в единицах разброса пальца; по вертикали своя шкала — ряд выше клавиши. */
@@ -82,6 +126,14 @@ internal class SpatialModel private constructor(
         private fun Char.foldToDictionary(): Char = if (this == 'ё') 'е' else this
 
         const val MAX_SUBSTITUTIONS = 2
+
+        /** Однобуквенный префикс — полсловаря: вариантами не перебираем. */
+        const val MIN_VARIANT_LENGTH = 2
+
+        /** Касание не дальше ~четверти клавиши от границы с соседом. */
+        const val MIN_VARIANT_LIKELIHOOD = 0.5f
+
+        const val MAX_VARIANTS = 4
 
         /** Разброс касаний: доля ширины клавиши и высоты ряда. */
         const val SIGMA_X = 0.6f

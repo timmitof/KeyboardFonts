@@ -51,6 +51,8 @@ internal data class KeyboardState(
     val suggestionsWord: String = "",
     val autoCorrection: AutoCorrection? = null,
     val composing: ComposingText = ComposingText(),
+    /** Слово с разделителем, оставленное без автозамены: Backspace сразу после него — промах Т9 (статистика). */
+    val keptWord: String? = null,
     val isCursorMode: Boolean = false,
     val settings: KeyboardSettings = KeyboardSettings(),
     val keyboardOverlay: KeyboardOverlay? = null,

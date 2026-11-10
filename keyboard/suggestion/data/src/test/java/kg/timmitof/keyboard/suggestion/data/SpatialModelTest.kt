@@ -1,8 +1,12 @@
 package kg.timmitof.keyboard.suggestion.data
 
+import kg.timmitof.keyboard.suggestion.domain.model.SuggestionRequest
+import kg.timmitof.keyboard.suggestion.domain.model.TextContext
 import kg.timmitof.keyboard.suggestion.domain.model.TypedKey
 import kg.timmitof.keyboard.suggestion.domain.model.keyGeometry
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -57,6 +61,47 @@ class SpatialModelTest {
     @Test
     fun `без геометрии бонуса нет`() {
         assertEquals(0, SpatialModel.of(null, "thw", emptyList()).bonus("the"))
+    }
+
+    @Test
+    fun `касание у границы дает вариант префикса с соседней буквой`() {
+        val edge = SpatialModel.of(qwerty, "je", listOf(TypedKey('j', offsetX = -0.48f), TypedKey('e')))
+
+        assertEquals(listOf("he"), edge.prefixVariants())
+    }
+
+    @Test
+    fun `касание в центр и ввод без касаний вариантов не дают`() {
+        val center = SpatialModel.of(qwerty, "je", touches("j", TypedKey('e')))
+        val untouched = SpatialModel.of(qwerty, "je", emptyList())
+
+        assertTrue(center.prefixVariants().isEmpty())
+        assertTrue(untouched.prefixVariants().isEmpty())
+    }
+
+    @Test
+    fun `дописывает слово с соседней первой буквой, если палец лег на границу`() {
+        // Точных дополнений хватает — поиск опечаток в начале слова не включается, работает только касание.
+        val model = modelOf("hello" to 600, "jelly" to 100, "jeans" to 100, "jest" to 100)
+
+        fun suggest(touches: List<TypedKey>) = runBlocking {
+            SuggestionEngine().suggest(
+                request = SuggestionRequest(
+                    languageCode = "en_us",
+                    context = TextContext(before = "je"),
+                    geometry = qwerty,
+                    touches = touches,
+                ),
+                model = model,
+                user = UserLanguageModel(),
+            ).map { it.text }
+        }
+
+        val onEdge = suggest(listOf(TypedKey('j', offsetX = -0.48f), TypedKey('e')))
+        val inCenter = suggest(touches("j", TypedKey('e')))
+
+        assertTrue(onEdge.toString(), "hello" in onEdge)
+        assertFalse(inCenter.toString(), "hello" in inCenter)
     }
 
     private fun touches(centered: String, last: TypedKey): List<TypedKey> =

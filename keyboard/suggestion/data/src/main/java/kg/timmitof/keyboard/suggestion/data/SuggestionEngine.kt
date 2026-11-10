@@ -133,6 +133,18 @@ class SuggestionEngine @Inject constructor() {
 
         val expected = expectedAfter(previous, query, model, user, boosts, ::offer)
 
+        // Палец лёг между клавишами — слова и с соседней буквой. Целое слово той же длины — исправление
+        // (может стать автозаменой), длиннее — только подсказка: недописанное автозамена не трогает.
+        spatial.prefixVariants().forEach { variant ->
+            val substitutions = variant.indices.count { variant[it] != query[it] }
+            val touchScore = spatial.bonus(variant) - typoPenalty(substitutions)
+            dictionary.rankByPrefix(variant).forEach { index ->
+                val word = dictionary.wordAt(index)
+                val score = dictionary.scoreAt(index) + touchScore
+                if (!isKnown && word.length == query.length) offer(word, score, substitutions) else offerPrefixTypo(word, score)
+            }
+        }
+
         // Ошибка во 2–4-й букве ломает и точный префикс, и поиск целого слова — строка подсказок пустеет.
         // Ищем слова, чьё начало в одной правке от набранного, но только когда дополнений не хватает.
         val exactCompletions = completions.count { dictionary.lengthAt(it) != query.length }

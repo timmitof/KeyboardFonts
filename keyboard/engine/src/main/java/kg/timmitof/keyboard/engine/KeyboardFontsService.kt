@@ -17,6 +17,7 @@ import kg.timmitof.keyboard.domain.repository.KeyboardLayoutRepository
 import kg.timmitof.keyboard.domain.repository.KeyboardSettingsRepository
 import kg.timmitof.keyboard.domain.repository.LanguageRepository
 import kg.timmitof.keyboard.suggestion.domain.repository.SuggestionRepository
+import kg.timmitof.keyboard.suggestion.domain.repository.TypingStatsRepository
 import kg.timmitof.keyboard.presentation.KeyboardFontsView
 import kg.timmitof.keyboard.presentation.screens.keyboard.KeyboardViewModelFactory
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardSideEffect
@@ -39,6 +40,9 @@ internal class KeyboardFontsService : ComposeInputMethodService() {
 
     @Inject
     lateinit var suggestionRepository: SuggestionRepository
+
+    @Inject
+    lateinit var typingStatsRepository: TypingStatsRepository
 
     @Inject
     lateinit var keyboardSettingsRepository: KeyboardSettingsRepository
@@ -78,6 +82,7 @@ internal class KeyboardFontsService : ComposeInputMethodService() {
             languageRepository = languageRepository,
             fontRepository = fontRepository,
             suggestionRepository = suggestionRepository,
+            typingStatsRepository = typingStatsRepository,
             keyboardSettingsRepository = keyboardSettingsRepository,
             clipboardRepository = clipboardRepository,
         ),

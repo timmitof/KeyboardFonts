@@ -21,12 +21,7 @@ class SpellCorrectorTest {
 
     @Test
     fun `передает исправление в автокоррекцию`() = runBlocking {
-        val dictionary = dictionaryOf("the" to 100)
-        val model = LanguageModel(
-            dictionary = dictionary,
-            bigrams = BigramTable.Empty,
-            spellCorrector = correctorOf(dictionary),
-        )
+        val model = modelOf("the" to 100)
 
         val suggestions = SuggestionEngine().suggest(
             request = SuggestionRequest(
@@ -42,20 +37,4 @@ class SpellCorrectorTest {
     }
 
     /** Файл индекса собирает build-logic, поэтому слова словаря кладём в индекс в памяти с той же логикой поиска. */
-    private fun correctorOf(dictionary: WordDictionary): SpellCorrector {
-        val index = PersonalSpellIndex(dictionary::scoreOf)
-        for (i in 0 until dictionary.size) index.add(dictionary.wordAt(i))
-        return SpellCorrector(
-            dictionaryIndex = index,
-            personal = PersonalSpellIndex(dictionary::scoreOf),
-            isDictionaryWord = dictionary::contains,
-        )
-    }
-
-    private fun dictionaryOf(vararg entries: Pair<String, Int>): WordDictionary =
-        WordDictionary.parse(
-            entries
-                .sortedBy(Pair<String, Int>::first)
-                .joinToString(separator = "\n") { (word, score) -> "$word\t$score" },
-        )
 }

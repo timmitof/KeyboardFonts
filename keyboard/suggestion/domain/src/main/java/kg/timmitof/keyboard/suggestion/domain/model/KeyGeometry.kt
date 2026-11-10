@@ -22,6 +22,9 @@ data class KeyPoint(val x: Float, val y: Float)
  */
 class KeyGeometry private constructor(private val keys: Map<Char, Bounds>) {
 
+    /** Все буквы раскладки. */
+    val letters: Set<Char> get() = keys.keys
+
     fun centerOf(char: Char): KeyPoint? = keys[char]?.let { KeyPoint(it.centerX, it.centerY) }
 
     /** Точка касания [typed] на клавиатуре; `null`, если такой буквы на раскладке нет. */
