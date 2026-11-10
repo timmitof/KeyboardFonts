@@ -1,6 +1,7 @@
 package kg.timmitof.keyboard.suggestion.domain.repository
 
 import kg.timmitof.keyboard.suggestion.domain.model.SuggestionRequest
+import kg.timmitof.keyboard.suggestion.domain.model.TypedKey
 import kg.timmitof.keyboard.suggestion.domain.model.WordSuggestion
 
 interface SuggestionRepository {
@@ -12,8 +13,16 @@ interface SuggestionRepository {
      *
      * @param isDeliberate слово выбрано осознанно (тап по подсказке, заглавная посреди предложения):
      * оно учится сразу, без проверки на опечатку.
+     * @param touches касания букв, если слово набрано как есть: по верным словам калибруется,
+     * куда пользователь попадает по клавишам.
      */
-    suspend fun learn(languageCode: String, previousWord: String, word: String, isDeliberate: Boolean = false)
+    suspend fun learn(
+        languageCode: String,
+        previousWord: String,
+        word: String,
+        isDeliberate: Boolean = false,
+        touches: List<TypedKey> = emptyList(),
+    )
 
     /**
      * Пользователь отменил автозамену [typed] → [corrected]. Откатывает выученное при замене

@@ -3,11 +3,13 @@ package kg.timmitof.keyboard.suggestion.data.repository
 import kg.timmitof.keyboard.suggestion.data.LanguageModel
 import kg.timmitof.keyboard.suggestion.data.LanguageModelLoader
 import kg.timmitof.keyboard.suggestion.data.SuggestionEngine
+import kg.timmitof.keyboard.suggestion.data.TouchCalibration
 import kg.timmitof.keyboard.suggestion.data.UserDictionaryStore
 import kg.timmitof.keyboard.suggestion.data.UserLanguageModel
 import kg.timmitof.keyboard.suggestion.data.isLearnable
 import kg.timmitof.keyboard.suggestion.data.toDictionaryForm
 import kg.timmitof.keyboard.suggestion.domain.model.SuggestionRequest
+import kg.timmitof.keyboard.suggestion.domain.model.TypedKey
 import kg.timmitof.keyboard.suggestion.domain.model.WordSuggestion
 import kg.timmitof.keyboard.suggestion.domain.repository.SuggestionRepository
 import kotlinx.coroutines.CoroutineScope
@@ -45,13 +47,19 @@ class SuggestionRepositoryImpl @Inject constructor(
 
     private val dirtyLanguages = ConcurrentHashMap.newKeySet<String>()
 
+    @Volatile
+    private var calibration: TouchCalibration? = null
+
     override suspend fun suggest(request: SuggestionRequest): List<WordSuggestion> {
         val user = userModel(request.languageCode)
         val model = languageModel(request.languageCode, user)
 
+        // Касания — относительно личного центра клавиш: движок о калибровке не знает.
+        val calibrated = request.copy(touches = calibration().correct(request.touches))
+
         return withContext(Dispatchers.Default) {
             suggestionEngine.suggest(
-                request = request,
+                request = calibrated,
                 model = model,
                 user = user,
             )
@@ -63,6 +71,7 @@ class SuggestionRepositoryImpl @Inject constructor(
         previousWord: String,
         word: String,
         isDeliberate: Boolean,
+        touches: List<TypedKey>,
     ) {
         val learned = word.toDictionaryForm()
         if (!learned.isLearnable()) return
@@ -75,6 +84,10 @@ class SuggestionRepositoryImpl @Inject constructor(
         // Отказ от автозамены — тоже осознанный выбор: такое слово не опечатка.
         val trusted = isDeliberate || user.hasRejected(learned)
         val isSuspicious = !trusted && model.isLikelyTypo(learned)
+
+        // Калибруемся только по верным словам: в опечатке буквы — не те, в которые метили.
+        val isCorrect = model.dictionary.contains(learned) || (user.knows(learned) && !user.isSuspicious(learned))
+        if (isCorrect && touches.spell(learned)) calibration().observe(touches)
         if (user.learn(previous, learned, isSuspicious)) model.spellCorrector.addWord(learned)
         scheduleSave(languageCode)
     }
@@ -116,7 +129,22 @@ class SuggestionRepositoryImpl @Inject constructor(
         dirtyLanguages.toList().forEach { languageCode ->
             if (dirtyLanguages.remove(languageCode)) save(languageCode)
         }
+        saveCalibration()
     }
+
+    private suspend fun calibration(): TouchCalibration =
+        calibration ?: mutex.withLock {
+            calibration ?: userDictionaryStore.loadCalibration().also { calibration = it }
+        }
+
+    private suspend fun saveCalibration() = withContext(NonCancellable) {
+        calibration?.takeIf { it.isDirty }?.let { userDictionaryStore.saveCalibration(it) }
+        Unit
+    }
+
+    /** Касания буква в букву дают слово — иначе черновик разошёлся с текстом. */
+    private fun List<TypedKey>.spell(word: String): Boolean =
+        size == word.length && indices.all { this[it].char.toString().toDictionaryForm() == word[it].toString() }
 
     private suspend fun userModel(languageCode: String): UserLanguageModel =
         userModels[languageCode] ?: mutex.withLock {
@@ -152,7 +180,7 @@ class SuggestionRepositoryImpl @Inject constructor(
     // Запись не отменяем: флаг «грязный» уже снят, отмена потеряла бы выученное.
     private suspend fun save(languageCode: String) = withContext(NonCancellable) {
         userModels[languageCode]?.let { userDictionaryStore.save(languageCode, it) }
-        Unit
+        saveCalibration()
     }
 
     private companion object {

@@ -6,6 +6,7 @@ import kg.timmitof.keyboard.suggestion.domain.model.KeyGeometry
 import kg.timmitof.keyboard.suggestion.domain.model.SuggestionRequest
 import kg.timmitof.keyboard.suggestion.domain.model.keyGeometry
 import kg.timmitof.keyboard.suggestion.domain.model.TextContext
+import kg.timmitof.keyboard.suggestion.domain.model.TypedKey
 import kg.timmitof.keyboard.suggestion.domain.model.TypingEvent
 import kg.timmitof.keyboard.suggestion.domain.model.WordSuggestion
 import kg.timmitof.keyboard.suggestion.domain.repository.SuggestionRepository
@@ -149,9 +150,15 @@ internal class SuggestionsDelegate(
 
     /**
      * @param isDeliberate слово выбрано осознанно — учится сразу, без проверки на опечатку.
+     * @param touches касания букв слова, оставленного как набрано, — для калибровки касаний.
      * @return ушло ли слово в обучение: только тогда его есть что разучивать при отмене автозамены.
      */
-    suspend fun learnWord(state: KeyboardState, word: String, isDeliberate: Boolean = false): Boolean {
+    suspend fun learnWord(
+        state: KeyboardState,
+        word: String,
+        isDeliberate: Boolean = false,
+        touches: List<TypedKey> = emptyList(),
+    ): Boolean {
         val languageCode = state.activeLanguage?.code ?: return false
         if (!state.allowsSuggestions || !state.settings.isLearningEnabled) return false
 
@@ -160,6 +167,7 @@ internal class SuggestionsDelegate(
             previousWord = state.textContext.previousWord,
             word = word,
             isDeliberate = isDeliberate,
+            touches = touches,
         )
         return true
     }

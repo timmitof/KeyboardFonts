@@ -148,10 +148,12 @@ internal class TextInputDelegate(
                 applyLocalEdit { it.removingLast(typed.length).appending(corrected) }
             }
         } else {
+            // Касания черновика берём до его закрытия: слово осталось как набрано — по нему калибруемся.
+            val touches = state.composing.touches
             closeComposing()
             postSideEffect(KeyboardSideEffect.Input.CommitText(separator))
             if (typed.isNotEmpty()) {
-                learnTyped(typed)
+                learnTyped(typed, touches)
                 suggestionsDelegate.record(state, TypingEvent.WordKept)
             }
 
@@ -174,9 +176,9 @@ internal class TextInputDelegate(
     }
 
     /** Заглавная посреди предложения — имя или сокращение: учим сразу, как выбранное осознанно. */
-    private suspend fun KeyboardSyntax.learnTyped(typed: String) {
+    private suspend fun KeyboardSyntax.learnTyped(typed: String, touches: List<TypedKey> = state.composing.touches) {
         val isCapitalized = !state.textContext.isSentenceStart && Character.isUpperCase(typed.codePointAt(0))
-        suggestionsDelegate.learnWord(state, typed, isDeliberate = isCapitalized)
+        suggestionsDelegate.learnWord(state, typed, isDeliberate = isCapitalized, touches = touches)
     }
 
     /** Без черновика границы слова спрашиваем у поля: курсор могли поставить посреди чужого текста. */
