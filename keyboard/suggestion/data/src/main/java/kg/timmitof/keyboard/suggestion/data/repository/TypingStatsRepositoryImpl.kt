@@ -89,6 +89,8 @@ class TypingStatsRepositoryImpl @Inject constructor(
             append(" стёрто после пробела=").append(count(ERASED)).append(" (").append(percent(count(ERASED), kept)).append(" от оставленных)")
             append(" подсказки: ").append(picks.ifEmpty { "—" })
             append(" предсказания=").append(count(PREDICTED))
+            append(" умные зоны: подмен=").append(count(ADAPTED))
+            append(" стёрто=").append(count(ADAPTED_UNDONE)).append(" (").append(percent(count(ADAPTED_UNDONE), count(ADAPTED))).append(')')
         }
     }
 
@@ -102,6 +104,8 @@ class TypingStatsRepositoryImpl @Inject constructor(
             TypingEvent.AutoCorrectionUndone -> UNDONE
             TypingEvent.KeptWordErased -> ERASED
             TypingEvent.PredictionPicked -> PREDICTED
+            TypingEvent.KeyAdapted -> ADAPTED
+            TypingEvent.KeyAdaptationUndone -> ADAPTED_UNDONE
             is TypingEvent.SuggestionPicked -> "$PICKED_PREFIX$position"
         }
 
@@ -115,6 +119,8 @@ class TypingStatsRepositoryImpl @Inject constructor(
         const val UNDONE = "undone"
         const val ERASED = "erased"
         const val PREDICTED = "predicted"
+        const val ADAPTED = "adapted"
+        const val ADAPTED_UNDONE = "adapted_undone"
         const val PICKED_PREFIX = "picked_"
     }
 }

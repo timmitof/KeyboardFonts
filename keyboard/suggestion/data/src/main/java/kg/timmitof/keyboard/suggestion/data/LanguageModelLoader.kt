@@ -26,6 +26,9 @@ class LanguageModelLoader @Inject constructor(
             models[languageCode] ?: read(languageCode).also { models[languageCode] = it }
         }
 
+    /** Уже загруженная модель или `null` — для решений на каждое нажатие, которые не должны ждать загрузки. */
+    internal fun loaded(languageCode: String): LanguageModel? = models[languageCode]
+
     private suspend fun read(languageCode: String): LanguageModel = coroutineScope {
         val startedAt = SystemClock.elapsedRealtime()
 

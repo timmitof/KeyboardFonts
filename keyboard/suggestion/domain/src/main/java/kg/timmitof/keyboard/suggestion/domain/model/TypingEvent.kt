@@ -23,4 +23,10 @@ sealed interface TypingEvent {
 
     /** Выбрано предсказание следующего слова. */
     data object PredictionPicked : TypingEvent
+
+    /** Умные зоны напечатали соседа вместо нажатой буквы. */
+    data object KeyAdapted : TypingEvent
+
+    /** Подменённую букву сразу стёрли — подмена была ошибкой. */
+    data object KeyAdaptationUndone : TypingEvent
 }

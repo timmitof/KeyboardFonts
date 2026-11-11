@@ -7,6 +7,8 @@ import kg.timmitof.keyboard.suggestion.domain.model.SuggestionRequest
 import kg.timmitof.keyboard.suggestion.domain.model.keyGeometry
 import kg.timmitof.keyboard.suggestion.domain.model.TextContext
 import kg.timmitof.keyboard.suggestion.domain.model.TypedKey
+import kg.timmitof.keyboard.presentation.components.keys.letter
+import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardLayer
 import kg.timmitof.keyboard.suggestion.domain.model.TypingEvent
 import kg.timmitof.keyboard.suggestion.domain.model.WordSuggestion
 import kg.timmitof.keyboard.suggestion.domain.repository.SuggestionRepository
@@ -138,11 +140,8 @@ internal class SuggestionsDelegate(
         rows.forEach { keys ->
             row {
                 keys.forEach { slot ->
-                    val letter = (slot as? KeyboardKey.Character)
-                        ?.takeUnless { it.isSpecial }
-                        ?.let { it.output ?: it.labelLower }
-                        ?.singleOrNull()
-                    if (letter != null) key(letter.lowercaseChar(), slot.weight) else gap(slot.weight)
+                    val letter = (slot as? KeyboardKey.Character)?.letter()
+                    if (letter != null) key(letter, slot.weight) else gap(slot.weight)
                 }
             }
         }
@@ -187,6 +186,23 @@ internal class SuggestionsDelegate(
     }
 
     suspend fun prefetch(languageCode: String) = suggestionRepository.prefetch(languageCode)
+
+    /**
+     * Умные зоны клавиш: сосед вместо нажатой буквы или `null`. Только на буквенном слое и при включённом
+     * переключателе — без словаря решать нечем.
+     */
+    suspend fun adaptKey(state: KeyboardState, touch: TypedKey): TypedKey? {
+        if (!state.settings.isAdaptiveKeysEnabled || !state.allowsSuggestions) return null
+        if (state.layer != KeyboardLayer.LETTERS) return null
+        val languageCode = state.activeLanguage?.code ?: return null
+
+        return suggestionRepository.adaptKey(
+            languageCode = languageCode,
+            geometry = geometryOf(state.keyboardLayout),
+            composingWord = state.textContext.composingWord,
+            touch = touch,
+        )
+    }
 
     /** Считаем только там, где Т9 работает: в паролях и без словаря автозамене нечего оценивать. */
     fun record(state: KeyboardState, event: TypingEvent) {

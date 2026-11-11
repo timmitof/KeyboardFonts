@@ -215,6 +215,8 @@ internal fun InputPane(
     val nextWordDescription = stringResource(R.string.input_next_word_description)
     val learnTitle = stringResource(R.string.input_learn_title)
     val learnDescription = stringResource(R.string.input_learn_description)
+    val adaptiveKeysTitle = stringResource(R.string.input_adaptive_keys_title)
+    val adaptiveKeysDescription = stringResource(R.string.input_adaptive_keys_description)
 
     SettingsSection {
         toggle(
@@ -254,6 +256,14 @@ internal fun InputPane(
             isEnabled = isSuggestionsOn,
             checked = settings[KeyboardToggle.LEARN_FROM_INPUT],
             onCheckedChange = { onToggle(KeyboardToggle.LEARN_FROM_INPUT, it) },
+        )
+        toggle(
+            title = adaptiveKeysTitle,
+            description = adaptiveKeysDescription,
+            isNested = true,
+            isEnabled = isSuggestionsOn,
+            checked = settings[KeyboardToggle.ADAPTIVE_KEYS],
+            onCheckedChange = { onToggle(KeyboardToggle.ADAPTIVE_KEYS, it) },
         )
     }
 }

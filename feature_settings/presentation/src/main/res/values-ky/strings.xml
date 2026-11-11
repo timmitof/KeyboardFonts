@@ -99,6 +99,8 @@
     <string name="input_next_word_description">Сөз башталганга чейинки сунуш</string>
     <string name="input_learn_title">Менин текстимден үйрөнүү</string>
     <string name="input_learn_description">Жаңы сөздөр өзү эсте калат</string>
+    <string name="input_adaptive_keys_title">Баскычтардын акылдуу аймактары</string>
+    <string name="input_adaptive_keys_description">Баскычтын четиндеги тамга сөзгө жараша тандалат. Тажрыйбалык</string>
     <string name="languages_header">Активдүү · которулуу тартиби боюнча</string>
     <string name="languages_current">Азыр баскычтопто</string>
     <string name="languages_with_suggestions">Сунуштар жана автооңдоо</string>

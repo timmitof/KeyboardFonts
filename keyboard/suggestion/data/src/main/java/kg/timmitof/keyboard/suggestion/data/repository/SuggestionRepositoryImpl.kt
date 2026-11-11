@@ -1,5 +1,6 @@
 package kg.timmitof.keyboard.suggestion.data.repository
 
+import kg.timmitof.keyboard.suggestion.data.AdaptiveKeys
 import kg.timmitof.keyboard.suggestion.data.LanguageModel
 import kg.timmitof.keyboard.suggestion.data.LanguageModelLoader
 import kg.timmitof.keyboard.suggestion.data.SuggestionEngine
@@ -8,6 +9,7 @@ import kg.timmitof.keyboard.suggestion.data.UserDictionaryStore
 import kg.timmitof.keyboard.suggestion.data.UserLanguageModel
 import kg.timmitof.keyboard.suggestion.data.isLearnable
 import kg.timmitof.keyboard.suggestion.data.toDictionaryForm
+import kg.timmitof.keyboard.suggestion.domain.model.KeyGeometry
 import kg.timmitof.keyboard.suggestion.domain.model.SuggestionRequest
 import kg.timmitof.keyboard.suggestion.domain.model.TypedKey
 import kg.timmitof.keyboard.suggestion.domain.model.WordSuggestion
@@ -115,6 +117,26 @@ class SuggestionRepositoryImpl @Inject constructor(
 
         // Отвергнутое уже в отказах — выучится сразу, без проверки на опечатку.
         learn(languageCode, previousWord, typed)
+    }
+
+    override suspend fun adaptKey(
+        languageCode: String,
+        geometry: KeyGeometry,
+        composingWord: String,
+        touch: TypedKey,
+    ): TypedKey? {
+        val model = languageModelLoader.loaded(languageCode) ?: return null
+        val user = userModels[languageCode] ?: return null
+        val calibrated = calibration().correct(listOf(touch)).single()
+
+        return AdaptiveKeys.resolve(
+            model = model,
+            user = user,
+            geometry = geometry,
+            prefix = composingWord.toDictionaryForm(),
+            touch = touch,
+            calibrated = calibrated,
+        )
     }
 
     override suspend fun prefetch(languageCode: String) {

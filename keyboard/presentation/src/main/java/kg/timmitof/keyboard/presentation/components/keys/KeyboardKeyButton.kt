@@ -76,9 +76,7 @@ internal fun RowScope.KeyboardKeyButton(
     font: KeyboardFont = KeyboardFont.Default,
     onInput: (KeyCharacter, touch: Offset) -> Unit,
 ) {
-    val input = remember(key) {
-        key.output?.let(::KeyCharacter) ?: KeyCharacter(key.labelLower, key.labelUpper)
-    }
+    val input = remember(key) { key.input() }
     val symbols = remember(key) {
         (key.longPress as? LongPressAction.Symbols)?.symbols.orEmpty()
     }

@@ -99,6 +99,8 @@
     <string name="input_next_word_description">Kelimeye başlamadan önce öneri</string>
     <string name="input_learn_title">Yazdıklarımdan öğren</string>
     <string name="input_learn_description">Yeni kelimeler kendiliğinden hatırlanır</string>
+    <string name="input_adaptive_keys_title">Akıllı tuş bölgeleri</string>
+    <string name="input_adaptive_keys_description">Tuş kenarındaki harf kelimeye göre seçilir. Deneysel</string>
     <string name="languages_header">Etkin · geçiş sırasına göre</string>
     <string name="languages_current">Şu anda klavyede</string>
     <string name="languages_with_suggestions">Öneriler ve otomatik düzeltme</string>

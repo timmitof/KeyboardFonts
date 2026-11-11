@@ -1,5 +1,6 @@
 package kg.timmitof.keyboard.suggestion.domain.repository
 
+import kg.timmitof.keyboard.suggestion.domain.model.KeyGeometry
 import kg.timmitof.keyboard.suggestion.domain.model.SuggestionRequest
 import kg.timmitof.keyboard.suggestion.domain.model.TypedKey
 import kg.timmitof.keyboard.suggestion.domain.model.WordSuggestion
@@ -35,6 +36,20 @@ interface SuggestionRepository {
         corrected: String,
         wasLearned: Boolean,
     )
+
+    /**
+     * Умные зоны клавиш: палец лёг у самого края клавиши, а слово с соседней буквой продолжается
+     * заметно вероятнее — вернуть соседа. Решает словарь по началу слова [composingWord].
+     *
+     * @return буква-сосед с тем же касанием относительно её клавиши; `null` — печатать нажатую.
+     * Модель языка ещё не загружена — тоже `null`: ввод её не ждёт.
+     */
+    suspend fun adaptKey(
+        languageCode: String,
+        geometry: KeyGeometry,
+        composingWord: String,
+        touch: TypedKey,
+    ): TypedKey?
 
     suspend fun prefetch(languageCode: String)
 

@@ -125,17 +125,11 @@ internal class SpatialModel private constructor(
         return if (typedCenter.isNeighborOf(intendedCenter)) NEIGHBOR_BONUS else 0
     }
 
-    /**
-     * exp(-(d²(K) - d²(нажатая)) / 2): во сколько раз касание вероятнее для K, чем для нажатой клавиши,
-     * не больше 1. `null` — нет точки касания или буквы на раскладке.
-     */
+    /** `null` — нет точки касания или буквы на раскладке. */
     private fun likelihood(index: Int, intended: Char): Float? {
         val touch = touches?.get(index) ?: return null
         val geometry = geometry ?: return null
-        val typedCenter = geometry.centerOf(query[index]) ?: return null
-        val intendedCenter = geometry.centerOf(intended) ?: return null
-
-        return exp((touch.spread(typedCenter) - touch.spread(intendedCenter)) / 2f).coerceAtMost(1f)
+        return likelihood(geometry, touch, query[index], intended)
     }
 
     private class Variant(val prefix: String, val likelihood: Float, val substitutions: Int) {
@@ -147,17 +141,28 @@ internal class SpatialModel private constructor(
         )
     }
 
-    /** Квадрат расстояния в единицах разброса пальца; по вертикали своя шкала — ряд выше клавиши. */
-    private fun KeyPoint.spread(center: KeyPoint): Float {
-        val dx = (x - center.x) / SIGMA_X
-        val dy = (y - center.y) / SIGMA_Y
-        return dx * dx + dy * dy
-    }
-
     private fun KeyPoint.isNeighborOf(other: KeyPoint): Boolean =
         this != other && abs(x - other.x) < NEIGHBOR_REACH && abs(y - other.y) < NEIGHBOR_REACH
 
     companion object {
+
+        /**
+         * exp(-(d²(K) - d²(нажатая)) / 2): во сколько раз касание [touch] вероятнее для клавиши [intended],
+         * чем для нажатой [typed], не больше 1. `null` — какой-то из букв нет на раскладке.
+         */
+        fun likelihood(geometry: KeyGeometry, touch: KeyPoint, typed: Char, intended: Char): Float? {
+            val typedCenter = geometry.centerOf(typed) ?: return null
+            val intendedCenter = geometry.centerOf(intended) ?: return null
+
+            return exp((touch.spread(typedCenter) - touch.spread(intendedCenter)) / 2f).coerceAtMost(1f)
+        }
+
+        /** Квадрат расстояния в единицах разброса пальца; по вертикали своя шкала — ряд выше клавиши. */
+        private fun KeyPoint.spread(center: KeyPoint): Float {
+            val dx = (x - center.x) / SIGMA_X
+            val dy = (y - center.y) / SIGMA_Y
+            return dx * dx + dy * dy
+        }
 
         /**
          * [touches] берутся, только если буква в букву совпадают с [query]: иначе черновик разошёлся

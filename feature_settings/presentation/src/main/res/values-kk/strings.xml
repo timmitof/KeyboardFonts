@@ -99,6 +99,8 @@
     <string name="input_next_word_description">Сөз басталғанға дейінгі ұсыныс</string>
     <string name="input_learn_title">Менің мәтінімнен үйрену</string>
     <string name="input_learn_description">Жаңа сөздер өзі есте сақталады</string>
+    <string name="input_adaptive_keys_title">Пернелердің ақылды аймақтары</string>
+    <string name="input_adaptive_keys_description">Перне шетіндегі әріп сөзге қарай таңдалады. Тәжірибелік</string>
     <string name="languages_header">Белсенді · ауысу ретімен</string>
     <string name="languages_current">Қазір пернетақтада</string>
     <string name="languages_with_suggestions">Ұсыныстар мен автотүзету</string>

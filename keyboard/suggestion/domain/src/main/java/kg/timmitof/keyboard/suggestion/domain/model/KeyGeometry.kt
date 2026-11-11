@@ -35,6 +35,15 @@ class KeyGeometry private constructor(private val keys: Map<Char, Bounds>) {
         )
     }
 
+    /** Та же точка [point], но как касание клавиши [char]: смещение от её центра в долях её размера. */
+    fun touchOn(char: Char, point: KeyPoint): TypedKey? = keys[char]?.let { bounds ->
+        TypedKey(
+            char = char,
+            offsetX = (point.x - bounds.centerX) / bounds.width,
+            offsetY = point.y - bounds.centerY,
+        )
+    }
+
     private class Bounds(val centerX: Float, val centerY: Float, val width: Float)
 
     @KeyGeometryDsl

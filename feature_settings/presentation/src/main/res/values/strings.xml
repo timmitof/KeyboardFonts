@@ -117,6 +117,8 @@
     <string name="input_next_word_description">Подсказка, пока слово не начато</string>
     <string name="input_learn_title">Учиться на моём тексте</string>
     <string name="input_learn_description">Новые слова запоминаются сами</string>
+    <string name="input_adaptive_keys_title">Умные зоны клавиш</string>
+    <string name="input_adaptive_keys_description">Буква у края клавиши выбирается по смыслу слова. Экспериментально</string>
 
     <!-- Языки -->
     <string name="languages_header">Активные · по порядку переключения</string>

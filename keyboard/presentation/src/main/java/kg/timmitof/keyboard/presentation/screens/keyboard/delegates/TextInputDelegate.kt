@@ -3,6 +3,8 @@ package kg.timmitof.keyboard.presentation.screens.keyboard.delegates
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.isSpecified
 import kg.timmitof.keyboard.domain.model.KeyCharacter
+import kg.timmitof.keyboard.presentation.components.keys.input
+import kg.timmitof.keyboard.presentation.components.keys.letterKey
 import kg.timmitof.keyboard.font.domain.model.StyledText
 import kg.timmitof.keyboard.suggestion.domain.model.TextContext
 import kg.timmitof.keyboard.suggestion.domain.model.TypedKey
@@ -26,9 +28,13 @@ internal class TextInputDelegate(
     /**
      * Регистр выбирается здесь, а не при отрисовке: при нескольких одновременных нажатиях Shift в клавише устаревает.
      *
-     * @param touch куда палец попал по клавише (см. `keyClickable`); запоминается в черновике для Т9.
+     * @param pressedTouch куда палец попал по клавише (см. `keyClickable`); запоминается в черновике для Т9.
+     * С умными зонами у края клавиши может напечататься сосед — см. [adaptKey].
      */
-    suspend fun KeyboardSyntax.typeCharacter(character: KeyCharacter, touch: Offset = Offset.Unspecified) {
+    suspend fun KeyboardSyntax.typeCharacter(pressed: KeyCharacter, pressedTouch: Offset = Offset.Unspecified) {
+        val adapted = adaptKey(pressed, pressedTouch)
+        val character = adapted?.first ?: pressed
+        val touch = adapted?.second ?: pressedTouch
         val char = character.text(state.shiftState.isUpperCase())
 
         // Точка, запятая и прочие разделители заканчивают слово так же, как пробел.
@@ -36,6 +42,9 @@ internal class TextInputDelegate(
             finishWord(char)
             return
         }
+
+        if (adapted != null) suggestionsDelegate.record(state, TypingEvent.KeyAdapted)
+        if (state.isKeyAdapted != (adapted != null)) reduce { state.copy(isKeyAdapted = adapted != null) }
 
         val styled = state.activeFont.apply(char)
         editText(typeEffect(styled, typedKeys(character.text(isUpperCase = false), touch))) { query -> query + char }
@@ -250,6 +259,7 @@ internal class TextInputDelegate(
     }
 
     suspend fun KeyboardSyntax.deleteBackward() {
+        checkAdaptationUndone()
         if (undoAutoCorrection()) return
         checkKeptWordErased()
         if (shrinkComposing()) return
@@ -384,6 +394,25 @@ internal class TextInputDelegate(
 
     /** Стилизованная буква — суррогатная пара или буква со знаками стиля, поэтому убираем её целиком. */
     private fun String.dropLastSymbol(): String = dropLast(StyledText.lastSymbolLength(this))
+
+    /** Умные зоны: клавиша соседа и касание относительно неё, если словарь уверенно за соседа. */
+    private suspend fun KeyboardSyntax.adaptKey(pressed: KeyCharacter, touch: Offset): Pair<KeyCharacter, Offset>? {
+        if (!touch.isSpecified) return null
+        val letter = pressed.text(isUpperCase = false).singleOrNull() ?: return null
+
+        val adapted = suggestionsDelegate.adaptKey(state, TypedKey(letter, touch.x, touch.y)) ?: return null
+        val key = state.keyboardLayout.letterKey(adapted.char) ?: return null
+        return key.input() to Offset(adapted.offsetX, adapted.offsetY)
+    }
+
+    /** Подменённую букву стёрли сразу — подмена была ошибкой. После пробела буква уже не последняя. */
+    private suspend fun KeyboardSyntax.checkAdaptationUndone() {
+        if (!state.isKeyAdapted) return
+        if (state.textContext.composingWord.isNotEmpty()) {
+            suggestionsDelegate.record(state, TypingEvent.KeyAdaptationUndone)
+        }
+        reduce { state.copy(isKeyAdapted = false) }
+    }
 
     /**
      * Касание — по одному на букву черновика: Т9 сверяет их со словом буква в букву.
