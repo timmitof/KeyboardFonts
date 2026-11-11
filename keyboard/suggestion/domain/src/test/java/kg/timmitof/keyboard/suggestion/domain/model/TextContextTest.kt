@@ -82,4 +82,26 @@ class TextContextTest {
         assertEquals("п\u0336р\u0336", TextContext(before = "ок п\u0336р\u0336").composingWord)
         assertEquals("ок", TextContext(before = "ок д\u0336").previousWord)
     }
+
+    @Test
+    fun `слово перед предыдущим — левая часть тройки, запятая не мешает`() {
+        val context = TextContext(before = "привет, как де")
+
+        assertEquals("как", context.previousWord)
+        assertEquals("привет", context.beforePreviousWord)
+    }
+
+    @Test
+    fun `конец предложения между словами обрывает тройку`() {
+        val context = TextContext(before = "пока. как ")
+
+        assertEquals("как", context.previousWord)
+        assertEquals("", context.beforePreviousWord)
+    }
+
+    @Test
+    fun `для тройки одного слова мало`() {
+        assertEquals("", TextContext(before = "как ").beforePreviousWord)
+        assertEquals("", TextContext(before = "").beforePreviousWord)
+    }
 }

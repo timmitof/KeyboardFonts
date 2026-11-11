@@ -7,6 +7,8 @@ plugins { id("keyboardfonts.languages") }
 // Частотные списки — keyboard/suggestion/data/dictionaries (hermitdave/FrequencyWords, CC BY-SA 4.0).
 // Словоформы русского (ru_forms.txt.gz) — словарь OpenCorpora, CC BY-SA 3.0, http://opencorpora.org;
 // пересборка списка — tools/opencorpora_forms.py.
+// Тройки слов (assets/dictionaries/<code>.trigrams) — посчитаны tools/trigrams.py из FineWeb / FineWeb-2
+// (HuggingFaceFW, ODC-By 1.0) и OpenSubtitles (OPUS, http://www.opensubtitles.org), в равных долях.
 keyboardLanguages {
     language("ru_ru") {
         name = "Русский"

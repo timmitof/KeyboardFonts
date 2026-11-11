@@ -8,8 +8,8 @@ import javax.inject.Singleton
 import kotlin.math.ln
 
 /**
- * Сводит подсказки одной шкалой очков из источников: частота словаря, пары слов
- * (словарные и выученные), личная статистика, слова текущего поля. Опечатки — через [SpellCorrector]:
+ * Сводит подсказки одной шкалой очков из источников: частота словаря, пары и тройки слов
+ * (словарные; пары ещё и выученные), личная статистика, слова текущего поля. Опечатки — через [SpellCorrector]:
  * слово целиком и, если дополнений мало, начало слова с одной правкой.
  */
 @Singleton
@@ -23,11 +23,14 @@ class SuggestionEngine @Inject constructor() {
         val context = request.context
         val typed = FontDecoder.decode(context.composingWord)
         val previous = context.previousWord.toDictionaryForm()
+        val beforePrevious = context.beforePreviousWord.toDictionaryForm()
+        // Контекст тройки — два слова через пробел, как ключ в `.trigrams`.
+        val pair = if (previous.isEmpty() || beforePrevious.isEmpty()) "" else "$beforePrevious $previous"
         val surrounding = context.surroundingWords
             .take(SURROUNDING_LIMIT)
             .mapTo(HashSet(SURROUNDING_LIMIT)) { it.toDictionaryForm() }
 
-        val boosts = Boosts(model, user, previous, surrounding)
+        val boosts = Boosts(model, user, previous, pair, surrounding)
 
         return if (typed.isEmpty()) {
             predict(request, boosts, model, user, previous)
@@ -56,6 +59,9 @@ class SuggestionEngine @Inject constructor() {
             boosts.followers.keys.forEach { word -> offer(word) }
             model.bigrams.after(previous, PREDICTION_FOLLOWERS).forEach { follower ->
                 offer(follower.word)
+            }
+            if (boosts.pair.isNotEmpty()) {
+                model.trigrams.after(boosts.pair, PREDICTION_FOLLOWERS).forEach { follower -> offer(follower.word) }
             }
         } else {
             user.frequentWords(START_WORDS).forEach { word -> offer(word, START_WORD_SCORE) }
@@ -207,6 +213,12 @@ class SuggestionEngine @Inject constructor() {
             expected += follower.word
             offer(follower.word, model.dictionary.scoreOf(follower.word), 0)
         }
+        if (boosts.pair.isNotEmpty()) {
+            model.trigrams.followersWithPrefix(boosts.pair, query).forEach { follower ->
+                expected += follower.word
+                offer(follower.word, model.dictionary.scoreOf(follower.word), 0)
+            }
+        }
         boosts.followers.keys.forEach { word ->
             if (word.length <= query.length || !word.startsWith(query)) return@forEach
             expected += word
@@ -271,11 +283,16 @@ class SuggestionEngine @Inject constructor() {
         return ranking.indices()
     }
 
-    /** Надбавки, не зависящие от способа поиска слова: личная частота, пары, лексика поля. */
+    /**
+     * Надбавки, не зависящие от способа поиска слова: личная частота, пары и тройки, лексика поля.
+     *
+     * @param pair два предыдущих слова через пробел — контекст тройки; пусто, если слов меньше двух.
+     */
     private class Boosts(
         private val model: LanguageModel,
         private val user: UserLanguageModel,
         private val previous: String,
+        val pair: String,
         private val surrounding: Set<String>,
     ) {
 
@@ -289,15 +306,17 @@ class SuggestionEngine @Inject constructor() {
                 bonus += learnedPairScore(followers[word] ?: 0)
                 bonus += model.bigrams.scoreOf(previous, word) * DICTIONARY_PAIR_WEIGHT / WEIGHT_UNIT
             }
+            if (pair.isNotEmpty()) bonus += tripleScore(model.trigrams.rankOf(pair, word))
             if (word in surrounding) bonus += SURROUNDING_BONUS
             if (user.isRecent(word)) bonus += RECENT_BONUS
 
             return bonus
         }
 
-        /** Слово среди продолжений предыдущего — словарных или выученных. */
+        /** Слово среди продолжений предыдущего (словарных или выученных) или двух предыдущих. */
         fun isExpected(word: String): Boolean =
-            previous.isNotEmpty() && (word in followers || model.bigrams.scoreOf(previous, word) > 0)
+            previous.isNotEmpty() && (word in followers || model.bigrams.scoreOf(previous, word) > 0) ||
+                    pair.isNotEmpty() && model.trigrams.scoreOf(pair, word) > 0
 
         fun surroundingWithPrefix(query: String): List<String> =
             surrounding.filter { it.length > query.length && it.startsWith(query) }
@@ -349,6 +368,13 @@ class SuggestionEngine @Inject constructor() {
 
         /** Больше единицы намеренно: связь с предыдущим словом — самый сильный сигнал. */
         const val DICTIONARY_PAIR_WEIGHT = 15
+
+        /**
+         * Тройка точнее пары («как у тебя» → «дела», а не любое после «тебя»), поэтому её порядок решает:
+         * шаг по месту крупный, в отличие от пар, где места почти равны. Складывается с бонусом пары.
+         */
+        const val TRIPLE_TOP_SCORE = 2000
+        const val TRIPLE_RANK_STEP = 150
         const val WEIGHT_UNIT = 10
 
         const val PERSONAL_WEIGHT = 110
@@ -372,6 +398,9 @@ class SuggestionEngine @Inject constructor() {
 
         fun personalScore(count: Int): Int =
             if (count <= 0) 0 else minOf(PERSONAL_LIMIT, (PERSONAL_WEIGHT * ln(1.0 + count)).toInt())
+
+        fun tripleScore(rank: Int): Int =
+            if (rank < 0) 0 else maxOf(0, TRIPLE_TOP_SCORE - rank * TRIPLE_RANK_STEP)
 
         fun learnedPairScore(count: Int): Int =
             if (count <= 0) 0 else minOf(PAIR_LIMIT, (PAIR_WEIGHT * ln(1.0 + count)).toInt())

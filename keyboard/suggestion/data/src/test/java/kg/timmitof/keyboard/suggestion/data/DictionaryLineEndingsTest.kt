@@ -32,8 +32,8 @@ class DictionaryLineEndingsTest {
 
     @Test
     fun `биграммы с CRLF разбираются так же, как с LF`() {
-        val lf = BigramTable.parse(BIGRAMS)
-        val crlf = BigramTable.parse(BIGRAMS.toCrlf())
+        val lf = FollowerTable.parse(BIGRAMS)
+        val crlf = FollowerTable.parse(BIGRAMS.toCrlf())
 
         for (word in listOf("a", "how")) {
             assertEquals(lf.after(word).words(), crlf.after(word).words())
@@ -50,7 +50,7 @@ class DictionaryLineEndingsTest {
         assertEquals(lf.followersWithPrefix("how", "y").words(), crlf.followersWithPrefix("how", "y").words())
     }
 
-    private fun List<BigramTable.Follower>.words(): List<String> = map(BigramTable.Follower::word)
+    private fun List<FollowerTable.Follower>.words(): List<String> = map(FollowerTable.Follower::word)
 
     private fun String.toCrlf(): String = replace("\n", "\r\n")
 

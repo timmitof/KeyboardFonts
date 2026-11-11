@@ -31,6 +31,15 @@ data class TextContext(
         }
     }
 
+    /** Слово перед [previousWord] — левая часть тройки. Пусто, если между ними конец предложения. */
+    val beforePreviousWord: String by lazy(LazyThreadSafetyMode.NONE) {
+        if (previousWord.isEmpty()) return@lazy ""
+
+        val rest = beforeWord.trimEnd { !isWordChar(it) }.dropLast(previousWord.length)
+        val gap = rest.takeLastWhile { !isWordChar(it) }
+        if (gap.any { it in SENTENCE_END }) "" else rest.dropLast(gap.length).takeLastWhile { isWordChar(it) }
+    }
+
     /** Отступы обрезаются, перевод строки — нет: он сам конец предложения. */
     val isSentenceStart: Boolean by lazy(LazyThreadSafetyMode.NONE) {
         val text = beforeWord.trimEnd { it in INDENTS }

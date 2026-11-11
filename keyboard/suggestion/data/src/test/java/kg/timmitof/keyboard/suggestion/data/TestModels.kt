@@ -19,11 +19,17 @@ internal fun dictionaryOf(vararg entries: Pair<String, Int>): WordDictionary =
             .joinToString(separator = "\n") { (word, score) -> "$word\t$score" },
     )
 
-internal fun modelOf(vararg entries: Pair<String, Int>): LanguageModel {
+/** [bigrams] и [trigrams] — текст ассетов `.bigrams` / `.trigrams`. */
+internal fun modelOf(
+    vararg entries: Pair<String, Int>,
+    bigrams: String = "",
+    trigrams: String = "",
+): LanguageModel {
     val dictionary = dictionaryOf(*entries)
     return LanguageModel(
         dictionary = dictionary,
-        bigrams = BigramTable.Empty,
+        bigrams = FollowerTable.parse(bigrams),
         spellCorrector = correctorOf(dictionary),
+        trigrams = FollowerTable.parse(trigrams),
     )
 }

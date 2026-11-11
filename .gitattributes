@@ -1,2 +1,3 @@
 *.dict text eol=lf
 *.bigrams text eol=lf
+*.trigrams text eol=lf

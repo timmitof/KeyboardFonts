@@ -1,14 +1,14 @@
 package kg.timmitof.keyboard.suggestion.data
 
 /**
- * Пары слов: что обычно идёт после слова. Все продолжения лежат одной строкой
- * блоками через пробел (чтобы не плодить сотни тысяч мелких объектов).
+ * Что обычно идёт после контекста: после слова (`.bigrams`) или пары слов через пробел (`.trigrams`).
+ * Все продолжения лежат одной строкой блоками через пробел (чтобы не плодить сотни тысяч мелких объектов).
  *
- * @param blocks первое слово пары → номер его блока.
+ * @param blocks контекст → номер его блока.
  * @param bounds границы блоков в [followers]; размер — `blocks.size + 1`.
  * @param followers продолжения через пробел, внутри блока по убыванию частоты.
  */
-internal class BigramTable(
+internal class FollowerTable(
     private val blocks: Map<String, Int>,
     private val bounds: IntArray,
     private val followers: String,
@@ -25,13 +25,15 @@ internal class BigramTable(
             end - start > prefix.length && followers.startsWith(prefix, start)
         }
 
-    fun scoreOf(previous: String, word: String): Int {
+    fun scoreOf(previous: String, word: String): Int =
+        rankOf(previous, word).let { rank -> if (rank < 0) 0 else scoreOfRank(rank) }
+
+    /** Место [word] среди продолжений [previous], с нуля; `-1` — не продолжение. */
+    fun rankOf(previous: String, word: String): Int {
         forEachFollower(previous) { start, end, rank ->
-            if (end - start == word.length && followers.startsWith(word, start)) {
-                return scoreOfRank(rank)
-            }
+            if (end - start == word.length && followers.startsWith(word, start)) return rank
         }
-        return 0
+        return -1
     }
 
     private inline fun collect(
@@ -67,8 +69,8 @@ internal class BigramTable(
 
     companion object {
 
-        /** Формат ассета: `слово<TAB>продолжение продолжение ...`, по убыванию частоты. */
-        fun parse(text: String): BigramTable {
+        /** Формат ассета: `контекст<TAB>продолжение продолжение ...`, по убыванию частоты. */
+        fun parse(text: String): FollowerTable {
             val blocks = HashMap<String, Int>(INITIAL_CAPACITY)
             var bounds = IntArray(INITIAL_CAPACITY)
             val followers = StringBuilder(text.length)
@@ -94,10 +96,10 @@ internal class BigramTable(
             val closed = bounds.copyOf(blocks.size + 1)
             closed[blocks.size] = followers.length
 
-            return BigramTable(blocks, closed, followers.toString())
+            return FollowerTable(blocks, closed, followers.toString())
         }
 
-        val Empty = BigramTable(emptyMap(), intArrayOf(0), "")
+        val Empty = FollowerTable(emptyMap(), intArrayOf(0), "")
 
         /** Даже последнее продолжение весомо: пара важнее частоты слова (после «как» «дела» должно обгонять «два»). */
         private fun scoreOfRank(rank: Int): Int =

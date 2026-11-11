@@ -35,6 +35,9 @@ class LanguageModelLoader @Inject constructor(
         val bigramsText = async(Dispatchers.IO) {
             assetTextLoader.loadText("$DIRECTORY/$languageCode$BIGRAMS_EXTENSION")
         }
+        val trigramsText = async(Dispatchers.IO) {
+            assetTextLoader.loadText("$DIRECTORY/$languageCode$TRIGRAMS_EXTENSION")
+        }
         val formsBytes = async(Dispatchers.IO) {
             assetTextLoader.loadBytes("$DIRECTORY/$languageCode$FORMS_EXTENSION")
         }
@@ -47,7 +50,10 @@ class LanguageModelLoader @Inject constructor(
 
         val dictionary = async(Dispatchers.Default) { WordDictionary.parse(words) }
         val bigrams = async(Dispatchers.Default) {
-            bigramsText.await()?.let(BigramTable::parse) ?: BigramTable.Empty
+            bigramsText.await()?.let(FollowerTable::parse) ?: FollowerTable.Empty
+        }
+        val trigrams = async(Dispatchers.Default) {
+            trigramsText.await()?.let(FollowerTable::parse) ?: FollowerTable.Empty
         }
         // Списка форм может и не быть (английский) — тогда язык работает без фильтра.
         val forms = async(Dispatchers.Default) {
@@ -64,6 +70,7 @@ class LanguageModelLoader @Inject constructor(
             bigrams = bigrams.await(),
             spellCorrector = SpellCorrector.create(parsed, spellIndex),
             forms = forms.await(),
+            trigrams = trigrams.await(),
         ).also {
             Log.d(TAG, "$languageCode: модель загружена за ${SystemClock.elapsedRealtime() - startedAt} мс")
         }
@@ -75,6 +82,7 @@ class LanguageModelLoader @Inject constructor(
         const val DIRECTORY = "dictionaries"
         const val DICTIONARY_EXTENSION = ".dict"
         const val BIGRAMS_EXTENSION = ".bigrams"
+        const val TRIGRAMS_EXTENSION = ".trigrams"
         const val FORMS_EXTENSION = ".forms"
         const val SPELL_EXTENSION = ".spell"
     }
