@@ -21,6 +21,7 @@ import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardOverlay
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardSideEffect
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardState
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.QuickSetting
+import kg.timmitof.keyboard.presentation.screens.keyboard.states.ShiftState
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -110,7 +111,10 @@ internal class KeyboardViewModel(
             is KeyboardEvent.OnInputSessionFinish -> viewModelScope.launch { suggestionsDelegate.flush() }
             is KeyboardEvent.OnFieldContextChange -> intent {
                 with(fieldContextDelegate) { applyContext(event.context) }
-                with(suggestionsDelegate) { requestSuggestions() }
+                with(suggestionsDelegate) {
+                    refreshAutoShift()
+                    requestSuggestions()
+                }
             }
             is KeyboardEvent.OnTextContextChange -> intent {
                 with(textInputDelegate) { reconcileComposing(event.context) }
@@ -182,6 +186,14 @@ internal class KeyboardViewModel(
                     if (previous.affectsSuggestions != settings.affectsSuggestions) {
                         with(suggestionsDelegate) { requestSuggestions() }
                     }
+                    if (previous.isAutoCapitalizeEnabled != settings.isAutoCapitalizeEnabled) {
+                        if (settings.isAutoCapitalizeEnabled) {
+                            with(suggestionsDelegate) { refreshAutoShift() }
+                        } else if (state.shiftState == ShiftState.ACTIVE) {
+                            // Выключили — поставленная автоматически заглавная больше не нужна.
+                            with(textInputDelegate) { resetShift() }
+                        }
+                    }
                 }
             }
             .launchIn(viewModelScope)
@@ -220,7 +232,10 @@ internal class KeyboardViewModel(
     }
 
     private fun resetInputSession() = intent {
+        // Shift прошлой сессии (и Caps Lock) не переносим, а заглавную для пустого поля или начала предложения
+        // ставим сразу: снимок текста мог не измениться, и сам он её не включит.
         with(textInputDelegate) { resetShift() }
+        with(suggestionsDelegate) { refreshAutoShift() }
         with(fontDelegate) { forgetFontIfNeeded() }
         reduce {
             state.copy(

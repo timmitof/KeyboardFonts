@@ -119,6 +119,8 @@
     <string name="input_learn_description">Новые слова запоминаются сами</string>
     <string name="input_adaptive_keys_title">Умные зоны клавиш</string>
     <string name="input_adaptive_keys_description">Буква у края клавиши выбирается по смыслу слова. Экспериментально</string>
+    <string name="input_auto_capitalize_title">Заглавная в начале</string>
+    <string name="input_auto_capitalize_description">Первая буква предложения и пустого поля — с большой буквы</string>
 
     <!-- Языки -->
     <string name="languages_header">Активные · по порядку переключения</string>

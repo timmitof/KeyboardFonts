@@ -101,6 +101,8 @@
     <string name="input_learn_description">Нові слова запам’ятовуються самі</string>
     <string name="input_adaptive_keys_title">Розумні зони клавіш</string>
     <string name="input_adaptive_keys_description">Літера біля краю клавіші обирається за змістом слова. Експериментально</string>
+    <string name="input_auto_capitalize_title">Велика на початку</string>
+    <string name="input_auto_capitalize_description">Перша літера речення й порожнього поля — велика</string>
     <string name="languages_header">Активні · за порядком перемикання</string>
     <string name="languages_current">Зараз на клавіатурі</string>
     <string name="languages_with_suggestions">Підказки та автозаміна</string>

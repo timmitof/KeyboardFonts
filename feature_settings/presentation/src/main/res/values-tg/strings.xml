@@ -101,6 +101,8 @@
     <string name="input_learn_description">Калимаҳои нав худ дар хотир мемонанд</string>
     <string name="input_adaptive_keys_title">Минтақаҳои зираки тугмаҳо</string>
     <string name="input_adaptive_keys_description">Ҳарф дар канори тугма аз рӯи калима интихоб мешавад. Озмоишӣ</string>
+    <string name="input_auto_capitalize_title">Ҳарфи калон дар аввал</string>
+    <string name="input_auto_capitalize_description">Ҳарфи аввали ҷумла ва майдони холӣ — калон</string>
     <string name="languages_header">Фаъол · аз рӯи тартиби ивазшавӣ</string>
     <string name="languages_current">Ҳоло дар клавиатура</string>
     <string name="languages_with_suggestions">Пешниҳодҳо ва ислоҳи худкор</string>

@@ -101,6 +101,8 @@
     <string name="input_learn_description">Янги сўзлар ўзи эслаб қолинади</string>
     <string name="input_adaptive_keys_title">Тугмаларнинг ақлли зоналари</string>
     <string name="input_adaptive_keys_description">Тугма четидаги ҳарф сўзга қараб танланади. Тажрибавий</string>
+    <string name="input_auto_capitalize_title">Бошида бош ҳарф</string>
+    <string name="input_auto_capitalize_description">Гап ва бўш майдоннинг биринчи ҳарфи — бош ҳарф</string>
     <string name="languages_header">Фаол · алмашиш тартибида</string>
     <string name="languages_current">Ҳозир клавиатурада</string>
     <string name="languages_with_suggestions">Таклифлар ва автотузатиш</string>

@@ -19,6 +19,9 @@ enum class KeyboardToggle(
     /** Умные зоны клавиш: буква у края клавиши выбирается по словарю. Экспериментально, поэтому выключено. */
     ADAPTIVE_KEYS("adaptive_keys", default = false, parent = SUGGESTIONS),
 
+    /** Заглавная в начале предложения и в пустом поле. Не зависит от Т9; поля паролей и адресов её не получают. */
+    AUTO_CAPITALIZE("auto_capitalize", default = true),
+
     /** Не зависит от Т9: точка нужна и с выключенными подсказками. Поля без подсказок (пароль, адрес) её не получают. */
     DOUBLE_SPACE_PERIOD("double_space_period", default = true),
 
@@ -117,6 +120,8 @@ data class KeyboardSettings(
     val isLearningEnabled: Boolean get() = isOn(KeyboardToggle.LEARN_FROM_INPUT)
 
     val isAdaptiveKeysEnabled: Boolean get() = isOn(KeyboardToggle.ADAPTIVE_KEYS)
+
+    val isAutoCapitalizeEnabled: Boolean get() = isOn(KeyboardToggle.AUTO_CAPITALIZE)
 
     val isDoubleSpacePeriodEnabled: Boolean get() = isOn(KeyboardToggle.DOUBLE_SPACE_PERIOD)
 

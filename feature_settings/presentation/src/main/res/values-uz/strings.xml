@@ -101,6 +101,8 @@
     <string name="input_learn_description">Yangi soʻzlar oʻzi eslab qolinadi</string>
     <string name="input_adaptive_keys_title">Tugmalarning aqlli zonalari</string>
     <string name="input_adaptive_keys_description">Tugma chetidagi harf soʻzga qarab tanlanadi. Tajribaviy</string>
+    <string name="input_auto_capitalize_title">Boshida bosh harf</string>
+    <string name="input_auto_capitalize_description">Gap va boʻsh maydonning birinchi harfi — bosh harf</string>
     <string name="languages_header">Faol · almashish tartibida</string>
     <string name="languages_current">Hozir klaviaturada</string>
     <string name="languages_with_suggestions">Takliflar va avtotuzatish</string>

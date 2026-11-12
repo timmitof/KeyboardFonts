@@ -216,11 +216,20 @@ internal class SuggestionsDelegate(
     }
 
     /**
+     * Авто-Shift заново по текущему снимку текста. Нужен там, где снимок мог не измениться: открыли клавиатуру
+     * в пустом поле (сессия сбросила Shift, а снимок тот же, что был) или сменилось поле.
+     */
+    suspend fun KeyboardSyntax.refreshAutoShift() {
+        val shift = state.autoShift(state.textContext)
+        if (shift != state.shiftState) reduce { state.copy(shiftState = shift) }
+    }
+
+    /**
      * Shift решаем только на границе слова: внутри слова он мог быть поднят вручную (имя).
      * Caps Lock здесь не трогаем — его снимает знак препинания (`TextInputDelegate.releaseCapsLock`).
      */
     private fun KeyboardState.autoShift(context: TextContext): ShiftState = when {
-        shiftState == ShiftState.CAPS_LOCK || !fieldType.autoCapitalize -> shiftState
+        shiftState == ShiftState.CAPS_LOCK || !fieldType.autoCapitalize || !settings.isAutoCapitalizeEnabled -> shiftState
         context.composingWord.isNotEmpty() -> shiftState
         context.isSentenceStart -> ShiftState.ACTIVE
         else -> ShiftState.DISABLED

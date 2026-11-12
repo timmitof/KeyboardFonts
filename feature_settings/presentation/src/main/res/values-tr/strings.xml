@@ -101,6 +101,8 @@
     <string name="input_learn_description">Yeni kelimeler kendiliğinden hatırlanır</string>
     <string name="input_adaptive_keys_title">Akıllı tuş bölgeleri</string>
     <string name="input_adaptive_keys_description">Tuş kenarındaki harf kelimeye göre seçilir. Deneysel</string>
+    <string name="input_auto_capitalize_title">Otomatik büyük harf</string>
+    <string name="input_auto_capitalize_description">Cümlenin ve boş alanın ilk harfi büyük yazılır</string>
     <string name="languages_header">Etkin · geçiş sırasına göre</string>
     <string name="languages_current">Şu anda klavyede</string>
     <string name="languages_with_suggestions">Öneriler ve otomatik düzeltme</string>

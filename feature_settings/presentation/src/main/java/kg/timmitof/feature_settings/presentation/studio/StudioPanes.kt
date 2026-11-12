@@ -217,6 +217,8 @@ internal fun InputPane(
     val learnDescription = stringResource(R.string.input_learn_description)
     val adaptiveKeysTitle = stringResource(R.string.input_adaptive_keys_title)
     val adaptiveKeysDescription = stringResource(R.string.input_adaptive_keys_description)
+    val autoCapitalizeTitle = stringResource(R.string.input_auto_capitalize_title)
+    val autoCapitalizeDescription = stringResource(R.string.input_auto_capitalize_description)
 
     SettingsSection {
         toggle(
@@ -264,6 +266,13 @@ internal fun InputPane(
             isEnabled = isSuggestionsOn,
             checked = settings[KeyboardToggle.ADAPTIVE_KEYS],
             onCheckedChange = { onToggle(KeyboardToggle.ADAPTIVE_KEYS, it) },
+        )
+        // Не зависит от подсказок — поэтому не вложенная строка.
+        toggle(
+            title = autoCapitalizeTitle,
+            description = autoCapitalizeDescription,
+            checked = settings[KeyboardToggle.AUTO_CAPITALIZE],
+            onCheckedChange = { onToggle(KeyboardToggle.AUTO_CAPITALIZE, it) },
         )
     }
 }
