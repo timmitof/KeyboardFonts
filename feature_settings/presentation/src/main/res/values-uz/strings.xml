@@ -99,8 +99,6 @@
     <string name="input_next_word_description">Soʻz boshlanmaguncha taklif</string>
     <string name="input_learn_title">Mening matnimdan oʻrganish</string>
     <string name="input_learn_description">Yangi soʻzlar oʻzi eslab qolinadi</string>
-    <string name="input_adaptive_keys_title">Tugmalarning aqlli zonalari</string>
-    <string name="input_adaptive_keys_description">Tugma chetidagi harf soʻzga qarab tanlanadi. Tajribaviy</string>
     <string name="input_auto_capitalize_title">Boshida bosh harf</string>
     <string name="input_auto_capitalize_description">Gap va boʻsh maydonning birinchi harfi — bosh harf</string>
     <string name="languages_header">Faol · almashish tartibida</string>

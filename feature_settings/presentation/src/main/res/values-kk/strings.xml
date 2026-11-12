@@ -99,8 +99,6 @@
     <string name="input_next_word_description">Сөз басталғанға дейінгі ұсыныс</string>
     <string name="input_learn_title">Менің мәтінімнен үйрену</string>
     <string name="input_learn_description">Жаңа сөздер өзі есте сақталады</string>
-    <string name="input_adaptive_keys_title">Пернелердің ақылды аймақтары</string>
-    <string name="input_adaptive_keys_description">Перне шетіндегі әріп сөзге қарай таңдалады. Тәжірибелік</string>
     <string name="input_auto_capitalize_title">Басында бас әріп</string>
     <string name="input_auto_capitalize_description">Сөйлемнің және бос өрістің бірінші әрпі — бас әріп</string>
     <string name="languages_header">Белсенді · ауысу ретімен</string>

@@ -16,8 +16,6 @@ enum class KeyboardToggle(
 
     LEARN_FROM_INPUT("learn_from_input", default = false, parent = SUGGESTIONS),
 
-    /** Умные зоны клавиш: буква у края клавиши выбирается по словарю. Экспериментально, поэтому выключено. */
-    ADAPTIVE_KEYS("adaptive_keys", default = false, parent = SUGGESTIONS),
 
     /** Заглавная в начале предложения и в пустом поле. Не зависит от Т9; поля паролей и адресов её не получают. */
     AUTO_CAPITALIZE("auto_capitalize", default = true),
@@ -119,7 +117,6 @@ data class KeyboardSettings(
 
     val isLearningEnabled: Boolean get() = isOn(KeyboardToggle.LEARN_FROM_INPUT)
 
-    val isAdaptiveKeysEnabled: Boolean get() = isOn(KeyboardToggle.ADAPTIVE_KEYS)
 
     val isAutoCapitalizeEnabled: Boolean get() = isOn(KeyboardToggle.AUTO_CAPITALIZE)
 

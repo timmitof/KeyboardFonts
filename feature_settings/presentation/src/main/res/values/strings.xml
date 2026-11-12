@@ -117,8 +117,6 @@
     <string name="input_next_word_description">Подсказка, пока слово не начато</string>
     <string name="input_learn_title">Учиться на моём тексте</string>
     <string name="input_learn_description">Новые слова запоминаются сами</string>
-    <string name="input_adaptive_keys_title">Умные зоны клавиш</string>
-    <string name="input_adaptive_keys_description">Буква у края клавиши выбирается по смыслу слова. Экспериментально</string>
     <string name="input_auto_capitalize_title">Заглавная в начале</string>
     <string name="input_auto_capitalize_description">Первая буква предложения и пустого поля — с большой буквы</string>
 

@@ -188,11 +188,11 @@ internal class SuggestionsDelegate(
     suspend fun prefetch(languageCode: String) = suggestionRepository.prefetch(languageCode)
 
     /**
-     * Умные зоны клавиш: сосед вместо нажатой буквы или `null`. Только на буквенном слое и при включённом
-     * переключателе — без словаря решать нечем.
+     * Умные зоны клавиш: сосед вместо нажатой буквы или `null`. Работают всегда и незаметно для пользователя —
+     * настройки нет; только на буквенном слое и с подсказками: без словаря решать нечем.
      */
     suspend fun adaptKey(state: KeyboardState, touch: TypedKey): TypedKey? {
-        if (!state.settings.isAdaptiveKeysEnabled || !state.allowsSuggestions) return null
+        if (!state.allowsSuggestions) return null
         if (state.layer != KeyboardLayer.LETTERS) return null
         val languageCode = state.activeLanguage?.code ?: return null
 

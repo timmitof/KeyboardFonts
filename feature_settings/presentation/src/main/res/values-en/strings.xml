@@ -99,8 +99,6 @@
     <string name="input_next_word_description">Suggestion before you start a word</string>
     <string name="input_learn_title">Learn from my typing</string>
     <string name="input_learn_description">New words are remembered automatically</string>
-    <string name="input_adaptive_keys_title">Smart key zones</string>
-    <string name="input_adaptive_keys_description">Near a key edge, the letter that fits the word wins. Experimental</string>
     <string name="input_auto_capitalize_title">Auto-capitalize</string>
     <string name="input_auto_capitalize_description">Capital letter at the start of a sentence and in an empty field</string>
     <string name="languages_header">Active · in switching order</string>

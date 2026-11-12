@@ -99,8 +99,6 @@
     <string name="input_next_word_description">Підказка, поки слово не почате</string>
     <string name="input_learn_title">Навчатися на моєму тексті</string>
     <string name="input_learn_description">Нові слова запам’ятовуються самі</string>
-    <string name="input_adaptive_keys_title">Розумні зони клавіш</string>
-    <string name="input_adaptive_keys_description">Літера біля краю клавіші обирається за змістом слова. Експериментально</string>
     <string name="input_auto_capitalize_title">Велика на початку</string>
     <string name="input_auto_capitalize_description">Перша літера речення й порожнього поля — велика</string>
     <string name="languages_header">Активні · за порядком перемикання</string>
