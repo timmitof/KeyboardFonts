@@ -29,7 +29,7 @@
       { "type": "CHARACTER", "weight": 1.0, "labelLower": "э", "labelUpper": "Э" }
     ],
     [
-      { "type": "SHIFT", "weight": 1.0 },
+      { "type": "SHIFT", "weight": 1.3 },
       { "type": "CHARACTER", "weight": 1.0, "labelLower": "я", "labelUpper": "Я" },
       { "type": "CHARACTER", "weight": 1.0, "labelLower": "ч", "labelUpper": "Ч" },
       { "type": "CHARACTER", "weight": 1.0, "labelLower": "с", "labelUpper": "С" },
@@ -39,7 +39,7 @@
       { "type": "CHARACTER", "weight": 1.0, "labelLower": "ь", "labelUpper": "Ь", "longPress": { "type": "SYMBOLS", "characters": [ { "labelLower": "ъ", "labelUpper": "Ъ" } ] } },
       { "type": "CHARACTER", "weight": 1.0, "labelLower": "б", "labelUpper": "Б" },
       { "type": "CHARACTER", "weight": 1.0, "labelLower": "ю", "labelUpper": "Ю" },
-      { "type": "BACKSPACE", "weight": 1.0 }
+      { "type": "BACKSPACE", "weight": 1.3 }
     ],
     [
       { "type": "SYMBOLS_SWITCH", "weight": 1.375 },
