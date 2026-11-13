@@ -36,6 +36,8 @@ internal fun RowScope.SpaceKeyButton(
     languages: List<KeyboardLanguage>,
     selectedLanguage: KeyboardLanguage? = null,
     isLanguageSlideEnabled: Boolean = true,
+    /** Подпись вместо названия языка: в режиме перевода — пара «Русский → English». */
+    label: String? = null,
     onLanguageSelect: (KeyboardLanguage) -> Unit = {},
     onCursorMove: (horizontal: Int, vertical: Int) -> Unit = { _, _ -> },
     onCursorModeChange: (active: Boolean) -> Unit = {},
@@ -91,7 +93,7 @@ internal fun RowScope.SpaceKeyButton(
         onClick = onClick
     ) {
         LanguageLabel(
-            selectedLanguage = selectedLanguage,
+            text = label ?: selectedLanguage?.displayName,
             showArrows = isLanguageSlideEnabled && languages.size > 1
         )
 
@@ -108,11 +110,11 @@ internal fun RowScope.SpaceKeyButton(
 
 @Composable
 private fun LanguageLabel(
+    text: String?,
     modifier: Modifier = Modifier,
-    selectedLanguage: KeyboardLanguage? = null,
     showArrows: Boolean = true
 ) {
-    if (selectedLanguage == null) return
+    if (text == null) return
 
     Row(
         modifier = modifier
@@ -124,7 +126,8 @@ private fun LanguageLabel(
         if (showArrows) LanguageArrows("‹")
 
         Text(
-            text = selectedLanguage.displayName,
+            text = text,
+            maxLines = 1,
             fontSize = 12.sp,
             fontWeight = FontWeight.Medium,
             color = KFTheme.color.keyLabelColor,

@@ -26,11 +26,15 @@ internal fun RowScope.EnterKeyButton(
     weight: Float,
     modifier: Modifier = Modifier,
     enterAction: EnterAction = EnterAction.RETURN,
+    /** Цвет бренда: в режиме перевода Enter — «Отправить перевод». */
+    isAccent: Boolean = false,
     onClick: () -> Unit
 ) {
+    val content = if (isAccent) KFTheme.color.keyAccentTextColor else KFTheme.color.keyEnterTextColor
+
     KeyBase(
         modifier = modifier.weight(weight).fillMaxHeight(),
-        background = KFTheme.color.keyEnterBackground,
+        background = if (isAccent) KFTheme.color.keyAccentBackground else KFTheme.color.keyEnterBackground,
         shadowColor = KFTheme.color.keyButtonShadow,
         pressedBackground = KFTheme.color.keyEnterPressedBackground,
         sound = KeySound.ENTER,
@@ -47,7 +51,7 @@ internal fun RowScope.EnterKeyButton(
             Icon(
                 imageVector = ImageVector.vectorResource(action.iconRes),
                 contentDescription = action.name,
-                tint = KFTheme.color.keyEnterTextColor,
+                tint = content,
                 modifier = Modifier.size(20.dp)
             )
         }

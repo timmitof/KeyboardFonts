@@ -39,20 +39,48 @@ import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardState
 import kg.timmitof.keyboard.presentation.theme.KFTheme
 import kg.timmitof.keyboard.translate.domain.model.TranslationLanguage
 
-/** Выбор языка перевода поверх клавиш: скачанные — сверху, они работают без сети. */
+/** «Перевести на» поверх клавиш: все языки переводчика, скачанные — сверху, они работают без сети. */
 @Composable
-internal fun ColumnScope.TranslationLanguagesOverlay(
+internal fun ColumnScope.TranslationTargetOverlay(
     state: State<KeyboardState>,
     onEvent: (KeyboardEvent) -> Unit,
 ) {
-    val slice by state.rememberSlice(KeyboardState::languagesSlice)
+    val slice by state.rememberSlice(KeyboardState::targetSlice)
 
-    OverlayHeader(
+    LanguagesSheet(
         title = stringResource(R.string.translator_target_title),
+        picker = slice,
+        onSelect = { onEvent(KeyboardEvent.OnTranslatorTargetSelect(it)) },
         onClose = { onEvent(KeyboardEvent.OnOverlayChange(null)) },
     )
+}
 
-    val picker = slice ?: return
+/** «Перевести с»: включённые раскладки, которые знает переводчик; выбор переключает и раскладку. */
+@Composable
+internal fun ColumnScope.TranslationSourceOverlay(
+    state: State<KeyboardState>,
+    onEvent: (KeyboardEvent) -> Unit,
+) {
+    val slice by state.rememberSlice(KeyboardState::sourceSlice)
+
+    LanguagesSheet(
+        title = stringResource(R.string.translator_source_title),
+        picker = slice,
+        onSelect = { onEvent(KeyboardEvent.OnTranslatorSourceSelect(it)) },
+        onClose = { onEvent(KeyboardEvent.OnOverlayChange(null)) },
+    )
+}
+
+@Composable
+private fun ColumnScope.LanguagesSheet(
+    title: String,
+    picker: LanguagesSlice?,
+    onSelect: (TranslationLanguage) -> Unit,
+    onClose: () -> Unit,
+) {
+    OverlayHeader(title = title, onClose = onClose)
+
+    picker ?: return
     val offline = stringResource(R.string.translator_offline)
 
     LazyColumn(
@@ -65,7 +93,7 @@ internal fun ColumnScope.TranslationLanguagesOverlay(
                 language = language,
                 isSelected = language.code == picker.selectedCode,
                 offlineLabel = offline.takeIf { language.code in picker.downloadedCodes },
-                onClick = { onEvent(KeyboardEvent.OnTranslatorTargetSelect(language)) },
+                onClick = { onSelect(language) },
             )
         }
     }
@@ -144,7 +172,7 @@ private data class LanguagesSlice(
 )
 
 /** Скачанные — сверху: их выбирают чаще всего, и они работают без сети. */
-private fun KeyboardState.languagesSlice(): LanguagesSlice? {
+private fun KeyboardState.targetSlice(): LanguagesSlice? {
     val translator = translator ?: return null
     val downloaded = translator.models.downloaded
 
@@ -152,6 +180,16 @@ private fun KeyboardState.languagesSlice(): LanguagesSlice? {
         languages = translator.languages.sortedByDescending { it.code in downloaded },
         selectedCode = translator.target.code,
         downloadedCodes = downloaded,
+    )
+}
+
+private fun KeyboardState.sourceSlice(): LanguagesSlice? {
+    val translator = translator ?: return null
+
+    return LanguagesSlice(
+        languages = translator.sourceLanguages,
+        selectedCode = translator.source?.code.orEmpty(),
+        downloadedCodes = translator.models.downloaded,
     )
 }
 

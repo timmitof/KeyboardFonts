@@ -49,6 +49,8 @@ private data class KeyRowsSlice(
     val language: KeyboardLanguage?,
     val isLanguageSlideEnabled: Boolean,
     val enterAction: EnterAction,
+    /** Режим перевода: на пробеле пара языков, Enter — акцентный «Отправить». */
+    val translatorLabel: String?,
 )
 
 @Composable
@@ -66,6 +68,7 @@ internal fun KeyboardRows(
             language = it.activeLanguage,
             isLanguageSlideEnabled = it.fieldType.allowsLanguageSlide,
             enterAction = it.displayedEnterAction,
+            translatorLabel = it.translatorPairLabel,
         )
     }
 
@@ -225,6 +228,7 @@ private fun RowScope.KeyboardKeySlot(
             languages = slice.languages,
             selectedLanguage = slice.language,
             isLanguageSlideEnabled = slice.isLanguageSlideEnabled,
+            label = slice.translatorLabel,
             onLanguageSelect = { onEvent(KeyboardEvent.OnLanguageSelect(it)) },
             onCursorMove = { horizontal, vertical ->
                 onEvent(KeyboardEvent.OnCursorMove(horizontal, vertical))
@@ -236,6 +240,7 @@ private fun RowScope.KeyboardKeySlot(
         is KeyboardKey.Enter -> EnterKeyButton(
             weight = key.weight,
             enterAction = slice.enterAction,
+            isAccent = slice.translatorLabel != null,
             onClick = { onEvent(KeyboardEvent.OnEnter) }
         )
 

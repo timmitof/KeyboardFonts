@@ -24,7 +24,7 @@ class TranslatorPreferencesSource @Inject constructor(
         val prefs = context.translatorPreferences.data.first()
         return TranslatorPreferences(
             targetCode = prefs[TARGET_KEY],
-            isStyled = prefs[STYLED_KEY] ?: true,
+            isHintShown = prefs[HINT_SHOWN_KEY] ?: false,
         )
     }
 
@@ -32,8 +32,8 @@ class TranslatorPreferencesSource @Inject constructor(
         context.translatorPreferences.edit { it[TARGET_KEY] = code }
     }
 
-    suspend fun setStyled(isStyled: Boolean) {
-        context.translatorPreferences.edit { it[STYLED_KEY] = isStyled }
+    suspend fun setHintShown() {
+        context.translatorPreferences.edit { it[HINT_SHOWN_KEY] = true }
     }
 
     /** Языки, которые пользователь удалил сам: фоновая загрузка по умолчанию их обратно не качает. */
@@ -49,7 +49,7 @@ class TranslatorPreferencesSource @Inject constructor(
 
     private companion object {
         val TARGET_KEY = stringPreferencesKey("target_language")
-        val STYLED_KEY = booleanPreferencesKey("styled_translation")
+        val HINT_SHOWN_KEY = booleanPreferencesKey("hint_shown")
         val DECLINED_KEY = stringSetPreferencesKey("declined_models")
     }
 }

@@ -10,10 +10,12 @@ import kg.timmitof.keyboard.translate.domain.model.TranslationModels
  * (областью компоновки, чтобы его можно было заменять, пока набираешь).
  *
  * @param source язык раскладки в переводчике; null — переводчик его не знает (кыргызский, казахский…).
- * @param layouts включённые раскладки по коду языка перевода: на них можно поменять пару местами.
+ * @param layouts включённые раскладки по коду языка перевода: из них выбирают исходный язык и с ними меняют пару местами.
+ * @param models скачанные и стоящие в очереди модели: по ним панель знает, можно ли переводить.
  * @param translatedFor запрос, для которого готов [translation]; отличается от [request] — перевод в пути.
- * @param revision растёт, когда тот же текст нужно перевести заново (скачали язык).
+ * @param revision растёт, когда тот же текст нужно перевести заново (скачали язык, повторили после ошибки).
  * @param needsLeadingSpace в поле перед курсором уже есть текст без пробела — перевод отделяем пробелом.
+ * @param isFontPickerOpen вместо пары языков — карусель шрифтов («Aa»): выбранный шрифт применяется к переводу.
  */
 @Immutable
 internal data class TranslatorState(
@@ -21,33 +23,53 @@ internal data class TranslatorState(
     val target: TranslationLanguage,
     val languages: List<TranslationLanguage>,
     val layouts: Map<String, KeyboardLanguage> = emptyMap(),
-    /** Скачанные и стоящие в очереди модели: лист языков и кнопка «Скачать» показывают их состояние. */
     val models: TranslationModels = TranslationModels(),
     val editor: InlineEditor = InlineEditor(),
     val translation: String = "",
     val translatedFor: TranslationRequest? = null,
     val status: TranslatorStatus = TranslatorStatus.READY,
     val revision: Int = 0,
-    val isStyled: Boolean = true,
     val needsLeadingSpace: Boolean = false,
+    val isFontPickerOpen: Boolean = false,
 ) {
 
     /** Переводить некуда: язык раскладки переводчику неизвестен или совпадает с целевым. */
     val canTranslate: Boolean get() = source != null && source.code != target.code
+
+    /** Языки, без моделей которых пара не переведётся. */
+    val pairCodes: List<String> get() = listOfNotNull(source?.code, target.code)
+
+    val isPairDownloaded: Boolean get() = pairCodes.all { it in models.downloaded }
+
+    private val isPairDownloading: Boolean
+        get() = status == TranslatorStatus.DOWNLOADING || pairCodes.any { it in models.downloading }
+
+    /** Что показать вместо поля; null — поле с набранным текстом. Порядок — от главной причины к частной. */
+    val notice: TranslatorNotice?
+        get() = when {
+            source == null -> TranslatorNotice.UNSUPPORTED_SOURCE
+            !canTranslate -> TranslatorNotice.SAME_LANGUAGES
+            isPairDownloaded -> if (status == TranslatorStatus.FAILED) TranslatorNotice.TRANSLATION_FAILED else null
+            isPairDownloading -> TranslatorNotice.DOWNLOADING
+            status == TranslatorStatus.DOWNLOAD_FAILED -> TranslatorNotice.DOWNLOAD_FAILED
+            else -> TranslatorNotice.MODEL_MISSING
+        }
 
     val request: TranslationRequest?
         get() = source?.takeIf { canTranslate }?.let {
             TranslationRequest(editor.text, it.code, target.code, revision)
         }
 
+    /** Перевод в пути — тонкая полоска внизу поля. */
     val isTranslating: Boolean
-        get() = request != translatedFor && editor.text.isNotBlank() && status.allowsTranslation
-
-    /** Языки, без моделей которых пара не переведётся. */
-    val pairCodes: List<String> get() = listOfNotNull(source?.code, target.code)
+        get() = request != translatedFor && editor.text.isNotBlank() && notice == null
 
     /** Раскладка целевого языка; null — на нём не напечатать, и менять пару местами нельзя. */
     val swapLayout: KeyboardLanguage? get() = layouts[target.code]?.takeIf { source != null }
+
+    /** Языки, с которых можно переводить: включённые раскладки, которые знает переводчик. */
+    val sourceLanguages: List<TranslationLanguage>
+        get() = languages.filter { it.code in layouts }
 }
 
 @Immutable
@@ -58,11 +80,15 @@ internal data class TranslationRequest(
     val revision: Int,
 )
 
-internal enum class TranslatorStatus(val allowsTranslation: Boolean = true) {
-    READY,
-    /** Модели пары нет на телефоне — предлагаем скачать. */
-    MODEL_MISSING(allowsTranslation = false),
-    DOWNLOADING(allowsTranslation = false),
-    DOWNLOAD_FAILED(allowsTranslation = false),
-    FAILED,
+/** Исход последнего действия; скачана ли пара, выводится из моделей — см. [TranslatorState.notice]. */
+internal enum class TranslatorStatus { READY, DOWNLOADING, DOWNLOAD_FAILED, FAILED }
+
+/** Карточка вместо поля (дизайн 8c): не ошибка, а что сделать дальше. */
+internal enum class TranslatorNotice {
+    UNSUPPORTED_SOURCE,
+    SAME_LANGUAGES,
+    MODEL_MISSING,
+    DOWNLOADING,
+    DOWNLOAD_FAILED,
+    TRANSLATION_FAILED,
 }

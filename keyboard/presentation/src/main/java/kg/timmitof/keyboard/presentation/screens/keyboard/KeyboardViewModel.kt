@@ -24,6 +24,7 @@ import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardSideEff
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardState
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.QuickSetting
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.ShiftState
+import kg.timmitof.keyboard.translate.domain.model.TranslationLanguage
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
@@ -73,7 +74,11 @@ internal class KeyboardViewModel(
                 with(translatorDelegate) { syncSource() }
                 with(suggestionsDelegate) { requestSuggestions() }
             }
-            is KeyboardEvent.OnFontSelect -> intent { with(fontDelegate) { selectFont(event.font) } }
+            is KeyboardEvent.OnFontSelect -> intent {
+                with(fontDelegate) { selectFont(event.font) }
+                // В панели перевода шрифт — для перевода: перерисовываем уже готовый.
+                with(translatorDelegate) { restyle() }
+            }
             is KeyboardEvent.OnFontsExpandedChange -> intent { with(fontDelegate) { setFontsExpanded(event.expanded) } }
             is KeyboardEvent.OnSymbolsSwitch -> intent { with(layerDelegate) { applyLayer(KeyboardLayer.SYMBOLS) } }
             is KeyboardEvent.OnSymbolsAltSwitch -> intent { with(layerDelegate) { toggleSymbolsAlt() } }
@@ -122,7 +127,13 @@ internal class KeyboardViewModel(
             }
             is KeyboardEvent.OnTranslatorToggle -> toggleTranslator()
             is KeyboardEvent.OnTranslatorSwap -> swapTranslator()
-            is KeyboardEvent.OnTranslatorStyledToggle -> intent { with(translatorDelegate) { toggleStyled() } }
+            is KeyboardEvent.OnTranslatorFontsToggle -> intent {
+                val isOpen = state.translator?.isFontPickerOpen ?: return@intent
+                with(translatorDelegate) { setFontPickerOpen(!isOpen) }
+            }
+            is KeyboardEvent.OnTranslatorClear -> intent { with(translatorDelegate) { clear() } }
+            is KeyboardEvent.OnTranslatorRetry -> intent { with(translatorDelegate) { retry() } }
+            is KeyboardEvent.OnTranslatorSourceSelect -> selectTranslatorSource(event.language)
             is KeyboardEvent.OnTranslatorDownload -> intent { with(translatorDelegate) { download() } }
             is KeyboardEvent.OnTranslatorTargetSelect -> intent { with(translatorDelegate) { selectTarget(event.language) } }
             is KeyboardEvent.OnInputSessionChange -> resetInputSession()
@@ -151,6 +162,7 @@ internal class KeyboardViewModel(
         // Настройки первыми: от них зависят и шрифт по умолчанию, и вид раскладки.
         with(settingsDelegate) { loadSettings() }
         with(languageDelegate) { loadLanguages() }
+        with(translatorDelegate) { loadHint() }
 
         // Прогрев словаря и эмодзи — параллельно с остальной загрузкой, первый ввод не ждёт.
         prefetchDictionary(state.activeLanguage)
@@ -215,6 +227,18 @@ internal class KeyboardViewModel(
     private suspend fun KeyboardSyntax.closeTranslator() {
         with(textInputDelegate) { closeComposing() }
         with(translatorDelegate) { close() }
+    }
+
+    /** Исходный язык перевода — это раскладка: выбор в листе переключает её, а пара подстраивается сама. */
+    private fun selectTranslatorSource(language: TranslationLanguage) = intent {
+        val layout = state.translator?.layouts?.get(language.code) ?: return@intent
+
+        with(textInputDelegate) { closeComposing() }
+        with(languageDelegate) { selectLanguage(layout) }
+        with(translatorDelegate) { syncSource() }
+        reduce { state.copy(keyboardOverlay = null) }
+        prefetchDictionary(state.activeLanguage)
+        with(suggestionsDelegate) { requestSuggestions() }
     }
 
     /** Местами меняем, только если на целевом языке можно печатать: раскладка следует исходному языку. */

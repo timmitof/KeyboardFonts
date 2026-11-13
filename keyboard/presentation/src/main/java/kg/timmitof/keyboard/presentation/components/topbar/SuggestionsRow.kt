@@ -26,8 +26,10 @@ internal fun SuggestionsRow(
     suggestions: List<WordSuggestion>,
     onSelect: (WordSuggestion) -> Unit,
     modifier: Modifier = Modifier,
+    /** В узком месте (поле панели перевода) слов меньше, чтобы каждое помещалось. */
+    maxSuggestions: Int = MaxSuggestions,
 ) {
-    val visible = remember(suggestions) { suggestions.take(MaxSuggestions) }
+    val visible = remember(suggestions, maxSuggestions) { suggestions.take(maxSuggestions) }
 
     Row(
         modifier = modifier.fillMaxHeight(),

@@ -64,6 +64,8 @@ internal data class KeyboardState(
     val clipboard: ClipboardBoard = ClipboardBoard(),
     /** Что открыто пользователю: платные фичи без покупки не работают, даже если их включили. */
     val featureAccess: FeatureAccess = FeatureAccess(),
+    /** «Новое: переводчик» в верхней строке — пока переводчик ни разу не открывали. */
+    val isTranslatorHintPending: Boolean = false,
     /** Открытая панель перевода; null — ввод идёт прямо в поле приложения. */
     val translator: TranslatorState? = null,
 ): BaseState() {
@@ -99,6 +101,8 @@ internal data class KeyboardState(
     val displayedEnterAction: EnterAction
         get() = when {
             layer == KeyboardLayer.EMOJI_SEARCH -> EnterAction.DONE
+            // В панели перевода Enter отправляет перевод.
+            inlineTarget == InlineTarget.TRANSLATOR -> EnterAction.SEND
             fieldType.hasOwnLayout && enterAction == EnterAction.RETURN -> EnterAction.DONE
             else -> enterAction
         }
@@ -123,9 +127,13 @@ internal data class KeyboardState(
     /** Кнопка «Aa» панели перевода: шрифт можно применить к переводу. */
     val allowsTranslationFont: Boolean get() = allowsStyledText
 
-    /** Шрифт перевода — на алфавите целевого языка, а не раскладки. */
-    fun translationFont(target: TranslationLanguage, isStyled: Boolean): KeyboardFont =
-        if (allowsTranslationFont && isStyled) selectedFont.orDefaultFor(target.fontScript) else KeyboardFont.Default
+    /** Шрифт перевода — выбранный на панели «Aa», на алфавите целевого языка, а не раскладки. */
+    fun translationFont(target: TranslationLanguage): KeyboardFont =
+        if (allowsTranslationFont) selectedFont.orDefaultFor(target.fontScript) else KeyboardFont.Default
+
+    /** Подпись пробела в режиме перевода: «Русский → English». */
+    val translatorPairLabel: String?
+        get() = translator?.let { "${it.source?.name ?: activeLanguage?.displayName.orEmpty()} → ${it.target.name}" }
 
     /** Алфавит раскладки: стили без его поддержки прячутся с панели и не применяются. */
     val fontScript: FontScript get() = activeLanguage.fontScript
@@ -275,7 +283,10 @@ internal sealed class KeyboardEvent : BaseEvent.UiEvent() {
     data object OnOpenApp : KeyboardEvent()
     data object OnTranslatorToggle : KeyboardEvent()
     data object OnTranslatorSwap : KeyboardEvent()
-    data object OnTranslatorStyledToggle : KeyboardEvent()
+    data object OnTranslatorFontsToggle : KeyboardEvent()
+    data object OnTranslatorClear : KeyboardEvent()
+    data object OnTranslatorRetry : KeyboardEvent()
+    data class OnTranslatorSourceSelect(val language: TranslationLanguage) : KeyboardEvent()
     data object OnTranslatorDownload : KeyboardEvent()
     data class OnTranslatorTargetSelect(val language: TranslationLanguage) : KeyboardEvent()
     data object OnHideKeyboard : KeyboardEvent()

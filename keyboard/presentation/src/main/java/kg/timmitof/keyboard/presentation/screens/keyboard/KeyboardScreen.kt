@@ -30,7 +30,8 @@ import kg.timmitof.keyboard.presentation.components.overlay.OverlaySurface
 import kg.timmitof.keyboard.presentation.components.overlay.quick_settings.QuickSettingsOverlay
 import kg.timmitof.keyboard.presentation.components.topbar.KeyboardTopBar
 import kg.timmitof.keyboard.presentation.components.translator.TranslatorPanel
-import kg.timmitof.keyboard.presentation.components.overlay.translator.TranslationLanguagesOverlay
+import kg.timmitof.keyboard.presentation.components.overlay.translator.TranslationSourceOverlay
+import kg.timmitof.keyboard.presentation.components.overlay.translator.TranslationTargetOverlay
 import kg.timmitof.keyboard.presentation.insets.LocalKeyboardInsets
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardEvent
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardLayer
@@ -105,7 +106,8 @@ private fun KeyboardContent(
                 when (it) {
                     KeyboardOverlay.QUICK_SETTINGS -> QuickSettingsOverlay(state, onEvent)
                     KeyboardOverlay.CLIPBOARD -> ClipboardOverlay(state, onEvent)
-                    KeyboardOverlay.TRANSLATION_LANGUAGES -> TranslationLanguagesOverlay(state, onEvent)
+                    KeyboardOverlay.TRANSLATION_TARGET -> TranslationTargetOverlay(state, onEvent)
+                    KeyboardOverlay.TRANSLATION_SOURCE -> TranslationSourceOverlay(state, onEvent)
                 }
             }
         }
@@ -119,11 +121,15 @@ private fun LettersLayer(
 ) {
     val layout by state.rememberSlice { it.keyboardLayout }
 
-    Column(modifier = Modifier.fillMaxWidth()) {
-        // Панель перевода добавляет строку сверху, клавиши остаются на своих местах.
-        TranslatorPanel(state = state, onEvent = onEvent)
+    val isTranslatorOpen by state.rememberSlice { it.translator != null }
 
-        KeyboardTopBar(state = state, onEvent = onEvent)
+    Column(modifier = Modifier.fillMaxWidth()) {
+        // Панель перевода встаёт вместо верхней строки и добавляет к ней одну строку; клавиши остаются на местах.
+        if (isTranslatorOpen) {
+            TranslatorPanel(state = state, onEvent = onEvent)
+        } else {
+            KeyboardTopBar(state = state, onEvent = onEvent)
+        }
 
         // Половину зазора добавит верхний ряд клавиш.
         Spacer(modifier = Modifier.height(KeyRowSpacing / 2))

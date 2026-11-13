@@ -3,15 +3,15 @@ package kg.timmitof.keyboard.presentation.screens.keyboard.delegates
 import kg.timmitof.keyboard.domain.model.KeyboardLanguage
 import kg.timmitof.keyboard.presentation.screens.keyboard.KeyboardSyntax
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.ComposingText
+import kg.timmitof.keyboard.presentation.screens.keyboard.states.InlineEditor
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardOverlay
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardSideEffect
-import kg.timmitof.keyboard.presentation.screens.keyboard.states.InlineEditor
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.TranslationRequest
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.TranslatorState
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.TranslatorStatus
 import kg.timmitof.keyboard.translate.domain.model.TranslationLanguage
-import kg.timmitof.keyboard.translate.domain.model.TranslationResult
 import kg.timmitof.keyboard.translate.domain.model.TranslationModels
+import kg.timmitof.keyboard.translate.domain.model.TranslationResult
 import kg.timmitof.keyboard.translate.domain.repository.TranslationDownloadRepository
 import kg.timmitof.keyboard.translate.domain.repository.TranslationModelRepository
 import kg.timmitof.keyboard.translate.domain.repository.TranslationRepository
@@ -50,6 +50,12 @@ internal class TranslatorDelegate(
                 emit(request to translate(request))
             }
 
+    /** Подсказка «Новое: переводчик» висит в верхней строке, пока переводчик ни разу не открыли. */
+    suspend fun KeyboardSyntax.loadHint() {
+        val isPending = !preferencesRepository.getPreferences().isHintShown
+        if (state.isTranslatorHintPending != isPending) reduce { state.copy(isTranslatorHintPending = isPending) }
+    }
+
     /** Черновик поля приложения закрывает вызывающий: дальше ввод пойдёт в панель. */
     suspend fun KeyboardSyntax.open() {
         if (state.translator != null || !state.allowsTranslation) return
@@ -69,17 +75,18 @@ internal class TranslatorDelegate(
                     languages = modelRepository.languages(),
                     layouts = layouts,
                     models = models,
-                    isStyled = preferences.isStyled,
                     needsLeadingSpace = before.isNotEmpty() && !before.last().isWhitespace(),
-                ),
+                ).withDistinctPair(previousSource = null),
                 isFontsExpanded = false,
                 keyboardOverlay = null,
                 suggestions = emptyList(),
                 suggestionsWord = "",
                 autoCorrection = null,
                 keptWord = null,
+                isTranslatorHintPending = false,
             )
         }
+        if (!preferences.isHintShown) preferencesRepository.setHintShown()
     }
 
     /**
@@ -92,7 +99,7 @@ internal class TranslatorDelegate(
         reduce {
             state.copy(
                 translator = null,
-                keyboardOverlay = state.keyboardOverlay.takeIf { it != KeyboardOverlay.TRANSLATION_LANGUAGES },
+                keyboardOverlay = state.keyboardOverlay.takeUnless { it?.isTranslator == true },
                 suggestions = emptyList(),
                 suggestionsWord = "",
                 autoCorrection = null,
@@ -115,7 +122,7 @@ internal class TranslatorDelegate(
             state.copy(
                 translator = null,
                 composing = ComposingText(),
-                keyboardOverlay = state.keyboardOverlay.takeIf { it != KeyboardOverlay.TRANSLATION_LANGUAGES },
+                keyboardOverlay = state.keyboardOverlay.takeUnless { it?.isTranslator == true },
             )
         }
         release()
@@ -135,23 +142,20 @@ internal class TranslatorDelegate(
     }
 
     private fun TranslatorState.withModels(models: TranslationModels): TranslatorState {
-        val isPairDownloaded = pairCodes.all { it in models.downloaded }
-        val isPairDownloading = pairCodes.any { it in models.downloading }
+        val isDownloadedNow = pairCodes.all { it in models.downloaded }
+        val isQueuedNow = pairCodes.any { it in models.downloading }
         // «Не скачалось» — только если загрузка была в очереди и пропала из неё: сразу после нажатия
         // очередь может ещё не обновиться.
-        val wasPairDownloading = pairCodes.any { it in this.models.downloading }
-        val isWaitingForModels = status == TranslatorStatus.DOWNLOADING || status == TranslatorStatus.MODEL_MISSING
+        val wasQueued = pairCodes.any { it in this.models.downloading }
 
-        return when {
-            isWaitingForModels && isPairDownloaded ->
-                copy(models = models, status = TranslatorStatus.READY, revision = revision + 1)
-
-            isPairDownloading -> copy(models = models, status = TranslatorStatus.DOWNLOADING)
-            status == TranslatorStatus.DOWNLOADING && wasPairDownloading ->
-                copy(models = models, status = TranslatorStatus.DOWNLOAD_FAILED)
-
-            else -> copy(models = models)
+        val status = when {
+            isDownloadedNow -> if (status == TranslatorStatus.FAILED) status else TranslatorStatus.READY
+            isQueuedNow -> TranslatorStatus.DOWNLOADING
+            status == TranslatorStatus.DOWNLOADING && wasQueued -> TranslatorStatus.DOWNLOAD_FAILED
+            else -> status
         }
+        val revision = if (isDownloadedNow && !isPairDownloaded) revision + 1 else revision
+        return copy(models = models, status = status, revision = revision)
     }
 
     /** Перевод устаревшего запроса не пишем: пока он считался, текст в панели уже другой. */
@@ -161,15 +165,14 @@ internal class TranslatorDelegate(
 
         when (result) {
             is TranslationResult.Success -> {
-                writeToField(translator, result.text)
+                writeToField(translator.target, translator.needsLeadingSpace, result.text)
                 updateTranslator {
                     it.copy(translation = result.text, translatedFor = request, status = TranslatorStatus.READY)
                 }
             }
 
-            TranslationResult.ModelMissing -> updateTranslator {
-                it.copy(translatedFor = request, status = TranslatorStatus.MODEL_MISSING)
-            }
+            // Скачана ли пара, панель знает по моделям — здесь только отмечаем, что запрос обработан.
+            TranslationResult.ModelMissing -> updateTranslator { it.copy(translatedFor = request) }
 
             TranslationResult.Failed -> updateTranslator {
                 it.copy(translatedFor = request, status = TranslatorStatus.FAILED)
@@ -189,7 +192,7 @@ internal class TranslatorDelegate(
         }
 
         val current = state.translator ?: return
-        val hasTranslation = current.translation.isNotBlank() && current.status == TranslatorStatus.READY &&
+        val hasTranslation = current.translation.isNotBlank() && current.notice == null &&
                 current.translatedFor == current.request
         if (current.editor.text.isNotBlank() && !hasTranslation) return
 
@@ -198,6 +201,15 @@ internal class TranslatorDelegate(
         updateTranslator {
             it.copy(editor = InlineEditor(), translation = "", translatedFor = null, needsLeadingSpace = false)
         }
+    }
+
+    /** «×» в поле: стирает набранное, а пустой запрос уберёт перевод и из поля приложения. */
+    suspend fun KeyboardSyntax.clear() {
+        updateTranslator { it.copy(editor = InlineEditor(), status = TranslatorStatus.READY) }
+    }
+
+    suspend fun KeyboardSyntax.retry() {
+        updateTranslator { it.copy(status = TranslatorStatus.READY, revision = it.revision + 1) }
     }
 
     suspend fun KeyboardSyntax.selectTarget(language: TranslationLanguage) {
@@ -213,13 +225,16 @@ internal class TranslatorDelegate(
         }
     }
 
-    suspend fun KeyboardSyntax.toggleStyled() {
-        val translator = state.translator ?: return
-        val isStyled = !translator.isStyled
+    suspend fun KeyboardSyntax.setFontPickerOpen(isOpen: Boolean) {
+        updateTranslator { it.copy(isFontPickerOpen = isOpen) }
+    }
 
-        preferencesRepository.setStyled(isStyled)
-        updateTranslator { it.copy(isStyled = isStyled) }
-        if (translator.translation.isNotEmpty()) writeToField(translator.copy(isStyled = isStyled), translator.translation)
+    /** Сменили шрифт — готовый перевод в поле перерисовываем сразу, не дожидаясь нового набора. */
+    suspend fun KeyboardSyntax.restyle() {
+        val translator = state.translator ?: return
+        if (translator.translation.isEmpty()) return
+
+        writeToField(translator.target, translator.needsLeadingSpace, translator.translation)
     }
 
     /**
@@ -253,23 +268,41 @@ internal class TranslatorDelegate(
         }
     }
 
-    /** Сменили раскладку (или список включённых языков) — исходный язык перевода следует за ней. */
+    /**
+     * Сменили раскладку (или список включённых языков) — исходный язык перевода следует за ней.
+     * Совпал с целевым — пара меняется местами: с английской раскладки переводим на прежний язык.
+     */
     suspend fun KeyboardSyntax.syncSource() {
         val translator = state.translator ?: return
         val source = sourceOf(state.activeLanguage)
         val layouts = layoutsOf(state.languages)
         if (source == translator.source && layouts == translator.layouts) return
 
-        updateTranslator { it.copy(source = source, layouts = layouts, status = TranslatorStatus.READY) }
+        val updated = translator.copy(source = source, layouts = layouts, status = TranslatorStatus.READY)
+            .withDistinctPair(previousSource = translator.source)
+        if (updated.target != translator.target) preferencesRepository.setTarget(updated.target.code)
+        updateTranslator { updated.copy(editor = it.editor, models = it.models) }
+    }
+
+    /** Исходный и целевой совпали — целевым становится прежний исходный (или язык по умолчанию). */
+    private fun TranslatorState.withDistinctPair(previousSource: TranslationLanguage?): TranslatorState {
+        if (source == null || source.code != target.code) return this
+
+        val target = previousSource?.takeIf { it.code != source.code } ?: defaultTarget(source, layouts)
+        return copy(target = target)
     }
 
     private suspend fun translate(request: TranslationRequest): TranslationResult =
         translationRepository.translate(request.text, request.sourceCode, request.targetCode)
 
     /** Перевод — областью компоновки: следующий перевод заменит её целиком. Пишется мимо [input] — это поле приложения. */
-    private suspend fun KeyboardSyntax.writeToField(translator: TranslatorState, translation: String) {
-        val styled = state.translationFont(translator.target, translator.isStyled).apply(translation)
-        val text = if (translator.needsLeadingSpace && styled.isNotEmpty()) " $styled" else styled
+    private suspend fun KeyboardSyntax.writeToField(
+        target: TranslationLanguage,
+        needsLeadingSpace: Boolean,
+        translation: String,
+    ) {
+        val styled = state.translationFont(target).apply(translation)
+        val text = if (needsLeadingSpace && styled.isNotEmpty()) " $styled" else styled
         postSideEffect(KeyboardSideEffect.Input.SetComposingText(text))
     }
 
@@ -283,7 +316,7 @@ internal class TranslatorDelegate(
     private fun sourceOf(language: KeyboardLanguage?): TranslationLanguage? =
         language?.let { modelRepository.languageForLayout(it.code) }
 
-    /** Языки перевода, на которых можно печатать: только на них можно поменять пару местами. */
+    /** Языки перевода, на которых можно печатать: из них выбирают исходный и с ними меняют пару местами. */
     private fun layoutsOf(languages: List<KeyboardLanguage>): Map<String, KeyboardLanguage> =
         languages.mapNotNull { language -> modelRepository.languageForLayout(language.code)?.let { it.code to language } }
             .toMap()

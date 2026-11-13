@@ -13,5 +13,5 @@ class TranslatorPreferencesRepositoryImpl @Inject constructor(
 
     override suspend fun setTarget(code: String) = source.setTarget(code)
 
-    override suspend fun setStyled(isStyled: Boolean) = source.setStyled(isStyled)
+    override suspend fun setHintShown() = source.setHintShown()
 }
