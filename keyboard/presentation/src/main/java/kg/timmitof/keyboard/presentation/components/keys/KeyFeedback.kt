@@ -26,6 +26,11 @@ internal class KeyFeedback(
     val isPreviewEnabled: Boolean = true,
 ) {
 
+    /** Кнопки интерфейса (языки, «Скачать», якоря) — только вибрация: звук клавиши на них был бы лишним. */
+    fun onButtonPress() {
+        if (isVibrationEnabled) view?.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+    }
+
     fun onKeyPress(sound: KeySound = KeySound.STANDARD) {
         if (isVibrationEnabled) {
             view?.performHapticFeedback(

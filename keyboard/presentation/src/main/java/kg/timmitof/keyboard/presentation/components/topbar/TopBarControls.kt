@@ -1,6 +1,6 @@
 package kg.timmitof.keyboard.presentation.components.topbar
 
-import kg.timmitof.core.ui.plainClickable
+import kg.timmitof.keyboard.presentation.components.keyboardClickable
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.animation.animateColorAsState
@@ -77,7 +77,7 @@ internal fun TopBarPill(
             .height(ControlHeight)
             .clip(ControlShape)
             .then(if (isActive) Modifier.background(KFTheme.color.noticeBackground) else Modifier.pillSurface())
-            .then(if (isEnabled) Modifier.plainClickable(onClick) else Modifier)
+            .then(if (isEnabled) Modifier.keyboardClickable(onClick) else Modifier)
             .padding(horizontal = 12.dp),
         horizontalArrangement = Arrangement.spacedBy(5.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -125,7 +125,7 @@ internal fun TopBarAnchorButton(
             .size(AnchorSize)
             .clip(CircleShape)
             .background(background)
-            .plainClickable(onClick),
+            .keyboardClickable(onClick),
         contentAlignment = Alignment.Center
     ) {
         Icon(

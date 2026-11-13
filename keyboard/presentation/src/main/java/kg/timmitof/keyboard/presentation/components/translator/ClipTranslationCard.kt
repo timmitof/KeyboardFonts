@@ -28,7 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kg.timmitof.core.ui.plainClickable
+import kg.timmitof.keyboard.presentation.components.keyboardClickable
 import kg.timmitof.keyboard.presentation.R
 import kg.timmitof.keyboard.presentation.screens.keyboard.rememberSlice
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardEvent
@@ -80,7 +80,7 @@ internal fun ClipTranslationCard(
                 modifier = Modifier
                     .size(28.dp)
                     .clip(CircleShape)
-                    .plainClickable { onEvent(KeyboardEvent.OnClipTranslationDismiss) },
+                    .keyboardClickable { onEvent(KeyboardEvent.OnClipTranslationDismiss) },
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
@@ -143,7 +143,7 @@ private fun CardAction(
             .height(34.dp)
             .clip(RoundedCornerShape(17.dp))
             .background(background)
-            .plainClickable(onClick)
+            .keyboardClickable(onClick)
             .padding(horizontal = 12.dp),
         horizontalArrangement = Arrangement.spacedBy(6.dp),
         verticalAlignment = Alignment.CenterVertically,

@@ -28,6 +28,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -35,7 +37,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kg.timmitof.core.ui.R as UiR
-import kg.timmitof.core.ui.plainClickable
+import kg.timmitof.keyboard.presentation.components.keyboardClickable
 import kg.timmitof.keyboard.presentation.R
 import kg.timmitof.keyboard.presentation.components.overlay.OverlayHeader
 import kg.timmitof.keyboard.presentation.screens.keyboard.rememberSlice
@@ -120,7 +122,8 @@ private fun AutoSourceRow(
             .height(RowHeight)
             .clip(RowShape)
             .then(if (isSelected) Modifier.background(KFTheme.color.noticeBackground) else Modifier)
-            .plainClickable(onClick)
+            .semantics { selected = isSelected }
+            .keyboardClickable(onClick)
             .padding(start = 10.dp, end = 10.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -174,7 +177,7 @@ private fun SearchEntry(onClick: () -> Unit) {
             .height(36.dp)
             .clip(RoundedCornerShape(18.dp))
             .background(KFTheme.color.overlayChipBackground)
-            .plainClickable(onClick)
+            .keyboardClickable(onClick)
             .padding(horizontal = 14.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -230,7 +233,8 @@ private fun RecentChip(
             .height(30.dp)
             .clip(RoundedCornerShape(15.dp))
             .background(if (isSelected) KFTheme.color.noticeBackground else KFTheme.color.overlayChipBackground)
-            .plainClickable(onClick)
+            .semantics { selected = isSelected }
+            .keyboardClickable(onClick)
             .padding(horizontal = 11.dp),
         horizontalArrangement = Arrangement.spacedBy(5.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -297,7 +301,8 @@ private fun LanguageRow(
             .height(RowHeight)
             .clip(RowShape)
             .then(if (isSelected) Modifier.background(KFTheme.color.noticeBackground) else Modifier)
-            .plainClickable(onClick)
+            .semantics { selected = isSelected }
+            .keyboardClickable(onClick)
             .padding(start = 10.dp, end = 4.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -343,7 +348,7 @@ private fun LanguageRow(
                 modifier = Modifier
                     .size(TrailingSize)
                     .clip(CircleShape)
-                    .plainClickable(onDownload),
+                    .keyboardClickable(onDownload),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(

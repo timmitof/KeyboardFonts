@@ -40,7 +40,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kg.timmitof.core.ui.R as UiR
-import kg.timmitof.core.ui.plainClickable
+import kg.timmitof.keyboard.presentation.components.keyboardClickable
 import kg.timmitof.keyboard.domain.model.KeyboardLanguage
 import kg.timmitof.keyboard.font.domain.model.KeyboardFont
 import kg.timmitof.keyboard.presentation.R
@@ -310,7 +310,7 @@ private fun ClearButton(
         modifier = Modifier
             .size(28.dp)
             .clip(CircleShape)
-            .plainClickable(onClick),
+            .keyboardClickable(onClick),
         contentAlignment = Alignment.Center,
     ) {
         Icon(
@@ -396,7 +396,7 @@ private fun ActionPill(
         modifier = Modifier
             .clip(RoundedCornerShape(16.dp))
             .background(KFTheme.color.keyAccentBackground)
-            .plainClickable(onClick)
+            .keyboardClickable(onClick)
             .padding(horizontal = 12.dp, vertical = 8.dp),
         text = label,
         fontSize = 12.5.sp,
