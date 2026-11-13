@@ -3,10 +3,13 @@ package kg.timmitof.keyboard.suggestion.domain.model
 /**
  * Снимок текста вокруг курсора — вход для подсказок. Текст может быть стилизован Unicode-шрифтом,
  * поэтому границы слов ищутся по разделителям, а глифы расшифровывает data-слой.
+ *
+ * @param selected выделенный в поле текст (перевод выделенного); пусто — выделения нет.
  */
 data class TextContext(
     val before: String = "",
     val after: String = "",
+    val selected: String = "",
 ) {
 
     // Производные значения считаются один раз на снимок и не входят в equals/hashCode.
@@ -54,10 +57,10 @@ data class TextContext(
 
     /** Обновляет снимок сразу, не дожидаясь поля ввода, иначе подсказки и авто-Shift считаются по устаревшему тексту. */
     fun appending(text: String): TextContext =
-        copy(before = (before + text).takeLast(MAX_BEFORE_LENGTH))
+        copy(before = (before + text).takeLast(MAX_BEFORE_LENGTH), selected = "")
 
     fun removingLast(count: Int): TextContext =
-        copy(before = before.dropLast(count))
+        copy(before = before.dropLast(count), selected = "")
 
     companion object {
         const val MAX_BEFORE_LENGTH = 512

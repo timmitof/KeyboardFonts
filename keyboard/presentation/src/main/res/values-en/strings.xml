@@ -86,4 +86,9 @@
     <string name="quick_settings_translator">Translator</string>
     <string name="quick_settings_translator_pair">%1$s → %2$s</string>
     <string name="quick_settings_translator_offline">%1$s · offline: %2$s</string>
+    <string name="translator_selection">文A Translate selection</string>
+    <string name="translator_selection_working">Translating…</string>
+    <string name="translator_selection_downloading">Downloading the language — tap when ready</string>
+    <string name="translator_selection_unsupported">This language can\'t be translated yet</string>
+    <string name="translator_selection_failed">Failed — tap to retry</string>
 </resources>

@@ -6,6 +6,7 @@ import kg.timmitof.core.ui.base.BaseViewModel
 import kg.timmitof.keyboard.domain.model.KeyboardLanguage
 import kg.timmitof.keyboard.domain.model.KeyboardSettings
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.ClipTranslationDelegate
+import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.SelectionTranslationDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.ClipboardDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.EmojiDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.FieldContextDelegate
@@ -51,6 +52,7 @@ internal class KeyboardViewModel(
     private val clipboardDelegate: ClipboardDelegate,
     private val translatorDelegate: TranslatorDelegate,
     private val clipTranslationDelegate: ClipTranslationDelegate,
+    private val selectionTranslationDelegate: SelectionTranslationDelegate,
 ) : BaseViewModel<KeyboardState, KeyboardSideEffect, KeyboardEvent>(KeyboardState()) {
 
     override fun onEvent(event: KeyboardEvent) {
@@ -155,6 +157,10 @@ internal class KeyboardViewModel(
                 with(clipTranslationDelegate) { paste() }
             }
             is KeyboardEvent.OnClipTranslationReply -> replyToClip()
+            is KeyboardEvent.OnTranslateSelection -> intent {
+                with(textInputDelegate) { closeComposing() }
+                with(selectionTranslationDelegate) { translateSelection() }
+            }
             is KeyboardEvent.OnClipTranslationDismiss -> intent { with(clipTranslationDelegate) { dismiss() } }
             is KeyboardEvent.OnTranslatorDetectionDismiss -> intent { with(translatorDelegate) { dismissDetection() } }
             is KeyboardEvent.OnTranslatorLanguageDownload -> intent {

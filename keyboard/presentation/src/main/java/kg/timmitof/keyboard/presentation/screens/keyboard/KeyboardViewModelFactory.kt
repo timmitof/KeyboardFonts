@@ -11,6 +11,7 @@ import kg.timmitof.keyboard.domain.repository.LanguageRepository
 import kg.timmitof.keyboard.suggestion.domain.repository.SuggestionRepository
 import kg.timmitof.keyboard.suggestion.domain.repository.TypingStatsRepository
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.ClipTranslationDelegate
+import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.SelectionTranslationDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.ClipboardDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.EmojiDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.FieldContextDelegate
@@ -62,6 +63,14 @@ class KeyboardViewModelFactory(
                 suggestionsDelegate = suggestionsDelegate,
                 settingsDelegate = SettingsDelegate(keyboardSettingsRepository, featureAccessRepository),
                 clipboardDelegate = ClipboardDelegate(clipboardRepository),
+                selectionTranslationDelegate = SelectionTranslationDelegate(
+                    detectionRepository = languageDetectionRepository,
+                    translationRepository = translationRepository,
+                    modelRepository = translationModelRepository,
+                    downloadRepository = translationDownloadRepository,
+                    preferencesRepository = translatorPreferencesRepository,
+                    suggestionsDelegate = suggestionsDelegate,
+                ),
                 clipTranslationDelegate = ClipTranslationDelegate(
                     clipboardRepository = clipboardRepository,
                     detectionRepository = languageDetectionRepository,

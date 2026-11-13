@@ -86,4 +86,9 @@
     <string name="quick_settings_translator">Котормочу</string>
     <string name="quick_settings_translator_pair">%1$s → %2$s</string>
     <string name="quick_settings_translator_offline">%1$s · интернетсиз: %2$s</string>
+    <string name="translator_selection">文A Белгиленгенди которуу</string>
+    <string name="translator_selection_working">Которулууда…</string>
+    <string name="translator_selection_downloading">Тил жүктөлүүдө — даяр болгондо басыңыз</string>
+    <string name="translator_selection_unsupported">Бул тил азырынча которулбайт</string>
+    <string name="translator_selection_failed">Болбой калды — кайра басыңыз</string>
 </resources>

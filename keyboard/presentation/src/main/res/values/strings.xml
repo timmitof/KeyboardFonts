@@ -98,4 +98,9 @@
     <string name="quick_settings_translator">Переводчик</string>
     <string name="quick_settings_translator_pair">%1$s → %2$s</string>
     <string name="quick_settings_translator_offline">%1$s · без интернета: %2$s</string>
+    <string name="translator_selection">文A Перевести выделенное</string>
+    <string name="translator_selection_working">Переводим…</string>
+    <string name="translator_selection_downloading">Скачиваем язык — нажмите, когда скачается</string>
+    <string name="translator_selection_unsupported">Этот язык пока не переводится</string>
+    <string name="translator_selection_failed">Не удалось — нажмите ещё раз</string>
 </resources>

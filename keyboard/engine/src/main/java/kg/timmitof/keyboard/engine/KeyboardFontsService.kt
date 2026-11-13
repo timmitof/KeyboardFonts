@@ -97,6 +97,9 @@ internal class KeyboardFontsService : ComposeInputMethodService() {
 
     private val textSyncTask = Runnable { syncTextContext() }
 
+    /** Выделение есть — поле спрашиваем и о выделенном; без него лишний запрос в чужой процесс не делаем. */
+    private var hasSelection = false
+
     override fun onCreateComposeView(): View = KeyboardFontsView(
         context = this,
         viewModelStoreOwner = this,
@@ -141,6 +144,7 @@ internal class KeyboardFontsService : ComposeInputMethodService() {
         super.onUpdateSelection(
             oldSelStart, oldSelEnd, newSelStart, newSelEnd, candidatesStart, candidatesEnd,
         )
+        hasSelection = newSelStart != newSelEnd
         scheduleTextSync()
     }
 
@@ -216,6 +220,11 @@ internal class KeyboardFontsService : ComposeInputMethodService() {
             TextContext(
                 before = connection.getTextBeforeCursor(BEFORE_LENGTH, 0)?.toString().orEmpty(),
                 after = connection.getTextAfterCursor(AFTER_LENGTH, 0)?.toString().orEmpty(),
+                selected = if (hasSelection) {
+                    connection.getSelectedText(0)?.toString()?.take(SELECTED_LENGTH).orEmpty()
+                } else {
+                    ""
+                },
             )
         )
     }
@@ -232,5 +241,8 @@ internal class KeyboardFontsService : ComposeInputMethodService() {
         const val TEXT_SYNC_DELAY_MILLIS = 60L
 
         const val AFTER_LENGTH = 32
+
+        /** Выделенное переводится целиком — длиннее абзаца переводить из клавиатуры незачем. */
+        const val SELECTED_LENGTH = 2_000
     }
 }

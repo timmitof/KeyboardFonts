@@ -86,4 +86,9 @@
     <string name="quick_settings_translator">Перекладач</string>
     <string name="quick_settings_translator_pair">%1$s → %2$s</string>
     <string name="quick_settings_translator_offline">%1$s · без інтернету: %2$s</string>
+    <string name="translator_selection">文A Перекласти виділене</string>
+    <string name="translator_selection_working">Перекладаємо…</string>
+    <string name="translator_selection_downloading">Завантажуємо мову — натисніть, коли завантажиться</string>
+    <string name="translator_selection_unsupported">Ця мова поки не перекладається</string>
+    <string name="translator_selection_failed">Не вдалося — натисніть ще раз</string>
 </resources>

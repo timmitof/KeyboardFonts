@@ -66,6 +66,8 @@ internal data class KeyboardState(
     val featureAccess: FeatureAccess = FeatureAccess(),
     /** Перевод только что скопированного — карточка над клавишами; null — предлагать нечего. */
     val clipTranslation: ClipTranslation? = null,
+    /** Перевод выделенного в поле приложения: идёт, ждёт загрузки языка или не вышел. */
+    val selectionTranslation: SelectionTranslation? = null,
     /** Строка «Переводчик» в быстрых настройках; читается при их открытии, а не держится постоянно. */
     val translatorSummary: TranslatorSummary? = null,
     /** «Новое: переводчик» в верхней строке — пока переводчик ни разу не открывали. */
@@ -139,6 +141,10 @@ internal data class KeyboardState(
     /** Шрифт перевода — выбранный на панели «Aa», на алфавите целевого языка, а не раскладки. */
     fun translationFont(target: TranslationLanguage): KeyboardFont =
         if (allowsTranslationFont) selectedFont.orDefaultFor(target.fontScript) else KeyboardFont.Default
+
+    /** Выделенный в поле приложения текст можно перевести: кнопка «Перевести выделенное» в верхней строке. */
+    val canTranslateSelection: Boolean
+        get() = translator == null && allowsTranslation && textContext.selected.isNotBlank()
 
     /** Запрос определения языка набранного в панели; null — определять незачем. */
     val translatorDetectionRequest: DetectionRequest?
@@ -306,6 +312,7 @@ internal sealed class KeyboardEvent : BaseEvent.UiEvent() {
     data class OnTranslatorLanguageDownload(val language: TranslationLanguage) : KeyboardEvent()
     data object OnTranslatorAutoSourceSelect : KeyboardEvent()
     data object OnClipTranslationPaste : KeyboardEvent()
+    data object OnTranslateSelection : KeyboardEvent()
     data object OnClipTranslationReply : KeyboardEvent()
     data object OnClipTranslationDismiss : KeyboardEvent()
     data object OnTranslatorDetectionDismiss : KeyboardEvent()

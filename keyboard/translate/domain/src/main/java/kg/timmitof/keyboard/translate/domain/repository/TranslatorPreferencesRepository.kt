@@ -7,8 +7,11 @@ interface TranslatorPreferencesRepository {
 
     suspend fun getPreferences(): TranslatorPreferences
 
-    /** Запоминает и как текущий язык перевода, и как самый свежий из недавних. */
-    suspend fun setTarget(code: String)
+    /**
+     * Запоминает как текущий язык перевода, как самый свежий из недавних и — если известно приложение —
+     * как язык перевода этого приложения.
+     */
+    suspend fun setTarget(code: String, packageName: String? = null)
 
     suspend fun setHintShown()
 

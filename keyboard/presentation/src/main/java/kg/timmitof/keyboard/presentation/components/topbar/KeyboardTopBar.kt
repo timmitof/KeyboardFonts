@@ -41,6 +41,7 @@ import kg.timmitof.keyboard.presentation.components.LocalKeyboardMetrics
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardEvent
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardOverlay
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardState
+import kg.timmitof.keyboard.presentation.screens.keyboard.states.SelectionTranslationStatus
 import kg.timmitof.keyboard.presentation.theme.KFTheme
 
 @Composable
@@ -62,6 +63,9 @@ internal fun KeyboardTopBar(
             allowsTranslation = it.allowsTranslation,
             isTranslatorOpen = it.translator != null,
             isTranslatorHintPending = it.isTranslatorHintPending && it.allowsTranslation,
+            selectionStatus = it.selectionTranslation
+                ?.takeIf { selection -> selection.text == it.textContext.selected }
+                ?.status,
         )
     }
     val mode = topBar.mode
@@ -167,6 +171,16 @@ private fun TopBarContent(
     when (mode) {
         TopBarMode.CURSOR -> CursorModeHint()
 
+        TopBarMode.SELECTION -> ContentRow {
+            TopBarPill(
+                label = stringResource(slice.selectionStatus.labelRes),
+                isActive = true,
+                isEnabled = slice.selectionStatus != SelectionTranslationStatus.TRANSLATING,
+                onClick = { onEvent(KeyboardEvent.OnTranslateSelection) },
+            )
+            Box(modifier = Modifier.weight(1f))
+        }
+
         TopBarMode.SUGGESTIONS -> ContentRow(spacing = 2.dp) {
             if (slice.allowsFonts) {
                 FontToggleButton(
@@ -228,16 +242,30 @@ private data class TopBarSlice(
     val allowsTranslation: Boolean,
     val isTranslatorOpen: Boolean,
     val isTranslatorHintPending: Boolean,
+    /** Что с переводом выделенного; null — ещё не нажимали. */
+    val selectionStatus: SelectionTranslationStatus?,
 )
 
-private enum class TopBarMode { CURSOR, SUGGESTIONS, FONTS_EXPANDED, IDLE }
+private enum class TopBarMode { CURSOR, SELECTION, SUGGESTIONS, FONTS_EXPANDED, IDLE }
 
 private val KeyboardState.topBarMode: TopBarMode
     get() = when {
         isCursorMode -> TopBarMode.CURSOR
+        // Выделили текст — подсказки к нему ни к чему, а перевести его — как раз к месту.
+        canTranslateSelection -> TopBarMode.SELECTION
         isFontsExpanded -> TopBarMode.FONTS_EXPANDED
         hasSuggestions -> TopBarMode.SUGGESTIONS
         else -> TopBarMode.IDLE
+    }
+
+/** Подпись кнопки перевода выделенного — то, что сейчас происходит с переводом. */
+private val SelectionTranslationStatus?.labelRes: Int
+    get() = when (this) {
+        null -> R.string.translator_selection
+        SelectionTranslationStatus.TRANSLATING -> R.string.translator_selection_working
+        SelectionTranslationStatus.DOWNLOADING -> R.string.translator_selection_downloading
+        SelectionTranslationStatus.UNSUPPORTED -> R.string.translator_selection_unsupported
+        SelectionTranslationStatus.FAILED -> R.string.translator_selection_failed
     }
 
 @Composable

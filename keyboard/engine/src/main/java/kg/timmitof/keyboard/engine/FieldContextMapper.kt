@@ -9,6 +9,7 @@ internal fun EditorInfo?.toFieldContext(): KeyboardFieldContext = KeyboardFieldC
     type = toFieldType(),
     enterAction = toEnterAction(),
     isMultiLine = isMultiLine(),
+    packageName = this?.packageName,
 )
 
 private fun EditorInfo?.toFieldType(): KeyboardFieldType {

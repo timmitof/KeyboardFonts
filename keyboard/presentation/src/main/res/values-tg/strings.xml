@@ -86,4 +86,9 @@
     <string name="quick_settings_translator">Тарҷумон</string>
     <string name="quick_settings_translator_pair">%1$s → %2$s</string>
     <string name="quick_settings_translator_offline">%1$s · бе интернет: %2$s</string>
+    <string name="translator_selection">文A Тарҷумаи интихобшуда</string>
+    <string name="translator_selection_working">Тарҷума мешавад…</string>
+    <string name="translator_selection_downloading">Забон боргирӣ мешавад — вақти тайёр шудан пахш кунед</string>
+    <string name="translator_selection_unsupported">Ин забон ҳоло тарҷума намешавад</string>
+    <string name="translator_selection_failed">Нашуд — боз пахш кунед</string>
 </resources>

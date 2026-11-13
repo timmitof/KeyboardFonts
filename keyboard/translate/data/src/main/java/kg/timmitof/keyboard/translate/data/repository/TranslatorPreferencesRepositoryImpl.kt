@@ -11,7 +11,7 @@ class TranslatorPreferencesRepositoryImpl @Inject constructor(
 
     override suspend fun getPreferences(): TranslatorPreferences = source.get()
 
-    override suspend fun setTarget(code: String) = source.setTarget(code)
+    override suspend fun setTarget(code: String, packageName: String?) = source.setTarget(code, packageName)
 
     override suspend fun setHintShown() = source.setHintShown()
 

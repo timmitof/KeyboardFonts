@@ -83,7 +83,7 @@ internal class TranslatorDelegate(
     suspend fun KeyboardSyntax.loadSummary() {
         val preferences = preferencesRepository.getPreferences()
         val source = sourceOf(state.activeLanguage)
-        val target = preferences.targetCode?.let(modelRepository::language)
+        val target = preferences.targetFor(state.fieldContext.packageName)?.let(modelRepository::language)
             ?: defaultTarget(source, layoutsOf(state.languages))
         val offline = modelRepository.downloadedCodes()
             .mapNotNull(modelRepository::language)
@@ -105,7 +105,9 @@ internal class TranslatorDelegate(
         val preferences = preferencesRepository.getPreferences()
         val layouts = layoutsOf(state.languages)
         val source = sourceOf(state.activeLanguage)
-        val target = preferences.targetCode?.let(modelRepository::language) ?: defaultTarget(source, layouts)
+        // Своя пара для каждого приложения: в одном чате переводят на английский, в другом — на турецкий.
+        val target = preferences.targetFor(state.fieldContext.packageName)?.let(modelRepository::language)
+            ?: defaultTarget(source, layouts)
         val models = TranslationModels(downloaded = modelRepository.downloadedCodes())
         val before = state.textContext.before
 
@@ -306,7 +308,7 @@ internal class TranslatorDelegate(
     suspend fun KeyboardSyntax.selectTarget(language: TranslationLanguage) {
         if (state.translator == null) return
 
-        preferencesRepository.setTarget(language.code)
+        preferencesRepository.setTarget(language.code, state.fieldContext.packageName)
         reduce {
             val translator = state.translator ?: return@reduce state
             state.copy(
@@ -380,7 +382,7 @@ internal class TranslatorDelegate(
      * Готовый перевод становится набранным текстом и переводится обратно.
      */
     suspend fun KeyboardSyntax.swapped(previousSource: TranslationLanguage) {
-        preferencesRepository.setTarget(previousSource.code)
+        preferencesRepository.setTarget(previousSource.code, state.fieldContext.packageName)
         updateTranslator {
             val text = it.translation.ifEmpty { it.editor.text }
             it.withRecent(previousSource).copy(
@@ -407,7 +409,7 @@ internal class TranslatorDelegate(
         // Раскладку сменили — прежняя подсказка «другой язык» больше не к месту.
         val updated = translator.copy(source = source, layouts = layouts, status = TranslatorStatus.READY, suggestedLayout = null)
             .withDistinctPair(previousSource = translator.source)
-        if (updated.target != translator.target) preferencesRepository.setTarget(updated.target.code)
+        if (updated.target != translator.target) preferencesRepository.setTarget(updated.target.code, state.fieldContext.packageName)
         val final = if (updated.target != translator.target) updated.withRecent(updated.target) else updated
         updateTranslator { final.copy(editor = it.editor, models = it.models, languageSearch = it.languageSearch) }
     }

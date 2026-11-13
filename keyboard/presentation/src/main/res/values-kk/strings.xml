@@ -86,4 +86,9 @@
     <string name="quick_settings_translator">Аудармашы</string>
     <string name="quick_settings_translator_pair">%1$s → %2$s</string>
     <string name="quick_settings_translator_offline">%1$s · интернетсіз: %2$s</string>
+    <string name="translator_selection">文A Белгіленгенді аудару</string>
+    <string name="translator_selection_working">Аударылуда…</string>
+    <string name="translator_selection_downloading">Тіл жүктелуде — дайын болғанда басыңыз</string>
+    <string name="translator_selection_unsupported">Бұл тіл әзірге аударылмайды</string>
+    <string name="translator_selection_failed">Болмады — қайта басыңыз</string>
 </resources>
