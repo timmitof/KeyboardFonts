@@ -3,10 +3,17 @@ package kg.timmitof.keyboard.presentation.components
 import kg.timmitof.keyboard.domain.model.KeyboardLanguage
 import kg.timmitof.keyboard.font.domain.model.FontScript
 import kg.timmitof.keyboard.font.domain.model.KeyboardFont
+import kg.timmitof.keyboard.translate.domain.model.TranslationLanguage
 
 /** Нелатинские языки каталога пока только кириллические; нет языка — латиница. */
 val KeyboardLanguage?.fontScript: FontScript
     get() = if (this?.isLatin == false) FontScript.CYRILLIC else FontScript.LATIN
+
+/** Алфавит языка перевода: кириллица у славянских языков переводчика, остальное стили не трогают как латиницу. */
+val TranslationLanguage.fontScript: FontScript
+    get() = if (code in CYRILLIC_TRANSLATION_CODES) FontScript.CYRILLIC else FontScript.LATIN
+
+private val CYRILLIC_TRANSLATION_CODES = setOf("ru", "uk", "be", "bg", "mk")
 
 /** Образец для плашки шрифта — на алфавите раскладки. */
 val FontScript.fontSample: String

@@ -44,4 +44,20 @@
     <string name="emoji_category_objects">Ашё</string>
     <string name="emoji_category_symbols">Рамзҳо</string>
     <string name="emoji_category_flags">Парчамҳо</string>
+
+    <!-- Переводчик -->
+    <string name="translator_title">Тарҷумон</string>
+    <string name="translator_target_title">Тарҷума ба</string>
+    <string name="translator_hint">Дар ин ҷо нависед — тарҷума ба майдон меравад</string>
+    <string name="translator_swap">Ивази забонҳо</string>
+    <string name="translator_close">Пӯшидани тарҷумон</string>
+    <string name="translator_model_missing">%1$s-ро як бор боргирӣ кунед — баъд бе интернет кор мекунад</string>
+    <string name="translator_download">Боргирӣ</string>
+    <string name="translator_downloading">%1$s боргирӣ мешавад…</string>
+    <string name="translator_download_failed">Боргирӣ нашуд — интернетро санҷед</string>
+    <string name="translator_retry">Такрор</string>
+    <string name="translator_failed">Тарҷума нашуд</string>
+    <string name="translator_unsupported">%1$s ҳоло тарҷума намешавад — забони клавиатураро иваз кунед</string>
+    <string name="translator_same_language">Забони дигари тарҷумаро интихоб кунед</string>
+    <string name="translator_offline">офлайн</string>
 </resources>

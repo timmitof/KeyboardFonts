@@ -44,4 +44,20 @@
     <string name="emoji_category_objects">Заттар</string>
     <string name="emoji_category_symbols">Таңбалар</string>
     <string name="emoji_category_flags">Жалаулар</string>
+
+    <!-- Переводчик -->
+    <string name="translator_title">Аудармашы</string>
+    <string name="translator_target_title">Аудару тілі</string>
+    <string name="translator_hint">Осында жазыңыз — аударма өріске түседі</string>
+    <string name="translator_swap">Тілдерді ауыстыру</string>
+    <string name="translator_close">Аудармашыны жабу</string>
+    <string name="translator_model_missing">%1$s тілін бір рет жүктеңіз — кейін интернетсіз жұмыс істейді</string>
+    <string name="translator_download">Жүктеу</string>
+    <string name="translator_downloading">%1$s жүктелуде…</string>
+    <string name="translator_download_failed">Жүктелмеді — интернетті тексеріңіз</string>
+    <string name="translator_retry">Қайталау</string>
+    <string name="translator_failed">Аудару мүмкін болмады</string>
+    <string name="translator_unsupported">%1$s әзірге аударылмайды — пернетақта тілін ауыстырыңыз</string>
+    <string name="translator_same_language">Басқа аудару тілін таңдаңыз</string>
+    <string name="translator_offline">офлайн</string>
 </resources>

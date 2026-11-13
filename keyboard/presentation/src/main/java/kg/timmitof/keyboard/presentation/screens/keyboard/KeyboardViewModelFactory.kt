@@ -19,6 +19,8 @@ import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.LayerDelegat
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.SettingsDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.SuggestionsDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.TextInputDelegate
+import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.TranslatorDelegate
+import kg.timmitof.keyboard.translate.domain.repository.TranslatorRepository
 
 class KeyboardViewModelFactory(
     private val keyboardLayoutRepository: KeyboardLayoutRepository,
@@ -29,6 +31,7 @@ class KeyboardViewModelFactory(
     private val typingStatsRepository: TypingStatsRepository,
     private val keyboardSettingsRepository: KeyboardSettingsRepository,
     private val clipboardRepository: ClipboardRepository,
+    private val translatorRepository: TranslatorRepository,
 ) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -48,6 +51,7 @@ class KeyboardViewModelFactory(
                 suggestionsDelegate = suggestionsDelegate,
                 settingsDelegate = SettingsDelegate(keyboardSettingsRepository),
                 clipboardDelegate = ClipboardDelegate(clipboardRepository),
+                translatorDelegate = TranslatorDelegate(translatorRepository),
             ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")

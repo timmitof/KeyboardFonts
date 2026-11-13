@@ -48,6 +48,8 @@ internal class KeyboardActionHandler(
             is KeyboardSideEffect.Input.SelectBeforeCursor -> connection.selectBeforeCursor(action.chars)
             is KeyboardSideEffect.Input.PerformEditorAction -> connection.performEnter()
             is KeyboardSideEffect.Input.DeleteSelection -> connection.commitText("", 1)
+            // Само поле не трогаем: сервис перечитает его после любой такой команды.
+            is KeyboardSideEffect.Input.RefreshTextContext -> Unit
         }
     }
 

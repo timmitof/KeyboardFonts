@@ -24,6 +24,7 @@ import kg.timmitof.keyboard.domain.model.KeyboardToggle
 import kg.timmitof.keyboard.suggestion.domain.model.TextContext
 import kg.timmitof.keyboard.suggestion.domain.model.TypedKey
 import kg.timmitof.keyboard.suggestion.domain.model.WordSuggestion
+import kg.timmitof.keyboard.translate.domain.model.TranslationLanguage
 
 @Stable
 internal data class KeyboardState(
@@ -59,6 +60,8 @@ internal data class KeyboardState(
     val settings: KeyboardSettings = KeyboardSettings(),
     val keyboardOverlay: KeyboardOverlay? = null,
     val clipboard: ClipboardBoard = ClipboardBoard(),
+    /** Открытая панель перевода; null — ввод идёт прямо в поле приложения. */
+    val translator: TranslatorState? = null,
 ): BaseState() {
 
     val fieldType: KeyboardFieldType get() = fieldContext.type
@@ -81,9 +84,25 @@ internal data class KeyboardState(
             else -> enterAction
         }
 
-    /** Панель убирают и настройки, и поле: в адресах, паролях и цифрах стилизация мешает. */
+    /**
+     * Панель убирают и настройки, и поле: в адресах, паролях и цифрах стилизация мешает.
+     * В режиме перевода набираемый текст не стилизуем — переводчик его не прочтёт; шрифт получает перевод.
+     */
     val allowsFonts: Boolean
+        get() = allowsStyledText && translator == null
+
+    private val allowsStyledText: Boolean
         get() = settings.isFontsPanelEnabled && fieldType.allowsFonts
+
+    /** Переводчик там же, где стилизация: в паролях, адресах и цифрах переводить нечего. */
+    val allowsTranslation: Boolean get() = fieldType.allowsFonts
+
+    /** Кнопка «Aa» панели перевода: шрифт можно применить к переводу. */
+    val allowsTranslationFont: Boolean get() = allowsStyledText
+
+    /** Шрифт перевода — на алфавите целевого языка, а не раскладки. */
+    fun translationFont(target: TranslationLanguage, isStyled: Boolean): KeyboardFont =
+        if (allowsTranslationFont && isStyled) selectedFont.orDefaultFor(target.fontScript) else KeyboardFont.Default
 
     /** Алфавит раскладки: стили без его поддержки прячутся с панели и не применяются. */
     val fontScript: FontScript get() = activeLanguage.fontScript
@@ -188,6 +207,9 @@ sealed class KeyboardSideEffect : BaseSideEffect.UiSideEffect() {
         data object PerformEditorAction : Input()
         data object DeleteWordBackward : Input()
         data object DeleteSelection : Input()
+
+        /** Перечитать поле: клавиатура долго писала мимо снимка (панель перевода) и он устарел. */
+        data object RefreshTextContext : Input()
     }
 
     data object OpenApp : KeyboardSideEffect()
@@ -228,5 +250,10 @@ internal sealed class KeyboardEvent : BaseEvent.UiEvent() {
     data class OnClipboardPaste(val entry: ClipboardEntry) : KeyboardEvent()
     data class OnClipboardAction(val action: ClipboardAction) : KeyboardEvent()
     data object OnOpenApp : KeyboardEvent()
+    data object OnTranslatorToggle : KeyboardEvent()
+    data object OnTranslatorSwap : KeyboardEvent()
+    data object OnTranslatorStyledToggle : KeyboardEvent()
+    data object OnTranslatorDownload : KeyboardEvent()
+    data class OnTranslatorTargetSelect(val language: TranslationLanguage) : KeyboardEvent()
     data object OnHideKeyboard : KeyboardEvent()
 }

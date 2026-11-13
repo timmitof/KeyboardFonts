@@ -19,25 +19,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.delay
+import kg.timmitof.keyboard.presentation.components.InlineFieldText
 import kg.timmitof.keyboard.presentation.components.keys.KeyBase
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardEvent
 import kg.timmitof.keyboard.presentation.theme.KFTheme
@@ -106,9 +96,6 @@ private fun SearchQueryField(
     modifier: Modifier = Modifier,
     selectionChars: Int = 0,
 ) {
-    val textColor = KFTheme.color.keyLabelColor
-    val hasSelection = selectionChars in 1..query.length
-
     Row(
         modifier = modifier
             .background(KFTheme.color.keyButtonBackground, RoundedCornerShape(10.dp))
@@ -124,71 +111,14 @@ private fun SearchQueryField(
 
         Spacer(modifier = Modifier.width(8.dp))
 
-        Row(
+        InlineFieldText(
             modifier = Modifier.weight(1f),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            when {
-                query.isEmpty() -> {
-                    BlinkingCaret(color = textColor, resetKey = query)
-                    Text(
-                        text = stringResource(R.string.emoji_search_hint),
-                        fontSize = 14.sp,
-                        color = KFTheme.color.keyLabelColor.copy(alpha = MutedAlpha)
-                    )
-                }
-
-                else -> {
-                    Text(
-                        text = if (hasSelection) {
-                            buildAnnotatedString {
-                                append(query.substring(0, query.length - selectionChars))
-                                withStyle(SpanStyle(background = textColor.copy(alpha = 0.25f))) {
-                                    append(query.substring(query.length - selectionChars))
-                                }
-                            }
-                        } else {
-                            AnnotatedString(query)
-                        },
-                        fontSize = 14.sp,
-                        color = textColor,
-                        maxLines = 1
-                    )
-                    if (!hasSelection) {
-                        BlinkingCaret(color = textColor, resetKey = query)
-                    }
-                }
-            }
-        }
+            text = query,
+            hint = stringResource(R.string.emoji_search_hint),
+            selectionChars = selectionChars,
+        )
     }
 }
-
-@Composable
-private fun BlinkingCaret(
-    color: Color,
-    resetKey: String,
-    modifier: Modifier = Modifier,
-) {
-    var visible by remember { mutableStateOf(true) }
-
-    LaunchedEffect(resetKey) {
-        visible = true
-        while (true) {
-            delay(CaretBlinkMillis)
-            visible = !visible
-        }
-    }
-
-    Box(
-        modifier = modifier
-            .padding(horizontal = 1.dp)
-            .width(2.dp)
-            .height(18.dp)
-            .background(if (visible) color else Color.Transparent)
-    )
-}
-
-private const val CaretBlinkMillis = 500L
 
 private const val MutedAlpha = 0.6f
 

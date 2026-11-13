@@ -56,4 +56,20 @@
     <string name="emoji_category_objects">Предметы</string>
     <string name="emoji_category_symbols">Символы</string>
     <string name="emoji_category_flags">Флаги</string>
+
+    <!-- Переводчик -->
+    <string name="translator_title">Переводчик</string>
+    <string name="translator_target_title">Перевести на</string>
+    <string name="translator_hint">Пишите здесь — перевод появится в поле</string>
+    <string name="translator_swap">Поменять языки местами</string>
+    <string name="translator_close">Закрыть переводчик</string>
+    <string name="translator_model_missing">Скачайте %1$s один раз — дальше без интернета</string>
+    <string name="translator_download">Скачать</string>
+    <string name="translator_downloading">Скачиваем %1$s…</string>
+    <string name="translator_download_failed">Не скачалось — проверьте интернет</string>
+    <string name="translator_retry">Повторить</string>
+    <string name="translator_failed">Не удалось перевести</string>
+    <string name="translator_unsupported">%1$s пока не переводится — смените раскладку</string>
+    <string name="translator_same_language">Выберите другой язык перевода</string>
+    <string name="translator_offline">офлайн</string>
 </resources>

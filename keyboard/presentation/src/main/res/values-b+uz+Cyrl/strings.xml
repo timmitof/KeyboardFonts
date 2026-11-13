@@ -44,4 +44,20 @@
     <string name="emoji_category_objects">Буюмлар</string>
     <string name="emoji_category_symbols">Белгилар</string>
     <string name="emoji_category_flags">Байроқлар</string>
+
+    <!-- Переводчик -->
+    <string name="translator_title">Таржимон</string>
+    <string name="translator_target_title">Таржима тили</string>
+    <string name="translator_hint">Шу ерда ёзинг — таржима майдонга тушади</string>
+    <string name="translator_swap">Тилларни алмаштириш</string>
+    <string name="translator_close">Таржимонни ёпиш</string>
+    <string name="translator_model_missing">%1$s тилини бир марта юклаб олинг — кейин интернетсиз ишлайди</string>
+    <string name="translator_download">Юклаб олиш</string>
+    <string name="translator_downloading">%1$s юкланмоқда…</string>
+    <string name="translator_download_failed">Юклаб бўлмади — интернетни текширинг</string>
+    <string name="translator_retry">Қайта уриниш</string>
+    <string name="translator_failed">Таржима қилиб бўлмади</string>
+    <string name="translator_unsupported">%1$s ҳозирча таржима қилинмайди — клавиатура тилини алмаштиринг</string>
+    <string name="translator_same_language">Бошқа таржима тилини танланг</string>
+    <string name="translator_offline">офлайн</string>
 </resources>

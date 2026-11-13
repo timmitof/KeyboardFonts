@@ -44,4 +44,20 @@
     <string name="emoji_category_objects">Buyumlar</string>
     <string name="emoji_category_symbols">Belgilar</string>
     <string name="emoji_category_flags">Bayroqlar</string>
+
+    <!-- Переводчик -->
+    <string name="translator_title">Tarjimon</string>
+    <string name="translator_target_title">Tarjima tili</string>
+    <string name="translator_hint">Shu yerda yozing — tarjima maydonga tushadi</string>
+    <string name="translator_swap">Tillarni almashtirish</string>
+    <string name="translator_close">Tarjimonni yopish</string>
+    <string name="translator_model_missing">%1$s tilini bir marta yuklab oling — keyin internetsiz ishlaydi</string>
+    <string name="translator_download">Yuklab olish</string>
+    <string name="translator_downloading">%1$s yuklanmoqda…</string>
+    <string name="translator_download_failed">Yuklab boʻlmadi — internetni tekshiring</string>
+    <string name="translator_retry">Qayta urinish</string>
+    <string name="translator_failed">Tarjima qilib boʻlmadi</string>
+    <string name="translator_unsupported">%1$s hozircha tarjima qilinmaydi — klaviatura tilini almashtiring</string>
+    <string name="translator_same_language">Boshqa tarjima tilini tanlang</string>
+    <string name="translator_offline">oflayn</string>
 </resources>

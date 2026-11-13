@@ -44,4 +44,20 @@
     <string name="emoji_category_objects">Nesneler</string>
     <string name="emoji_category_symbols">Semboller</string>
     <string name="emoji_category_flags">Bayraklar</string>
+
+    <!-- Переводчик -->
+    <string name="translator_title">Çevirmen</string>
+    <string name="translator_target_title">Şu dile çevir</string>
+    <string name="translator_hint">Buraya yazın — çeviri alana eklenir</string>
+    <string name="translator_swap">Dilleri değiştir</string>
+    <string name="translator_close">Çevirmeni kapat</string>
+    <string name="translator_model_missing">%1$s dilini bir kez indirin — sonra internetsiz çalışır</string>
+    <string name="translator_download">İndir</string>
+    <string name="translator_downloading">%1$s indiriliyor…</string>
+    <string name="translator_download_failed">İndirilemedi — bağlantınızı kontrol edin</string>
+    <string name="translator_retry">Tekrar dene</string>
+    <string name="translator_failed">Çevrilemedi</string>
+    <string name="translator_unsupported">%1$s henüz çevrilemiyor — klavye düzenini değiştirin</string>
+    <string name="translator_same_language">Başka bir hedef dil seçin</string>
+    <string name="translator_offline">çevrimdışı</string>
 </resources>

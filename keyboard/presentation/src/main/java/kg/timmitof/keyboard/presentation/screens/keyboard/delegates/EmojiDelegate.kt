@@ -11,14 +11,14 @@ internal class EmojiDelegate(
 ) {
 
     suspend fun KeyboardSyntax.selectEmoji(emoji: String) {
-        postSideEffect(KeyboardSideEffect.Input.CommitText(emoji))
+        input(KeyboardSideEffect.Input.CommitText(emoji))
 
         val updatedRecent = emojiRepository.addRecentEmoji(emoji)
         reduce { state.copy(recentEmojis = updatedRecent) }
     }
 
     suspend fun KeyboardSyntax.selectVariant(base: String, variant: String) {
-        postSideEffect(KeyboardSideEffect.Input.CommitText(variant))
+        input(KeyboardSideEffect.Input.CommitText(variant))
 
         val updatedPreferred = emojiRepository.setPreferredVariant(base, variant)
         val updatedRecent = emojiRepository.addRecentEmoji(variant)

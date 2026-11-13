@@ -91,7 +91,7 @@ internal class SuggestionsDelegate(
         val hasCorrection = suggestions.any(WordSuggestion::isAutoCorrect)
         if (composing.hasCorrection == hasCorrection) return
 
-        postSideEffect(KeyboardSideEffect.Input.SetComposingText(composing.text, hasCorrection))
+        input(KeyboardSideEffect.Input.SetComposingText(composing.text, hasCorrection))
         reduce { state.copy(composing = composing.copy(hasCorrection = hasCorrection)) }
     }
 

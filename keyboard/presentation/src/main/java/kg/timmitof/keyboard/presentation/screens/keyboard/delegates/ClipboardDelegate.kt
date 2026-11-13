@@ -22,7 +22,7 @@ internal class ClipboardDelegate(
     }
 
     suspend fun KeyboardSyntax.paste(text: String) {
-        postSideEffect(KeyboardSideEffect.Input.CommitText(text))
+        input(KeyboardSideEffect.Input.CommitText(text))
         reduce { state.copy(keyboardOverlay = null) }
     }
 

@@ -44,4 +44,20 @@
     <string name="emoji_category_objects">Предмети</string>
     <string name="emoji_category_symbols">Символи</string>
     <string name="emoji_category_flags">Прапори</string>
+
+    <!-- Переводчик -->
+    <string name="translator_title">Перекладач</string>
+    <string name="translator_target_title">Перекласти на</string>
+    <string name="translator_hint">Пишіть тут — переклад з\'явиться в полі</string>
+    <string name="translator_swap">Поміняти мови місцями</string>
+    <string name="translator_close">Закрити перекладач</string>
+    <string name="translator_model_missing">Завантажте %1$s один раз — далі без інтернету</string>
+    <string name="translator_download">Завантажити</string>
+    <string name="translator_downloading">Завантажуємо %1$s…</string>
+    <string name="translator_download_failed">Не завантажилося — перевірте інтернет</string>
+    <string name="translator_retry">Повторити</string>
+    <string name="translator_failed">Не вдалося перекласти</string>
+    <string name="translator_unsupported">%1$s поки не перекладається — змініть розкладку</string>
+    <string name="translator_same_language">Виберіть іншу мову перекладу</string>
+    <string name="translator_offline">офлайн</string>
 </resources>

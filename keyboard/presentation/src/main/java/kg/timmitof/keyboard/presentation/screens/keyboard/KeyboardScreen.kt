@@ -29,6 +29,8 @@ import kg.timmitof.keyboard.presentation.components.overlay.clipboard.ClipboardO
 import kg.timmitof.keyboard.presentation.components.overlay.OverlaySurface
 import kg.timmitof.keyboard.presentation.components.overlay.quick_settings.QuickSettingsOverlay
 import kg.timmitof.keyboard.presentation.components.topbar.KeyboardTopBar
+import kg.timmitof.keyboard.presentation.components.translator.TranslatorPanel
+import kg.timmitof.keyboard.presentation.components.overlay.translator.TranslationLanguagesOverlay
 import kg.timmitof.keyboard.presentation.insets.LocalKeyboardInsets
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardEvent
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardLayer
@@ -67,9 +69,14 @@ private fun KeyboardContent(
     val overlay by state.rememberSlice { it.keyboardOverlay }
     val background by state.rememberSlice { it.settings.background }
     val layer by state.rememberSlice { it.layer }
+    val isTranslatorOpen by state.rememberSlice { it.translator != null }
 
     BackHandler(enabled = overlay != null) {
         onEvent(KeyboardEvent.OnOverlayChange(null))
+    }
+    // «Назад» сначала закрывает переводчик, а не всю клавиатуру.
+    BackHandler(enabled = overlay == null && isTranslatorOpen) {
+        onEvent(KeyboardEvent.OnTranslatorToggle)
     }
 
     Box(
@@ -103,6 +110,7 @@ private fun KeyboardContent(
                 when (it) {
                     KeyboardOverlay.QUICK_SETTINGS -> QuickSettingsOverlay(state, onEvent)
                     KeyboardOverlay.CLIPBOARD -> ClipboardOverlay(state, onEvent)
+                    KeyboardOverlay.TRANSLATION_LANGUAGES -> TranslationLanguagesOverlay(state, onEvent)
                 }
             }
         }
@@ -117,6 +125,9 @@ private fun LettersLayer(
     val layout by state.rememberSlice { it.keyboardLayout }
 
     Column(modifier = Modifier.fillMaxWidth()) {
+        // Панель перевода добавляет строку сверху, клавиши остаются на своих местах.
+        TranslatorPanel(state = state, onEvent = onEvent)
+
         KeyboardTopBar(state = state, onEvent = onEvent)
 
         // Половину зазора добавит верхний ряд клавиш.

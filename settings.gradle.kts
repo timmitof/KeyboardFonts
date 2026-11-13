@@ -75,6 +75,7 @@ fun includeKeyboardModule(name: String) {
 includeKeyboardModule("suggestion")
 includeKeyboardModule("font")
 includeKeyboardModule("clipboard")
+includeKeyboardModule("translate")
 
 includeFeature("home")
 includeFeature("settings")

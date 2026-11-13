@@ -14,6 +14,7 @@ dependencies {
     implementation(project(":keyboard:suggestion:domain"))
     implementation(project(":keyboard:font:domain"))
     implementation(project(":keyboard:clipboard:domain"))
+    implementation(project(":keyboard:translate:domain"))
     implementation(project(":core:ui"))
 
     implementation(libs.androidx.appcompat)

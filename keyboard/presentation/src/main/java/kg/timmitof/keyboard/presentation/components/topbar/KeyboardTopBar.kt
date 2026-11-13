@@ -59,6 +59,8 @@ internal fun KeyboardTopBar(
             suggestions = it.suggestions,
             noticeRes = it.noticeRes,
             overlay = it.keyboardOverlay,
+            allowsTranslation = it.allowsTranslation,
+            isTranslatorOpen = it.translator != null,
         )
     }
     val mode = topBar.mode
@@ -87,6 +89,8 @@ internal fun KeyboardTopBar(
             TopBarAnchors(
                 isCollapsible = isCollapsible,
                 overlay = topBar.overlay,
+                allowsTranslation = topBar.allowsTranslation,
+                isTranslatorOpen = topBar.isTranslatorOpen,
                 onEvent = onEvent
             )
         }
@@ -97,6 +101,8 @@ internal fun KeyboardTopBar(
 private fun TopBarAnchors(
     isCollapsible: Boolean,
     overlay: KeyboardOverlay?,
+    allowsTranslation: Boolean,
+    isTranslatorOpen: Boolean,
     onEvent: (KeyboardEvent) -> Unit,
 ) {
     if (isCollapsible) {
@@ -110,7 +116,16 @@ private fun TopBarAnchors(
     }
 
     Row {
-        KeyboardOverlay.entries.forEach { target ->
+        // Переводчик — третий якорь, рядом с буфером и шестерёнкой; в паролях и адресах его нет.
+        if (allowsTranslation) {
+            TopBarAnchorButton(
+                iconRes = R.drawable.ic_translate,
+                contentDescription = stringResource(R.string.translator_title),
+                isActive = isTranslatorOpen,
+                onClick = { onEvent(KeyboardEvent.OnTranslatorToggle) }
+            )
+        }
+        AnchorOverlays.forEach { target ->
             TopBarAnchorButton(
                 iconRes = target.iconRes,
                 contentDescription = stringResource(target.titleRes),
@@ -121,16 +136,20 @@ private fun TopBarAnchors(
     }
 }
 
+private val AnchorOverlays = KeyboardOverlay.entries.filter { it.isAnchor }
+
 private val KeyboardOverlay.iconRes: Int
     get() = when (this) {
         KeyboardOverlay.CLIPBOARD -> R.drawable.ic_clipboard
         KeyboardOverlay.QUICK_SETTINGS -> R.drawable.ic_settings_gear
+        KeyboardOverlay.TRANSLATION_LANGUAGES -> R.drawable.ic_translate
     }
 
 private val KeyboardOverlay.titleRes: Int
     get() = when (this) {
         KeyboardOverlay.CLIPBOARD -> R.string.clipboard_title
         KeyboardOverlay.QUICK_SETTINGS -> R.string.quick_settings_title
+        KeyboardOverlay.TRANSLATION_LANGUAGES -> R.string.translator_target_title
     }
 
 @Composable
@@ -195,6 +214,8 @@ private data class TopBarSlice(
     val suggestions: List<WordSuggestion>,
     @param:StringRes val noticeRes: Int?,
     val overlay: KeyboardOverlay?,
+    val allowsTranslation: Boolean,
+    val isTranslatorOpen: Boolean,
 )
 
 private enum class TopBarMode { CURSOR, SUGGESTIONS, FONTS_EXPANDED, IDLE }

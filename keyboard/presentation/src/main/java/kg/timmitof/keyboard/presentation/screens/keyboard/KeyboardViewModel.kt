@@ -14,6 +14,7 @@ import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.LayerDelegat
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.SettingsDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.SuggestionsDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.TextInputDelegate
+import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.TranslatorDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.ComposingText
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardEvent
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardLayer
@@ -22,7 +23,10 @@ import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardSideEff
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardState
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.QuickSetting
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.ShiftState
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.syntax.Syntax
@@ -40,6 +44,7 @@ internal class KeyboardViewModel(
     private val suggestionsDelegate: SuggestionsDelegate,
     private val settingsDelegate: SettingsDelegate,
     private val clipboardDelegate: ClipboardDelegate,
+    private val translatorDelegate: TranslatorDelegate,
 ) : BaseViewModel<KeyboardState, KeyboardSideEffect, KeyboardEvent>(KeyboardState()) {
 
     override fun onEvent(event: KeyboardEvent) {
@@ -48,7 +53,14 @@ internal class KeyboardViewModel(
             is KeyboardEvent.OnSpace -> intent { with(textInputDelegate) { typeSpace() } }
             is KeyboardEvent.OnCursorMove -> intent { with(textInputDelegate) { moveCursor(event.horizontal, event.vertical) } }
             is KeyboardEvent.OnCursorModeChange -> intent { with(textInputDelegate) { setCursorMode(event.active) } }
-            is KeyboardEvent.OnEnter -> intent { with(textInputDelegate) { pressEnter() } }
+            is KeyboardEvent.OnEnter -> intent {
+                if (state.translator != null && state.layer != KeyboardLayer.EMOJI_SEARCH) {
+                    with(textInputDelegate) { closeComposing() }
+                    with(translatorDelegate) { send() }
+                } else {
+                    with(textInputDelegate) { pressEnter() }
+                }
+            }
             is KeyboardEvent.OnSuggestionSelect -> intent { with(textInputDelegate) { applySuggestion(event.suggestion) } }
             is KeyboardEvent.OnShift -> intent { with(textInputDelegate) { toggleShift() } }
             is KeyboardEvent.OnBackspace -> intent { with(textInputDelegate) { deleteBackward() } }
@@ -57,6 +69,7 @@ internal class KeyboardViewModel(
             is KeyboardEvent.OnBackspaceSelectCommit -> intent { with(textInputDelegate) { commitBackspaceSelection(event.chars) } }
             is KeyboardEvent.OnLanguageSelect -> intent {
                 with(languageDelegate) { selectLanguage(event.language) }
+                with(translatorDelegate) { syncSource() }
                 with(suggestionsDelegate) { requestSuggestions() }
             }
             is KeyboardEvent.OnFontSelect -> intent { with(fontDelegate) { selectFont(event.font) } }
@@ -107,16 +120,24 @@ internal class KeyboardViewModel(
                 reduce { state.copy(keyboardOverlay = null) }
                 postSideEffect(KeyboardSideEffect.OpenApp)
             }
+            is KeyboardEvent.OnTranslatorToggle -> toggleTranslator()
+            is KeyboardEvent.OnTranslatorSwap -> swapTranslator()
+            is KeyboardEvent.OnTranslatorStyledToggle -> intent { with(translatorDelegate) { toggleStyled() } }
+            is KeyboardEvent.OnTranslatorDownload -> intent { with(translatorDelegate) { download() } }
+            is KeyboardEvent.OnTranslatorTargetSelect -> intent { with(translatorDelegate) { selectTarget(event.language) } }
             is KeyboardEvent.OnInputSessionChange -> resetInputSession()
             is KeyboardEvent.OnInputSessionFinish -> viewModelScope.launch { suggestionsDelegate.flush() }
             is KeyboardEvent.OnFieldContextChange -> intent {
                 with(fieldContextDelegate) { applyContext(event.context) }
+                if (!state.allowsTranslation) closeTranslator()
                 with(suggestionsDelegate) {
                     refreshAutoShift()
                     requestSuggestions()
                 }
             }
             is KeyboardEvent.OnTextContextChange -> intent {
+                // Пока открыт переводчик, снимок текста — панельный; поле приложения держит только перевод.
+                if (state.translator != null) return@intent
                 with(textInputDelegate) { reconcileComposing(event.context) }
                 with(suggestionsDelegate) { applyTextContext(event.context) }
             }
@@ -141,6 +162,59 @@ internal class KeyboardViewModel(
         observeLanguages()
         observeFontPanel()
         observeClipboard()
+        observeTranslator()
+    }
+
+    private fun toggleTranslator() = intent {
+        if (state.translator != null) {
+            closeTranslator()
+            return@intent
+        }
+        // Черновик закрываем в поле приложения: дальше ввод пойдёт в панель.
+        with(textInputDelegate) { closeComposing() }
+        with(translatorDelegate) { open() }
+    }
+
+    private suspend fun KeyboardSyntax.closeTranslator() {
+        with(textInputDelegate) { closeComposing() }
+        with(translatorDelegate) { close() }
+    }
+
+    /** Местами меняем, только если на целевом языке можно печатать: раскладка следует исходному языку. */
+    private fun swapTranslator() = intent {
+        val translator = state.translator ?: return@intent
+        val layout = translator.swapLayout ?: return@intent
+        val previousSource = translator.source ?: return@intent
+
+        with(textInputDelegate) { closeComposing() }
+        with(languageDelegate) { selectLanguage(layout) }
+        with(translatorDelegate) { swapped(previousSource) }
+        prefetchDictionary(state.activeLanguage)
+    }
+
+    /**
+     * Поле панели ведёт себя как поле приложения: после правки его снимок становится снимком текста
+     * (подсказки, авто-Shift), а через паузу текст уходит переводчику.
+     */
+    private fun observeTranslator() {
+        container.stateFlow
+            .map { it.translator?.editor?.text }
+            .distinctUntilChanged()
+            .filterNotNull()
+            .onEach {
+                intent {
+                    val context = state.translator?.editor?.textContext ?: return@intent
+                    with(textInputDelegate) { reconcileComposing(context) }
+                    with(suggestionsDelegate) { applyTextContext(context) }
+                }
+            }
+            .launchIn(viewModelScope)
+
+        translatorDelegate.translations(container.stateFlow.map { it.translator?.request })
+            .onEach { (request, result) ->
+                intent { with(translatorDelegate) { applyTranslation(request, result) } }
+            }
+            .launchIn(viewModelScope)
     }
 
     private fun openOverlay(overlay: KeyboardOverlay?) = intent {
@@ -208,6 +282,7 @@ internal class KeyboardViewModel(
             .onEach { languages ->
                 intent {
                     val isLanguageChanged = with(languageDelegate) { applyLanguages(languages) }
+                    with(translatorDelegate) { syncSource() }
                     if (isLanguageChanged) {
                         prefetchDictionary(state.activeLanguage)
                         with(suggestionsDelegate) { requestSuggestions() }
@@ -234,6 +309,8 @@ internal class KeyboardViewModel(
     private fun resetInputSession() = intent {
         // Shift прошлой сессии (и Caps Lock) не переносим, а заглавную для пустого поля или начала предложения
         // ставим сразу: снимок текста мог не измениться, и сам он её не включит.
+        // Переводчик привязан к прошлому полю, его черновик система закрыла сама.
+        if (state.translator != null) reduce { state.copy(translator = null) }
         with(textInputDelegate) { resetShift() }
         with(suggestionsDelegate) { refreshAutoShift() }
         with(fontDelegate) { forgetFontIfNeeded() }

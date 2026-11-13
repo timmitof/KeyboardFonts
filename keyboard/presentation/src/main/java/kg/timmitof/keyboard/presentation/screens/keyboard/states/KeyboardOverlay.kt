@@ -1,3 +1,8 @@
 package kg.timmitof.keyboard.presentation.screens.keyboard.states
 
-internal enum class KeyboardOverlay { CLIPBOARD, QUICK_SETTINGS }
+/** @param isAnchor открывается кнопкой справа в верхней строке; выбор языка перевода открывает панель перевода. */
+internal enum class KeyboardOverlay(val isAnchor: Boolean = true) {
+    CLIPBOARD,
+    QUICK_SETTINGS,
+    TRANSLATION_LANGUAGES(isAnchor = false),
+}

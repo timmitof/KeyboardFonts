@@ -68,6 +68,7 @@ dependencies {
     implementation(project(":keyboard:suggestion:di"))
     implementation(project(":keyboard:font:di"))
     implementation(project(":keyboard:clipboard:di"))
+    implementation(project(":keyboard:translate:di"))
 
     implementation(project(":feature_splash:feature_splash_di"))
     implementation(project(":feature_home:feature_home_di"))

@@ -49,30 +49,57 @@ internal fun FontToggleButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    TopBarPill(label = preview, onClick = onClick, modifier = modifier, hasDropdown = true)
+}
+
+/**
+ * Плашка-кнопка верхней строки в стиле клавиши (с опорой снизу).
+ *
+ * @param isActive включённое состояние (шрифт для перевода): плашка красится в цвет подсказки.
+ * @param hasDropdown стрелка «▾» — по тапу откроется выбор.
+ */
+@Composable
+internal fun TopBarPill(
+    label: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    isActive: Boolean = false,
+    hasDropdown: Boolean = false,
+    isEnabled: Boolean = true,
+) {
+    val content = when {
+        isActive -> KFTheme.color.noticeTextColor
+        else -> KFTheme.color.keyLabelColor
+    }.let { if (isEnabled) it else it.copy(alpha = DisabledAlpha) }
+
     Row(
         modifier = modifier
             .height(ControlHeight)
             .clip(ControlShape)
-            .pillSurface()
-            .plainClickable(onClick)
+            .then(if (isActive) Modifier.background(KFTheme.color.noticeBackground) else Modifier.pillSurface())
+            .then(if (isEnabled) Modifier.plainClickable(onClick) else Modifier)
             .padding(horizontal = 12.dp),
         horizontalArrangement = Arrangement.spacedBy(5.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = preview,
+            text = label,
             fontSize = 15.sp,
             fontWeight = FontWeight.Medium,
-            color = KFTheme.color.keyLabelColor,
+            color = content,
             maxLines = 1
         )
-        Text(
-            text = "▾",
-            fontSize = 11.sp,
-            color = KFTheme.color.keyLabelColor.copy(alpha = 0.5f)
-        )
+        if (hasDropdown) {
+            Text(
+                text = "▾",
+                fontSize = 11.sp,
+                color = content.copy(alpha = 0.5f)
+            )
+        }
     }
 }
+
+private const val DisabledAlpha = 0.4f
 
 @Composable
 internal fun TopBarAnchorButton(

@@ -109,7 +109,7 @@ internal class TextInputDelegate(
         val word = before.dropLast(1).trimEnd(StyledText::isLetterTail)
         if (word.isEmpty() || !Character.isLetterOrDigit(word.codePointBefore(word.length))) return false
 
-        postSideEffect(KeyboardSideEffect.Input.ReplaceTextBeforeCursor(chars = 1, text = PERIOD_SPACE))
+        input(KeyboardSideEffect.Input.ReplaceTextBeforeCursor(chars = 1, text = PERIOD_SPACE))
         reduce { state.copy(autoCorrection = AutoCorrection(original = "  ", corrected = PERIOD_SPACE)) }
         releaseCapsLock()
         with(suggestionsDelegate) { applyLocalEdit { it.removingLast(1).appending(PERIOD_SPACE) } }
@@ -160,7 +160,7 @@ internal class TextInputDelegate(
             // Касания черновика берём до его закрытия: слово осталось как набрано — по нему калибруемся.
             val touches = state.composing.touches
             closeComposing()
-            postSideEffect(KeyboardSideEffect.Input.CommitText(separator))
+            input(KeyboardSideEffect.Input.CommitText(separator))
             if (typed.isNotEmpty()) {
                 learnTyped(typed, touches)
                 suggestionsDelegate.record(state, TypingEvent.WordKept)
@@ -193,10 +193,10 @@ internal class TextInputDelegate(
     /** Без черновика границы слова спрашиваем у поля: курсор могли поставить посреди чужого текста. */
     private suspend fun KeyboardSyntax.replaceWord(replacement: String) {
         if (state.composing.isActive) {
-            postSideEffect(KeyboardSideEffect.Input.SetComposingText(replacement))
+            input(KeyboardSideEffect.Input.SetComposingText(replacement))
             closeComposing()
         } else {
-            postSideEffect(KeyboardSideEffect.Input.ReplaceWordBeforeCursor(replacement))
+            input(KeyboardSideEffect.Input.ReplaceWordBeforeCursor(replacement))
         }
     }
 
@@ -210,7 +210,7 @@ internal class TextInputDelegate(
     suspend fun KeyboardSyntax.closeComposing() {
         if (!state.composing.isActive) return
 
-        postSideEffect(KeyboardSideEffect.Input.FinishComposing)
+        input(KeyboardSideEffect.Input.FinishComposing)
         reduce { state.copy(composing = ComposingText()) }
     }
 
@@ -218,7 +218,7 @@ internal class TextInputDelegate(
         if (state.layer == KeyboardLayer.EMOJI_SEARCH) return
         if (horizontal != 0 || vertical != 0) {
             closeComposing()
-            postSideEffect(KeyboardSideEffect.Input.MoveCursor(horizontal, vertical))
+            input(KeyboardSideEffect.Input.MoveCursor(horizontal, vertical))
         }
     }
 
@@ -237,7 +237,7 @@ internal class TextInputDelegate(
                 ?.let { learnTyped(it) }
 
             closeComposing()
-            postSideEffect(KeyboardSideEffect.Input.PerformEditorAction)
+            input(KeyboardSideEffect.Input.PerformEditorAction)
             forgetAutoCorrection()
         }
     }
@@ -278,10 +278,10 @@ internal class TextInputDelegate(
             text = composing.text.dropLastSymbol(),
             touches = composing.touches.dropLast(1),
         )
-        postSideEffect(
+        input(
             KeyboardSideEffect.Input.SetComposingText(shortened.text, shortened.hasCorrection)
         )
-        if (!shortened.isActive) postSideEffect(KeyboardSideEffect.Input.FinishComposing)
+        if (!shortened.isActive) input(KeyboardSideEffect.Input.FinishComposing)
 
         reduce { state.copy(composing = shortened) }
         with(suggestionsDelegate) {
@@ -311,7 +311,7 @@ internal class TextInputDelegate(
             return false
         }
 
-        postSideEffect(
+        input(
             KeyboardSideEffect.Input.ReplaceTextBeforeCursor(
                 chars = correction.corrected.length,
                 text = correction.original,
@@ -360,7 +360,7 @@ internal class TextInputDelegate(
             }
         } else {
             closeComposing()
-            postSideEffect(KeyboardSideEffect.Input.SelectBeforeCursor(chars))
+            input(KeyboardSideEffect.Input.SelectBeforeCursor(chars))
         }
     }
 
@@ -374,18 +374,18 @@ internal class TextInputDelegate(
             }
         } else {
             closeComposing()
-            postSideEffect(KeyboardSideEffect.Input.DeleteSelection)
+            input(KeyboardSideEffect.Input.DeleteSelection)
         }
     }
 
     private suspend fun KeyboardSyntax.editText(
-        fieldEffect: KeyboardSideEffect,
+        fieldEffect: KeyboardSideEffect.Input,
         editQuery: (String) -> String?,
     ) {
         if (state.layer == KeyboardLayer.EMOJI_SEARCH) {
             editQuery(state.emojiSearchQuery)?.let { with(emojiDelegate) { updateSearchQuery(it) } }
         } else {
-            postSideEffect(fieldEffect)
+            input(fieldEffect)
         }
     }
 
