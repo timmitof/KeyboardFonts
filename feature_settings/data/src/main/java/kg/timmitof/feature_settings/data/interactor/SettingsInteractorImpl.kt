@@ -2,9 +2,12 @@ package kg.timmitof.feature_settings.data.interactor
 
 import kg.timmitof.feature_settings.domain.interactor.SettingsInteractor
 import kg.timmitof.feature_settings.domain.model.SettingsSummary
+import kg.timmitof.feature_settings.domain.model.TranslatorLanguageItem
+import kg.timmitof.feature_settings.domain.model.TranslatorOverview
 import kg.timmitof.keyboard.clipboard.domain.model.ClipboardBoard
 import kg.timmitof.keyboard.clipboard.domain.repository.ClipboardRepository
 import kg.timmitof.keyboard.domain.model.BackgroundPhoto
+import kg.timmitof.keyboard.domain.model.FeatureAccess
 import kg.timmitof.keyboard.domain.model.KeyColorTarget
 import kg.timmitof.keyboard.domain.model.KeyboardBackground
 import kg.timmitof.keyboard.domain.model.KeyboardHeight
@@ -15,13 +18,17 @@ import kg.timmitof.keyboard.domain.model.KeyboardThemeMode
 import kg.timmitof.keyboard.domain.model.KeyboardToggle
 import kg.timmitof.keyboard.domain.model.PhotoCrop
 import kg.timmitof.keyboard.domain.repository.BackgroundPhotoRepository
+import kg.timmitof.keyboard.domain.repository.FeatureAccessRepository
 import kg.timmitof.keyboard.domain.repository.KeyboardLayoutRepository
 import kg.timmitof.keyboard.domain.repository.KeyboardSettingsRepository
 import kg.timmitof.keyboard.domain.repository.LanguageRepository
 import kg.timmitof.keyboard.font.domain.model.FontPanel
 import kg.timmitof.keyboard.font.domain.repository.FontRepository
 import kg.timmitof.keyboard.integration.KeyboardContract
+import kg.timmitof.keyboard.translate.domain.repository.TranslationDownloadRepository
+import kg.timmitof.keyboard.translate.domain.repository.TranslationModelRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class SettingsInteractorImpl @Inject constructor(
@@ -32,7 +39,35 @@ class SettingsInteractorImpl @Inject constructor(
     private val clipboardRepository: ClipboardRepository,
     private val keyboardContract: KeyboardContract,
     private val photoRepository: BackgroundPhotoRepository,
+    private val featureAccessRepository: FeatureAccessRepository,
+    private val translationModelRepository: TranslationModelRepository,
+    private val translationDownloadRepository: TranslationDownloadRepository,
 ) : SettingsInteractor {
+
+    override fun observeFeatureAccess(): Flow<FeatureAccess> = featureAccessRepository.observeAccess()
+
+    /** Языки по умолчанию показываем всегда (даже нескачанные), остальные — когда их скачали или качают. */
+    override fun observeTranslator(): Flow<TranslatorOverview> =
+        translationDownloadRepository.observeModels().map { models ->
+            val catalog = translationModelRepository.languages().map { language ->
+                TranslatorLanguageItem(
+                    language = language,
+                    state = models.stateOf(language.code),
+                    isBuiltIn = translationModelRepository.isBuiltIn(language.code),
+                )
+            }
+            val byCode = catalog.associateBy { it.language.code }
+            val codes = (translationDownloadRepository.defaultCodes() + models.downloaded + models.downloading).distinct()
+
+            TranslatorOverview(languages = codes.mapNotNull(byCode::get), catalog = catalog)
+        }
+
+    override suspend fun downloadTranslationLanguage(code: String) =
+        translationDownloadRepository.download(listOf(code))
+
+    override suspend fun deleteTranslationLanguage(code: String) {
+        translationDownloadRepository.delete(code)
+    }
 
     override fun observeSettings(): Flow<KeyboardSettings> =
         keyboardSettingsRepository.observeSettings()

@@ -45,6 +45,7 @@ import kg.timmitof.feature_settings.presentation.studio.SizePane
 import kg.timmitof.feature_settings.presentation.studio.SoundPane
 import kg.timmitof.feature_settings.presentation.studio.StudioTab
 import kg.timmitof.feature_settings.presentation.studio.StudioTabs
+import kg.timmitof.feature_settings.presentation.studio.TranslatorPane
 import kg.timmitof.feature_settings.presentation.studio.ThemePane
 import kg.timmitof.keyboard.domain.model.KeyColorTarget
 import kg.timmitof.keyboard.domain.model.KeyboardBackground
@@ -123,6 +124,12 @@ internal fun ContainerDSLBuilder<SettingsSideEffect, SettingsEvent>.SettingsCont
     }
     val onClearClipboard = remember { { sendEvent(SettingsEvent.ClearRecentClipboardClicked) } }
     val onConnect = remember { { sendEvent(SettingsEvent.ConnectKeyboardClicked) } }
+    val onDownloadTranslatorLanguage = remember<(String) -> Unit> {
+        { code -> sendEvent(SettingsEvent.TranslatorLanguageDownloadClicked(code)) }
+    }
+    val onDeleteTranslatorLanguage = remember<(String) -> Unit> {
+        { code -> sendEvent(SettingsEvent.TranslatorLanguageDeleteConfirmed(code)) }
+    }
 
     // Каждая панель читает только свой кусок состояния: derivedStateOf не будит остальных при чужих изменениях.
     val settings = remember(state) { derivedStateOf { state.value.settings } }
@@ -131,6 +138,8 @@ internal fun ContainerDSLBuilder<SettingsSideEffect, SettingsEvent>.SettingsCont
     val fontScript = remember(state) { derivedStateOf { state.value.summary.selectedLanguage.fontScript } }
     val photos = remember(state) { derivedStateOf { state.value.photos } }
     val clipboard = remember(state) { derivedStateOf { state.value.clipboard } }
+    val featureAccess = remember(state) { derivedStateOf { state.value.featureAccess } }
+    val translator = remember(state) { derivedStateOf { state.value.translator } }
     val isKeyboardReady by remember(state) { derivedStateOf { state.value.summary.isKeyboardReady } }
     val selectedTab = remember<() -> StudioTab>(state) { { state.value.selectedTab } }
 
@@ -197,6 +206,16 @@ internal fun ContainerDSLBuilder<SettingsSideEffect, SettingsEvent>.SettingsCont
                         onToggle = onToggle,
                         onPanelFonts = onPanelFonts,
                         onReset = onResetFonts,
+                    )
+                }
+                tab(StudioTab.TRANSLATOR) {
+                    TranslatorPane(
+                        settings = settings.value,
+                        access = featureAccess.value,
+                        translator = translator.value,
+                        onToggle = onToggle,
+                        onDownloadLanguage = onDownloadTranslatorLanguage,
+                        onDeleteLanguage = onDeleteTranslatorLanguage,
                     )
                 }
                 tab(StudioTab.INPUT) {

@@ -27,6 +27,8 @@ class SettingsViewModel @Inject constructor(
         observeLanguages()
         observePhotos()
         observeClipboard()
+        observeFeatureAccess()
+        observeTranslator()
     }
 
     override fun onEvent(event: SettingsEvent) {
@@ -45,6 +47,12 @@ class SettingsViewModel @Inject constructor(
             is SettingsEvent.EnabledLanguagesChanged -> setEnabledLanguages(event.codes)
             is SettingsEvent.TabSelected -> selectTab(event.tab)
             is SettingsEvent.ClearRecentClipboardClicked -> clearRecentClipboard()
+            is SettingsEvent.TranslatorLanguageDownloadClicked -> intent {
+                settingsInteractor.downloadTranslationLanguage(event.code)
+            }
+            is SettingsEvent.TranslatorLanguageDeleteConfirmed -> intent {
+                settingsInteractor.deleteTranslationLanguage(event.code)
+            }
             is SettingsEvent.ScreenResumed -> loadSummary()
             is SettingsEvent.ConnectKeyboardClicked -> navigateTo(HomeGraph.OnboardingScreen(isFromSettings = true))
         }
@@ -65,6 +73,19 @@ class SettingsViewModel @Inject constructor(
     private fun observeClipboard() = intent {
         settingsInteractor.observeClipboard().collect { board ->
             reduce { state.copy(clipboard = board) }
+        }
+    }
+
+    private fun observeFeatureAccess() = intent {
+        settingsInteractor.observeFeatureAccess().collect { access ->
+            reduce { state.copy(featureAccess = access) }
+        }
+    }
+
+    /** Загрузка идёт в фоне — строки языков обновляются сами, когда язык скачался. */
+    private fun observeTranslator() = intent {
+        settingsInteractor.observeTranslator().collect { translator ->
+            reduce { state.copy(translator = translator) }
         }
     }
 

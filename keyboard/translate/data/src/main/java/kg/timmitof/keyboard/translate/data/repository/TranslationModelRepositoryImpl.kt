@@ -45,6 +45,8 @@ class TranslationModelRepositoryImpl @Inject constructor(
     override fun languageForLayout(layoutCode: String): TranslationLanguage? =
         TranslateLanguage.fromLanguageTag(layoutCode.substringBefore('_'))?.let(byCode::get)
 
+    override fun isBuiltIn(code: String): Boolean = code in BUILT_IN
+
     override fun observeDownloaded(): Flow<Set<String>> = downloaded
         .onStart { downloadedCodes() }
         .filterNotNull()
@@ -63,7 +65,7 @@ class TranslationModelRepositoryImpl @Inject constructor(
     }
 
     override suspend fun delete(code: String): Boolean {
-        if (code in BUILT_IN) return false
+        if (isBuiltIn(code)) return false
 
         val isDeleted = runCatchingCancellable { source.delete(code) } != null
         refresh()

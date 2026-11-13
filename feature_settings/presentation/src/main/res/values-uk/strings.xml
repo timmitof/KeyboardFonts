@@ -140,4 +140,25 @@
     <string name="tip_long_press">Довге натискання на літеру відкриває схожі символи</string>
     <string name="tip_quick_settings">Шестірня над клавішами — тема, висота й вібрація просто з клавіатури</string>
     <string name="tip_clipboard">Значок буфера над клавішами зберігає скопійоване — запис можна закріпити</string>
+
+    <!-- Переводчик -->
+    <string name="studio_tab_translator">Перекладач</string>
+    <string name="translator_toggle_title">Перекладач у клавіатурі</string>
+    <string name="translator_toggle_description">Пишете своєю мовою — у чат іде переклад. Працює без інтернету</string>
+    <string name="translator_languages_header">Мови перекладу</string>
+    <string name="translator_state_built_in">Вбудована · працює завжди</string>
+    <string name="translator_state_downloaded">Завантажена · працює без інтернету</string>
+    <string name="translator_state_downloading">Завантажується…</string>
+    <string name="translator_state_missing">Не завантажена</string>
+    <string name="translator_download">Завантажити</string>
+    <string name="translator_add">Додати мову перекладу</string>
+    <string name="translator_add_title">Мови перекладу</string>
+    <string name="translator_search">Знайти мову</string>
+    <string name="translator_downloaded_header">Завантажені</string>
+    <string name="translator_catalog_header">Усі мови</string>
+    <string name="translator_delete">Видалити</string>
+    <string name="translator_delete_question">Видалити %1$s?</string>
+    <string name="translator_delete_text">Завантажити її знову можна будь-коли.</string>
+    <string name="translator_delete_confirm">Видалити</string>
+    <string name="translator_delete_cancel">Скасувати</string>
 </resources>

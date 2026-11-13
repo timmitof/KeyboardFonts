@@ -140,4 +140,25 @@
     <string name="tip_long_press">Ҳарфни узоқ босиш ўхшаш белгиларни очади</string>
     <string name="tip_quick_settings">Тугмалар устидаги тишли ғилдирак — мавзу, баландлик ва тебраниш тўғридан-тўғри клавиатурадан</string>
     <string name="tip_clipboard">Тугмалар устидаги буфер белгиси нусхаланганларни сақлайди — ёзувни қадаш мумкин</string>
+
+    <!-- Переводчик -->
+    <string name="studio_tab_translator">Таржимон</string>
+    <string name="translator_toggle_title">Клавиатурадаги таржимон</string>
+    <string name="translator_toggle_description">Ўз тилингизда ёзасиз — чатга таржима кетади. Интернетсиз ишлайди</string>
+    <string name="translator_languages_header">Таржима тиллари</string>
+    <string name="translator_state_built_in">Ўрнатилган · доим ишлайди</string>
+    <string name="translator_state_downloaded">Юкланган · интернетсиз ишлайди</string>
+    <string name="translator_state_downloading">Юкланмоқда…</string>
+    <string name="translator_state_missing">Юкланмаган</string>
+    <string name="translator_download">Юклаб олиш</string>
+    <string name="translator_add">Таржима тилини қўшиш</string>
+    <string name="translator_add_title">Таржима тиллари</string>
+    <string name="translator_search">Тилни топиш</string>
+    <string name="translator_downloaded_header">Юкланганлар</string>
+    <string name="translator_catalog_header">Барча тиллар</string>
+    <string name="translator_delete">Ўчириш</string>
+    <string name="translator_delete_question">%1$s ўчирилсинми?</string>
+    <string name="translator_delete_text">Уни исталган вақтда қайта юклаб олиш мумкин.</string>
+    <string name="translator_delete_confirm">Ўчириш</string>
+    <string name="translator_delete_cancel">Бекор қилиш</string>
 </resources>

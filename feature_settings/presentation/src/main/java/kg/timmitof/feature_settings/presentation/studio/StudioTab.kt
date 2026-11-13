@@ -14,6 +14,7 @@ enum class StudioTab(
     BACKGROUND(R.string.studio_tab_background, R.drawable.ic_tab_background, AccentRole.APPEARANCE),
     THEME(R.string.studio_tab_theme, R.drawable.ic_tab_theme, AccentRole.APPEARANCE),
     FONTS(R.string.studio_tab_fonts, R.drawable.ic_tab_fonts, AccentRole.BRAND),
+    TRANSLATOR(R.string.studio_tab_translator, R.drawable.ic_tab_translator, AccentRole.BRAND),
     INPUT(R.string.studio_tab_input, R.drawable.ic_tab_input, AccentRole.SUCCESS),
     LANGUAGES(R.string.studio_tab_languages, R.drawable.ic_tab_languages, AccentRole.HINT),
     SIZE(R.string.studio_tab_size, R.drawable.ic_tab_size, AccentRole.HINT),

@@ -140,4 +140,25 @@
     <string name="tip_long_press">Harfni uzoq bosish oʻxshash belgilarni ochadi</string>
     <string name="tip_quick_settings">Tugmalar ustidagi tishli gʻildirak — mavzu, balandlik va tebranish toʻgʻridan-toʻgʻri klaviaturadan</string>
     <string name="tip_clipboard">Tugmalar ustidagi bufer belgisi nusxalanganlarni saqlaydi — yozuvni qadash mumkin</string>
+
+    <!-- Переводчик -->
+    <string name="studio_tab_translator">Tarjimon</string>
+    <string name="translator_toggle_title">Klaviaturadagi tarjimon</string>
+    <string name="translator_toggle_description">Oʻz tilingizda yozasiz — chatga tarjima ketadi. Internetsiz ishlaydi</string>
+    <string name="translator_languages_header">Tarjima tillari</string>
+    <string name="translator_state_built_in">Oʻrnatilgan · doim ishlaydi</string>
+    <string name="translator_state_downloaded">Yuklangan · internetsiz ishlaydi</string>
+    <string name="translator_state_downloading">Yuklanmoqda…</string>
+    <string name="translator_state_missing">Yuklanmagan</string>
+    <string name="translator_download">Yuklab olish</string>
+    <string name="translator_add">Tarjima tilini qoʻshish</string>
+    <string name="translator_add_title">Tarjima tillari</string>
+    <string name="translator_search">Tilni topish</string>
+    <string name="translator_downloaded_header">Yuklanganlar</string>
+    <string name="translator_catalog_header">Barcha tillar</string>
+    <string name="translator_delete">Oʻchirish</string>
+    <string name="translator_delete_question">%1$s oʻchirilsinmi?</string>
+    <string name="translator_delete_text">Uni istalgan vaqtda qayta yuklab olish mumkin.</string>
+    <string name="translator_delete_confirm">Oʻchirish</string>
+    <string name="translator_delete_cancel">Bekor qilish</string>
 </resources>

@@ -9,11 +9,13 @@ import kg.timmitof.keyboard.data.AssetTextLoader
 import kg.timmitof.keyboard.data.AssetTextLoaderImpl
 import kg.timmitof.keyboard.data.JsonKeyboardLayoutLoader
 import kg.timmitof.keyboard.data.repository.EmojiRepositoryImpl
+import kg.timmitof.keyboard.data.repository.FeatureAccessRepositoryImpl
 import kg.timmitof.keyboard.data.repository.KeyboardLayoutRepositoryImpl
 import kg.timmitof.keyboard.data.repository.BackgroundPhotoRepositoryImpl
 import kg.timmitof.keyboard.data.repository.KeyboardSettingsRepositoryImpl
 import kg.timmitof.keyboard.data.repository.LanguageRepositoryImpl
 import kg.timmitof.keyboard.domain.repository.EmojiRepository
+import kg.timmitof.keyboard.domain.repository.FeatureAccessRepository
 import kg.timmitof.keyboard.domain.repository.KeyboardLayoutRepository
 import kg.timmitof.keyboard.domain.repository.BackgroundPhotoRepository
 import kg.timmitof.keyboard.domain.repository.KeyboardSettingsRepository
@@ -55,4 +57,8 @@ abstract class KeyboardDataModule {
     abstract fun bindBackgroundPhotoRepository(
         impl: BackgroundPhotoRepositoryImpl
     ): BackgroundPhotoRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindFeatureAccessRepository(impl: FeatureAccessRepositoryImpl): FeatureAccessRepository
 }

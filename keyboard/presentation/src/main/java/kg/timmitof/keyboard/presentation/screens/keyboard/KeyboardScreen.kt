@@ -69,14 +69,9 @@ private fun KeyboardContent(
     val overlay by state.rememberSlice { it.keyboardOverlay }
     val background by state.rememberSlice { it.settings.background }
     val layer by state.rememberSlice { it.layer }
-    val isTranslatorOpen by state.rememberSlice { it.translator != null }
 
     BackHandler(enabled = overlay != null) {
         onEvent(KeyboardEvent.OnOverlayChange(null))
-    }
-    // «Назад» сначала закрывает переводчик, а не всю клавиатуру.
-    BackHandler(enabled = overlay == null && isTranslatorOpen) {
-        onEvent(KeyboardEvent.OnTranslatorToggle)
     }
 
     Box(

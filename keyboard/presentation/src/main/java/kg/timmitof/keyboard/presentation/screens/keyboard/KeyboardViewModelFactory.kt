@@ -20,6 +20,8 @@ import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.SettingsDele
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.SuggestionsDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.TextInputDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.TranslatorDelegate
+import kg.timmitof.keyboard.domain.repository.FeatureAccessRepository
+import kg.timmitof.keyboard.translate.domain.repository.TranslationDownloadRepository
 import kg.timmitof.keyboard.translate.domain.repository.TranslationModelRepository
 import kg.timmitof.keyboard.translate.domain.repository.TranslationRepository
 import kg.timmitof.keyboard.translate.domain.repository.TranslatorPreferencesRepository
@@ -36,6 +38,8 @@ class KeyboardViewModelFactory(
     private val translationRepository: TranslationRepository,
     private val translationModelRepository: TranslationModelRepository,
     private val translatorPreferencesRepository: TranslatorPreferencesRepository,
+    private val translationDownloadRepository: TranslationDownloadRepository,
+    private val featureAccessRepository: FeatureAccessRepository,
 ) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -53,12 +57,13 @@ class KeyboardViewModelFactory(
                 fontDelegate = FontDelegate(fontRepository),
                 fieldContextDelegate = FieldContextDelegate(layerDelegate),
                 suggestionsDelegate = suggestionsDelegate,
-                settingsDelegate = SettingsDelegate(keyboardSettingsRepository),
+                settingsDelegate = SettingsDelegate(keyboardSettingsRepository, featureAccessRepository),
                 clipboardDelegate = ClipboardDelegate(clipboardRepository),
                 translatorDelegate = TranslatorDelegate(
                     translationRepository = translationRepository,
                     modelRepository = translationModelRepository,
                     preferencesRepository = translatorPreferencesRepository,
+                    downloadRepository = translationDownloadRepository,
                 ),
             ) as T
         }

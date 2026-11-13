@@ -4,11 +4,13 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import kg.timmitof.keyboard.translate.data.repository.TranslationDownloadRepositoryImpl
 import kg.timmitof.keyboard.translate.data.repository.TranslationModelRepositoryImpl
 import kg.timmitof.keyboard.translate.data.repository.TranslationRepositoryImpl
 import kg.timmitof.keyboard.translate.data.repository.TranslatorPreferencesRepositoryImpl
 import kg.timmitof.keyboard.translate.data.source.MlKitTranslatorEngine
 import kg.timmitof.keyboard.translate.data.source.TranslatorEngine
+import kg.timmitof.keyboard.translate.domain.repository.TranslationDownloadRepository
 import kg.timmitof.keyboard.translate.domain.repository.TranslationModelRepository
 import kg.timmitof.keyboard.translate.domain.repository.TranslationRepository
 import kg.timmitof.keyboard.translate.domain.repository.TranslatorPreferencesRepository
@@ -31,6 +33,12 @@ abstract class TranslatorDataModule {
     abstract fun bindTranslatorPreferencesRepository(
         impl: TranslatorPreferencesRepositoryImpl,
     ): TranslatorPreferencesRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindTranslationDownloadRepository(
+        impl: TranslationDownloadRepositoryImpl,
+    ): TranslationDownloadRepository
 
     @Binds
     @Singleton

@@ -38,7 +38,10 @@ enum class KeyboardToggle(
     KEY_OUTLINE("key_outline", default = false),
 
     /** Действует только в альбомном режиме и на планшете. */
-    SPLIT_KEYBOARD("split_keyboard", default = true);
+    SPLIT_KEYBOARD("split_keyboard", default = true),
+
+    /** Переводчик в клавиатуре (кнопка «文A»); вместе с ним — фоновая загрузка языков. См. [KeyboardFeature]. */
+    TRANSLATOR("translator_enabled", default = true);
 }
 
 enum class KeyboardThemeMode(val key: String) {
@@ -137,6 +140,10 @@ data class KeyboardSettings(
     val isKeyOutlineEnabled: Boolean get() = isOn(KeyboardToggle.KEY_OUTLINE)
 
     val isSplitEnabled: Boolean get() = isOn(KeyboardToggle.SPLIT_KEYBOARD)
+
+    /** Фича работает, только если её включили и она открыта пользователю (купленная, когда станет платной). */
+    fun isActive(feature: KeyboardFeature, access: FeatureAccess): Boolean =
+        isOn(feature.toggle) && access.isUnlocked(feature)
 
     companion object {
         const val DEFAULT_SOUND_VOLUME = 0.6f

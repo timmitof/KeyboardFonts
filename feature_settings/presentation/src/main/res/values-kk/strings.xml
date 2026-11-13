@@ -140,4 +140,25 @@
     <string name="tip_long_press">Әріпті ұзақ басу ұқсас таңбаларды ашады</string>
     <string name="tip_quick_settings">Пернелердің үстіндегі тісті доңғалақ — тақырып, биіктік және діріл тікелей пернетақтадан</string>
     <string name="tip_clipboard">Пернелердің үстіндегі буфер белгішесі көшірілгенді сақтайды — жазбаны бекітуге болады</string>
+
+    <!-- Переводчик -->
+    <string name="studio_tab_translator">Аудармашы</string>
+    <string name="translator_toggle_title">Пернетақтадағы аудармашы</string>
+    <string name="translator_toggle_description">Өз тіліңізде жазасыз — чатқа аударма кетеді. Интернетсіз жұмыс істейді</string>
+    <string name="translator_languages_header">Аудару тілдері</string>
+    <string name="translator_state_built_in">Кірістірілген · әрдайым жұмыс істейді</string>
+    <string name="translator_state_downloaded">Жүктелді · интернетсіз жұмыс істейді</string>
+    <string name="translator_state_downloading">Жүктелуде…</string>
+    <string name="translator_state_missing">Жүктелмеген</string>
+    <string name="translator_download">Жүктеу</string>
+    <string name="translator_add">Аудару тілін қосу</string>
+    <string name="translator_add_title">Аудару тілдері</string>
+    <string name="translator_search">Тілді табу</string>
+    <string name="translator_downloaded_header">Жүктелгендер</string>
+    <string name="translator_catalog_header">Барлық тілдер</string>
+    <string name="translator_delete">Жою</string>
+    <string name="translator_delete_question">%1$s жойылсын ба?</string>
+    <string name="translator_delete_text">Оны кез келген уақытта қайта жүктеуге болады.</string>
+    <string name="translator_delete_confirm">Жою</string>
+    <string name="translator_delete_cancel">Бас тарту</string>
 </resources>

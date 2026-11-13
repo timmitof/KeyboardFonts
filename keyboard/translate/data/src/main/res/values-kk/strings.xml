@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="translator_channel_name">Аудармашыны жүктеу</string>
+    <string name="translator_channel_description">Интернетсіз аударуға арналған тілдердің жүктелуін көрсетеді</string>
+    <string name="translator_download_title">Аудармашы жүктелуде</string>
+    <string name="translator_download_step">%1$d / %2$d</string>
+    <string name="translator_ready_title">Аудармашы дайын</string>
+    <string name="translator_ready_text">%1$s — интернетсіз жұмыс істейді</string>
+    <string name="translator_failed_title">Аудармашы жүктелмеді</string>
+    <string name="translator_failed_text">Интернетті тексеріп, баптаулардағы «Жүктеу» түймесін басыңыз</string>
+</resources>

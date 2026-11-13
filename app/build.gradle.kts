@@ -92,6 +92,13 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.compose)
 
+    implementation(project(":keyboard:domain"))
+    implementation(project(":keyboard:translate:domain"))
+
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
+
+    // Фоновые загрузки моделей переводчика: воркеры создаёт Hilt (см. KeyboardFontsApp).
+    implementation(libs.androidx.work.runtime)
+    implementation(libs.androidx.hilt.work)
 }

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="translator_channel_name">Завантаження перекладача</string>
+    <string name="translator_channel_description">Показує, як завантажуються мови для перекладу без інтернету</string>
+    <string name="translator_download_title">Завантажуємо перекладач</string>
+    <string name="translator_download_step">%1$d з %2$d</string>
+    <string name="translator_ready_title">Перекладач готовий</string>
+    <string name="translator_ready_text">%1$s — працює без інтернету</string>
+    <string name="translator_failed_title">Не вдалося завантажити перекладач</string>
+    <string name="translator_failed_text">Перевірте інтернет і натисніть «Завантажити» в налаштуваннях</string>
+</resources>

@@ -6,5 +6,7 @@ dependencies {
 
     api(project(":keyboard:clipboard:domain"))
 
+    api(project(":keyboard:translate:domain"))
+
     api(project(":keyboard:integration"))
 }

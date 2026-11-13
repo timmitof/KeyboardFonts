@@ -1,8 +1,10 @@
 package kg.timmitof.feature_settings.domain.interactor
 
 import kg.timmitof.feature_settings.domain.model.SettingsSummary
+import kg.timmitof.feature_settings.domain.model.TranslatorOverview
 import kg.timmitof.keyboard.clipboard.domain.model.ClipboardBoard
 import kg.timmitof.keyboard.domain.model.BackgroundPhoto
+import kg.timmitof.keyboard.domain.model.FeatureAccess
 import kg.timmitof.keyboard.domain.model.KeyColorTarget
 import kg.timmitof.keyboard.domain.model.KeyboardBackground
 import kg.timmitof.keyboard.domain.model.KeyboardHeight
@@ -60,6 +62,18 @@ interface SettingsInteractor {
     suspend fun resetFontPanel()
 
     fun observeClipboard(): Flow<ClipboardBoard>
+
+    /** Что открыто пользователю: платная фича без покупки показывается, но не включается. */
+    fun observeFeatureAccess(): Flow<FeatureAccess>
+
+    /** Языки переводчика с их состоянием: скачан, качается, нет на телефоне. */
+    fun observeTranslator(): Flow<TranslatorOverview>
+
+    /** Скачать язык переводчика сейчас, по любой сети, с уведомлением о загрузке. */
+    suspend fun downloadTranslationLanguage(code: String)
+
+    /** Удалить скачанный язык переводчика; сам он больше не скачается, пока его не скачают вручную. */
+    suspend fun deleteTranslationLanguage(code: String)
 
     suspend fun clearRecentClipboard()
 }

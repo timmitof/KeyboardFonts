@@ -2,6 +2,7 @@ package kg.timmitof.keyboard.presentation.screens.keyboard.delegates
 
 import kg.timmitof.keyboard.domain.model.KeyboardLanguage
 import kg.timmitof.keyboard.presentation.screens.keyboard.KeyboardSyntax
+import kg.timmitof.keyboard.presentation.screens.keyboard.states.ComposingText
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardOverlay
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardSideEffect
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.InlineEditor
@@ -10,6 +11,8 @@ import kg.timmitof.keyboard.presentation.screens.keyboard.states.TranslatorState
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.TranslatorStatus
 import kg.timmitof.keyboard.translate.domain.model.TranslationLanguage
 import kg.timmitof.keyboard.translate.domain.model.TranslationResult
+import kg.timmitof.keyboard.translate.domain.model.TranslationModels
+import kg.timmitof.keyboard.translate.domain.repository.TranslationDownloadRepository
 import kg.timmitof.keyboard.translate.domain.repository.TranslationModelRepository
 import kg.timmitof.keyboard.translate.domain.repository.TranslationRepository
 import kg.timmitof.keyboard.translate.domain.repository.TranslatorPreferencesRepository
@@ -27,10 +30,11 @@ internal class TranslatorDelegate(
     private val translationRepository: TranslationRepository,
     private val modelRepository: TranslationModelRepository,
     private val preferencesRepository: TranslatorPreferencesRepository,
+    private val downloadRepository: TranslationDownloadRepository,
 ) {
 
-    /** Скачанные языки: лист выбора и кнопка «Скачать» обновляются сами после загрузки. */
-    val downloadedModels: Flow<Set<String>> = modelRepository.observeDownloaded()
+    /** Модели на телефоне и в очереди: панель и лист выбора обновляются сами, где бы ни шла загрузка. */
+    val models: Flow<TranslationModels> = downloadRepository.observeModels()
 
     /**
      * Перевод через паузу после последней буквы: поле приложения не дёргается на каждое нажатие.
@@ -54,7 +58,7 @@ internal class TranslatorDelegate(
         val layouts = layoutsOf(state.languages)
         val source = sourceOf(state.activeLanguage)
         val target = preferences.targetCode?.let(modelRepository::language) ?: defaultTarget(source, layouts)
-        val downloaded = modelRepository.downloadedCodes()
+        val models = TranslationModels(downloaded = modelRepository.downloadedCodes())
         val before = state.textContext.before
 
         reduce {
@@ -64,7 +68,7 @@ internal class TranslatorDelegate(
                     target = target,
                     languages = modelRepository.languages(),
                     layouts = layouts,
-                    downloadedCodes = downloaded,
+                    models = models,
                     isStyled = preferences.isStyled,
                     needsLeadingSpace = before.isNotEmpty() && !before.last().isWhitespace(),
                 ),
@@ -100,12 +104,54 @@ internal class TranslatorDelegate(
         release()
     }
 
+    /**
+     * Клавиатуру скрыли («Назад» закрывает её сразу, вместе с панелью). Перевод в поле уже зафиксировал
+     * сервис — здесь только убираем панель и отпускаем модель.
+     */
+    suspend fun KeyboardSyntax.dismiss() {
+        if (state.translator == null) return
+
+        reduce {
+            state.copy(
+                translator = null,
+                composing = ComposingText(),
+                keyboardOverlay = state.keyboardOverlay.takeIf { it != KeyboardOverlay.TRANSLATION_LANGUAGES },
+            )
+        }
+        release()
+    }
+
     fun release() = translationRepository.release()
 
-    suspend fun KeyboardSyntax.applyDownloaded(codes: Set<String>) {
-        if (state.translator?.downloadedCodes == codes) return
+    /**
+     * Загрузка идёт в фоне (WorkManager), поэтому её исход панель узнаёт отсюда: пара скачалась — переводим
+     * набранное заново; пропала из очереди нескачанной — загрузка не удалась.
+     */
+    suspend fun KeyboardSyntax.applyModels(models: TranslationModels) {
+        val translator = state.translator ?: return
+        if (translator.models == models) return
 
-        updateTranslator { it.copy(downloadedCodes = codes) }
+        updateTranslator { it.withModels(models) }
+    }
+
+    private fun TranslatorState.withModels(models: TranslationModels): TranslatorState {
+        val isPairDownloaded = pairCodes.all { it in models.downloaded }
+        val isPairDownloading = pairCodes.any { it in models.downloading }
+        // «Не скачалось» — только если загрузка была в очереди и пропала из неё: сразу после нажатия
+        // очередь может ещё не обновиться.
+        val wasPairDownloading = pairCodes.any { it in this.models.downloading }
+        val isWaitingForModels = status == TranslatorStatus.DOWNLOADING || status == TranslatorStatus.MODEL_MISSING
+
+        return when {
+            isWaitingForModels && isPairDownloaded ->
+                copy(models = models, status = TranslatorStatus.READY, revision = revision + 1)
+
+            isPairDownloading -> copy(models = models, status = TranslatorStatus.DOWNLOADING)
+            status == TranslatorStatus.DOWNLOADING && wasPairDownloading ->
+                copy(models = models, status = TranslatorStatus.DOWNLOAD_FAILED)
+
+            else -> copy(models = models)
+        }
     }
 
     /** Перевод устаревшего запроса не пишем: пока он считался, текст в панели уже другой. */
@@ -176,20 +222,16 @@ internal class TranslatorDelegate(
         if (translator.translation.isNotEmpty()) writeToField(translator.copy(isStyled = isStyled), translator.translation)
     }
 
-    /** Модели качаются с сети один раз; после этого тот же текст переводим заново. */
+    /**
+     * Модели качаются один раз — в фоне, с уведомлением, и переживают закрытие клавиатуры.
+     * Исход придёт через [applyModels].
+     */
     suspend fun KeyboardSyntax.download() {
         val translator = state.translator ?: return
-        val source = translator.source ?: return
-        if (translator.status == TranslatorStatus.DOWNLOADING) return
+        if (translator.source == null || translator.status == TranslatorStatus.DOWNLOADING) return
 
+        downloadRepository.download(translator.pairCodes)
         updateTranslator { it.copy(status = TranslatorStatus.DOWNLOADING) }
-        val isDownloaded = modelRepository.download(listOf(source.code, translator.target.code))
-        updateTranslator {
-            it.copy(
-                status = if (isDownloaded) TranslatorStatus.READY else TranslatorStatus.DOWNLOAD_FAILED,
-                revision = it.revision + 1,
-            )
-        }
     }
 
     /**

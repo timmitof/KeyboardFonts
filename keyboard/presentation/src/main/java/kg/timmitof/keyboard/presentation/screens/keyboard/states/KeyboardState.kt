@@ -9,6 +9,8 @@ import kg.timmitof.core.ui.base.BaseState
 import kg.timmitof.keyboard.clipboard.domain.model.ClipboardBoard
 import kg.timmitof.keyboard.clipboard.domain.model.ClipboardEntry
 import kg.timmitof.keyboard.domain.model.EmojiCategory
+import kg.timmitof.keyboard.domain.model.FeatureAccess
+import kg.timmitof.keyboard.domain.model.KeyboardFeature
 import kg.timmitof.keyboard.domain.model.KeyboardHeight
 import kg.timmitof.keyboard.domain.model.KeyCharacter
 import kg.timmitof.keyboard.font.domain.model.FontScript
@@ -60,6 +62,8 @@ internal data class KeyboardState(
     val settings: KeyboardSettings = KeyboardSettings(),
     val keyboardOverlay: KeyboardOverlay? = null,
     val clipboard: ClipboardBoard = ClipboardBoard(),
+    /** Что открыто пользователю: платные фичи без покупки не работают, даже если их включили. */
+    val featureAccess: FeatureAccess = FeatureAccess(),
     /** Открытая панель перевода; null — ввод идёт прямо в поле приложения. */
     val translator: TranslatorState? = null,
 ): BaseState() {
@@ -109,8 +113,12 @@ internal data class KeyboardState(
     private val allowsStyledText: Boolean
         get() = settings.isFontsPanelEnabled && fieldType.allowsFonts
 
-    /** Переводчик там же, где стилизация: в паролях, адресах и цифрах переводить нечего. */
-    val allowsTranslation: Boolean get() = fieldType.allowsFonts
+    /**
+     * Переводчик включён (и открыт пользователю) и поле подходит: в паролях, адресах и цифрах,
+     * как и со стилизацией, переводить нечего.
+     */
+    val allowsTranslation: Boolean
+        get() = fieldType.allowsFonts && settings.isActive(KeyboardFeature.TRANSLATOR, featureAccess)
 
     /** Кнопка «Aa» панели перевода: шрифт можно применить к переводу. */
     val allowsTranslationFont: Boolean get() = allowsStyledText

@@ -17,6 +17,9 @@ interface TranslationModelRepository {
     /** Язык переводчика для кода раскладки (`ru_ru` → `ru`); null — переводчик этот язык не знает. */
     fun languageForLayout(layoutCode: String): TranslationLanguage?
 
+    /** Встроенный язык (английский) есть всегда: его не качают и не удаляют. */
+    fun isBuiltIn(code: String): Boolean
+
     /** Коды скачанных языков; новое значение — после каждого скачивания или удаления. */
     fun observeDownloaded(): Flow<Set<String>>
 

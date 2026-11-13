@@ -140,4 +140,25 @@
     <string name="tip_long_press">Пахши дароз бар ҳарф аломатҳои монандро мекушояд</string>
     <string name="tip_quick_settings">Чархаки болои тугмаҳо — мавзӯъ, баландӣ ва ларзиш бевосита аз клавиатура</string>
     <string name="tip_clipboard">Нишонаи буфер дар болои тугмаҳо нусхабардоштаҳоро нигоҳ медорад — сабтро васл кардан мумкин аст</string>
+
+    <!-- Переводчик -->
+    <string name="studio_tab_translator">Тарҷумон</string>
+    <string name="translator_toggle_title">Тарҷумон дар клавиатура</string>
+    <string name="translator_toggle_description">Бо забони худ менависед — ба чат тарҷума меравад. Бе интернет кор мекунад</string>
+    <string name="translator_languages_header">Забонҳои тарҷума</string>
+    <string name="translator_state_built_in">Дарунсохт · ҳамеша кор мекунад</string>
+    <string name="translator_state_downloaded">Боргирӣ шуд · бе интернет кор мекунад</string>
+    <string name="translator_state_downloading">Боргирӣ мешавад…</string>
+    <string name="translator_state_missing">Боргирӣ нашудааст</string>
+    <string name="translator_download">Боргирӣ</string>
+    <string name="translator_add">Илова кардани забони тарҷума</string>
+    <string name="translator_add_title">Забонҳои тарҷума</string>
+    <string name="translator_search">Ёфтани забон</string>
+    <string name="translator_downloaded_header">Боргиришудаҳо</string>
+    <string name="translator_catalog_header">Ҳамаи забонҳо</string>
+    <string name="translator_delete">Нест кардан</string>
+    <string name="translator_delete_question">%1$s нест карда шавад?</string>
+    <string name="translator_delete_text">Онро ҳар вақт аз нав боргирӣ кардан мумкин.</string>
+    <string name="translator_delete_confirm">Нест кардан</string>
+    <string name="translator_delete_cancel">Бекор кардан</string>
 </resources>

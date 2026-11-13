@@ -146,7 +146,7 @@ private data class LanguagesSlice(
 /** Скачанные — сверху: их выбирают чаще всего, и они работают без сети. */
 private fun KeyboardState.languagesSlice(): LanguagesSlice? {
     val translator = translator ?: return null
-    val downloaded = translator.downloadedCodes
+    val downloaded = translator.models.downloaded
 
     return LanguagesSlice(
         languages = translator.languages.sortedByDescending { it.code in downloaded },

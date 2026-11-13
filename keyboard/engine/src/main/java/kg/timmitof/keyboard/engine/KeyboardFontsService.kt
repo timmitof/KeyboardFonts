@@ -18,6 +18,8 @@ import kg.timmitof.keyboard.domain.repository.KeyboardSettingsRepository
 import kg.timmitof.keyboard.domain.repository.LanguageRepository
 import kg.timmitof.keyboard.suggestion.domain.repository.SuggestionRepository
 import kg.timmitof.keyboard.suggestion.domain.repository.TypingStatsRepository
+import kg.timmitof.keyboard.domain.repository.FeatureAccessRepository
+import kg.timmitof.keyboard.translate.domain.repository.TranslationDownloadRepository
 import kg.timmitof.keyboard.translate.domain.repository.TranslationModelRepository
 import kg.timmitof.keyboard.translate.domain.repository.TranslationRepository
 import kg.timmitof.keyboard.translate.domain.repository.TranslatorPreferencesRepository
@@ -62,6 +64,12 @@ internal class KeyboardFontsService : ComposeInputMethodService() {
     @Inject
     lateinit var translatorPreferencesRepository: TranslatorPreferencesRepository
 
+    @Inject
+    lateinit var translationDownloadRepository: TranslationDownloadRepository
+
+    @Inject
+    lateinit var featureAccessRepository: FeatureAccessRepository
+
     override fun attachBaseContext(newBase: Context) {
         super.attachBaseContext(AppLocale.wrap(newBase))
     }
@@ -100,6 +108,8 @@ internal class KeyboardFontsService : ComposeInputMethodService() {
             translationRepository = translationRepository,
             translationModelRepository = translationModelRepository,
             translatorPreferencesRepository = translatorPreferencesRepository,
+            translationDownloadRepository = translationDownloadRepository,
+            featureAccessRepository = featureAccessRepository,
         ),
         onKeyboardAction = ::applyAction,
     ).also { keyboardView = it }
@@ -138,7 +148,12 @@ internal class KeyboardFontsService : ComposeInputMethodService() {
     /** Система по умолчанию в альбомном режиме раскрывает ввод на весь экран; мы показываем обычную клавиатуру поверх приложения. */
     override fun onEvaluateFullscreenMode(): Boolean = false
 
+    /**
+     * Черновик (слово Т9 или перевод из панели переводчика) фиксируем сразу и синхронно: команда через
+     * ViewModel пришла бы, когда поле уже отпущено, и в нём осталось бы подчёркивание.
+     */
     override fun onFinishInputView(finishingInput: Boolean) {
+        currentInputConnection?.finishComposingText()
         super.onFinishInputView(finishingInput)
         textSyncHandler.removeCallbacks(textSyncTask)
         keyboardView?.updateTextContext(TextContext())

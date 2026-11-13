@@ -5,9 +5,11 @@ import kg.timmitof.core.ui.base.BaseEvent
 import kg.timmitof.core.ui.base.BaseSideEffect
 import kg.timmitof.core.ui.base.BaseState
 import kg.timmitof.feature_settings.domain.model.SettingsSummary
+import kg.timmitof.feature_settings.domain.model.TranslatorOverview
 import kg.timmitof.feature_settings.presentation.studio.StudioTab
 import kg.timmitof.keyboard.clipboard.domain.model.ClipboardBoard
 import kg.timmitof.keyboard.domain.model.BackgroundPhoto
+import kg.timmitof.keyboard.domain.model.FeatureAccess
 import kg.timmitof.keyboard.domain.model.KeyColorTarget
 import kg.timmitof.keyboard.domain.model.KeyboardBackground
 import kg.timmitof.keyboard.domain.model.KeyboardHeight
@@ -28,6 +30,8 @@ data class SettingsState(
     val languages: KeyboardLanguages? = null,
     val selectedTab: StudioTab = StudioTab.Default,
     val photos: List<BackgroundPhoto> = emptyList(),
+    val featureAccess: FeatureAccess = FeatureAccess(),
+    val translator: TranslatorOverview = TranslatorOverview(),
 ) : BaseState() {
 }
 
@@ -63,6 +67,12 @@ sealed class SettingsEvent : BaseEvent.UiEvent() {
     data class TabSelected(val tab: StudioTab) : SettingsEvent()
 
     data object ClearRecentClipboardClicked : SettingsEvent()
+
+    /** Разрешение на уведомления спрошено при открытии шторки — загрузка покажет прогресс, если его дали. */
+    data class TranslatorLanguageDownloadClicked(val code: String) : SettingsEvent()
+
+    /** Удаление уже подтверждено в диалоге. */
+    data class TranslatorLanguageDeleteConfirmed(val code: String) : SettingsEvent()
 
     data object ScreenResumed : SettingsEvent()
 

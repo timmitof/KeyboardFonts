@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="translator_channel_name">Tarjimonni yuklab olish</string>
+    <string name="translator_channel_description">Internetsiz tarjima uchun tillar yuklanishini koʻrsatadi</string>
+    <string name="translator_download_title">Tarjimon yuklanmoqda</string>
+    <string name="translator_download_step">%1$d / %2$d</string>
+    <string name="translator_ready_title">Tarjimon tayyor</string>
+    <string name="translator_ready_text">%1$s — internetsiz ishlaydi</string>
+    <string name="translator_failed_title">Tarjimonni yuklab boʻlmadi</string>
+    <string name="translator_failed_text">Internetni tekshiring va sozlamalarda «Yuklab olish»ni bosing</string>
+</resources>

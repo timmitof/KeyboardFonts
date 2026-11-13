@@ -1,5 +1,6 @@
 package kg.timmitof.keyboard.presentation.components.overlay.clipboard
 
+import kg.timmitof.core.ui.R as UiR
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -59,7 +60,7 @@ internal fun ColumnScope.ClipboardOverlay(
     ) {
         if (board.hasClearable) {
             OverlayIconButton(
-                iconRes = R.drawable.ic_trash,
+                iconRes = UiR.drawable.ic_trash,
                 contentDescription = stringResource(R.string.clipboard_clear),
                 onClick = { onEvent(KeyboardEvent.OnClipboardAction(ClipboardAction.ClearRecent)) }
             )

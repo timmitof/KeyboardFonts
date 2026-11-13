@@ -67,6 +67,7 @@ class TranslationRepositoryImplTest {
         override fun languages(): List<TranslationLanguage> = emptyList()
         override fun language(code: String): TranslationLanguage? = null
         override fun languageForLayout(layoutCode: String): TranslationLanguage? = null
+        override fun isBuiltIn(code: String): Boolean = code == "en"
         override fun observeDownloaded(): Flow<Set<String>> = flowOf(downloaded)
         override suspend fun downloadedCodes(): Set<String> = downloaded
         override suspend fun download(codes: Collection<String>): Boolean = true

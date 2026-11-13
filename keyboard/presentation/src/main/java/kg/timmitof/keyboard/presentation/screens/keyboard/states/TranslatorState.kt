@@ -3,6 +3,7 @@ package kg.timmitof.keyboard.presentation.screens.keyboard.states
 import androidx.compose.runtime.Immutable
 import kg.timmitof.keyboard.domain.model.KeyboardLanguage
 import kg.timmitof.keyboard.translate.domain.model.TranslationLanguage
+import kg.timmitof.keyboard.translate.domain.model.TranslationModels
 
 /**
  * Открытая панель перевода. Ввод клавиш идёт в [editor], а в поле приложения — только перевод
@@ -20,7 +21,8 @@ internal data class TranslatorState(
     val target: TranslationLanguage,
     val languages: List<TranslationLanguage>,
     val layouts: Map<String, KeyboardLanguage> = emptyMap(),
-    val downloadedCodes: Set<String> = emptySet(),
+    /** Скачанные и стоящие в очереди модели: лист языков и кнопка «Скачать» показывают их состояние. */
+    val models: TranslationModels = TranslationModels(),
     val editor: InlineEditor = InlineEditor(),
     val translation: String = "",
     val translatedFor: TranslationRequest? = null,
@@ -40,6 +42,9 @@ internal data class TranslatorState(
 
     val isTranslating: Boolean
         get() = request != translatedFor && editor.text.isNotBlank() && status.allowsTranslation
+
+    /** Языки, без моделей которых пара не переведётся. */
+    val pairCodes: List<String> get() = listOfNotNull(source?.code, target.code)
 
     /** Раскладка целевого языка; null — на нём не напечатать, и менять пару местами нельзя. */
     val swapLayout: KeyboardLanguage? get() = layouts[target.code]?.takeIf { source != null }

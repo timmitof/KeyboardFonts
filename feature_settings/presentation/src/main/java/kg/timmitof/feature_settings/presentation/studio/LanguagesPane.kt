@@ -1,16 +1,8 @@
 package kg.timmitof.feature_settings.presentation.studio
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
@@ -19,16 +11,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import kg.timmitof.core.ui.R as UiR
-import kg.timmitof.core.ui.components.settings.SettingsBadge
 import kg.timmitof.core.ui.components.settings.SettingsListTallRowHeight
 import kg.timmitof.core.ui.components.settings.SettingsPickSection
 import kg.timmitof.core.ui.components.settings.SettingsPickSheet
@@ -36,8 +22,10 @@ import kg.timmitof.core.ui.components.settings.SettingsPillButton
 import kg.timmitof.core.ui.components.settings.SettingsReorderList
 import kg.timmitof.core.ui.components.settings.SettingsSectionFooter
 import kg.timmitof.core.ui.components.settings.SettingsSectionHeader
-import kg.timmitof.core.ui.theme.appColors
 import kg.timmitof.feature_settings.presentation.R
+import kg.timmitof.feature_settings.presentation.components.ConnectedMark
+import kg.timmitof.feature_settings.presentation.components.LanguageRowContent
+import kg.timmitof.feature_settings.presentation.components.RowIconButton
 import kg.timmitof.keyboard.domain.model.KeyboardLanguage
 import kg.timmitof.keyboard.domain.model.KeyboardLanguages
 
@@ -62,6 +50,7 @@ internal fun LanguagesPane(
     var isPickerOpen by rememberSaveable { mutableStateOf(false) }
 
     val currentLabel = stringResource(R.string.languages_current)
+    val removeLabel = stringResource(R.string.languages_remove)
     val withSuggestions = stringResource(R.string.languages_with_suggestions)
     val withoutSuggestions = stringResource(R.string.languages_without_suggestions)
 
@@ -94,7 +83,13 @@ internal fun LanguagesPane(
             rowHeight = SettingsListTallRowHeight,
         ) { item ->
             LanguageRowContent(language = item.language, description = item.description)
-            if (canRemove) RemoveButton(onClick = { onRemove(item.language.code) })
+            if (canRemove) {
+                RowIconButton(
+                    iconRes = UiR.drawable.ic_close,
+                    contentDescription = removeLabel,
+                    onClick = { onRemove(item.language.code) },
+                )
+            }
         }
         SettingsSectionFooter(text = stringResource(R.string.languages_reorder_hint))
     }
@@ -162,59 +157,5 @@ private fun KeyboardLanguage.matches(query: String): Boolean =
         code.contains(query, ignoreCase = true)
 
 @Composable
-private fun RowScope.LanguageRowContent(language: KeyboardLanguage, description: String) {
-    SettingsBadge(text = language.shortName)
-    Column(modifier = Modifier.weight(1f)) {
-        Text(
-            text = language.displayName,
-            fontSize = 15.sp,
-            fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.onBackground,
-            maxLines = 1,
-        )
-        Text(
-            text = description,
-            fontSize = 12.5.sp,
-            color = MaterialTheme.colorScheme.outline,
-            maxLines = 1,
-        )
-    }
-}
-
-@Composable
-private fun RemoveButton(onClick: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .size(32.dp)
-            .clip(CircleShape)
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center,
-    ) {
-        Icon(
-            painter = painterResource(UiR.drawable.ic_close),
-            contentDescription = stringResource(R.string.languages_remove),
-            tint = MaterialTheme.colorScheme.outline,
-            modifier = Modifier.size(18.dp),
-        )
-    }
-}
-
-@Composable
-private fun ConnectedMark() {
-    val tones = MaterialTheme.appColors.success
-
-    Box(
-        modifier = Modifier
-            .size(26.dp)
-            .clip(CircleShape)
-            .background(tones.container),
-        contentAlignment = Alignment.Center,
-    ) {
-        Icon(
-            painter = painterResource(UiR.drawable.ic_check),
-            contentDescription = null,
-            tint = tones.solid,
-            modifier = Modifier.size(13.dp),
-        )
-    }
-}
+private fun RowScope.LanguageRowContent(language: KeyboardLanguage, description: String) =
+    LanguageRowContent(badge = language.shortName, title = language.displayName, description = description)

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="translator_channel_name">Боргирии тарҷумон</string>
+    <string name="translator_channel_description">Боргирии забонҳоро барои тарҷума бе интернет нишон медиҳад</string>
+    <string name="translator_download_title">Тарҷумон боргирӣ мешавад</string>
+    <string name="translator_download_step">%1$d аз %2$d</string>
+    <string name="translator_ready_title">Тарҷумон омода аст</string>
+    <string name="translator_ready_text">%1$s — бе интернет кор мекунад</string>
+    <string name="translator_failed_title">Тарҷумон боргирӣ нашуд</string>
+    <string name="translator_failed_text">Интернетро санҷед ва дар танзимот «Боргирӣ»-ро пахш кунед</string>
+</resources>

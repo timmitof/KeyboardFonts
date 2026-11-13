@@ -126,10 +126,13 @@ internal class KeyboardViewModel(
             is KeyboardEvent.OnTranslatorDownload -> intent { with(translatorDelegate) { download() } }
             is KeyboardEvent.OnTranslatorTargetSelect -> intent { with(translatorDelegate) { selectTarget(event.language) } }
             is KeyboardEvent.OnInputSessionChange -> resetInputSession()
-            is KeyboardEvent.OnInputSessionFinish -> viewModelScope.launch { suggestionsDelegate.flush() }
+            is KeyboardEvent.OnInputSessionFinish -> {
+                viewModelScope.launch { suggestionsDelegate.flush() }
+                intent { with(translatorDelegate) { dismiss() } }
+            }
             is KeyboardEvent.OnFieldContextChange -> intent {
                 with(fieldContextDelegate) { applyContext(event.context) }
-                if (!state.allowsTranslation) closeTranslator()
+                closeTranslatorIfNotAllowed()
                 with(suggestionsDelegate) {
                     refreshAutoShift()
                     requestSuggestions()
@@ -159,6 +162,7 @@ internal class KeyboardViewModel(
         layerDelegate.preloadLayouts(state.languages.map { it.layout })
         observeSuggestions()
         observeSettings()
+        observeFeatureAccess()
         observeLanguages()
         observeFontPanel()
         observeClipboard()
@@ -190,6 +194,22 @@ internal class KeyboardViewModel(
         // Черновик закрываем в поле приложения: дальше ввод пойдёт в панель.
         with(textInputDelegate) { closeComposing() }
         with(translatorDelegate) { open() }
+    }
+
+    /** Переводчик выключили в настройках (или он перестал быть доступен) — открытая панель закрывается сразу. */
+    private fun observeFeatureAccess() {
+        settingsDelegate.featureAccess
+            .onEach { access ->
+                intent {
+                    with(settingsDelegate) { applyFeatureAccess(access) }
+                    closeTranslatorIfNotAllowed()
+                }
+            }
+            .launchIn(viewModelScope)
+    }
+
+    private suspend fun KeyboardSyntax.closeTranslatorIfNotAllowed() {
+        if (state.translator != null && !state.allowsTranslation) closeTranslator()
     }
 
     private suspend fun KeyboardSyntax.closeTranslator() {
@@ -227,8 +247,8 @@ internal class KeyboardViewModel(
             }
             .launchIn(viewModelScope)
 
-        translatorDelegate.downloadedModels
-            .onEach { codes -> intent { with(translatorDelegate) { applyDownloaded(codes) } } }
+        translatorDelegate.models
+            .onEach { models -> intent { with(translatorDelegate) { applyModels(models) } } }
             .launchIn(viewModelScope)
 
         translatorDelegate.translations(container.stateFlow.map { it.translator?.request })
@@ -274,6 +294,7 @@ internal class KeyboardViewModel(
                 intent {
                     val previous = state.settings
                     with(settingsDelegate) { applySettings(settings) }
+                    closeTranslatorIfNotAllowed()
 
                     if (previous.isDigitsRowEnabled != settings.isDigitsRowEnabled) {
                         with(layerDelegate) { applyLayer(state.layer) }

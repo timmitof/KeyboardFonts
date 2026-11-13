@@ -50,15 +50,22 @@ class LanguageRepositoryImpl @Inject constructor(
         return KeyboardLanguages(catalog = catalog, enabled = enabled, selected = selected)
     }
 
-    /** Язык системы из каталога плюс английский; если языка системы в каталоге нет — первый язык каталога. */
+    /**
+     * Язык системы первым и английский. Система на английском или её языка нет в каталоге — английский первым
+     * и запасной язык каталога (первый, русский): переводчику нужна пара, одна раскладка — это не выбор.
+     */
     private fun defaultLanguages(catalog: List<KeyboardLanguage>): List<KeyboardLanguage> {
         val system = systemLocale()
+        val english = catalog.firstOrNull { it.language == ENGLISH }
         val systemLanguage = catalog.firstOrNull { it.code.equals(system.toCode(), ignoreCase = true) }
             ?: catalog.firstOrNull { it.language == system.language }
-            ?: return listOf(catalog.first())
 
-        val english = catalog.firstOrNull { it.language == ENGLISH }
-        return listOfNotNull(systemLanguage, english).distinct()
+        val defaults = if (systemLanguage != null && systemLanguage != english) {
+            listOfNotNull(systemLanguage, english)
+        } else {
+            listOfNotNull(english, catalog.firstOrNull { it != english })
+        }
+        return defaults.ifEmpty { listOf(catalog.first()) }
     }
 
     /** Язык устройства, а не приложения: у приложения может стоять свой язык интерфейса. */

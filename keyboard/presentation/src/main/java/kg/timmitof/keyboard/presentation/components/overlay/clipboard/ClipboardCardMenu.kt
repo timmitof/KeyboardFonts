@@ -1,5 +1,6 @@
 package kg.timmitof.keyboard.presentation.components.overlay.clipboard
 
+import kg.timmitof.core.ui.R as UiR
 import kg.timmitof.core.ui.plainClickable
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
@@ -65,7 +66,7 @@ internal fun ClipboardCardMenu(
             }
 
             MenuItem(
-                iconRes = R.drawable.ic_trash,
+                iconRes = UiR.drawable.ic_trash,
                 label = stringResource(R.string.clipboard_delete),
             ) {
                 onEvent(KeyboardEvent.OnClipboardAction(ClipboardAction.Remove(entry)))

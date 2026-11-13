@@ -140,4 +140,25 @@
     <string name="tip_long_press">Bir harfe uzun basmak benzer karakterleri açar</string>
     <string name="tip_quick_settings">Tuşların üstündeki dişli — tema, yükseklik ve titreşim doğrudan klavyeden</string>
     <string name="tip_clipboard">Tuşların üstündeki pano simgesi kopyaladıklarınızı saklar — kayıt sabitlenebilir</string>
+
+    <!-- Переводчик -->
+    <string name="studio_tab_translator">Çevirmen</string>
+    <string name="translator_toggle_title">Klavyede çevirmen</string>
+    <string name="translator_toggle_description">Kendi dilinizde yazın — sohbete çeviri gider. İnternetsiz çalışır</string>
+    <string name="translator_languages_header">Çeviri dilleri</string>
+    <string name="translator_state_built_in">Yerleşik · her zaman çalışır</string>
+    <string name="translator_state_downloaded">İndirildi · internetsiz çalışır</string>
+    <string name="translator_state_downloading">İndiriliyor…</string>
+    <string name="translator_state_missing">İndirilmedi</string>
+    <string name="translator_download">İndir</string>
+    <string name="translator_add">Çeviri dili ekle</string>
+    <string name="translator_add_title">Çeviri dilleri</string>
+    <string name="translator_search">Dil ara</string>
+    <string name="translator_downloaded_header">İndirilenler</string>
+    <string name="translator_catalog_header">Tüm diller</string>
+    <string name="translator_delete">Sil</string>
+    <string name="translator_delete_question">%1$s silinsin mi?</string>
+    <string name="translator_delete_text">İstediğiniz zaman yeniden indirebilirsiniz.</string>
+    <string name="translator_delete_confirm">Sil</string>
+    <string name="translator_delete_cancel">İptal</string>
 </resources>

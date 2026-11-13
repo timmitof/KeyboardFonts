@@ -140,4 +140,25 @@
     <string name="tip_long_press">Тамганы узак басуу окшош белгилерди ачат</string>
     <string name="tip_quick_settings">Баскычтардын үстүндөгү тиштүү дөңгөлөк — тема, бийиктик жана титирөө түз эле баскычтоптон</string>
     <string name="tip_clipboard">Баскычтардын үстүндөгү буфер сөлөкөтү көчүрүлгөндү сактайт — жазууну кадаса болот</string>
+
+    <!-- Переводчик -->
+    <string name="studio_tab_translator">Котормочу</string>
+    <string name="translator_toggle_title">Клавиатурадагы котормочу</string>
+    <string name="translator_toggle_description">Өз тилиңизде жазасыз — чатка котормо кетет. Интернетсиз иштейт</string>
+    <string name="translator_languages_header">Которуу тилдери</string>
+    <string name="translator_state_built_in">Камтылган · дайыма иштейт</string>
+    <string name="translator_state_downloaded">Жүктөлдү · интернетсиз иштейт</string>
+    <string name="translator_state_downloading">Жүктөлүүдө…</string>
+    <string name="translator_state_missing">Жүктөлгөн эмес</string>
+    <string name="translator_download">Жүктөө</string>
+    <string name="translator_add">Которуу тилин кошуу</string>
+    <string name="translator_add_title">Которуу тилдери</string>
+    <string name="translator_search">Тилди табуу</string>
+    <string name="translator_downloaded_header">Жүктөлгөндөр</string>
+    <string name="translator_catalog_header">Бардык тилдер</string>
+    <string name="translator_delete">Өчүрүү</string>
+    <string name="translator_delete_question">%1$s өчүрүлсүнбү?</string>
+    <string name="translator_delete_text">Аны каалаган убакта кайра жүктөсө болот.</string>
+    <string name="translator_delete_confirm">Өчүрүү</string>
+    <string name="translator_delete_cancel">Жокко чыгаруу</string>
 </resources>

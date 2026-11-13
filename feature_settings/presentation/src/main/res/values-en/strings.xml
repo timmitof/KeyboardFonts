@@ -140,4 +140,25 @@
     <string name="tip_long_press">Long-press a letter to open similar characters</string>
     <string name="tip_quick_settings">The gear above the keys gives you theme, height and vibration right from the keyboard</string>
     <string name="tip_clipboard">The clipboard icon above the keys keeps what you\'ve copied — items can be pinned</string>
+
+    <!-- Переводчик -->
+    <string name="studio_tab_translator">Translator</string>
+    <string name="translator_toggle_title">Translator in the keyboard</string>
+    <string name="translator_toggle_description">Type in your language — the translation goes to the chat. Works offline</string>
+    <string name="translator_languages_header">Translation languages</string>
+    <string name="translator_state_built_in">Built in · always works</string>
+    <string name="translator_state_downloaded">Downloaded · works offline</string>
+    <string name="translator_state_downloading">Downloading…</string>
+    <string name="translator_state_missing">Not downloaded</string>
+    <string name="translator_download">Download</string>
+    <string name="translator_add">Add translation language</string>
+    <string name="translator_add_title">Translation languages</string>
+    <string name="translator_search">Find a language</string>
+    <string name="translator_downloaded_header">Downloaded</string>
+    <string name="translator_catalog_header">All languages</string>
+    <string name="translator_delete">Delete</string>
+    <string name="translator_delete_question">Delete %1$s?</string>
+    <string name="translator_delete_text">You can download it again anytime.</string>
+    <string name="translator_delete_confirm">Delete</string>
+    <string name="translator_delete_cancel">Cancel</string>
 </resources>

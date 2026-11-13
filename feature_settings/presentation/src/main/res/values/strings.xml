@@ -174,4 +174,24 @@
     <string name="tip_quick_settings">Шестерёнка над клавишами — тема, высота и вибрация прямо с клавиатуры</string>
     <string name="tip_clipboard">Значок буфера над клавишами хранит скопированное — запись можно закрепить</string>
 
+    <!-- Переводчик -->
+    <string name="studio_tab_translator">Переводчик</string>
+    <string name="translator_toggle_title">Переводчик в клавиатуре</string>
+    <string name="translator_toggle_description">Пишете на своём языке — в чат уходит перевод. Работает без интернета</string>
+    <string name="translator_languages_header">Языки перевода</string>
+    <string name="translator_state_built_in">Встроен · работает всегда</string>
+    <string name="translator_state_downloaded">Скачан · работает без интернета</string>
+    <string name="translator_state_downloading">Скачивается…</string>
+    <string name="translator_state_missing">Не скачан</string>
+    <string name="translator_download">Скачать</string>
+    <string name="translator_add">Добавить язык перевода</string>
+    <string name="translator_add_title">Языки перевода</string>
+    <string name="translator_search">Найти язык</string>
+    <string name="translator_downloaded_header">Скачанные</string>
+    <string name="translator_catalog_header">Все языки</string>
+    <string name="translator_delete">Удалить</string>
+    <string name="translator_delete_question">Удалить %1$s?</string>
+    <string name="translator_delete_text">Скачать его снова можно в любой момент.</string>
+    <string name="translator_delete_confirm">Удалить</string>
+    <string name="translator_delete_cancel">Отмена</string>
 </resources>
