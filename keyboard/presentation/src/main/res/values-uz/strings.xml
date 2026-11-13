@@ -83,4 +83,7 @@
     <string name="clip_translation_paste">Tarjimani qoʻyish</string>
     <string name="clip_translation_reply">Javob berish: %1$s</string>
     <string name="clip_translation_close">Tarjimani yashirish</string>
+    <string name="quick_settings_translator">Tarjimon</string>
+    <string name="quick_settings_translator_pair">%1$s → %2$s</string>
+    <string name="quick_settings_translator_offline">%1$s · internetsiz: %2$s</string>
 </resources>

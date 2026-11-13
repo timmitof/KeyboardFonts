@@ -83,4 +83,7 @@
     <string name="clip_translation_paste">Котормону коюу</string>
     <string name="clip_translation_reply">Жооп берүү: %1$s</string>
     <string name="clip_translation_close">Котормону жашыруу</string>
+    <string name="quick_settings_translator">Котормочу</string>
+    <string name="quick_settings_translator_pair">%1$s → %2$s</string>
+    <string name="quick_settings_translator_offline">%1$s · интернетсиз: %2$s</string>
 </resources>

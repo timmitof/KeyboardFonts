@@ -120,6 +120,18 @@ internal data class TranslationRequest(
     val revision: Int,
 )
 
+/**
+ * Переводчик в быстрых настройках (дизайн 8d): пара, которую он откроет, и языки, работающие без интернета.
+ *
+ * @param sourceName язык раскладки; null — в режиме «определять автоматически».
+ */
+@Immutable
+internal data class TranslatorSummary(
+    val sourceName: String?,
+    val targetName: String,
+    val offlineNames: List<String>,
+)
+
 /** Исход последнего действия; скачана ли пара, выводится из моделей — см. [TranslatorState.notice]. */
 internal enum class TranslatorStatus { READY, DOWNLOADING, DOWNLOAD_FAILED, FAILED }
 

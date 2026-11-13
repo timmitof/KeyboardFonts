@@ -11,6 +11,7 @@ import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardSideEff
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.TranslationRequest
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.TranslatorState
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.TranslatorStatus
+import kg.timmitof.keyboard.presentation.screens.keyboard.states.TranslatorSummary
 import kg.timmitof.keyboard.translate.domain.model.DetectedLanguage
 import kg.timmitof.keyboard.translate.domain.model.TranslationLanguage
 import kg.timmitof.keyboard.translate.domain.model.TranslationModels
@@ -73,6 +74,28 @@ internal class TranslatorDelegate(
     suspend fun KeyboardSyntax.loadHint() {
         val isPending = !preferencesRepository.getPreferences().isHintShown
         if (state.isTranslatorHintPending != isPending) reduce { state.copy(isTranslatorHintPending = isPending) }
+    }
+
+    /**
+     * Сводка для быстрых настроек — та же пара, что откроет «文A»: последний язык перевода
+     * или язык по умолчанию. Скачанные — по алфавиту.
+     */
+    suspend fun KeyboardSyntax.loadSummary() {
+        val preferences = preferencesRepository.getPreferences()
+        val source = sourceOf(state.activeLanguage)
+        val target = preferences.targetCode?.let(modelRepository::language)
+            ?: defaultTarget(source, layoutsOf(state.languages))
+        val offline = modelRepository.downloadedCodes()
+            .mapNotNull(modelRepository::language)
+            .map(TranslationLanguage::name)
+            .sorted()
+
+        val summary = TranslatorSummary(
+            sourceName = if (preferences.isAutoSource) null else source?.name ?: state.activeLanguage?.displayName,
+            targetName = target.name,
+            offlineNames = offline,
+        )
+        if (state.translatorSummary != summary) reduce { state.copy(translatorSummary = summary) }
     }
 
     /** Черновик поля приложения закрывает вызывающий: дальше ввод пойдёт в панель. */

@@ -95,4 +95,7 @@
     <string name="clip_translation_paste">Вставить перевод</string>
     <string name="clip_translation_reply">Ответить на %1$s</string>
     <string name="clip_translation_close">Скрыть перевод</string>
+    <string name="quick_settings_translator">Переводчик</string>
+    <string name="quick_settings_translator_pair">%1$s → %2$s</string>
+    <string name="quick_settings_translator_offline">%1$s · без интернета: %2$s</string>
 </resources>

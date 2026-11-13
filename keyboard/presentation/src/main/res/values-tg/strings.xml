@@ -83,4 +83,7 @@
     <string name="clip_translation_paste">Гузоштани тарҷума</string>
     <string name="clip_translation_reply">Ҷавоб додан: %1$s</string>
     <string name="clip_translation_close">Пинҳон кардани тарҷума</string>
+    <string name="quick_settings_translator">Тарҷумон</string>
+    <string name="quick_settings_translator_pair">%1$s → %2$s</string>
+    <string name="quick_settings_translator_offline">%1$s · бе интернет: %2$s</string>
 </resources>

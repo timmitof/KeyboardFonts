@@ -66,6 +66,8 @@ internal data class KeyboardState(
     val featureAccess: FeatureAccess = FeatureAccess(),
     /** Перевод только что скопированного — карточка над клавишами; null — предлагать нечего. */
     val clipTranslation: ClipTranslation? = null,
+    /** Строка «Переводчик» в быстрых настройках; читается при их открытии, а не держится постоянно. */
+    val translatorSummary: TranslatorSummary? = null,
     /** «Новое: переводчик» в верхней строке — пока переводчик ни разу не открывали. */
     val isTranslatorHintPending: Boolean = false,
     /** Открытая панель перевода; null — ввод идёт прямо в поле приложения. */

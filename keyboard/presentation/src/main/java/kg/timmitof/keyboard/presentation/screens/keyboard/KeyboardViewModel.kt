@@ -339,6 +339,7 @@ internal class KeyboardViewModel(
 
     private fun openOverlay(overlay: KeyboardOverlay?) = intent {
         if (overlay == KeyboardOverlay.CLIPBOARD) clipboardDelegate.captureSystemClip()
+        if (overlay == KeyboardOverlay.QUICK_SETTINGS) with(translatorDelegate) { loadSummary() }
 
         reduce { state.copy(keyboardOverlay = overlay) }
     }

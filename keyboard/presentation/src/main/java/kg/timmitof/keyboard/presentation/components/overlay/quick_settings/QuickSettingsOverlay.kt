@@ -27,6 +27,7 @@ internal fun ColumnScope.QuickSettingsOverlay(
     onEvent: (KeyboardEvent) -> Unit,
 ) {
     val settings = state.value.settings
+    val translator = state.value.translatorSummary
     val apply = { setting: QuickSetting -> onEvent(KeyboardEvent.OnQuickSetting(setting)) }
 
     OverlayHeader(
@@ -40,6 +41,22 @@ internal fun ColumnScope.QuickSettingsOverlay(
     val heightTitle = stringResource(R.string.quick_settings_height)
     val themeTitle = stringResource(R.string.quick_settings_theme)
     val splitTitle = stringResource(R.string.quick_settings_split)
+    val translatorTitle = stringResource(R.string.quick_settings_translator)
+    // Под выключателем — пара и языки без интернета (дизайн 8d); выключен — подписи нет.
+    val translatorSubtitle = translator
+        ?.takeIf { settings[KeyboardToggle.TRANSLATOR] }
+        ?.let { summary ->
+            val pair = stringResource(
+                R.string.quick_settings_translator_pair,
+                summary.sourceName ?: stringResource(R.string.translator_auto),
+                summary.targetName,
+            )
+            if (summary.offlineNames.isEmpty()) {
+                pair
+            } else {
+                stringResource(R.string.quick_settings_translator_offline, pair, summary.offlineNames.joinToString())
+            }
+        }
     // Строка нужна только там, где клавиатуру вообще можно разделить.
     val canSplit = LocalKeyboardMetrics.current.formFactor.canSplit
     val heightOptions = KeyboardHeight.entries.map { stringResource(it.labelRes) }
@@ -58,6 +75,14 @@ internal fun ColumnScope.QuickSettingsOverlay(
             title = fontsTitle,
             isChecked = settings[KeyboardToggle.STYLED_FONTS],
             onCheckedChange = { apply(QuickSetting.Toggle(KeyboardToggle.STYLED_FONTS, it)) },
+        )
+
+        toggle(
+            iconRes = R.drawable.ic_translate,
+            title = translatorTitle,
+            subtitle = translatorSubtitle,
+            isChecked = settings[KeyboardToggle.TRANSLATOR],
+            onCheckedChange = { apply(QuickSetting.Toggle(KeyboardToggle.TRANSLATOR, it)) },
         )
 
         toggle(

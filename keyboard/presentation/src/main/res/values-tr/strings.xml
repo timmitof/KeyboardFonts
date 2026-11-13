@@ -83,4 +83,7 @@
     <string name="clip_translation_paste">Çeviriyi yapıştır</string>
     <string name="clip_translation_reply">%1$s yanıtla</string>
     <string name="clip_translation_close">Çeviriyi gizle</string>
+    <string name="quick_settings_translator">Çevirmen</string>
+    <string name="quick_settings_translator_pair">%1$s → %2$s</string>
+    <string name="quick_settings_translator_offline">%1$s · internetsiz: %2$s</string>
 </resources>
