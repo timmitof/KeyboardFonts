@@ -26,6 +26,19 @@ class SystemClipboardSource @Inject constructor(
             ?.takeIf { it.isNotEmpty() && it.length <= MAX_TEXT_LENGTH }
     }.getOrNull()
 
+    /**
+     * Свежая копия: время смотрим по описанию буфера — оно не читает содержимое, поэтому старый клип
+     * даже не открываем. Время копирования есть с Android 8; на старых системах свежесть не узнать — null.
+     */
+    fun readFresh(maxAgeMillis: Long, now: Long): Pair<String, Long>? {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return null
+        // 0 — клип не из системного буфера; копию «из будущего» (перевели часы) тоже не берём.
+        val copiedAt = runCatching { clipboardManager?.primaryClipDescription?.timestamp }.getOrNull() ?: return null
+        if (copiedAt <= 0L || now - copiedAt !in 0..maxAgeMillis) return null
+
+        return read()?.let { it to copiedAt }
+    }
+
     /** Пароли и коды из менеджеров паролей помечены системой — их в историю не берём. */
     private fun android.content.ClipData.isSensitive(): Boolean =
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&

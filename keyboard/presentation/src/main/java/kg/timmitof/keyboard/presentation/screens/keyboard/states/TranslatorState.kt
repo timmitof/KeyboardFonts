@@ -90,9 +90,13 @@ internal data class TranslatorState(
         get() = !isAutoSource && suggestedLayout != null && suggestedLayout.code != dismissedLayoutCode
 
     /** Определять язык заново, когда меняется текст, раскладка или режим; короткий текст не определяем. */
-    fun detectionRequest(layoutCode: String?): DetectionRequest? =
-        editor.text.takeIf(LanguageDetectionRules::isLongEnough)
-            ?.let { DetectionRequest(it, layoutCode, isAutoSource) }
+    fun detectionRequest(current: KeyboardLanguage?, enabled: List<KeyboardLanguage>): DetectionRequest? {
+        if (!isAutoSource && !LanguageDetectionRules.canSuggestLayout(current, enabled)) return null
+
+        val text = editor.text.takeLast(LanguageDetectionRules.MAX_TEXT_LENGTH)
+        if (!LanguageDetectionRules.isLongEnough(text)) return null
+        return DetectionRequest(text, current?.code, isAutoSource)
+    }
 
     /** Найденные языки перевода: по названию и коду, скачанные — первыми. Пустой запрос — весь список. */
     val searchResults: List<TranslationLanguage>

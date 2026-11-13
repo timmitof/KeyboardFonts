@@ -79,4 +79,8 @@
     <string name="translator_auto">Otomatik algıla</string>
     <string name="translator_auto_text">metne göre</string>
     <string name="translator_auto_label">Otomatik · %1$s</string>
+    <string name="clip_translation_header">Kopyalandı · %1$s</string>
+    <string name="clip_translation_paste">Çeviriyi yapıştır</string>
+    <string name="clip_translation_reply">%1$s yanıtla</string>
+    <string name="clip_translation_close">Çeviriyi gizle</string>
 </resources>

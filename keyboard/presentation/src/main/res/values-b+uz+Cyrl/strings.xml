@@ -79,4 +79,8 @@
     <string name="translator_auto">Автоматик аниқлаш</string>
     <string name="translator_auto_text">матн бўйича</string>
     <string name="translator_auto_label">Авто · %1$s</string>
+    <string name="clip_translation_header">Нусхаланди · %1$s</string>
+    <string name="clip_translation_paste">Таржимани қўйиш</string>
+    <string name="clip_translation_reply">Жавоб бериш: %1$s</string>
+    <string name="clip_translation_close">Таржимани яшириш</string>
 </resources>

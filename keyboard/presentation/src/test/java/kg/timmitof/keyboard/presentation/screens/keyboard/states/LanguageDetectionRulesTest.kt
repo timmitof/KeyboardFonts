@@ -19,6 +19,12 @@ class LanguageDetectionRulesTest {
     private val enabled = listOf(russian, kyrgyz, english)
 
     @Test
+    fun `при паре RU и EN подсказывать нечего — на русской раскладке латиницей не напечатать`() {
+        assertFalse(LanguageDetectionRules.canSuggestLayout(russian, listOf(russian, english)))
+        assertTrue(LanguageDetectionRules.canSuggestLayout(russian, listOf(russian, kyrgyz, english)))
+    }
+
+    @Test
     fun `короткий текст не определяем`() {
         assertFalse(LanguageDetectionRules.isLongEnough("Привет"))
         assertFalse(LanguageDetectionRules.isLongEnough("ок да"))
@@ -64,8 +70,8 @@ class LanguageDetectionRulesTest {
 
     @Test
     fun `автоопределение берёт самый вероятный только с запасом уверенности`() {
-        assertEquals("de", LanguageDetectionRules.autoSourceCode(listOf(DetectedLanguage("de", 0.7f))))
-        assertNull(LanguageDetectionRules.autoSourceCode(listOf(DetectedLanguage("de", 0.3f))))
+        assertEquals("de", LanguageDetectionRules.confidentCode(listOf(DetectedLanguage("de", 0.7f))))
+        assertNull(LanguageDetectionRules.confidentCode(listOf(DetectedLanguage("de", 0.3f))))
     }
 
     private fun suggest(detected: List<DetectedLanguage>, current: KeyboardLanguage) =

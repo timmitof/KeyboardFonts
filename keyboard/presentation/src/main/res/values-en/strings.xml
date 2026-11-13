@@ -79,4 +79,8 @@
     <string name="translator_auto">Detect automatically</string>
     <string name="translator_auto_text">from text</string>
     <string name="translator_auto_label">Auto · %1$s</string>
+    <string name="clip_translation_header">Copied · %1$s</string>
+    <string name="clip_translation_paste">Paste translation</string>
+    <string name="clip_translation_reply">Reply in %1$s</string>
+    <string name="clip_translation_close">Hide translation</string>
 </resources>

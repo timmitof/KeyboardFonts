@@ -160,10 +160,10 @@ internal class TranslatorDelegate(
      */
     suspend fun KeyboardSyntax.applyDetection(request: DetectionRequest, detected: List<DetectedLanguage>) {
         val translator = state.translator ?: return
-        if (translator.detectionRequest(state.activeLanguage?.code) != request) return
+        if (state.translatorDetectionRequest != request) return
 
         if (translator.isAutoSource) {
-            val language = LanguageDetectionRules.autoSourceCode(detected)?.let(modelRepository::language)
+            val language = LanguageDetectionRules.confidentCode(detected)?.let(modelRepository::language)
             // Не понять — оставляем прежний: исходный язык не должен мигать на каждой паузе.
             updateTranslator { it.copy(autoSource = language ?: it.autoSource, suggestedLayout = null) }
         } else {

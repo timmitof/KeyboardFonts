@@ -79,4 +79,8 @@
     <string name="translator_auto">Автоматты анықтау</string>
     <string name="translator_auto_text">мәтін бойынша</string>
     <string name="translator_auto_label">Авто · %1$s</string>
+    <string name="clip_translation_header">Көшірілді · %1$s</string>
+    <string name="clip_translation_paste">Аударманы қою</string>
+    <string name="clip_translation_reply">Жауап беру: %1$s</string>
+    <string name="clip_translation_close">Аударманы жасыру</string>
 </resources>

@@ -5,6 +5,7 @@ import kg.timmitof.core.data.local.entities.ClipboardEntryEntity
 import kg.timmitof.keyboard.clipboard.data.SystemClipboardSource
 import kg.timmitof.keyboard.clipboard.domain.model.ClipboardBoard
 import kg.timmitof.keyboard.clipboard.domain.model.ClipboardEntry
+import kg.timmitof.keyboard.clipboard.domain.model.FreshClip
 import kg.timmitof.keyboard.clipboard.domain.repository.ClipboardRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -36,6 +37,11 @@ class ClipboardRepositoryImpl @Inject constructor(
         lastCaptured = text
     }
 
+    /** Метка копирования в описании буфера — в шкале `System.currentTimeMillis()`, сравниваем в ней же. */
+    override suspend fun getFreshClip(): FreshClip? =
+        systemClipboard.readFresh(FRESH_CLIP_MILLIS, System.currentTimeMillis())
+            ?.let { (text, copiedAt) -> FreshClip(text, copiedAt) }
+
     override suspend fun setPinned(id: Long, isPinned: Boolean) =
         clipboardDao.setPinned(id, isPinned)
 
@@ -45,6 +51,9 @@ class ClipboardRepositoryImpl @Inject constructor(
 
     private companion object {
         const val MAX_RECENT = 20
+
+        /** Перевод предлагаем только только что скопированному: старый текст в буфере — уже не «входящее». */
+        const val FRESH_CLIP_MILLIS = 3 * 60 * 1000L
     }
 }
 

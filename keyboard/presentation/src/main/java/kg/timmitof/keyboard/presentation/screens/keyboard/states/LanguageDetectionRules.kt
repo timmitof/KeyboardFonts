@@ -10,6 +10,16 @@ import kg.timmitof.keyboard.translate.domain.model.DetectedLanguage
  */
 internal object LanguageDetectionRules {
 
+    /** Язык понятен и по концу сообщения: длинный текст целиком определять незачем. */
+    const val MAX_TEXT_LENGTH = 200
+
+    /**
+     * Есть ли что подсказывать: другая включённая раскладка с тем же алфавитом. При паре RU + EN на русской
+     * раскладке латиницей не напечатать — определять язык незачем, и он не определяется вовсе.
+     */
+    fun canSuggestLayout(current: KeyboardLanguage?, enabled: List<KeyboardLanguage>): Boolean =
+        current != null && enabled.any { it.code != current.code && it.isLatin == current.isLatin }
+
     /** Слишком короткий текст не определяем: «ок», «да» одинаковы во многих языках. */
     fun isLongEnough(text: String): Boolean {
         val letters = text.count(Char::isLetter)
@@ -40,8 +50,11 @@ internal object LanguageDetectionRules {
         return candidates.firstOrNull { it.isLatin == isLatinText } ?: candidates.firstOrNull()
     }
 
-    /** Исходный язык в режиме «определять автоматически»: самый вероятный, если уверенность достаточная. */
-    fun autoSourceCode(detected: List<DetectedLanguage>): String? =
+    /**
+     * Самый вероятный язык, если уверенность достаточная: исходный в режиме «определять автоматически»
+     * и язык скопированного текста.
+     */
+    fun confidentCode(detected: List<DetectedLanguage>): String? =
         detected.firstOrNull()?.takeIf { it.confidence >= MIN_CONFIDENCE }?.code
 
     /** Базовый язык раскладки: `uz_latn` → `uz`, `ru_ru` → `ru`. */

@@ -91,4 +91,8 @@
     <string name="translator_auto">Определять автоматически</string>
     <string name="translator_auto_text">по тексту</string>
     <string name="translator_auto_label">Авто · %1$s</string>
+    <string name="clip_translation_header">Скопировано · %1$s</string>
+    <string name="clip_translation_paste">Вставить перевод</string>
+    <string name="clip_translation_reply">Ответить на %1$s</string>
+    <string name="clip_translation_close">Скрыть перевод</string>
 </resources>

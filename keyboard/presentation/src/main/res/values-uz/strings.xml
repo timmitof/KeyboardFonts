@@ -79,4 +79,8 @@
     <string name="translator_auto">Avtomatik aniqlash</string>
     <string name="translator_auto_text">matn boʻyicha</string>
     <string name="translator_auto_label">Avto · %1$s</string>
+    <string name="clip_translation_header">Nusxalandi · %1$s</string>
+    <string name="clip_translation_paste">Tarjimani qoʻyish</string>
+    <string name="clip_translation_reply">Javob berish: %1$s</string>
+    <string name="clip_translation_close">Tarjimani yashirish</string>
 </resources>

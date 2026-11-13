@@ -79,4 +79,8 @@
     <string name="translator_auto">Худкор муайян кардан</string>
     <string name="translator_auto_text">аз рӯи матн</string>
     <string name="translator_auto_label">Худкор · %1$s</string>
+    <string name="clip_translation_header">Нусхабардорӣ шуд · %1$s</string>
+    <string name="clip_translation_paste">Гузоштани тарҷума</string>
+    <string name="clip_translation_reply">Ҷавоб додан: %1$s</string>
+    <string name="clip_translation_close">Пинҳон кардани тарҷума</string>
 </resources>

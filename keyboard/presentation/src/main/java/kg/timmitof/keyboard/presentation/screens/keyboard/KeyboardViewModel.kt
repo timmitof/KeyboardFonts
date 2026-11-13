@@ -5,6 +5,7 @@ import kg.timmitof.core.ui.base.BaseSideEffect
 import kg.timmitof.core.ui.base.BaseViewModel
 import kg.timmitof.keyboard.domain.model.KeyboardLanguage
 import kg.timmitof.keyboard.domain.model.KeyboardSettings
+import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.ClipTranslationDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.ClipboardDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.EmojiDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.FieldContextDelegate
@@ -27,6 +28,7 @@ import kg.timmitof.keyboard.presentation.screens.keyboard.states.QuickSetting
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.ShiftState
 import kg.timmitof.keyboard.translate.domain.model.TranslationLanguage
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
@@ -48,6 +50,7 @@ internal class KeyboardViewModel(
     private val settingsDelegate: SettingsDelegate,
     private val clipboardDelegate: ClipboardDelegate,
     private val translatorDelegate: TranslatorDelegate,
+    private val clipTranslationDelegate: ClipTranslationDelegate,
 ) : BaseViewModel<KeyboardState, KeyboardSideEffect, KeyboardEvent>(KeyboardState()) {
 
     override fun onEvent(event: KeyboardEvent) {
@@ -147,6 +150,12 @@ internal class KeyboardViewModel(
                 with(translatorDelegate) { closeSearch() }
             }
             is KeyboardEvent.OnTranslatorAutoSourceSelect -> intent { with(translatorDelegate) { selectAutoSource() } }
+            is KeyboardEvent.OnClipTranslationPaste -> intent {
+                with(textInputDelegate) { closeComposing() }
+                with(clipTranslationDelegate) { paste() }
+            }
+            is KeyboardEvent.OnClipTranslationReply -> replyToClip()
+            is KeyboardEvent.OnClipTranslationDismiss -> intent { with(clipTranslationDelegate) { dismiss() } }
             is KeyboardEvent.OnTranslatorDetectionDismiss -> intent { with(translatorDelegate) { dismissDetection() } }
             is KeyboardEvent.OnTranslatorLanguageDownload -> intent {
                 with(translatorDelegate) { downloadLanguage(event.language) }
@@ -161,6 +170,8 @@ internal class KeyboardViewModel(
             }
             is KeyboardEvent.OnFieldContextChange -> intent {
                 with(fieldContextDelegate) { applyContext(event.context) }
+                // Перевод скопированного — только там, где работает переводчик (не в паролях и цифрах).
+                if (!state.allowsTranslation) with(clipTranslationDelegate) { dismiss() }
                 closeTranslatorIfNotAllowed()
                 with(suggestionsDelegate) {
                     refreshAutoShift()
@@ -216,12 +227,25 @@ internal class KeyboardViewModel(
             .launchIn(viewModelScope)
     }
 
+    /** «Ответить на English»: переводчик открывается с готовой парой — на язык скопированного. */
+    private fun replyToClip() = intent {
+        val source = state.clipTranslation?.source ?: return@intent
+
+        with(clipTranslationDelegate) { dismiss() }
+        with(textInputDelegate) { closeComposing() }
+        with(translatorDelegate) {
+            open()
+            selectTarget(source)
+        }
+    }
+
     private fun toggleTranslator() = intent {
         if (state.translator != null) {
             closeTranslator()
             return@intent
         }
         // Черновик закрываем в поле приложения: дальше ввод пойдёт в панель.
+        with(clipTranslationDelegate) { dismiss() }
         with(textInputDelegate) { closeComposing() }
         with(translatorDelegate) { open() }
     }
@@ -296,7 +320,11 @@ internal class KeyboardViewModel(
             .onEach { models -> intent { with(translatorDelegate) { applyModels(models) } } }
             .launchIn(viewModelScope)
 
-        translatorDelegate.detections(container.stateFlow.map { it.translator?.detectionRequest(it.activeLanguage?.code) })
+        // Запрос пересчитываем, только когда изменилось то, от чего он зависит, а не на любое изменение состояния.
+        val detectionRequests = container.stateFlow
+            .distinctUntilChangedBy { listOf(it.translator?.editor?.text, it.translator?.isAutoSource, it.activeLanguage, it.languages) }
+            .map { it.translatorDetectionRequest }
+        translatorDelegate.detections(detectionRequests)
             .onEach { (request, detected) ->
                 intent { with(translatorDelegate) { applyDetection(request, detected) } }
             }
@@ -399,11 +427,17 @@ internal class KeyboardViewModel(
         emojiDelegate.prefetchSearchIndex()
     }
 
-    private fun resetInputSession() = intent {
+    private fun resetInputSession() {
+        clearInputSession()
+        intent { with(clipTranslationDelegate) { offer() } }
+    }
+
+    private fun clearInputSession() = intent {
         // Shift прошлой сессии (и Caps Lock) не переносим, а заглавную для пустого поля или начала предложения
         // ставим сразу: снимок текста мог не измениться, и сам он её не включит.
         // Переводчик привязан к прошлому полю, его черновик система закрыла сама.
         if (state.translator != null) reduce { state.copy(translator = null) }
+        with(clipTranslationDelegate) { dismiss() }
         with(textInputDelegate) { resetShift() }
         with(suggestionsDelegate) { refreshAutoShift() }
         with(fontDelegate) { forgetFontIfNeeded() }

@@ -29,6 +29,7 @@ import kg.timmitof.keyboard.presentation.components.overlay.clipboard.ClipboardO
 import kg.timmitof.keyboard.presentation.components.overlay.OverlaySurface
 import kg.timmitof.keyboard.presentation.components.overlay.quick_settings.QuickSettingsOverlay
 import kg.timmitof.keyboard.presentation.components.topbar.KeyboardTopBar
+import kg.timmitof.keyboard.presentation.components.translator.ClipTranslationCard
 import kg.timmitof.keyboard.presentation.components.translator.TranslatorPanel
 import kg.timmitof.keyboard.presentation.components.overlay.translator.TranslationSourceOverlay
 import kg.timmitof.keyboard.presentation.components.overlay.translator.TranslationTargetOverlay
@@ -124,6 +125,9 @@ private fun LettersLayer(
     val isTranslatorOpen by state.rememberSlice { it.translator != null }
 
     Column(modifier = Modifier.fillMaxWidth()) {
+        // Перевод только что скопированного — над верхней строкой, пока его не используют или не закроют.
+        ClipTranslationCard(state = state, onEvent = onEvent)
+
         // Панель перевода встаёт вместо верхней строки и добавляет к ней одну строку; клавиши остаются на местах.
         if (isTranslatorOpen) {
             TranslatorPanel(state = state, onEvent = onEvent)

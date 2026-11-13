@@ -64,6 +64,8 @@ internal data class KeyboardState(
     val clipboard: ClipboardBoard = ClipboardBoard(),
     /** Что открыто пользователю: платные фичи без покупки не работают, даже если их включили. */
     val featureAccess: FeatureAccess = FeatureAccess(),
+    /** Перевод только что скопированного — карточка над клавишами; null — предлагать нечего. */
+    val clipTranslation: ClipTranslation? = null,
     /** «Новое: переводчик» в верхней строке — пока переводчик ни разу не открывали. */
     val isTranslatorHintPending: Boolean = false,
     /** Открытая панель перевода; null — ввод идёт прямо в поле приложения. */
@@ -135,6 +137,10 @@ internal data class KeyboardState(
     /** Шрифт перевода — выбранный на панели «Aa», на алфавите целевого языка, а не раскладки. */
     fun translationFont(target: TranslationLanguage): KeyboardFont =
         if (allowsTranslationFont) selectedFont.orDefaultFor(target.fontScript) else KeyboardFont.Default
+
+    /** Запрос определения языка набранного в панели; null — определять незачем. */
+    val translatorDetectionRequest: DetectionRequest?
+        get() = translator?.detectionRequest(activeLanguage, languages)
 
     /** Подпись пробела в режиме перевода: «Русский → English». */
     val translatorPairLabel: String?
@@ -297,6 +303,9 @@ internal sealed class KeyboardEvent : BaseEvent.UiEvent() {
     data object OnTranslatorSearchClose : KeyboardEvent()
     data class OnTranslatorLanguageDownload(val language: TranslationLanguage) : KeyboardEvent()
     data object OnTranslatorAutoSourceSelect : KeyboardEvent()
+    data object OnClipTranslationPaste : KeyboardEvent()
+    data object OnClipTranslationReply : KeyboardEvent()
+    data object OnClipTranslationDismiss : KeyboardEvent()
     data object OnTranslatorDetectionDismiss : KeyboardEvent()
     data class OnTranslatorSourceSelect(val language: TranslationLanguage) : KeyboardEvent()
     data object OnTranslatorDownload : KeyboardEvent()

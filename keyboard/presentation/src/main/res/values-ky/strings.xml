@@ -79,4 +79,8 @@
     <string name="translator_auto">Автоматтык аныктоо</string>
     <string name="translator_auto_text">текст боюнча</string>
     <string name="translator_auto_label">Авто · %1$s</string>
+    <string name="clip_translation_header">Көчүрүлдү · %1$s</string>
+    <string name="clip_translation_paste">Котормону коюу</string>
+    <string name="clip_translation_reply">Жооп берүү: %1$s</string>
+    <string name="clip_translation_close">Котормону жашыруу</string>
 </resources>

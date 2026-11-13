@@ -79,4 +79,8 @@
     <string name="translator_auto">Визначати автоматично</string>
     <string name="translator_auto_text">за текстом</string>
     <string name="translator_auto_label">Авто · %1$s</string>
+    <string name="clip_translation_header">Скопійовано · %1$s</string>
+    <string name="clip_translation_paste">Вставити переклад</string>
+    <string name="clip_translation_reply">Відповісти: %1$s</string>
+    <string name="clip_translation_close">Сховати переклад</string>
 </resources>
