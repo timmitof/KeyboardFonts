@@ -2,6 +2,7 @@ package kg.timmitof.keyboard.presentation.screens.keyboard.delegates
 
 import kg.timmitof.keyboard.domain.repository.EmojiRepository
 import kg.timmitof.keyboard.presentation.screens.keyboard.KeyboardSyntax
+import kg.timmitof.keyboard.presentation.screens.keyboard.states.InlineEditor
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardLayer
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardSideEffect
 
@@ -51,17 +52,15 @@ internal class EmojiDelegate(
     }
 
     suspend fun KeyboardSyntax.openSearch() {
-        reduce { state.copy(emojiSearchQuery = "", emojiSearchResults = emptyList()) }
+        reduce { state.copy(emojiSearch = InlineEditor(), emojiSearchResults = emptyList()) }
         with(layerDelegate) { applyLayer(KeyboardLayer.EMOJI_SEARCH) }
     }
 
-    suspend fun KeyboardSyntax.updateSearchQuery(query: String) {
-        // Запрос показываем сразу, результаты — когда посчитаются и только если запрос не успели сменить.
-        reduce { state.copy(emojiSearchQuery = query, emojiSearchSelection = 0) }
-
+    /** Запрос правит сам набор (`input`), сюда приходит готовый; устаревшие результаты не показываем. */
+    suspend fun KeyboardSyntax.search(query: String) {
         val results = emojiRepository.searchEmojis(query)
         reduce {
-            if (state.emojiSearchQuery == query) state.copy(emojiSearchResults = results) else state
+            if (state.emojiSearch.text == query) state.copy(emojiSearchResults = results) else state
         }
     }
 

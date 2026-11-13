@@ -21,7 +21,7 @@ internal data class TranslatorState(
     val languages: List<TranslationLanguage>,
     val layouts: Map<String, KeyboardLanguage> = emptyMap(),
     val downloadedCodes: Set<String> = emptySet(),
-    val editor: PanelEditor = PanelEditor(),
+    val editor: InlineEditor = InlineEditor(),
     val translation: String = "",
     val translatedFor: TranslationRequest? = null,
     val status: TranslatorStatus = TranslatorStatus.READY,

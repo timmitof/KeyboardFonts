@@ -20,7 +20,9 @@ import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.SettingsDele
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.SuggestionsDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.TextInputDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.TranslatorDelegate
-import kg.timmitof.keyboard.translate.domain.repository.TranslatorRepository
+import kg.timmitof.keyboard.translate.domain.repository.TranslationModelRepository
+import kg.timmitof.keyboard.translate.domain.repository.TranslationRepository
+import kg.timmitof.keyboard.translate.domain.repository.TranslatorPreferencesRepository
 
 class KeyboardViewModelFactory(
     private val keyboardLayoutRepository: KeyboardLayoutRepository,
@@ -31,7 +33,9 @@ class KeyboardViewModelFactory(
     private val typingStatsRepository: TypingStatsRepository,
     private val keyboardSettingsRepository: KeyboardSettingsRepository,
     private val clipboardRepository: ClipboardRepository,
-    private val translatorRepository: TranslatorRepository,
+    private val translationRepository: TranslationRepository,
+    private val translationModelRepository: TranslationModelRepository,
+    private val translatorPreferencesRepository: TranslatorPreferencesRepository,
 ) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -43,7 +47,7 @@ class KeyboardViewModelFactory(
             @Suppress("UNCHECKED_CAST")
             return KeyboardViewModel(
                 layerDelegate = layerDelegate,
-                textInputDelegate = TextInputDelegate(layerDelegate, emojiDelegate, suggestionsDelegate),
+                textInputDelegate = TextInputDelegate(layerDelegate, suggestionsDelegate),
                 emojiDelegate = emojiDelegate,
                 languageDelegate = LanguageDelegate(languageRepository, layerDelegate),
                 fontDelegate = FontDelegate(fontRepository),
@@ -51,7 +55,11 @@ class KeyboardViewModelFactory(
                 suggestionsDelegate = suggestionsDelegate,
                 settingsDelegate = SettingsDelegate(keyboardSettingsRepository),
                 clipboardDelegate = ClipboardDelegate(clipboardRepository),
-                translatorDelegate = TranslatorDelegate(translatorRepository),
+                translatorDelegate = TranslatorDelegate(
+                    translationRepository = translationRepository,
+                    modelRepository = translationModelRepository,
+                    preferencesRepository = translatorPreferencesRepository,
+                ),
             ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")

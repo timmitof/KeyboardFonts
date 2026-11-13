@@ -4,13 +4,15 @@ import kg.timmitof.keyboard.domain.model.KeyboardLanguage
 import kg.timmitof.keyboard.presentation.screens.keyboard.KeyboardSyntax
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardOverlay
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardSideEffect
-import kg.timmitof.keyboard.presentation.screens.keyboard.states.PanelEditor
+import kg.timmitof.keyboard.presentation.screens.keyboard.states.InlineEditor
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.TranslationRequest
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.TranslatorState
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.TranslatorStatus
 import kg.timmitof.keyboard.translate.domain.model.TranslationLanguage
 import kg.timmitof.keyboard.translate.domain.model.TranslationResult
-import kg.timmitof.keyboard.translate.domain.repository.TranslatorRepository
+import kg.timmitof.keyboard.translate.domain.repository.TranslationModelRepository
+import kg.timmitof.keyboard.translate.domain.repository.TranslationRepository
+import kg.timmitof.keyboard.translate.domain.repository.TranslatorPreferencesRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -22,8 +24,13 @@ import kotlinx.coroutines.flow.transformLatest
  * через паузу в наборе попадает перевод — областью компоновки, чтобы следующий перевод заменил предыдущий.
  */
 internal class TranslatorDelegate(
-    private val repository: TranslatorRepository,
+    private val translationRepository: TranslationRepository,
+    private val modelRepository: TranslationModelRepository,
+    private val preferencesRepository: TranslatorPreferencesRepository,
 ) {
+
+    /** Скачанные языки: лист выбора и кнопка «Скачать» обновляются сами после загрузки. */
+    val downloadedModels: Flow<Set<String>> = modelRepository.observeDownloaded()
 
     /**
      * Перевод через паузу после последней буквы: поле приложения не дёргается на каждое нажатие.
@@ -36,17 +43,18 @@ internal class TranslatorDelegate(
             .transformLatest { request ->
                 if (request == null) return@transformLatest
                 if (request.text.isNotBlank()) delay(TRANSLATION_DELAY_MILLIS)
-                emit(request to repository.translate(request.text, request.sourceCode, request.targetCode))
+                emit(request to translate(request))
             }
 
     /** Черновик поля приложения закрывает вызывающий: дальше ввод пойдёт в панель. */
     suspend fun KeyboardSyntax.open() {
         if (state.translator != null || !state.allowsTranslation) return
 
-        val preferences = repository.getPreferences()
+        val preferences = preferencesRepository.getPreferences()
         val layouts = layoutsOf(state.languages)
         val source = sourceOf(state.activeLanguage)
-        val target = preferences.targetCode?.let(repository::language) ?: defaultTarget(source, layouts)
+        val target = preferences.targetCode?.let(modelRepository::language) ?: defaultTarget(source, layouts)
+        val downloaded = modelRepository.downloadedCodes()
         val before = state.textContext.before
 
         reduce {
@@ -54,8 +62,9 @@ internal class TranslatorDelegate(
                 translator = TranslatorState(
                     source = source,
                     target = target,
-                    languages = repository.languages(),
+                    languages = modelRepository.languages(),
                     layouts = layouts,
+                    downloadedCodes = downloaded,
                     isStyled = preferences.isStyled,
                     needsLeadingSpace = before.isNotEmpty() && !before.last().isWhitespace(),
                 ),
@@ -67,10 +76,12 @@ internal class TranslatorDelegate(
                 keptWord = null,
             )
         }
-        refreshDownloaded()
     }
 
-    /** Перевод остаётся в поле приложения; снимок поля перечитываем — он всё это время был панельным. */
+    /**
+     * Перевод остаётся в поле приложения; снимок поля перечитываем — он всё это время был панельным.
+     * Модель выгружаем из памяти: пока панель закрыта, она клавиатуре не нужна.
+     */
     suspend fun KeyboardSyntax.close() {
         if (state.translator == null) return
 
@@ -86,6 +97,15 @@ internal class TranslatorDelegate(
         }
         postSideEffect(KeyboardSideEffect.Input.FinishComposing)
         postSideEffect(KeyboardSideEffect.Input.RefreshTextContext)
+        release()
+    }
+
+    fun release() = translationRepository.release()
+
+    suspend fun KeyboardSyntax.applyDownloaded(codes: Set<String>) {
+        if (state.translator?.downloadedCodes == codes) return
+
+        updateTranslator { it.copy(downloadedCodes = codes) }
     }
 
     /** Перевод устаревшего запроса не пишем: пока он считался, текст в панели уже другой. */
@@ -119,7 +139,7 @@ internal class TranslatorDelegate(
         val translator = state.translator ?: return
         val request = translator.request
         if (request != null && translator.isTranslating) {
-            applyTranslation(request, repository.translate(request.text, request.sourceCode, request.targetCode))
+            applyTranslation(request, translate(request))
         }
 
         val current = state.translator ?: return
@@ -130,14 +150,14 @@ internal class TranslatorDelegate(
         postSideEffect(KeyboardSideEffect.Input.FinishComposing)
         postSideEffect(KeyboardSideEffect.Input.PerformEditorAction)
         updateTranslator {
-            it.copy(editor = PanelEditor(), translation = "", translatedFor = null, needsLeadingSpace = false)
+            it.copy(editor = InlineEditor(), translation = "", translatedFor = null, needsLeadingSpace = false)
         }
     }
 
     suspend fun KeyboardSyntax.selectTarget(language: TranslationLanguage) {
         if (state.translator == null) return
 
-        repository.setTarget(language.code)
+        preferencesRepository.setTarget(language.code)
         reduce {
             val translator = state.translator ?: return@reduce state
             state.copy(
@@ -151,7 +171,7 @@ internal class TranslatorDelegate(
         val translator = state.translator ?: return
         val isStyled = !translator.isStyled
 
-        repository.setStyled(isStyled)
+        preferencesRepository.setStyled(isStyled)
         updateTranslator { it.copy(isStyled = isStyled) }
         if (translator.translation.isNotEmpty()) writeToField(translator.copy(isStyled = isStyled), translator.translation)
     }
@@ -163,8 +183,7 @@ internal class TranslatorDelegate(
         if (translator.status == TranslatorStatus.DOWNLOADING) return
 
         updateTranslator { it.copy(status = TranslatorStatus.DOWNLOADING) }
-        val isDownloaded = repository.download(source.code, translator.target.code)
-        refreshDownloaded()
+        val isDownloaded = modelRepository.download(listOf(source.code, translator.target.code))
         updateTranslator {
             it.copy(
                 status = if (isDownloaded) TranslatorStatus.READY else TranslatorStatus.DOWNLOAD_FAILED,
@@ -178,13 +197,13 @@ internal class TranslatorDelegate(
      * Готовый перевод становится набранным текстом и переводится обратно.
      */
     suspend fun KeyboardSyntax.swapped(previousSource: TranslationLanguage) {
-        repository.setTarget(previousSource.code)
+        preferencesRepository.setTarget(previousSource.code)
         updateTranslator {
             val text = it.translation.ifEmpty { it.editor.text }
             it.copy(
                 source = sourceOf(state.activeLanguage),
                 target = previousSource,
-                editor = PanelEditor(text = text),
+                editor = InlineEditor(text = text),
                 translation = "",
                 translatedFor = null,
                 status = TranslatorStatus.READY,
@@ -202,10 +221,8 @@ internal class TranslatorDelegate(
         updateTranslator { it.copy(source = source, layouts = layouts, status = TranslatorStatus.READY) }
     }
 
-    private suspend fun KeyboardSyntax.refreshDownloaded() {
-        val codes = repository.downloadedCodes()
-        updateTranslator { it.copy(downloadedCodes = codes) }
-    }
+    private suspend fun translate(request: TranslationRequest): TranslationResult =
+        translationRepository.translate(request.text, request.sourceCode, request.targetCode)
 
     /** Перевод — областью компоновки: следующий перевод заменит её целиком. Пишется мимо [input] — это поле приложения. */
     private suspend fun KeyboardSyntax.writeToField(translator: TranslatorState, translation: String) {
@@ -222,11 +239,11 @@ internal class TranslatorDelegate(
     }
 
     private fun sourceOf(language: KeyboardLanguage?): TranslationLanguage? =
-        language?.let { repository.languageForLayout(it.code) }
+        language?.let { modelRepository.languageForLayout(it.code) }
 
     /** Языки перевода, на которых можно печатать: только на них можно поменять пару местами. */
     private fun layoutsOf(languages: List<KeyboardLanguage>): Map<String, KeyboardLanguage> =
-        languages.mapNotNull { language -> repository.languageForLayout(language.code)?.let { it.code to language } }
+        languages.mapNotNull { language -> modelRepository.languageForLayout(language.code)?.let { it.code to language } }
             .toMap()
 
     /** По умолчанию — английский, а с английской раскладки — другой включённый язык. */
@@ -234,8 +251,8 @@ internal class TranslatorDelegate(
         source: TranslationLanguage?,
         layouts: Map<String, KeyboardLanguage>,
     ): TranslationLanguage {
-        val candidates = listOfNotNull(repository.language(ENGLISH)) + layouts.keys.mapNotNull(repository::language)
-        return candidates.firstOrNull { it.code != source?.code } ?: repository.languages().first()
+        val candidates = listOfNotNull(modelRepository.language(ENGLISH)) + layouts.keys.mapNotNull(modelRepository::language)
+        return candidates.firstOrNull { it.code != source?.code } ?: modelRepository.languages().first()
     }
 
     private companion object {

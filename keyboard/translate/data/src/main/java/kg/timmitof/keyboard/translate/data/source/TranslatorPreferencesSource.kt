@@ -1,4 +1,4 @@
-package kg.timmitof.keyboard.translate.data
+package kg.timmitof.keyboard.translate.data.source
 
 import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey

@@ -14,14 +14,20 @@ import kg.timmitof.keyboard.presentation.screens.keyboard.KeyboardSyntax
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.AutoCorrection
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.ComposingText
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.CorrectionRejection
+import kg.timmitof.keyboard.presentation.screens.keyboard.states.InlineTarget
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardLayer
+import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardState
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardSideEffect
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.ShiftState
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.isUpperCase
 
+/**
+ * Набор текста. Правки уходят через [input]: в поле приложения или в поле внутри клавиатуры
+ * (поиск эмодзи, панель перевода) — сам делегат куда, не знает. В поиске эмодзи нет Т9:
+ * разделители там обычные символы, а автозамена и снимок текста не трогаются.
+ */
 internal class TextInputDelegate(
     private val layerDelegate: LayerDelegate,
-    private val emojiDelegate: EmojiDelegate,
     private val suggestionsDelegate: SuggestionsDelegate,
 ) {
 
@@ -37,8 +43,10 @@ internal class TextInputDelegate(
         val touch = adapted?.second ?: pressedTouch
         val char = character.text(state.shiftState.isUpperCase())
 
+        val isSearch = state.isEmojiSearch
+
         // Точка, запятая и прочие разделители заканчивают слово так же, как пробел.
-        if (char.isSeparator() && state.layer != KeyboardLayer.EMOJI_SEARCH) {
+        if (char.isSeparator() && !isSearch) {
             finishWord(char)
             return
         }
@@ -47,10 +55,9 @@ internal class TextInputDelegate(
         if (state.isKeyAdapted != (adapted != null)) reduce { state.copy(isKeyAdapted = adapted != null) }
 
         val styled = state.activeFont.apply(char)
-        editText(typeEffect(styled, typedKeys(character.text(isUpperCase = false), touch))) { query -> query + char }
+        input(typeEffect(styled, typedKeys(character.text(isUpperCase = false), touch)))
 
         // Сброс одноразового Shift и автозамены — одним reduce: на каждый символ их и так хватает.
-        val isSearch = state.layer == KeyboardLayer.EMOJI_SEARCH
         if (state.shiftState == ShiftState.ACTIVE || (!isSearch && state.autoCorrection != null)) {
             reduce {
                 state.copy(
@@ -96,7 +103,7 @@ internal class TextInputDelegate(
      * а авто-Shift поднимается сам — снимок текста теперь кончается точкой.
      */
     private suspend fun KeyboardSyntax.insertPeriod(): Boolean {
-        if (state.layer == KeyboardLayer.EMOJI_SEARCH) return false
+        if (state.isEmojiSearch) return false
         if (!state.settings.isDoubleSpacePeriodEnabled || !state.fieldType.allowsSuggestions) return false
 
         val context = state.textContext
@@ -117,8 +124,8 @@ internal class TextInputDelegate(
     }
 
     private suspend fun KeyboardSyntax.finishWord(separator: String) {
-        if (state.layer == KeyboardLayer.EMOJI_SEARCH) {
-            with(emojiDelegate) { updateSearchQuery(state.emojiSearchQuery + separator) }
+        if (state.isEmojiSearch) {
+            input(KeyboardSideEffect.Input.CommitText(separator))
             return
         }
 
@@ -215,7 +222,6 @@ internal class TextInputDelegate(
     }
 
     suspend fun KeyboardSyntax.moveCursor(horizontal: Int, vertical: Int) {
-        if (state.layer == KeyboardLayer.EMOJI_SEARCH) return
         if (horizontal != 0 || vertical != 0) {
             closeComposing()
             input(KeyboardSideEffect.Input.MoveCursor(horizontal, vertical))
@@ -229,7 +235,7 @@ internal class TextInputDelegate(
     }
 
     suspend fun KeyboardSyntax.pressEnter() {
-        if (state.layer == KeyboardLayer.EMOJI_SEARCH) {
+        if (state.isEmojiSearch) {
             with(layerDelegate) { applyLayer(KeyboardLayer.EMOJI) }
         } else {
             state.textContext.composingWord
@@ -264,9 +270,7 @@ internal class TextInputDelegate(
         checkKeptWordErased()
         if (shrinkComposing()) return
 
-        editText(KeyboardSideEffect.Input.DeleteBackward) { query ->
-            query.ifEmpty { null }?.dropLast(1)
-        }
+        input(KeyboardSideEffect.Input.DeleteBackward)
     }
 
     /** Область компоновки правится только заменой, иначе она разъедется с текстом. */
@@ -293,9 +297,7 @@ internal class TextInputDelegate(
     suspend fun KeyboardSyntax.deleteWordBackward() {
         forgetAutoCorrection()
         closeComposing()
-        editText(KeyboardSideEffect.Input.DeleteWordBackward) { query ->
-            query.ifEmpty { null }?.dropLastWord()
-        }
+        input(KeyboardSideEffect.Input.DeleteWordBackward)
     }
 
     /**
@@ -303,7 +305,7 @@ internal class TextInputDelegate(
      * Отмена замены слова ещё и разучивает её: в следующий раз то же слово не исправится.
      */
     private suspend fun KeyboardSyntax.undoAutoCorrection(): Boolean {
-        if (state.layer == KeyboardLayer.EMOJI_SEARCH) return false
+        if (state.isEmojiSearch) return false
 
         val correction = state.autoCorrection ?: return false
         if (!state.textContext.before.endsWith(correction.corrected)) {
@@ -354,43 +356,15 @@ internal class TextInputDelegate(
     }
 
     suspend fun KeyboardSyntax.changeBackspaceSelection(chars: Int) {
-        if (state.layer == KeyboardLayer.EMOJI_SEARCH) {
-            reduce {
-                state.copy(emojiSearchSelection = chars.coerceAtMost(state.emojiSearchQuery.length))
-            }
-        } else {
-            closeComposing()
-            input(KeyboardSideEffect.Input.SelectBeforeCursor(chars))
-        }
+        closeComposing()
+        input(KeyboardSideEffect.Input.SelectBeforeCursor(chars))
     }
 
-    suspend fun KeyboardSyntax.commitBackspaceSelection(chars: Int) {
-        if (state.layer == KeyboardLayer.EMOJI_SEARCH) {
-            val selected = chars.coerceAtMost(state.emojiSearchQuery.length)
-            if (selected > 0) {
-                with(emojiDelegate) { updateSearchQuery(state.emojiSearchQuery.dropLast(selected)) }
-            } else {
-                reduce { state.copy(emojiSearchSelection = 0) }
-            }
-        } else {
-            closeComposing()
-            input(KeyboardSideEffect.Input.DeleteSelection)
-        }
+    /** Выделение уже стоит (см. [changeBackspaceSelection]) — осталось его стереть. */
+    suspend fun KeyboardSyntax.commitBackspaceSelection() {
+        closeComposing()
+        input(KeyboardSideEffect.Input.DeleteSelection)
     }
-
-    private suspend fun KeyboardSyntax.editText(
-        fieldEffect: KeyboardSideEffect.Input,
-        editQuery: (String) -> String?,
-    ) {
-        if (state.layer == KeyboardLayer.EMOJI_SEARCH) {
-            editQuery(state.emojiSearchQuery)?.let { with(emojiDelegate) { updateSearchQuery(it) } }
-        } else {
-            input(fieldEffect)
-        }
-    }
-
-    private fun String.dropLastWord(): String =
-        trimEnd().dropLastWhile { !it.isWhitespace() }
 
     /** Стилизованная буква — суррогатная пара или буква со знаками стиля, поэтому убираем её целиком. */
     private fun String.dropLastSymbol(): String = dropLast(StyledText.lastSymbolLength(this))
@@ -428,6 +402,8 @@ internal class TextInputDelegate(
     private fun String.isWordText(): Boolean = all(TextContext.Companion::isWordChar)
 
     private fun String.isSeparator(): Boolean = length == 1 && this[0] in WORD_SEPARATORS
+
+    private val KeyboardState.isEmojiSearch: Boolean get() = inlineTarget == InlineTarget.EMOJI_SEARCH
 
 
     private companion object {

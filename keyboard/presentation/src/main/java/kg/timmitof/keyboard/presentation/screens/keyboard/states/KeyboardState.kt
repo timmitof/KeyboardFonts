@@ -42,9 +42,9 @@ internal data class KeyboardState(
     val emojiVariants: Map<String, List<String>> = emptyMap(),
     val preferredEmojiVariants: Map<String, String> = emptyMap(),
     val recentEmojis: List<String> = emptyList(),
-    val emojiSearchQuery: String = "",
+    /** Запрос поиска эмодзи — поле внутри клавиатуры, как у панели перевода. */
+    val emojiSearch: InlineEditor = InlineEditor(),
     val emojiSearchResults: List<String> = emptyList(),
-    val emojiSearchSelection: Int = 0,
     val shiftState: ShiftState = ShiftState.DISABLED,
     val fieldContext: KeyboardFieldContext = KeyboardFieldContext(),
     val textContext: TextContext = TextContext(),
@@ -65,6 +65,21 @@ internal data class KeyboardState(
 ): BaseState() {
 
     val fieldType: KeyboardFieldType get() = fieldContext.type
+
+    /** Куда идут клавиши; null — в поле приложения. Поиск эмодзи открывается поверх панели перевода и главнее её. */
+    val inlineTarget: InlineTarget?
+        get() = when {
+            layer == KeyboardLayer.EMOJI_SEARCH -> InlineTarget.EMOJI_SEARCH
+            translator != null -> InlineTarget.TRANSLATOR
+            else -> null
+        }
+
+    /** Правка поля внутри клавиатуры; ввод в поле приложения состояние не меняет. */
+    fun editInline(effect: KeyboardSideEffect.Input): KeyboardState = when (inlineTarget) {
+        InlineTarget.EMOJI_SEARCH -> copy(emojiSearch = emojiSearch.apply(effect))
+        InlineTarget.TRANSLATOR -> translator?.let { copy(translator = it.copy(editor = it.editor.apply(effect))) } ?: this
+        null -> this
+    }
 
     /** Выбор пользователя главнее автоподмены на латиницу (адрес, пароль): при смене языка [fieldLanguage] сбрасывается. */
     val activeLanguage: KeyboardLanguage? get() = fieldLanguage ?: selectedLanguage
@@ -110,7 +125,8 @@ internal data class KeyboardState(
     val availableFonts: List<KeyboardFont> get() = fonts.supporting(fontScript)
 
     val activeFont: KeyboardFont
-        get() = if (allowsFonts) selectedFont.orDefaultFor(fontScript) else KeyboardFont.Default
+        // В поиск эмодзи и панель перевода — обычные буквы: стилизованный запрос не найдёт и не переведётся.
+        get() = if (allowsFonts && inlineTarget == null) selectedFont.orDefaultFor(fontScript) else KeyboardFont.Default
 
     /** Язык без словаря Т9 работает без подсказок, автозамены и обучения. */
     val allowsSuggestions: Boolean
@@ -244,7 +260,6 @@ internal sealed class KeyboardEvent : BaseEvent.UiEvent() {
     data object OnEmojiSwitch : KeyboardEvent()
     data object OnEmojiSearchOpen : KeyboardEvent()
     data object OnEmojiSearchClose : KeyboardEvent()
-    data class OnEmojiSearchQueryChange(val query: String) : KeyboardEvent()
     data class OnOverlayChange(val overlay: KeyboardOverlay?) : KeyboardEvent()
     data class OnQuickSetting(val setting: QuickSetting) : KeyboardEvent()
     data class OnClipboardPaste(val entry: ClipboardEntry) : KeyboardEvent()

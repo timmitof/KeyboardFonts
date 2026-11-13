@@ -168,9 +168,9 @@ private fun EmojiSearchLayer(
     onEvent: (KeyboardEvent) -> Unit
 ) {
     val layout by state.rememberSlice { it.keyboardLayout }
-    val query by state.rememberSlice { it.emojiSearchQuery }
+    val query by state.rememberSlice { it.emojiSearch.text }
     val results by state.rememberSlice { it.emojiSearchResults }
-    val selection by state.rememberSlice { it.emojiSearchSelection }
+    val selection by state.rememberSlice { it.emojiSearch.selection }
     val variants by state.rememberSlice { it.emojiVariants }
     val preferredVariants by state.rememberSlice { it.preferredEmojiVariants }
 

@@ -16,6 +16,7 @@ import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.SuggestionsD
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.TextInputDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.TranslatorDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.ComposingText
+import kg.timmitof.keyboard.presentation.screens.keyboard.states.InlineEditor
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardEvent
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardLayer
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardOverlay
@@ -66,7 +67,7 @@ internal class KeyboardViewModel(
             is KeyboardEvent.OnBackspace -> intent { with(textInputDelegate) { deleteBackward() } }
             is KeyboardEvent.OnBackspaceDeleteWord -> intent { with(textInputDelegate) { deleteWordBackward() } }
             is KeyboardEvent.OnBackspaceSelectChange -> intent { with(textInputDelegate) { changeBackspaceSelection(event.chars) } }
-            is KeyboardEvent.OnBackspaceSelectCommit -> intent { with(textInputDelegate) { commitBackspaceSelection(event.chars) } }
+            is KeyboardEvent.OnBackspaceSelectCommit -> intent { with(textInputDelegate) { commitBackspaceSelection() } }
             is KeyboardEvent.OnLanguageSelect -> intent {
                 with(languageDelegate) { selectLanguage(event.language) }
                 with(translatorDelegate) { syncSource() }
@@ -101,7 +102,6 @@ internal class KeyboardViewModel(
                 with(layerDelegate) { applyLayer(KeyboardLayer.EMOJI) }
                 with(suggestionsDelegate) { requestSuggestions() }
             }
-            is KeyboardEvent.OnEmojiSearchQueryChange -> intent { with(emojiDelegate) { updateSearchQuery(event.query) } }
             is KeyboardEvent.OnOverlayChange -> openOverlay(event.overlay)
             is KeyboardEvent.OnQuickSetting -> intent {
                 when (val setting = event.setting) {
@@ -163,6 +163,23 @@ internal class KeyboardViewModel(
         observeFontPanel()
         observeClipboard()
         observeTranslator()
+        observeEmojiSearch()
+    }
+
+    /** Модель переводчика держит десятки мегабайт — с клавиатурой её и отпускаем. */
+    override fun onCleared() {
+        translatorDelegate.release()
+        super.onCleared()
+    }
+
+    /** Запрос правит набор (`input`), а результаты пересчитываются по готовому запросу. */
+    private fun observeEmojiSearch() {
+        container.stateFlow
+            .map { it.emojiSearch.text.takeIf { _ -> it.layer == KeyboardLayer.EMOJI_SEARCH } }
+            .distinctUntilChanged()
+            .filterNotNull()
+            .onEach { query -> intent { with(emojiDelegate) { search(query) } } }
+            .launchIn(viewModelScope)
     }
 
     private fun toggleTranslator() = intent {
@@ -208,6 +225,10 @@ internal class KeyboardViewModel(
                     with(suggestionsDelegate) { applyTextContext(context) }
                 }
             }
+            .launchIn(viewModelScope)
+
+        translatorDelegate.downloadedModels
+            .onEach { codes -> intent { with(translatorDelegate) { applyDownloaded(codes) } } }
             .launchIn(viewModelScope)
 
         translatorDelegate.translations(container.stateFlow.map { it.translator?.request })
@@ -327,13 +348,7 @@ internal class KeyboardViewModel(
 
         if (state.layer == KeyboardLayer.LETTERS) return@intent
 
-        reduce {
-            state.copy(
-                emojiSearchQuery = "",
-                emojiSearchResults = emptyList(),
-                emojiSearchSelection = 0,
-            )
-        }
+        reduce { state.copy(emojiSearch = InlineEditor(), emojiSearchResults = emptyList()) }
         with(layerDelegate) { applyLayer(KeyboardLayer.LETTERS) }
     }
 }

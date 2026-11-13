@@ -18,7 +18,9 @@ import kg.timmitof.keyboard.domain.repository.KeyboardSettingsRepository
 import kg.timmitof.keyboard.domain.repository.LanguageRepository
 import kg.timmitof.keyboard.suggestion.domain.repository.SuggestionRepository
 import kg.timmitof.keyboard.suggestion.domain.repository.TypingStatsRepository
-import kg.timmitof.keyboard.translate.domain.repository.TranslatorRepository
+import kg.timmitof.keyboard.translate.domain.repository.TranslationModelRepository
+import kg.timmitof.keyboard.translate.domain.repository.TranslationRepository
+import kg.timmitof.keyboard.translate.domain.repository.TranslatorPreferencesRepository
 import kg.timmitof.keyboard.presentation.KeyboardFontsView
 import kg.timmitof.keyboard.presentation.screens.keyboard.KeyboardViewModelFactory
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardSideEffect
@@ -52,7 +54,13 @@ internal class KeyboardFontsService : ComposeInputMethodService() {
     lateinit var clipboardRepository: ClipboardRepository
 
     @Inject
-    lateinit var translatorRepository: TranslatorRepository
+    lateinit var translationRepository: TranslationRepository
+
+    @Inject
+    lateinit var translationModelRepository: TranslationModelRepository
+
+    @Inject
+    lateinit var translatorPreferencesRepository: TranslatorPreferencesRepository
 
     override fun attachBaseContext(newBase: Context) {
         super.attachBaseContext(AppLocale.wrap(newBase))
@@ -89,7 +97,9 @@ internal class KeyboardFontsService : ComposeInputMethodService() {
             typingStatsRepository = typingStatsRepository,
             keyboardSettingsRepository = keyboardSettingsRepository,
             clipboardRepository = clipboardRepository,
-            translatorRepository = translatorRepository,
+            translationRepository = translationRepository,
+            translationModelRepository = translationModelRepository,
+            translatorPreferencesRepository = translatorPreferencesRepository,
         ),
         onKeyboardAction = ::applyAction,
     ).also { keyboardView = it }
