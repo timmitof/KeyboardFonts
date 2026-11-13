@@ -3,15 +3,19 @@ package kg.timmitof.keyboard.presentation.screens.keyboard.delegates
 import kg.timmitof.keyboard.domain.model.KeyboardLanguage
 import kg.timmitof.keyboard.presentation.screens.keyboard.KeyboardSyntax
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.ComposingText
+import kg.timmitof.keyboard.presentation.screens.keyboard.states.DetectionRequest
+import kg.timmitof.keyboard.presentation.screens.keyboard.states.LanguageDetectionRules
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.InlineEditor
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardOverlay
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardSideEffect
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.TranslationRequest
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.TranslatorState
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.TranslatorStatus
+import kg.timmitof.keyboard.translate.domain.model.DetectedLanguage
 import kg.timmitof.keyboard.translate.domain.model.TranslationLanguage
 import kg.timmitof.keyboard.translate.domain.model.TranslationModels
 import kg.timmitof.keyboard.translate.domain.model.TranslationResult
+import kg.timmitof.keyboard.translate.domain.repository.LanguageDetectionRepository
 import kg.timmitof.keyboard.translate.domain.repository.TranslationDownloadRepository
 import kg.timmitof.keyboard.translate.domain.repository.TranslationModelRepository
 import kg.timmitof.keyboard.translate.domain.repository.TranslationRepository
@@ -31,6 +35,7 @@ internal class TranslatorDelegate(
     private val modelRepository: TranslationModelRepository,
     private val preferencesRepository: TranslatorPreferencesRepository,
     private val downloadRepository: TranslationDownloadRepository,
+    private val detectionRepository: LanguageDetectionRepository,
 ) {
 
     /** Модели на телефоне и в очереди: панель и лист выбора обновляются сами, где бы ни шла загрузка. */
@@ -48,6 +53,20 @@ internal class TranslatorDelegate(
                 if (request == null) return@transformLatest
                 if (request.text.isNotBlank()) delay(TRANSLATION_DELAY_MILLIS)
                 emit(request to translate(request))
+            }
+
+    /**
+     * Язык набранного — после паузы подольше, чем перевод: определять каждое слово незачем,
+     * а на половине фразы ML Kit ошибается чаще.
+     */
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun detections(requests: Flow<DetectionRequest?>): Flow<Pair<DetectionRequest, List<DetectedLanguage>>> =
+        requests
+            .distinctUntilChanged()
+            .transformLatest { request ->
+                if (request == null) return@transformLatest
+                delay(DETECTION_DELAY_MILLIS)
+                emit(request to detectionRepository.detect(request.text))
             }
 
     /** Подсказка «Новое: переводчик» висит в верхней строке, пока переводчик ни разу не открыли. */
@@ -76,6 +95,7 @@ internal class TranslatorDelegate(
                     layouts = layouts,
                     models = models,
                     recentTargets = preferences.recentTargets.mapNotNull(modelRepository::language),
+                    isAutoSource = preferences.isAutoSource,
                     needsLeadingSpace = before.isNotEmpty() && !before.last().isWhitespace(),
                 ).withDistinctPair(previousSource = null),
                 isFontsExpanded = false,
@@ -129,7 +149,53 @@ internal class TranslatorDelegate(
         release()
     }
 
-    fun release() = translationRepository.release()
+    fun release() {
+        translationRepository.release()
+        detectionRepository.release()
+    }
+
+    /**
+     * Результат определения устарел (текст или раскладка уже другие) — не применяем.
+     * В обычном режиме — подсказка сменить раскладку, в автоматическом — исходный язык перевода.
+     */
+    suspend fun KeyboardSyntax.applyDetection(request: DetectionRequest, detected: List<DetectedLanguage>) {
+        val translator = state.translator ?: return
+        if (translator.detectionRequest(state.activeLanguage?.code) != request) return
+
+        if (translator.isAutoSource) {
+            val language = LanguageDetectionRules.autoSourceCode(detected)?.let(modelRepository::language)
+            // Не понять — оставляем прежний: исходный язык не должен мигать на каждой паузе.
+            updateTranslator { it.copy(autoSource = language ?: it.autoSource, suggestedLayout = null) }
+        } else {
+            val layout = LanguageDetectionRules.suggestLayout(detected, state.activeLanguage, state.languages, request.text)
+            updateTranslator { it.copy(suggestedLayout = layout) }
+        }
+    }
+
+    /** «Оставить как есть»: эту раскладку больше не предлагаем, пока поле не очистят. */
+    suspend fun KeyboardSyntax.dismissDetection() {
+        updateTranslator { it.copy(dismissedLayoutCode = it.suggestedLayout?.code, suggestedLayout = null) }
+    }
+
+    /** «Определять автоматически»: исходный язык — по тексту, раскладка не меняется. */
+    suspend fun KeyboardSyntax.selectAutoSource() {
+        preferencesRepository.setAutoSource(true)
+        reduce {
+            val translator = state.translator ?: return@reduce state
+            state.copy(
+                translator = translator.copy(isAutoSource = true, suggestedLayout = null, status = TranslatorStatus.READY),
+                keyboardOverlay = null,
+            )
+        }
+    }
+
+    /** Выбрали язык вручную — автоопределение выключается, исходный снова равен раскладке. */
+    suspend fun KeyboardSyntax.disableAutoSource() {
+        if (state.translator?.isAutoSource != true) return
+
+        preferencesRepository.setAutoSource(false)
+        updateTranslator { it.copy(isAutoSource = false, autoSource = null) }
+    }
 
     /**
      * Загрузка идёт в фоне (WorkManager), поэтому её исход панель узнаёт отсюда: пара скачалась — переводим
@@ -201,12 +267,13 @@ internal class TranslatorDelegate(
         postSideEffect(KeyboardSideEffect.Input.PerformEditorAction)
         updateTranslator {
             it.copy(editor = InlineEditor(), translation = "", translatedFor = null, needsLeadingSpace = false)
+                .withoutDetection()
         }
     }
 
     /** «×» в поле: стирает набранное, а пустой запрос уберёт перевод и из поля приложения. */
     suspend fun KeyboardSyntax.clear() {
-        updateTranslator { it.copy(editor = InlineEditor(), status = TranslatorStatus.READY) }
+        updateTranslator { it.copy(editor = InlineEditor(), status = TranslatorStatus.READY).withoutDetection() }
     }
 
     suspend fun KeyboardSyntax.retry() {
@@ -314,12 +381,17 @@ internal class TranslatorDelegate(
         val layouts = layoutsOf(state.languages)
         if (source == translator.source && layouts == translator.layouts) return
 
-        val updated = translator.copy(source = source, layouts = layouts, status = TranslatorStatus.READY)
+        // Раскладку сменили — прежняя подсказка «другой язык» больше не к месту.
+        val updated = translator.copy(source = source, layouts = layouts, status = TranslatorStatus.READY, suggestedLayout = null)
             .withDistinctPair(previousSource = translator.source)
         if (updated.target != translator.target) preferencesRepository.setTarget(updated.target.code)
         val final = if (updated.target != translator.target) updated.withRecent(updated.target) else updated
         updateTranslator { final.copy(editor = it.editor, models = it.models, languageSearch = it.languageSearch) }
     }
+
+    /** Новое сообщение — язык определяем с чистого листа. */
+    private fun TranslatorState.withoutDetection(): TranslatorState =
+        copy(suggestedLayout = null, dismissedLayoutCode = null, autoSource = null)
 
     /** Тот же порядок, что пишет хранилище: свежий первым, без повторов, не больше [MAX_RECENT]. */
     private fun TranslatorState.withRecent(language: TranslationLanguage): TranslatorState =
@@ -373,6 +445,7 @@ internal class TranslatorDelegate(
 
     private companion object {
         const val TRANSLATION_DELAY_MILLIS = 300L
+        const val DETECTION_DELAY_MILLIS = 500L
         const val ENGLISH = "en"
         const val MAX_RECENT = 4
     }

@@ -1,7 +1,6 @@
 package kg.timmitof.keyboard.presentation.components.translator
 
 import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -42,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kg.timmitof.core.ui.R as UiR
 import kg.timmitof.core.ui.plainClickable
+import kg.timmitof.keyboard.domain.model.KeyboardLanguage
 import kg.timmitof.keyboard.font.domain.model.KeyboardFont
 import kg.timmitof.keyboard.presentation.R
 import kg.timmitof.keyboard.presentation.components.FontsCarousel
@@ -176,7 +176,7 @@ private fun RowScope.LanguagesRow(
     // Исходный язык выбирается из включённых раскладок: выбор переключает и раскладку.
     TopBarPill(
         modifier = Modifier.widthIn(max = LanguageMaxWidth),
-        label = panel.sourceName,
+        label = if (panel.isAutoSource) stringResource(R.string.translator_auto_label, panel.sourceName) else panel.sourceName,
         hasDropdown = true,
         onClick = { onEvent(KeyboardEvent.OnOverlayChange(KeyboardOverlay.TRANSLATION_SOURCE)) },
     )
@@ -280,7 +280,10 @@ private fun PanelField(
             }
 
             if (panel.text.isNotEmpty()) {
-                ClearButton(onClick = { onEvent(KeyboardEvent.OnTranslatorClear) })
+                ClearButton(
+                    contentDescription = stringResource(R.string.translator_clear),
+                    onClick = { onEvent(KeyboardEvent.OnTranslatorClear) },
+                )
             }
         }
 
@@ -299,7 +302,10 @@ private fun PanelField(
 }
 
 @Composable
-private fun ClearButton(onClick: () -> Unit) {
+private fun ClearButton(
+    contentDescription: String,
+    onClick: () -> Unit,
+) {
     Box(
         modifier = Modifier
             .size(28.dp)
@@ -309,7 +315,7 @@ private fun ClearButton(onClick: () -> Unit) {
     ) {
         Icon(
             imageVector = ImageVector.vectorResource(R.drawable.ic_close),
-            contentDescription = stringResource(R.string.translator_clear),
+            contentDescription = contentDescription,
             tint = KFTheme.color.keySpecialTextColor,
             modifier = Modifier.size(15.dp),
         )
@@ -369,7 +375,14 @@ private fun NoticeCard(
                 color = KFTheme.color.keyAccentBackground,
             )
 
-            else -> ActionPill(label = stringResource(action.labelRes), onClick = { onEvent(action.event) })
+            else -> ActionPill(label = action.label, onClick = { onEvent(action.event) })
+        }
+
+        content.dismissEvent?.let { event ->
+            ClearButton(
+                contentDescription = stringResource(R.string.translator_detect_dismiss),
+                onClick = { onEvent(event) },
+            )
         }
     }
 }
@@ -393,27 +406,41 @@ private fun ActionPill(
     )
 }
 
-/** Содержимое карточки; [action] null — идёт загрузка, вместо кнопки крутится лоадер. */
+/**
+ * Содержимое карточки; [action] null — идёт загрузка, вместо кнопки крутится лоадер.
+ * [dismissEvent] — «×»: предложение можно отклонить (подсказку сменить раскладку).
+ */
 private class NoticeContent(
     @param:DrawableRes val iconRes: Int,
     val title: String,
     val text: String,
     val action: NoticeAction?,
     val isHint: Boolean = false,
+    val dismissEvent: KeyboardEvent? = null,
 )
 
 private class NoticeAction(
-    @param:StringRes val labelRes: Int,
+    val label: String,
     val event: KeyboardEvent,
 )
 
 @Composable
 private fun TranslatorNotice.content(panel: TranslatorPanelSlice): NoticeContent = when (this) {
+    // Дизайн 8c: «Похоже, вы пишете на …» — с цитатой набранного и кнопкой той раскладки.
+    TranslatorNotice.LANGUAGE_DETECTED -> NoticeContent(
+        iconRes = R.drawable.ic_translate,
+        title = stringResource(R.string.translator_detected_title),
+        text = stringResource(R.string.translator_detected_quote, panel.text),
+        action = panel.detectedLayout?.let { NoticeAction(it.displayName, KeyboardEvent.OnLanguageSelect(it)) },
+        isHint = true,
+        dismissEvent = KeyboardEvent.OnTranslatorDetectionDismiss,
+    )
+
     TranslatorNotice.UNSUPPORTED_SOURCE -> NoticeContent(
         iconRes = R.drawable.ic_translate,
         title = stringResource(R.string.translator_unsupported_title, panel.sourceName),
         text = stringResource(R.string.translator_unsupported_text),
-        action = NoticeAction(R.string.translator_change, KeyboardEvent.OnOverlayChange(KeyboardOverlay.TRANSLATION_SOURCE)),
+        action = NoticeAction(stringResource(R.string.translator_change), KeyboardEvent.OnOverlayChange(KeyboardOverlay.TRANSLATION_SOURCE)),
         isHint = true,
     )
 
@@ -421,7 +448,7 @@ private fun TranslatorNotice.content(panel: TranslatorPanelSlice): NoticeContent
         iconRes = R.drawable.ic_translate,
         title = stringResource(R.string.translator_same_language_title),
         text = stringResource(R.string.translator_same_language_text),
-        action = NoticeAction(R.string.translator_change, KeyboardEvent.OnOverlayChange(KeyboardOverlay.TRANSLATION_TARGET)),
+        action = NoticeAction(stringResource(R.string.translator_change), KeyboardEvent.OnOverlayChange(KeyboardOverlay.TRANSLATION_TARGET)),
         isHint = true,
     )
 
@@ -429,7 +456,7 @@ private fun TranslatorNotice.content(panel: TranslatorPanelSlice): NoticeContent
         iconRes = UiR.drawable.ic_download,
         title = stringResource(R.string.translator_model_missing_title, panel.missingNames),
         text = stringResource(R.string.translator_model_missing_text),
-        action = NoticeAction(R.string.translator_download, KeyboardEvent.OnTranslatorDownload),
+        action = NoticeAction(stringResource(R.string.translator_download), KeyboardEvent.OnTranslatorDownload),
     )
 
     TranslatorNotice.DOWNLOADING -> NoticeContent(
@@ -443,14 +470,14 @@ private fun TranslatorNotice.content(panel: TranslatorPanelSlice): NoticeContent
         iconRes = UiR.drawable.ic_download,
         title = stringResource(R.string.translator_download_failed_title, panel.missingNames),
         text = stringResource(R.string.translator_download_failed_text),
-        action = NoticeAction(R.string.translator_retry, KeyboardEvent.OnTranslatorDownload),
+        action = NoticeAction(stringResource(R.string.translator_retry), KeyboardEvent.OnTranslatorDownload),
     )
 
     TranslatorNotice.TRANSLATION_FAILED -> NoticeContent(
         iconRes = R.drawable.ic_translate,
         title = stringResource(R.string.translator_failed_title),
         text = stringResource(R.string.translator_failed_text),
-        action = NoticeAction(R.string.translator_retry, KeyboardEvent.OnTranslatorRetry),
+        action = NoticeAction(stringResource(R.string.translator_retry), KeyboardEvent.OnTranslatorRetry),
     )
 }
 
@@ -477,7 +504,11 @@ private data class LanguageSearchSlice(
 /** Всё, что читает панель; data class — срез сравнивается по значению. */
 @Immutable
 private data class TranslatorPanelSlice(
+    /** На пилюле исходного языка; в режиме «автоматически» — «Авто · язык». */
     val sourceName: String,
+    val isAutoSource: Boolean,
+    /** Раскладка, на языке которой, похоже, набран текст, — для карточки «другой язык». */
+    val detectedLayout: KeyboardLanguage?,
     val targetName: String,
     val text: String,
     val selection: Int,
@@ -500,7 +531,9 @@ private fun KeyboardState.translatorPanelSlice(): TranslatorPanelSlice? {
     val selected = translationFont(target)
 
     return TranslatorPanelSlice(
-        sourceName = translator.source?.name ?: activeLanguage?.displayName.orEmpty(),
+        sourceName = translator.translationSource?.name ?: activeLanguage?.displayName.orEmpty(),
+        isAutoSource = translator.isAutoSource,
+        detectedLayout = translator.suggestedLayout,
         targetName = target.name,
         text = translator.editor.text,
         selection = translator.editor.selection,

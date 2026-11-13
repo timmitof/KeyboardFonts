@@ -73,4 +73,10 @@
     <string name="translator_same_language_text">Бошқа таржима тилини танланг</string>
     <string name="translator_search">Тилни топиш</string>
     <string name="translator_search_empty">Бундай тил йўқ</string>
+    <string name="translator_detected_title">Бошқа тилга ўхшайди</string>
+    <string name="translator_detected_quote">«%1$s»</string>
+    <string name="translator_detect_dismiss">Шундай қолдириш</string>
+    <string name="translator_auto">Автоматик аниқлаш</string>
+    <string name="translator_auto_text">матн бўйича</string>
+    <string name="translator_auto_label">Авто · %1$s</string>
 </resources>

@@ -73,4 +73,10 @@
     <string name="translator_same_language_text">Boshqa tarjima tilini tanlang</string>
     <string name="translator_search">Tilni topish</string>
     <string name="translator_search_empty">Bunday til yoʻq</string>
+    <string name="translator_detected_title">Boshqa tilga oʻxshaydi</string>
+    <string name="translator_detected_quote">«%1$s»</string>
+    <string name="translator_detect_dismiss">Shunday qoldirish</string>
+    <string name="translator_auto">Avtomatik aniqlash</string>
+    <string name="translator_auto_text">matn boʻyicha</string>
+    <string name="translator_auto_label">Avto · %1$s</string>
 </resources>

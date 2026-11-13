@@ -25,6 +25,7 @@ class TranslatorPreferencesSource @Inject constructor(
         return TranslatorPreferences(
             targetCode = prefs[TARGET_KEY],
             recentTargets = prefs[RECENT_TARGETS_KEY]?.split(SEPARATOR)?.filter(String::isNotEmpty).orEmpty(),
+            isAutoSource = prefs[AUTO_SOURCE_KEY] ?: false,
             isHintShown = prefs[HINT_SHOWN_KEY] ?: false,
         )
     }
@@ -42,6 +43,10 @@ class TranslatorPreferencesSource @Inject constructor(
         context.translatorPreferences.edit { it[HINT_SHOWN_KEY] = true }
     }
 
+    suspend fun setAutoSource(isAuto: Boolean) {
+        context.translatorPreferences.edit { it[AUTO_SOURCE_KEY] = isAuto }
+    }
+
     /** Языки, которые пользователь удалил сам: фоновая загрузка по умолчанию их обратно не качает. */
     suspend fun declinedModels(): Set<String> =
         context.translatorPreferences.data.first()[DECLINED_KEY].orEmpty()
@@ -56,6 +61,7 @@ class TranslatorPreferencesSource @Inject constructor(
     private companion object {
         val TARGET_KEY = stringPreferencesKey("target_language")
         val HINT_SHOWN_KEY = booleanPreferencesKey("hint_shown")
+        val AUTO_SOURCE_KEY = booleanPreferencesKey("auto_source")
         val RECENT_TARGETS_KEY = stringPreferencesKey("recent_targets")
         const val SEPARATOR = ","
         const val MAX_RECENT = 4

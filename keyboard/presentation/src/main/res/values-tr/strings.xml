@@ -73,4 +73,10 @@
     <string name="translator_same_language_text">Başka bir hedef dil seçin</string>
     <string name="translator_search">Dil ara</string>
     <string name="translator_search_empty">Böyle bir dil yok</string>
+    <string name="translator_detected_title">Başka bir dil gibi görünüyor</string>
+    <string name="translator_detected_quote">“%1$s”</string>
+    <string name="translator_detect_dismiss">Böyle kalsın</string>
+    <string name="translator_auto">Otomatik algıla</string>
+    <string name="translator_auto_text">metne göre</string>
+    <string name="translator_auto_label">Otomatik · %1$s</string>
 </resources>

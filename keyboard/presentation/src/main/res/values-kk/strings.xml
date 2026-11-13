@@ -73,4 +73,10 @@
     <string name="translator_same_language_text">Басқа аудару тілін таңдаңыз</string>
     <string name="translator_search">Тілді табу</string>
     <string name="translator_search_empty">Мұндай тіл жоқ</string>
+    <string name="translator_detected_title">Басқа тіл сияқты</string>
+    <string name="translator_detected_quote">«%1$s»</string>
+    <string name="translator_detect_dismiss">Осылай қалдыру</string>
+    <string name="translator_auto">Автоматты анықтау</string>
+    <string name="translator_auto_text">мәтін бойынша</string>
+    <string name="translator_auto_label">Авто · %1$s</string>
 </resources>

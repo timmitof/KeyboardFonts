@@ -73,4 +73,10 @@
     <string name="translator_same_language_text">Виберіть іншу мову перекладу</string>
     <string name="translator_search">Знайти мову</string>
     <string name="translator_search_empty">Такої мови немає</string>
+    <string name="translator_detected_title">Схоже, це інша мова</string>
+    <string name="translator_detected_quote">«%1$s»</string>
+    <string name="translator_detect_dismiss">Залишити як є</string>
+    <string name="translator_auto">Визначати автоматично</string>
+    <string name="translator_auto_text">за текстом</string>
+    <string name="translator_auto_label">Авто · %1$s</string>
 </resources>

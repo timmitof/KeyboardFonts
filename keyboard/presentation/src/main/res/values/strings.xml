@@ -85,4 +85,10 @@
     <string name="translator_same_language_text">Выберите другой язык перевода</string>
     <string name="translator_search">Найти язык</string>
     <string name="translator_search_empty">Такого языка нет</string>
+    <string name="translator_detected_title">Похоже, это другой язык</string>
+    <string name="translator_detected_quote">«%1$s»</string>
+    <string name="translator_detect_dismiss">Оставить как есть</string>
+    <string name="translator_auto">Определять автоматически</string>
+    <string name="translator_auto_text">по тексту</string>
+    <string name="translator_auto_label">Авто · %1$s</string>
 </resources>

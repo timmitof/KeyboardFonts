@@ -18,6 +18,10 @@ import kg.timmitof.keyboard.translate.domain.model.TranslationModels
  * @param isFontPickerOpen вместо пары языков — карусель шрифтов («Aa»): выбранный шрифт применяется к переводу.
  * @param recentTargets недавние языки перевода, свежие первыми — чипы над списком языков.
  * @param languageSearch запрос поиска языка перевода; null — поиск закрыт. Набирается обычными клавишами.
+ * @param isAutoSource исходный язык — по набранному тексту ([autoSource]), а не по раскладке.
+ * @param autoSource определённый по тексту язык в режиме [isAutoSource]; null — пока не понять, берём раскладку.
+ * @param suggestedLayout включённая раскладка, на языке которой, похоже, набран текст (карточка «другой язык»).
+ * @param dismissedLayoutCode подсказку этой раскладки закрыли — до очистки поля её не повторяем.
  */
 @Immutable
 internal data class TranslatorState(
@@ -35,13 +39,22 @@ internal data class TranslatorState(
     val isFontPickerOpen: Boolean = false,
     val recentTargets: List<TranslationLanguage> = emptyList(),
     val languageSearch: InlineEditor? = null,
+    val isAutoSource: Boolean = false,
+    val autoSource: TranslationLanguage? = null,
+    val suggestedLayout: KeyboardLanguage? = null,
+    val dismissedLayoutCode: String? = null,
 ) {
 
+    /** С какого языка переводим: определённый по тексту в режиме «автоматически», иначе язык раскладки. */
+    val translationSource: TranslationLanguage?
+        get() = if (isAutoSource) autoSource ?: source else source
+
     /** Переводить некуда: язык раскладки переводчику неизвестен или совпадает с целевым. */
-    val canTranslate: Boolean get() = source != null && source.code != target.code
+    val canTranslate: Boolean
+        get() = translationSource.let { it != null && it.code != target.code }
 
     /** Языки, без моделей которых пара не переведётся. */
-    val pairCodes: List<String> get() = listOfNotNull(source?.code, target.code)
+    val pairCodes: List<String> get() = listOfNotNull(translationSource?.code, target.code)
 
     val isPairDownloaded: Boolean get() = pairCodes.all { it in models.downloaded }
 
@@ -51,7 +64,9 @@ internal data class TranslatorState(
     /** Что показать вместо поля; null — поле с набранным текстом. Порядок — от главной причины к частной. */
     val notice: TranslatorNotice?
         get() = when {
-            source == null -> TranslatorNotice.UNSUPPORTED_SOURCE
+            // Набирают явно не на языке раскладки — сначала предлагаем переключиться, а не переводим молча неправильно.
+            isLayoutSuggested -> TranslatorNotice.LANGUAGE_DETECTED
+            translationSource == null -> TranslatorNotice.UNSUPPORTED_SOURCE
             !canTranslate -> TranslatorNotice.SAME_LANGUAGES
             isPairDownloaded -> if (status == TranslatorStatus.FAILED) TranslatorNotice.TRANSLATION_FAILED else null
             isPairDownloading -> TranslatorNotice.DOWNLOADING
@@ -60,7 +75,7 @@ internal data class TranslatorState(
         }
 
     val request: TranslationRequest?
-        get() = source?.takeIf { canTranslate }?.let {
+        get() = translationSource?.takeIf { canTranslate }?.let {
             TranslationRequest(editor.text, it.code, target.code, revision)
         }
 
@@ -69,7 +84,15 @@ internal data class TranslatorState(
         get() = request != translatedFor && editor.text.isNotBlank() && notice == null
 
     /** Раскладка целевого языка; null — на нём не напечатать, и менять пару местами нельзя. */
-    val swapLayout: KeyboardLanguage? get() = layouts[target.code]?.takeIf { source != null }
+    val swapLayout: KeyboardLanguage? get() = layouts[target.code]?.takeIf { source != null && !isAutoSource }
+
+    private val isLayoutSuggested: Boolean
+        get() = !isAutoSource && suggestedLayout != null && suggestedLayout.code != dismissedLayoutCode
+
+    /** Определять язык заново, когда меняется текст, раскладка или режим; короткий текст не определяем. */
+    fun detectionRequest(layoutCode: String?): DetectionRequest? =
+        editor.text.takeIf(LanguageDetectionRules::isLongEnough)
+            ?.let { DetectionRequest(it, layoutCode, isAutoSource) }
 
     /** Найденные языки перевода: по названию и коду, скачанные — первыми. Пустой запрос — весь список. */
     val searchResults: List<TranslationLanguage>
@@ -98,6 +121,7 @@ internal enum class TranslatorStatus { READY, DOWNLOADING, DOWNLOAD_FAILED, FAIL
 
 /** Карточка вместо поля (дизайн 8c): не ошибка, а что сделать дальше. */
 internal enum class TranslatorNotice {
+    LANGUAGE_DETECTED,
     UNSUPPORTED_SOURCE,
     SAME_LANGUAGES,
     MODEL_MISSING,

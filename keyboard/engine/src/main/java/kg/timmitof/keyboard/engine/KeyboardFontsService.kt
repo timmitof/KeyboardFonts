@@ -19,6 +19,7 @@ import kg.timmitof.keyboard.domain.repository.LanguageRepository
 import kg.timmitof.keyboard.suggestion.domain.repository.SuggestionRepository
 import kg.timmitof.keyboard.suggestion.domain.repository.TypingStatsRepository
 import kg.timmitof.keyboard.domain.repository.FeatureAccessRepository
+import kg.timmitof.keyboard.translate.domain.repository.LanguageDetectionRepository
 import kg.timmitof.keyboard.translate.domain.repository.TranslationDownloadRepository
 import kg.timmitof.keyboard.translate.domain.repository.TranslationModelRepository
 import kg.timmitof.keyboard.translate.domain.repository.TranslationRepository
@@ -68,6 +69,9 @@ internal class KeyboardFontsService : ComposeInputMethodService() {
     lateinit var translationDownloadRepository: TranslationDownloadRepository
 
     @Inject
+    lateinit var languageDetectionRepository: LanguageDetectionRepository
+
+    @Inject
     lateinit var featureAccessRepository: FeatureAccessRepository
 
     override fun attachBaseContext(newBase: Context) {
@@ -109,6 +113,7 @@ internal class KeyboardFontsService : ComposeInputMethodService() {
             translationModelRepository = translationModelRepository,
             translatorPreferencesRepository = translatorPreferencesRepository,
             translationDownloadRepository = translationDownloadRepository,
+            languageDetectionRepository = languageDetectionRepository,
             featureAccessRepository = featureAccessRepository,
         ),
         onKeyboardAction = ::applyAction,

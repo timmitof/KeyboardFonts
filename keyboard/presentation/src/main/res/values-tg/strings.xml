@@ -73,4 +73,10 @@
     <string name="translator_same_language_text">Забони дигари тарҷумаро интихоб кунед</string>
     <string name="translator_search">Ёфтани забон</string>
     <string name="translator_search_empty">Чунин забон нест</string>
+    <string name="translator_detected_title">Ба забони дигар монанд аст</string>
+    <string name="translator_detected_quote">«%1$s»</string>
+    <string name="translator_detect_dismiss">Ҳамин тавр монед</string>
+    <string name="translator_auto">Худкор муайян кардан</string>
+    <string name="translator_auto_text">аз рӯи матн</string>
+    <string name="translator_auto_label">Худкор · %1$s</string>
 </resources>

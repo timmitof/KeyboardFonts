@@ -11,4 +11,6 @@ interface TranslatorPreferencesRepository {
     suspend fun setTarget(code: String)
 
     suspend fun setHintShown()
+
+    suspend fun setAutoSource(isAuto: Boolean)
 }

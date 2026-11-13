@@ -138,7 +138,9 @@ internal data class KeyboardState(
 
     /** Подпись пробела в режиме перевода: «Русский → English». */
     val translatorPairLabel: String?
-        get() = translator?.let { "${it.source?.name ?: activeLanguage?.displayName.orEmpty()} → ${it.target.name}" }
+        get() = translator?.let {
+            "${it.translationSource?.name ?: activeLanguage?.displayName.orEmpty()} → ${it.target.name}"
+        }
 
     /** Алфавит раскладки: стили без его поддержки прячутся с панели и не применяются. */
     val fontScript: FontScript get() = activeLanguage.fontScript
@@ -294,6 +296,8 @@ internal sealed class KeyboardEvent : BaseEvent.UiEvent() {
     data object OnTranslatorSearchOpen : KeyboardEvent()
     data object OnTranslatorSearchClose : KeyboardEvent()
     data class OnTranslatorLanguageDownload(val language: TranslationLanguage) : KeyboardEvent()
+    data object OnTranslatorAutoSourceSelect : KeyboardEvent()
+    data object OnTranslatorDetectionDismiss : KeyboardEvent()
     data class OnTranslatorSourceSelect(val language: TranslationLanguage) : KeyboardEvent()
     data object OnTranslatorDownload : KeyboardEvent()
     data class OnTranslatorTargetSelect(val language: TranslationLanguage) : KeyboardEvent()

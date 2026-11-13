@@ -146,6 +146,8 @@ internal class KeyboardViewModel(
                 with(textInputDelegate) { closeComposing() }
                 with(translatorDelegate) { closeSearch() }
             }
+            is KeyboardEvent.OnTranslatorAutoSourceSelect -> intent { with(translatorDelegate) { selectAutoSource() } }
+            is KeyboardEvent.OnTranslatorDetectionDismiss -> intent { with(translatorDelegate) { dismissDetection() } }
             is KeyboardEvent.OnTranslatorLanguageDownload -> intent {
                 with(translatorDelegate) { downloadLanguage(event.language) }
             }
@@ -251,7 +253,10 @@ internal class KeyboardViewModel(
 
         with(textInputDelegate) { closeComposing() }
         with(languageDelegate) { selectLanguage(layout) }
-        with(translatorDelegate) { syncSource() }
+        with(translatorDelegate) {
+            disableAutoSource()
+            syncSource()
+        }
         reduce { state.copy(keyboardOverlay = null) }
         prefetchDictionary(state.activeLanguage)
         with(suggestionsDelegate) { requestSuggestions() }
@@ -289,6 +294,12 @@ internal class KeyboardViewModel(
 
         translatorDelegate.models
             .onEach { models -> intent { with(translatorDelegate) { applyModels(models) } } }
+            .launchIn(viewModelScope)
+
+        translatorDelegate.detections(container.stateFlow.map { it.translator?.detectionRequest(it.activeLanguage?.code) })
+            .onEach { (request, detected) ->
+                intent { with(translatorDelegate) { applyDetection(request, detected) } }
+            }
             .launchIn(viewModelScope)
 
         translatorDelegate.translations(container.stateFlow.map { it.translator?.request })

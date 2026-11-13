@@ -21,6 +21,7 @@ import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.SuggestionsD
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.TextInputDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.TranslatorDelegate
 import kg.timmitof.keyboard.domain.repository.FeatureAccessRepository
+import kg.timmitof.keyboard.translate.domain.repository.LanguageDetectionRepository
 import kg.timmitof.keyboard.translate.domain.repository.TranslationDownloadRepository
 import kg.timmitof.keyboard.translate.domain.repository.TranslationModelRepository
 import kg.timmitof.keyboard.translate.domain.repository.TranslationRepository
@@ -39,6 +40,7 @@ class KeyboardViewModelFactory(
     private val translationModelRepository: TranslationModelRepository,
     private val translatorPreferencesRepository: TranslatorPreferencesRepository,
     private val translationDownloadRepository: TranslationDownloadRepository,
+    private val languageDetectionRepository: LanguageDetectionRepository,
     private val featureAccessRepository: FeatureAccessRepository,
 ) : ViewModelProvider.Factory {
 
@@ -64,6 +66,7 @@ class KeyboardViewModelFactory(
                     modelRepository = translationModelRepository,
                     preferencesRepository = translatorPreferencesRepository,
                     downloadRepository = translationDownloadRepository,
+                    detectionRepository = languageDetectionRepository,
                 ),
             ) as T
         }

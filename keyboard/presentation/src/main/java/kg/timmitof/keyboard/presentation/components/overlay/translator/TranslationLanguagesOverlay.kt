@@ -95,11 +95,73 @@ internal fun ColumnScope.TranslationSourceOverlay(
 
     val picker = slice ?: return
 
+    // Дизайн 8b: «Определять автоматически» — исходный язык по тексту, раскладка остаётся.
+    AutoSourceRow(
+        isSelected = picker.isAuto,
+        onClick = { onEvent(KeyboardEvent.OnTranslatorAutoSourceSelect) },
+    )
+
     LanguagesList(
         picker = picker,
         onSelect = { onEvent(KeyboardEvent.OnTranslatorSourceSelect(it)) },
         onDownload = { onEvent(KeyboardEvent.OnTranslatorLanguageDownload(it)) },
     )
+}
+
+@Composable
+private fun AutoSourceRow(
+    isSelected: Boolean,
+    onClick: () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp)
+            .height(RowHeight)
+            .clip(RowShape)
+            .then(if (isSelected) Modifier.background(KFTheme.color.noticeBackground) else Modifier)
+            .plainClickable(onClick)
+            .padding(start = 10.dp, end = 10.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(
+            modifier = Modifier
+                .widthIn(min = 30.dp)
+                .clip(BadgeShape)
+                .background(KFTheme.color.noticeBackground)
+                .padding(horizontal = 7.dp, vertical = 3.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                imageVector = ImageVector.vectorResource(R.drawable.ic_translate),
+                contentDescription = null,
+                tint = KFTheme.color.noticeTextColor,
+                modifier = Modifier.size(14.dp),
+            )
+        }
+        Text(
+            modifier = Modifier.weight(1f),
+            text = stringResource(R.string.translator_auto),
+            fontSize = 14.sp,
+            color = KFTheme.color.overlayTitleColor,
+            maxLines = 1,
+        )
+        Text(
+            text = stringResource(R.string.translator_auto_text),
+            fontSize = 11.5.sp,
+            color = KFTheme.color.overlaySubtitleColor,
+            maxLines = 1,
+        )
+        if (isSelected) {
+            Icon(
+                imageVector = ImageVector.vectorResource(R.drawable.ic_check_key),
+                contentDescription = null,
+                tint = KFTheme.color.noticeTextColor,
+                modifier = Modifier.size(16.dp),
+            )
+        }
+    }
 }
 
 /** Не поле, а вход в поиск: лист закроется, и запрос наберут обычные клавиши. */
@@ -324,6 +386,8 @@ private data class LanguagesSlice(
     val downloadedCodes: Set<String>,
     val downloadingCodes: Set<String>,
     val recent: List<TranslationLanguage> = emptyList(),
+    /** «Перевести с» в режиме «определять автоматически»: отмечена эта строка, а не язык. */
+    val isAuto: Boolean = false,
 ) {
     fun stateOf(language: TranslationLanguage): ModelState = when (language.code) {
         in downloadedCodes -> ModelState.DOWNLOADED
@@ -351,7 +415,8 @@ private fun KeyboardState.sourceSlice(): LanguagesSlice? {
 
     return LanguagesSlice(
         languages = translator.sourceLanguages,
-        selectedCode = translator.source?.code.orEmpty(),
+        selectedCode = translator.source?.code?.takeUnless { translator.isAutoSource }.orEmpty(),
+        isAuto = translator.isAutoSource,
         downloadedCodes = translator.models.downloaded,
         downloadingCodes = translator.models.downloading,
     )

@@ -73,4 +73,10 @@
     <string name="translator_same_language_text">Choose another target language</string>
     <string name="translator_search">Find a language</string>
     <string name="translator_search_empty">No such language</string>
+    <string name="translator_detected_title">Looks like another language</string>
+    <string name="translator_detected_quote">“%1$s”</string>
+    <string name="translator_detect_dismiss">Keep as is</string>
+    <string name="translator_auto">Detect automatically</string>
+    <string name="translator_auto_text">from text</string>
+    <string name="translator_auto_label">Auto · %1$s</string>
 </resources>
