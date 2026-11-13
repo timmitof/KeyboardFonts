@@ -17,11 +17,13 @@ import kotlin.math.abs
 /**
  * Применяет side effects к полю ввода. [InputConnection] и [EditorInfo] берутся через провайдеры,
  * потому что меняются при каждой смене поля. [context] нужен спану подсказки (локаль).
+ * [hasSelectionProvider] — есть ли выделение в поле (сервис знает это из `onUpdateSelection` без запроса в чужой процесс).
  */
 internal class KeyboardActionHandler(
     private val context: Context,
     private val inputConnectionProvider: () -> InputConnection?,
     private val editorInfoProvider: () -> EditorInfo?,
+    private val hasSelectionProvider: () -> Boolean,
 ) {
 
     /** Вызывается только с главного потока, поэтому один экземпляр на всё время жизни. */
@@ -43,12 +45,11 @@ internal class KeyboardActionHandler(
             is KeyboardSideEffect.Input.ReplaceWordBeforeCursor -> connection.replaceWordBeforeCursor(action.text)
             is KeyboardSideEffect.Input.ReplaceTextBeforeCursor -> connection.replaceBeforeCursor(action.chars, action.text)
             is KeyboardSideEffect.Input.MoveCursor -> connection.moveCursor(action.horizontal, action.vertical)
-            is KeyboardSideEffect.Input.DeleteBackward -> connection.deleteLastGrapheme()
-            is KeyboardSideEffect.Input.DeleteWordBackward -> connection.deleteWordBeforeCursor()
+            is KeyboardSideEffect.Input.DeleteBackward -> if (hasSelectionProvider()) connection.commitText("", 1) else connection.deleteLastGrapheme()
+            is KeyboardSideEffect.Input.DeleteWordBackward -> if (hasSelectionProvider()) connection.commitText("", 1) else connection.deleteWordBeforeCursor()
             is KeyboardSideEffect.Input.SelectBeforeCursor -> connection.selectBeforeCursor(action.chars)
             is KeyboardSideEffect.Input.PerformEditorAction -> connection.performEnter()
             is KeyboardSideEffect.Input.DeleteSelection -> connection.commitText("", 1)
-            // Само поле не трогаем: сервис перечитает его после любой такой команды.
             is KeyboardSideEffect.Input.RefreshTextContext -> Unit
         }
     }

@@ -89,6 +89,7 @@ internal class KeyboardFontsService : ComposeInputMethodService() {
         context = this,
         inputConnectionProvider = { currentInputConnection },
         editorInfoProvider = { currentInputEditorInfo },
+        hasSelectionProvider = { hasSelection },
     )
 
     private var keyboardView: KeyboardFontsView? = null
@@ -124,6 +125,7 @@ internal class KeyboardFontsService : ComposeInputMethodService() {
 
     override fun onStartInput(attribute: EditorInfo?, restarting: Boolean) {
         super.onStartInput(attribute, restarting)
+        hasSelection = attribute != null && attribute.initialSelStart != attribute.initialSelEnd
         syncFieldContext()
     }
 
@@ -176,6 +178,7 @@ internal class KeyboardFontsService : ComposeInputMethodService() {
         when (action) {
             is KeyboardSideEffect.Input -> {
                 actionHandler.handle(action)
+                if (action.clearsSelection) hasSelection = false
                 if (action.needsTextResync) scheduleTextSync()
             }
 
@@ -193,6 +196,15 @@ internal class KeyboardFontsService : ComposeInputMethodService() {
                 -> false
 
             else -> true
+        }
+
+    private val KeyboardSideEffect.Input.clearsSelection: Boolean
+        get() = when (this) {
+            is KeyboardSideEffect.Input.CommitText,
+            is KeyboardSideEffect.Input.DeleteBackward,
+            is KeyboardSideEffect.Input.DeleteWordBackward,
+            is KeyboardSideEffect.Input.DeleteSelection -> true
+            else -> false
         }
 
     private fun openApp() {
