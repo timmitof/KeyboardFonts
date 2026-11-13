@@ -43,7 +43,7 @@ internal class TextInputDelegate(
         val touch = adapted?.second ?: pressedTouch
         val char = character.text(state.shiftState.isUpperCase())
 
-        val isSearch = state.isEmojiSearch
+        val isSearch = state.isSearchField
 
         // Точка, запятая и прочие разделители заканчивают слово так же, как пробел.
         if (char.isSeparator() && !isSearch) {
@@ -103,7 +103,7 @@ internal class TextInputDelegate(
      * а авто-Shift поднимается сам — снимок текста теперь кончается точкой.
      */
     private suspend fun KeyboardSyntax.insertPeriod(): Boolean {
-        if (state.isEmojiSearch) return false
+        if (state.isSearchField) return false
         if (!state.settings.isDoubleSpacePeriodEnabled || !state.fieldType.allowsSuggestions) return false
 
         val context = state.textContext
@@ -124,7 +124,7 @@ internal class TextInputDelegate(
     }
 
     private suspend fun KeyboardSyntax.finishWord(separator: String) {
-        if (state.isEmojiSearch) {
+        if (state.isSearchField) {
             input(KeyboardSideEffect.Input.CommitText(separator))
             return
         }
@@ -235,7 +235,7 @@ internal class TextInputDelegate(
     }
 
     suspend fun KeyboardSyntax.pressEnter() {
-        if (state.isEmojiSearch) {
+        if (state.inlineTarget == InlineTarget.EMOJI_SEARCH) {
             with(layerDelegate) { applyLayer(KeyboardLayer.EMOJI) }
         } else {
             state.textContext.composingWord
@@ -305,7 +305,7 @@ internal class TextInputDelegate(
      * Отмена замены слова ещё и разучивает её: в следующий раз то же слово не исправится.
      */
     private suspend fun KeyboardSyntax.undoAutoCorrection(): Boolean {
-        if (state.isEmojiSearch) return false
+        if (state.isSearchField) return false
 
         val correction = state.autoCorrection ?: return false
         if (!state.textContext.before.endsWith(correction.corrected)) {
@@ -403,7 +403,8 @@ internal class TextInputDelegate(
 
     private fun String.isSeparator(): Boolean = length == 1 && this[0] in WORD_SEPARATORS
 
-    private val KeyboardState.isEmojiSearch: Boolean get() = inlineTarget == InlineTarget.EMOJI_SEARCH
+    /** Строка поиска (эмодзи, языки): разделители — обычные символы, автозамены и снимка текста нет. */
+    private val KeyboardState.isSearchField: Boolean get() = inlineTarget?.isSearch == true
 
 
     private companion object {

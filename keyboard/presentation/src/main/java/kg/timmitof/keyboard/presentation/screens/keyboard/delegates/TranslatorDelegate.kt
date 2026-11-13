@@ -75,6 +75,7 @@ internal class TranslatorDelegate(
                     languages = modelRepository.languages(),
                     layouts = layouts,
                     models = models,
+                    recentTargets = preferences.recentTargets.mapNotNull(modelRepository::language),
                     needsLeadingSpace = before.isNotEmpty() && !before.last().isWhitespace(),
                 ).withDistinctPair(previousSource = null),
                 isFontsExpanded = false,
@@ -219,10 +220,45 @@ internal class TranslatorDelegate(
         reduce {
             val translator = state.translator ?: return@reduce state
             state.copy(
-                translator = translator.copy(target = language, status = TranslatorStatus.READY),
+                translator = translator.copy(
+                    target = language,
+                    status = TranslatorStatus.READY,
+                    languageSearch = null,
+                ).withRecent(language),
                 keyboardOverlay = null,
             )
         }
+    }
+
+    /**
+     * «Найти язык»: лист закрывается, чтобы были видны клавиши, а вместо панели — строка поиска.
+     * Черновик панели закрывает вызывающий: дальше ввод идёт в запрос.
+     */
+    suspend fun KeyboardSyntax.openSearch() {
+        reduce {
+            val translator = state.translator ?: return@reduce state
+            state.copy(
+                translator = translator.copy(languageSearch = InlineEditor(), isFontPickerOpen = false),
+                keyboardOverlay = null,
+            )
+        }
+    }
+
+    suspend fun KeyboardSyntax.closeSearch() {
+        updateTranslator { it.copy(languageSearch = null) }
+    }
+
+    /** Enter в поиске — первый найденный язык, как самый подходящий. */
+    suspend fun KeyboardSyntax.selectFirstFound() {
+        val language = state.translator?.searchResults?.firstOrNull()
+        if (language == null) closeSearch() else selectTarget(language)
+    }
+
+    /** «↓» в списке: качаем, не меняя пару, — язык пригодится позже, в том числе без сети. */
+    suspend fun KeyboardSyntax.downloadLanguage(language: TranslationLanguage) {
+        if (language.code in (state.translator?.models?.downloaded ?: return)) return
+
+        downloadRepository.download(listOf(language.code))
     }
 
     suspend fun KeyboardSyntax.setFontPickerOpen(isOpen: Boolean) {
@@ -257,7 +293,7 @@ internal class TranslatorDelegate(
         preferencesRepository.setTarget(previousSource.code)
         updateTranslator {
             val text = it.translation.ifEmpty { it.editor.text }
-            it.copy(
+            it.withRecent(previousSource).copy(
                 source = sourceOf(state.activeLanguage),
                 target = previousSource,
                 editor = InlineEditor(text = text),
@@ -281,8 +317,13 @@ internal class TranslatorDelegate(
         val updated = translator.copy(source = source, layouts = layouts, status = TranslatorStatus.READY)
             .withDistinctPair(previousSource = translator.source)
         if (updated.target != translator.target) preferencesRepository.setTarget(updated.target.code)
-        updateTranslator { updated.copy(editor = it.editor, models = it.models) }
+        val final = if (updated.target != translator.target) updated.withRecent(updated.target) else updated
+        updateTranslator { final.copy(editor = it.editor, models = it.models, languageSearch = it.languageSearch) }
     }
+
+    /** Тот же порядок, что пишет хранилище: свежий первым, без повторов, не больше [MAX_RECENT]. */
+    private fun TranslatorState.withRecent(language: TranslationLanguage): TranslatorState =
+        copy(recentTargets = (listOf(language) + recentTargets.filter { it.code != language.code }).take(MAX_RECENT))
 
     /** Исходный и целевой совпали — целевым становится прежний исходный (или язык по умолчанию). */
     private fun TranslatorState.withDistinctPair(previousSource: TranslationLanguage?): TranslatorState {
@@ -333,5 +374,6 @@ internal class TranslatorDelegate(
     private companion object {
         const val TRANSLATION_DELAY_MILLIS = 300L
         const val ENGLISH = "en"
+        const val MAX_RECENT = 4
     }
 }

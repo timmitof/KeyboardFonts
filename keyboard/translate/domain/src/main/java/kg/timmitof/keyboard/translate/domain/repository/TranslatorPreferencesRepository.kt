@@ -7,6 +7,7 @@ interface TranslatorPreferencesRepository {
 
     suspend fun getPreferences(): TranslatorPreferences
 
+    /** Запоминает и как текущий язык перевода, и как самый свежий из недавних. */
     suspend fun setTarget(code: String)
 
     suspend fun setHintShown()

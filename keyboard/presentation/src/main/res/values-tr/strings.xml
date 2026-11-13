@@ -71,4 +71,6 @@
     <string name="translator_unsupported_text">Çevrilecek dili seçin</string>
     <string name="translator_same_language_title">Diller aynı</string>
     <string name="translator_same_language_text">Başka bir hedef dil seçin</string>
+    <string name="translator_search">Dil ara</string>
+    <string name="translator_search_empty">Böyle bir dil yok</string>
 </resources>

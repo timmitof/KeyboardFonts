@@ -71,4 +71,6 @@
     <string name="translator_unsupported_text">Choose the language to translate from</string>
     <string name="translator_same_language_title">Languages are the same</string>
     <string name="translator_same_language_text">Choose another target language</string>
+    <string name="translator_search">Find a language</string>
+    <string name="translator_search_empty">No such language</string>
 </resources>

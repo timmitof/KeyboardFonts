@@ -71,4 +71,6 @@
     <string name="translator_unsupported_text">Забонеро, ки аз он тарҷума мекунед, интихоб кунед</string>
     <string name="translator_same_language_title">Забонҳо якхелаанд</string>
     <string name="translator_same_language_text">Забони дигари тарҷумаро интихоб кунед</string>
+    <string name="translator_search">Ёфтани забон</string>
+    <string name="translator_search_empty">Чунин забон нест</string>
 </resources>

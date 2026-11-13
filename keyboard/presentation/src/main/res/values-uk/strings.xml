@@ -71,4 +71,6 @@
     <string name="translator_unsupported_text">Виберіть мову, з якої перекладати</string>
     <string name="translator_same_language_title">Мови однакові</string>
     <string name="translator_same_language_text">Виберіть іншу мову перекладу</string>
+    <string name="translator_search">Знайти мову</string>
+    <string name="translator_search_empty">Такої мови немає</string>
 </resources>

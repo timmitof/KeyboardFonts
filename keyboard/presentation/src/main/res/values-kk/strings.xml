@@ -71,4 +71,6 @@
     <string name="translator_unsupported_text">Қай тілден аудару керегін таңдаңыз</string>
     <string name="translator_same_language_title">Тілдер бірдей</string>
     <string name="translator_same_language_text">Басқа аудару тілін таңдаңыз</string>
+    <string name="translator_search">Тілді табу</string>
+    <string name="translator_search_empty">Мұндай тіл жоқ</string>
 </resources>

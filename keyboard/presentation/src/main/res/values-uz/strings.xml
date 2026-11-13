@@ -71,4 +71,6 @@
     <string name="translator_unsupported_text">Qaysi tildan tarjima qilishni tanlang</string>
     <string name="translator_same_language_title">Tillar bir xil</string>
     <string name="translator_same_language_text">Boshqa tarjima tilini tanlang</string>
+    <string name="translator_search">Tilni topish</string>
+    <string name="translator_search_empty">Bunday til yoʻq</string>
 </resources>

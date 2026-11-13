@@ -16,6 +16,8 @@ import kg.timmitof.keyboard.translate.domain.model.TranslationModels
  * @param revision растёт, когда тот же текст нужно перевести заново (скачали язык, повторили после ошибки).
  * @param needsLeadingSpace в поле перед курсором уже есть текст без пробела — перевод отделяем пробелом.
  * @param isFontPickerOpen вместо пары языков — карусель шрифтов («Aa»): выбранный шрифт применяется к переводу.
+ * @param recentTargets недавние языки перевода, свежие первыми — чипы над списком языков.
+ * @param languageSearch запрос поиска языка перевода; null — поиск закрыт. Набирается обычными клавишами.
  */
 @Immutable
 internal data class TranslatorState(
@@ -31,6 +33,8 @@ internal data class TranslatorState(
     val revision: Int = 0,
     val needsLeadingSpace: Boolean = false,
     val isFontPickerOpen: Boolean = false,
+    val recentTargets: List<TranslationLanguage> = emptyList(),
+    val languageSearch: InlineEditor? = null,
 ) {
 
     /** Переводить некуда: язык раскладки переводчику неизвестен или совпадает с целевым. */
@@ -66,6 +70,15 @@ internal data class TranslatorState(
 
     /** Раскладка целевого языка; null — на нём не напечатать, и менять пару местами нельзя. */
     val swapLayout: KeyboardLanguage? get() = layouts[target.code]?.takeIf { source != null }
+
+    /** Найденные языки перевода: по названию и коду, скачанные — первыми. Пустой запрос — весь список. */
+    val searchResults: List<TranslationLanguage>
+        get() {
+            val query = languageSearch?.text?.trim().orEmpty()
+            return languages
+                .filter { query.isEmpty() || it.name.contains(query, ignoreCase = true) || it.code.startsWith(query, ignoreCase = true) }
+                .sortedByDescending { it.code in models.downloaded }
+        }
 
     /** Языки, с которых можно переводить: включённые раскладки, которые знает переводчик. */
     val sourceLanguages: List<TranslationLanguage>

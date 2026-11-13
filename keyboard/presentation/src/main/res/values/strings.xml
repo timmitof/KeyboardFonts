@@ -83,4 +83,6 @@
     <string name="translator_unsupported_text">Выберите язык, с которого переводить</string>
     <string name="translator_same_language_title">Языки совпадают</string>
     <string name="translator_same_language_text">Выберите другой язык перевода</string>
+    <string name="translator_search">Найти язык</string>
+    <string name="translator_search_empty">Такого языка нет</string>
 </resources>

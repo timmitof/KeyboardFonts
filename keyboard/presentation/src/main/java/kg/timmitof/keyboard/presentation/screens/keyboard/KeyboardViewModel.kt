@@ -17,6 +17,7 @@ import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.TextInputDel
 import kg.timmitof.keyboard.presentation.screens.keyboard.delegates.TranslatorDelegate
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.ComposingText
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.InlineEditor
+import kg.timmitof.keyboard.presentation.screens.keyboard.states.InlineTarget
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardEvent
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardLayer
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardOverlay
@@ -56,7 +57,10 @@ internal class KeyboardViewModel(
             is KeyboardEvent.OnCursorMove -> intent { with(textInputDelegate) { moveCursor(event.horizontal, event.vertical) } }
             is KeyboardEvent.OnCursorModeChange -> intent { with(textInputDelegate) { setCursorMode(event.active) } }
             is KeyboardEvent.OnEnter -> intent {
-                if (state.translator != null && state.layer != KeyboardLayer.EMOJI_SEARCH) {
+                if (state.inlineTarget == InlineTarget.LANGUAGE_SEARCH) {
+                    with(textInputDelegate) { closeComposing() }
+                    with(translatorDelegate) { selectFirstFound() }
+                } else if (state.translator != null && state.layer != KeyboardLayer.EMOJI_SEARCH) {
                     with(textInputDelegate) { closeComposing() }
                     with(translatorDelegate) { send() }
                 } else {
@@ -133,6 +137,18 @@ internal class KeyboardViewModel(
             }
             is KeyboardEvent.OnTranslatorClear -> intent { with(translatorDelegate) { clear() } }
             is KeyboardEvent.OnTranslatorRetry -> intent { with(translatorDelegate) { retry() } }
+            is KeyboardEvent.OnTranslatorSearchOpen -> intent {
+                // Черновик панели закрываем: дальше клавиши пишут в запрос поиска.
+                with(textInputDelegate) { closeComposing() }
+                with(translatorDelegate) { openSearch() }
+            }
+            is KeyboardEvent.OnTranslatorSearchClose -> intent {
+                with(textInputDelegate) { closeComposing() }
+                with(translatorDelegate) { closeSearch() }
+            }
+            is KeyboardEvent.OnTranslatorLanguageDownload -> intent {
+                with(translatorDelegate) { downloadLanguage(event.language) }
+            }
             is KeyboardEvent.OnTranslatorSourceSelect -> selectTranslatorSource(event.language)
             is KeyboardEvent.OnTranslatorDownload -> intent { with(translatorDelegate) { download() } }
             is KeyboardEvent.OnTranslatorTargetSelect -> intent { with(translatorDelegate) { selectTarget(event.language) } }

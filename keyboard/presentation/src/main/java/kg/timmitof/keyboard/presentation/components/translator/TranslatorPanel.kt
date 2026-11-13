@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
@@ -44,6 +46,7 @@ import kg.timmitof.keyboard.font.domain.model.KeyboardFont
 import kg.timmitof.keyboard.presentation.R
 import kg.timmitof.keyboard.presentation.components.FontsCarousel
 import kg.timmitof.keyboard.presentation.components.InlineFieldText
+import kg.timmitof.keyboard.presentation.components.InlineSearchBar
 import kg.timmitof.keyboard.presentation.components.fontSample
 import kg.timmitof.keyboard.presentation.components.fontScript
 import kg.timmitof.keyboard.presentation.components.fontShortSample
@@ -59,6 +62,7 @@ import kg.timmitof.keyboard.presentation.screens.keyboard.states.KeyboardState
 import kg.timmitof.keyboard.presentation.screens.keyboard.states.TranslatorNotice
 import kg.timmitof.keyboard.presentation.theme.KFTheme
 import kg.timmitof.keyboard.suggestion.domain.model.WordSuggestion
+import kg.timmitof.keyboard.translate.domain.model.TranslationLanguage
 
 /**
  * Панель перевода вместо верхней строки (дизайн 8a): пара языков и своё поле. Набранное здесь клавиатура
@@ -73,6 +77,11 @@ internal fun TranslatorPanel(
 ) {
     val slice by state.rememberSlice(KeyboardState::translatorPanelSlice)
     val panel = slice ?: return
+
+    panel.search?.let { search ->
+        LanguageSearch(search = search, onEvent = onEvent, modifier = modifier)
+        return
+    }
 
     Column(
         modifier = modifier
@@ -99,6 +108,62 @@ internal fun TranslatorPanel(
             PanelField(panel = panel, onEvent = onEvent)
         } else {
             NoticeCard(notice = notice, panel = panel, onEvent = onEvent)
+        }
+    }
+}
+
+/**
+ * Поиск языка перевода вместо панели — как поиск эмодзи: запрос набирают клавиши, найденные — строкой ниже.
+ * Тап выбирает язык и возвращает панель.
+ */
+@Composable
+private fun LanguageSearch(
+    search: LanguageSearchSlice,
+    onEvent: (KeyboardEvent) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(start = 4.dp, end = 4.dp, bottom = 2.dp),
+        verticalArrangement = Arrangement.spacedBy(RowGap),
+    ) {
+        InlineSearchBar(
+            query = search.query,
+            hint = stringResource(R.string.translator_search),
+            selectionChars = search.selection,
+            onClose = { onEvent(KeyboardEvent.OnTranslatorSearchClose) },
+        )
+
+        if (search.results.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(FieldHeight),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = stringResource(R.string.translator_search_empty),
+                    fontSize = 13.sp,
+                    color = KFTheme.color.keySpecialTextColor,
+                )
+            }
+        } else {
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(FieldHeight),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                items(items = search.results, key = { it.code }) { language ->
+                    TopBarPill(
+                        label = language.name,
+                        isActive = language.code == search.targetCode,
+                        onClick = { onEvent(KeyboardEvent.OnTranslatorTargetSelect(language)) },
+                    )
+                }
+            }
         }
     }
 }
@@ -401,6 +466,14 @@ private data class TranslatorFonts(
     val isStyled: Boolean get() = selected != KeyboardFont.Default
 }
 
+@Immutable
+private data class LanguageSearchSlice(
+    val query: String,
+    val selection: Int,
+    val results: List<TranslationLanguage>,
+    val targetCode: String,
+)
+
 /** Всё, что читает панель; data class — срез сравнивается по значению. */
 @Immutable
 private data class TranslatorPanelSlice(
@@ -416,6 +489,8 @@ private data class TranslatorPanelSlice(
     val missingNames: String,
     val fonts: TranslatorFonts?,
     val isFontPickerOpen: Boolean,
+    /** Открыт поиск языка — вместо панели строка поиска. */
+    val search: LanguageSearchSlice?,
 )
 
 private fun KeyboardState.translatorPanelSlice(): TranslatorPanelSlice? {
@@ -448,6 +523,14 @@ private fun KeyboardState.translatorPanelSlice(): TranslatorPanelSlice? {
             null
         },
         isFontPickerOpen = translator.isFontPickerOpen,
+        search = translator.languageSearch?.let { query ->
+            LanguageSearchSlice(
+                query = query.text,
+                selection = query.selection,
+                results = translator.searchResults,
+                targetCode = target.code,
+            )
+        },
     )
 }
 

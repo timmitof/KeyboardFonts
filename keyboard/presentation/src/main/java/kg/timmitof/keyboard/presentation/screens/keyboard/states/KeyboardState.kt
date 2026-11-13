@@ -76,6 +76,7 @@ internal data class KeyboardState(
     val inlineTarget: InlineTarget?
         get() = when {
             layer == KeyboardLayer.EMOJI_SEARCH -> InlineTarget.EMOJI_SEARCH
+            translator?.languageSearch != null -> InlineTarget.LANGUAGE_SEARCH
             translator != null -> InlineTarget.TRANSLATOR
             else -> null
         }
@@ -83,6 +84,9 @@ internal data class KeyboardState(
     /** Правка поля внутри клавиатуры; ввод в поле приложения состояние не меняет. */
     fun editInline(effect: KeyboardSideEffect.Input): KeyboardState = when (inlineTarget) {
         InlineTarget.EMOJI_SEARCH -> copy(emojiSearch = emojiSearch.apply(effect))
+        InlineTarget.LANGUAGE_SEARCH -> translator?.let { translator ->
+            copy(translator = translator.copy(languageSearch = translator.languageSearch?.apply(effect)))
+        } ?: this
         InlineTarget.TRANSLATOR -> translator?.let { copy(translator = it.copy(editor = it.editor.apply(effect))) } ?: this
         null -> this
     }
@@ -101,7 +105,8 @@ internal data class KeyboardState(
     val displayedEnterAction: EnterAction
         get() = when {
             layer == KeyboardLayer.EMOJI_SEARCH -> EnterAction.DONE
-            // В панели перевода Enter отправляет перевод.
+            // В поиске языка Enter выбирает первый найденный, в панели перевода — отправляет перевод.
+            inlineTarget == InlineTarget.LANGUAGE_SEARCH -> EnterAction.DONE
             inlineTarget == InlineTarget.TRANSLATOR -> EnterAction.SEND
             fieldType.hasOwnLayout && enterAction == EnterAction.RETURN -> EnterAction.DONE
             else -> enterAction
@@ -147,7 +152,7 @@ internal data class KeyboardState(
     /** Язык без словаря Т9 работает без подсказок, автозамены и обучения. */
     val allowsSuggestions: Boolean
         get() = settings.isSuggestionsEnabled && fieldType.allowsSuggestions && layer.showsSuggestions &&
-                activeLanguage?.hasDictionary == true
+                activeLanguage?.hasDictionary == true && inlineTarget?.isSearch != true
 
     val hasSuggestions: Boolean
         get() = suggestions.isNotEmpty() && allowsSuggestions
@@ -286,6 +291,9 @@ internal sealed class KeyboardEvent : BaseEvent.UiEvent() {
     data object OnTranslatorFontsToggle : KeyboardEvent()
     data object OnTranslatorClear : KeyboardEvent()
     data object OnTranslatorRetry : KeyboardEvent()
+    data object OnTranslatorSearchOpen : KeyboardEvent()
+    data object OnTranslatorSearchClose : KeyboardEvent()
+    data class OnTranslatorLanguageDownload(val language: TranslationLanguage) : KeyboardEvent()
     data class OnTranslatorSourceSelect(val language: TranslationLanguage) : KeyboardEvent()
     data object OnTranslatorDownload : KeyboardEvent()
     data class OnTranslatorTargetSelect(val language: TranslationLanguage) : KeyboardEvent()

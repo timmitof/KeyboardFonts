@@ -90,5 +90,13 @@ internal data class InlineEditor(
     }
 }
 
-/** Поле внутри клавиатуры, куда сейчас идёт ввод клавиш. */
-internal enum class InlineTarget { EMOJI_SEARCH, TRANSLATOR }
+/**
+ * Поле внутри клавиатуры, куда сейчас идёт ввод клавиш.
+ *
+ * @param isSearch строка поиска: без Т9 и автозамены, разделители — обычные символы.
+ */
+internal enum class InlineTarget(val isSearch: Boolean) {
+    EMOJI_SEARCH(isSearch = true),
+    LANGUAGE_SEARCH(isSearch = true),
+    TRANSLATOR(isSearch = false),
+}

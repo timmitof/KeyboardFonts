@@ -71,4 +71,6 @@
     <string name="translator_unsupported_text">Қайси тилдан таржима қилишни танланг</string>
     <string name="translator_same_language_title">Тиллар бир хил</string>
     <string name="translator_same_language_text">Бошқа таржима тилини танланг</string>
+    <string name="translator_search">Тилни топиш</string>
+    <string name="translator_search_empty">Бундай тил йўқ</string>
 </resources>
