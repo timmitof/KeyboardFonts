@@ -24,7 +24,7 @@ abstract class InteractorModule {
     abstract fun bindTipJarInteractor(impl: TipJarInteractorImpl): TipJarInteractor
 
     companion object {
-        /** Чаевые — в общий каталог магазина: без этого репозиторий не станет употреблять их покупки. */
+        /** Без этого репозиторий не тронет покупки чаевых. */
         @Provides
         @ElementsIntoSet
         fun tipCatalog(): Set<BillingProductSpec> = Tip.catalog

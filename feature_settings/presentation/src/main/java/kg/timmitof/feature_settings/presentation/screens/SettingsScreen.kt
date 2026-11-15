@@ -20,6 +20,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -43,6 +44,7 @@ import kg.timmitof.feature_settings.presentation.studio.InputPane
 import kg.timmitof.feature_settings.presentation.studio.LanguagesPane
 import kg.timmitof.feature_settings.presentation.studio.SizePane
 import kg.timmitof.feature_settings.presentation.studio.SoundPane
+import kg.timmitof.feature_settings.presentation.screens.tipjar.TipJarScreen
 import kg.timmitof.feature_settings.presentation.studio.StudioTab
 import kg.timmitof.feature_settings.presentation.studio.StudioTabs
 import kg.timmitof.feature_settings.presentation.studio.TranslatorPane
@@ -124,6 +126,8 @@ internal fun ContainerDSLBuilder<SettingsSideEffect, SettingsEvent>.SettingsCont
     }
     val onClearClipboard = remember { { sendEvent(SettingsEvent.ClearRecentClipboardClicked) } }
     val onConnect = remember { { sendEvent(SettingsEvent.ConnectKeyboardClicked) } }
+    val onSupport = remember { { sendEvent(SettingsEvent.TipJarClicked) } }
+    val onTipJarDismissed = remember { { sendEvent(SettingsEvent.TipJarDismissed) } }
     val onDownloadTranslatorLanguage = remember<(String) -> Unit> {
         { code -> sendEvent(SettingsEvent.TranslatorLanguageDownloadClicked(code)) }
     }
@@ -140,6 +144,7 @@ internal fun ContainerDSLBuilder<SettingsSideEffect, SettingsEvent>.SettingsCont
     val clipboard = remember(state) { derivedStateOf { state.value.clipboard } }
     val featureAccess = remember(state) { derivedStateOf { state.value.featureAccess } }
     val translator = remember(state) { derivedStateOf { state.value.translator } }
+    val support = remember(state) { derivedStateOf { state.value.support } }
     val isKeyboardReady by remember(state) { derivedStateOf { state.value.summary.isKeyboardReady } }
     val selectedTab = remember<() -> StudioTab>(state) { { state.value.selectedTab } }
 
@@ -157,6 +162,7 @@ internal fun ContainerDSLBuilder<SettingsSideEffect, SettingsEvent>.SettingsCont
 
         StudioHeader(
             isKeyboardReady = isKeyboardReady,
+            isSupporter = support.value.isSupporter,
             onConnect = onConnect,
         )
 
@@ -188,6 +194,8 @@ internal fun ContainerDSLBuilder<SettingsSideEffect, SettingsEvent>.SettingsCont
                         onEditPhoto = onEditPhoto,
                         onDraftPreview = onDraftPreview,
                         onKeyColor = onKeyColor,
+                        support = support.value,
+                        onSupport = onSupport,
                     )
                 }
                 tab(StudioTab.THEME) {
@@ -248,6 +256,10 @@ internal fun ContainerDSLBuilder<SettingsSideEffect, SettingsEvent>.SettingsCont
             Spacer(modifier = Modifier.height(innerPadding.calculateBottomPadding()))
         }
     }
+
+    if (support.value.isTipJarOpen) {
+        TipJarScreen(onDismiss = onTipJarDismissed)
+    }
 }
 
 /** Читает состояние сам, чтобы рекомпозиция превью не задевала остальной экран. */
@@ -277,11 +289,21 @@ private fun StudioPreview(
 @Composable
 private fun StudioHeader(
     isKeyboardReady: Boolean,
+    isSupporter: Boolean,
     onConnect: () -> Unit,
 ) {
     BrandHeader(
         modifier = Modifier.padding(horizontal = HorizontalPadding),
         title = stringResource(R.string.studio_app_name),
+        titleBadge = {
+            if (isSupporter) {
+                StatusPill(
+                    text = stringResource(R.string.supporter_badge),
+                    role = AccentRole.HINT,
+                    icon = painterResource(R.drawable.ic_supporter_star),
+                )
+            }
+        },
     ) {
         AppLanguageButton()
         if (isKeyboardReady) {

@@ -1,6 +1,7 @@
 package kg.timmitof.feature_settings.data.interactor
 
 import android.app.Activity
+import kg.timmitof.core.billing.domain.model.BillingFailure
 import kg.timmitof.core.billing.domain.model.BillingOutcome
 import kg.timmitof.core.billing.domain.model.PurchaseUpdate
 import kg.timmitof.core.billing.domain.repository.BillingRepository
@@ -9,19 +10,29 @@ import kg.timmitof.feature_settings.domain.model.Tip
 import kg.timmitof.feature_settings.domain.model.TipOffer
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class TipJarInteractorImpl @Inject constructor(
     private val billingRepository: BillingRepository,
 ) : TipJarInteractor {
 
-    // Исходы без товаров (отмена, ошибка) относятся к открытому окну оплаты; с товарами — только к чаевым.
+    // Отмена и ошибка без товаров — от открытого окна оплаты.
     override val purchaseUpdates: Flow<PurchaseUpdate> = billingRepository.purchaseUpdates.filter { update ->
         when (update) {
             is PurchaseUpdate.Completed -> update.productIds.any { Tip.byProductId(it) != null }
             is PurchaseUpdate.Pending -> update.productIds.any { Tip.byProductId(it) != null }
             PurchaseUpdate.Cancelled, is PurchaseUpdate.Failed -> true
         }
+    }
+
+    override fun observeSupporter(): Flow<Boolean> =
+        billingRepository.observePurchasedProducts().map { ids -> ids.any { Tip.byProductId(it) != null } }
+
+    // Подключение может пройти, а «недоступно» придёт только на запросе товаров.
+    override suspend fun isAvailable(): Boolean {
+        val outcome = loadTips()
+        return !(outcome is BillingOutcome.Failure && outcome.failure == BillingFailure.UNAVAILABLE)
     }
 
     override suspend fun loadTips(): BillingOutcome<List<TipOffer>> =

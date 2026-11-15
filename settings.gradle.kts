@@ -48,7 +48,6 @@ include(
     ":core:data",
     ":core:navigation",
     ":core:ui",
-    // Google Play Billing за интерфейсом: domain — контракт, data — BillingClient, di — привязки.
     ":core:billing:domain",
     ":core:billing:data",
     ":core:billing:di",

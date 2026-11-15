@@ -11,6 +11,7 @@ import kg.timmitof.core.billing.data.mapper.isRetryable
 import kg.timmitof.core.billing.data.mapper.toBillingProduct
 import kg.timmitof.core.billing.data.mapper.toFailure
 import kg.timmitof.core.billing.data.source.PlayBillingClient
+import kg.timmitof.core.billing.data.source.PurchaseHistorySource
 import kg.timmitof.core.billing.data.source.PurchasesResponse
 import kg.timmitof.core.billing.domain.model.BillingFailure
 import kg.timmitof.core.billing.domain.model.BillingOutcome
@@ -39,20 +40,16 @@ import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/**
- * Покупки через Play. Все оплаты — из окна оплаты и «висящие» — проходят через [process]:
- * оплачено → употребить → [PurchaseUpdate.Completed]; отложено → [PurchaseUpdate.Pending], ничего не трогаем.
- * Серверной проверки подписи нет сознательно: товары ничего не открывают, подделывать их бессмысленно.
- */
+/** Серверной проверки подписи нет сознательно: товары ничего не открывают. */
 @Singleton
 class BillingRepositoryImpl @Inject constructor(
     private val client: PlayBillingClient,
+    private val history: PurchaseHistorySource,
     catalog: Set<@JvmSuppressWildcards BillingProductSpec>,
 ) : BillingRepository {
 
     private val specs = catalog.associateBy { it.id }
 
-    // Колбэки Play приходят на главный поток — там же и обрабатываем, без лишних переключений.
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
     private val _status = MutableStateFlow<BillingStatus>(BillingStatus.Idle)
@@ -65,10 +62,9 @@ class BillingRepositoryImpl @Inject constructor(
     private val processMutex = Mutex()
     private var reconnectJob: Job? = null
 
-    /** Описания товаров из последнего запроса: без них окно оплаты не открыть. */
     private val details = ConcurrentHashMap<String, ProductDetails>()
 
-    /** Оплаты, за которые уже поблагодарили, — чтобы окно оплаты и проверка при открытии не сказали «спасибо» дважды. */
+    /** Чтобы окно оплаты и проверка при открытии не поблагодарили дважды. */
     private val thankedTokens = mutableSetOf<String>()
 
     init {
@@ -76,6 +72,8 @@ class BillingRepositoryImpl @Inject constructor(
             client.purchasesResponses.collect(::onPurchasesResponse)
         }
     }
+
+    override fun observePurchasedProducts(): Flow<Set<String>> = history.observe()
 
     override suspend fun connect(): BillingStatus = connectMutex.withLock {
         if (client.isReady) {
@@ -130,7 +128,7 @@ class BillingRepositoryImpl @Inject constructor(
         val result = withContext(Dispatchers.Main.immediate) { client.launchBillingFlow(activity, product) }
         return when (result.responseCode) {
             BillingResponseCode.OK -> BillingOutcome.Success(Unit)
-            // Прошлая оплата этого товара не употреблена — доводим её, исход придёт потоком.
+            // Прошлая оплата не употреблена — доводим её.
             BillingResponseCode.ITEM_ALREADY_OWNED -> {
                 scope.launch { completeOwned() }
                 BillingOutcome.Success(Unit)
@@ -165,12 +163,10 @@ class BillingRepositoryImpl @Inject constructor(
         }
     }
 
-    /** «Уже куплено»: доводим неупотреблённую оплату; если довести нечего — честно сообщаем об ошибке. */
     private suspend fun completeOwned() {
         if (sweep() == 0) updates.emit(PurchaseUpdate.Failed(BillingFailure.ERROR))
     }
 
-    /** @return сколько своих покупок нашлось и обработано. */
     private suspend fun sweep(): Int {
         if (awaitReady() != null) return 0
         val (result, purchases) = client.queryPurchases()
@@ -184,7 +180,7 @@ class BillingRepositoryImpl @Inject constructor(
     private suspend fun process(purchases: List<Purchase>): Int = processMutex.withLock {
         var handled = 0
         for (purchase in purchases) {
-            // Чужие и нерасходуемые товары не трогаем: употребить их — значит отнять у пользователя покупку.
+            // Употребить чужой или нерасходуемый товар — значит отнять у пользователя покупку.
             val consumable = purchase.products.all { specs[it]?.kind == BillingProductKind.CONSUMABLE }
             if (!consumable) continue
 
@@ -203,23 +199,20 @@ class BillingRepositoryImpl @Inject constructor(
         handled
     }
 
-    /**
-     * Употребление заодно подтверждает покупку (иначе Play вернёт деньги через 3 дня).
-     * Благодарим и при сбое: деньги уже списаны, а употребить получится при следующем открытии экрана.
-     */
+    /** Благодарим и при сбое: деньги уже списаны, употребить получится при следующем открытии. */
     private suspend fun consume(purchase: Purchase) {
         val result = client.consume(purchase.purchaseToken)
         if (!result.isOk && result.responseCode != BillingResponseCode.ITEM_NOT_OWNED) log("употребление", result)
         if (thankedTokens.add(purchase.purchaseToken)) {
+            history.add(purchase.products)
             updates.emit(PurchaseUpdate.Completed(purchase.products))
         }
     }
 
-    /** null — готово; иначе — почему подключиться не вышло. */
+    /** null — подключено. */
     private suspend fun awaitReady(): BillingFailure? =
         (connect() as? BillingStatus.Failed)?.failure
 
-    /** Связь с Play оборвалась после подключения — переподключаемся в фоне (с паузами, см. [connect]). */
     private fun onServiceDisconnected() {
         _status.value = BillingStatus.Idle
         if (reconnectJob?.isActive == true) return

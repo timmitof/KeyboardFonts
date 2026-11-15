@@ -161,4 +161,35 @@
     <string name="translator_delete_text">Онро ҳар вақт аз нав боргирӣ кардан мумкин.</string>
     <string name="translator_delete_confirm">Нест кардан</string>
     <string name="translator_delete_cancel">Бекор кардан</string>
+
+    <!-- Банка для чаевых -->
+    <string name="support_row_title">Дастгирии барномасоз</string>
+    <string name="support_row_subtitle">Ҳама ройгон — чойпулӣ бо хоҳиш</string>
+    <string name="support_row_subtitle_done">Ташаккур! Боз дастгирӣ кардан мумкин</string>
+    <string name="tipjar_title">Бонкаи чойпулӣ</string>
+    <string name="tipjar_body">Клавиатура ройгон ва бе реклама аст, ҳамаи имкониятҳо барои ҳама кушодаанд. Агар писанд ояд, метавонед таҳияро дастгирӣ кунед.</string>
+    <string name="tipjar_pay">%1$s гузоштан</string>
+    <string name="tipjar_pay_loading">Гузоштан</string>
+    <string name="tipjar_note">Пардохт тавассути Google Play. Ҳар вақт боз дастгирӣ кардан мумкин.</string>
+    <string name="tipjar_close">Пӯшидан</string>
+    <string name="tipjar_coffee">Қаҳва барои барномасоз</string>
+    <string name="tipjar_donut">Пончик ба қаҳва</string>
+    <string name="tipjar_pizza">Питса</string>
+    <string name="tipjar_boost">Тезонандаи таҳия</string>
+    <string name="tipjar_thanks">Ташаккури калон</string>
+    <string name="tipjar_thanks_coffee">Ташаккур барои қаҳва!</string>
+    <string name="tipjar_thanks_donut">Ташаккур барои пончик!</string>
+    <string name="tipjar_thanks_pizza">Ташаккур барои питса!</string>
+    <string name="tipjar_thanks_boost">Ташаккур барои тезонанда!</string>
+    <string name="tipjar_thanks_thanks">Ташаккури зиёд!</string>
+    <string name="tipjar_thanks_body">Ин дар ҳақиқат кӯмак мекунад: бо чунин чойпулӣ шрифтҳо ва забонҳои нав мебароянд.</string>
+    <string name="tipjar_badge_title">Нишони «Supporter»</string>
+    <string name="tipjar_badge_body">Дар Студия назди ном пайдо мешавад</string>
+    <string name="tipjar_done">Тайёр</string>
+    <string name="tipjar_pending">Пардохт ҳоло мегузарад. Ҳамин ки Google Play тасдиқ кунад, ташаккур мегӯем.</string>
+    <string name="tipjar_error_offline">Пайвастшавӣ бо Google Play нест. Интернетро санҷед ва боз кӯшиш кунед.</string>
+    <string name="tipjar_error_unavailable">Пардохт тавассути Google Play дар минтақаи шумо дастрас нест.</string>
+    <string name="tipjar_error_products">Чойпулӣ ҳоло дастрас нест. Баъдтар кӯшиш кунед.</string>
+    <string name="tipjar_error_generic">Бо Google Play пайваст шуда натавонистем.</string>
+    <string name="tipjar_retry">Такрор</string>
 </resources>

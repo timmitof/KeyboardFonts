@@ -161,4 +161,35 @@
     <string name="translator_delete_text">Оны кез келген уақытта қайта жүктеуге болады.</string>
     <string name="translator_delete_confirm">Жою</string>
     <string name="translator_delete_cancel">Бас тарту</string>
+
+    <!-- Банка для чаевых -->
+    <string name="support_row_title">Әзірлеушіні қолдау</string>
+    <string name="support_row_subtitle">Бәрі тегін — шайпұл қалау бойынша</string>
+    <string name="support_row_subtitle_done">Рақмет! Тағы қолдауға болады</string>
+    <string name="tipjar_title">Шайпұл банкасы</string>
+    <string name="tipjar_body">Пернетақта тегін әрі жарнамасыз, барлық мүмкіндік бәріне ашық. Ұнаса, әзірлеуді қолдауға болады.</string>
+    <string name="tipjar_pay">%1$s қалдыру</string>
+    <string name="tipjar_pay_loading">Қалдыру</string>
+    <string name="tipjar_note">Төлем Google Play арқылы. Кез келген уақытта тағы қолдауға болады.</string>
+    <string name="tipjar_close">Жабу</string>
+    <string name="tipjar_coffee">Әзірлеушіге кофе</string>
+    <string name="tipjar_donut">Кофеге пончик</string>
+    <string name="tipjar_pizza">Пицца</string>
+    <string name="tipjar_boost">Әзірлеу үдеткіші</string>
+    <string name="tipjar_thanks">Үлкен рақмет</string>
+    <string name="tipjar_thanks_coffee">Кофе үшін рақмет!</string>
+    <string name="tipjar_thanks_donut">Пончик үшін рақмет!</string>
+    <string name="tipjar_thanks_pizza">Пицца үшін рақмет!</string>
+    <string name="tipjar_thanks_boost">Үдеткіш үшін рақмет!</string>
+    <string name="tipjar_thanks_thanks">Шын жүректен рақмет!</string>
+    <string name="tipjar_thanks_body">Бұл шынымен көмектеседі: осындай шайпұлмен жаңа қаріптер мен тілдер шығады.</string>
+    <string name="tipjar_badge_title">«Supporter» белгісі</string>
+    <string name="tipjar_badge_body">Студиядағы атаудың қасында шығады</string>
+    <string name="tipjar_done">Дайын</string>
+    <string name="tipjar_pending">Төлем әлі өтіп жатыр. Google Play растаған бойда алғыс айтамыз.</string>
+    <string name="tipjar_error_offline">Google Play-мен байланыс жоқ. Интернетті тексеріп, қайталап көріңіз.</string>
+    <string name="tipjar_error_unavailable">Google Play арқылы төлем сіздің аймағыңызда қолжетімсіз.</string>
+    <string name="tipjar_error_products">Шайпұл әзірге қолжетімсіз. Кейінірек көріңіз.</string>
+    <string name="tipjar_error_generic">Google Play-ге қосылу мүмкін болмады.</string>
+    <string name="tipjar_retry">Қайталау</string>
 </resources>

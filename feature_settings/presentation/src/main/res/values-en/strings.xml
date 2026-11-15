@@ -161,4 +161,35 @@
     <string name="translator_delete_text">You can download it again anytime.</string>
     <string name="translator_delete_confirm">Delete</string>
     <string name="translator_delete_cancel">Cancel</string>
+
+    <!-- Банка для чаевых -->
+    <string name="support_row_title">Support the developer</string>
+    <string name="support_row_subtitle">Everything is free — tips are optional</string>
+    <string name="support_row_subtitle_done">Thank you! You can support again</string>
+    <string name="tipjar_title">Tip jar</string>
+    <string name="tipjar_body">The keyboard is free and ad-free, every feature is open to everyone. If you like it, you can support its development.</string>
+    <string name="tipjar_pay">Leave %1$s</string>
+    <string name="tipjar_pay_loading">Leave a tip</string>
+    <string name="tipjar_note">Paid via Google Play. You can support again any time.</string>
+    <string name="tipjar_close">Close</string>
+    <string name="tipjar_coffee">Coffee for the developer</string>
+    <string name="tipjar_donut">A donut with the coffee</string>
+    <string name="tipjar_pizza">Pizza</string>
+    <string name="tipjar_boost">Development boost</string>
+    <string name="tipjar_thanks">Huge thanks</string>
+    <string name="tipjar_thanks_coffee">Thanks for the coffee!</string>
+    <string name="tipjar_thanks_donut">Thanks for the donut!</string>
+    <string name="tipjar_thanks_pizza">Thanks for the pizza!</string>
+    <string name="tipjar_thanks_boost">Thanks for the boost!</string>
+    <string name="tipjar_thanks_thanks">Thank you so much!</string>
+    <string name="tipjar_thanks_body">It really helps: tips like this bring new fonts and languages.</string>
+    <string name="tipjar_badge_title">“Supporter” badge</string>
+    <string name="tipjar_badge_body">Shows up next to the name in Studio</string>
+    <string name="tipjar_done">Done</string>
+    <string name="tipjar_pending">The payment is still processing. We will say thanks as soon as Google Play confirms it.</string>
+    <string name="tipjar_error_offline">No connection to Google Play. Check your internet and try again.</string>
+    <string name="tipjar_error_unavailable">Google Play payments are not available in your region.</string>
+    <string name="tipjar_error_products">Tips are not available yet. Try again later.</string>
+    <string name="tipjar_error_generic">Could not reach Google Play.</string>
+    <string name="tipjar_retry">Retry</string>
 </resources>

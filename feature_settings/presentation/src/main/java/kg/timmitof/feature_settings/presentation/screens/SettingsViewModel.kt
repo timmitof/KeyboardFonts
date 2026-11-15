@@ -6,6 +6,7 @@ import kg.timmitof.core.navigation.graphs.SettingsGraph
 import kg.timmitof.core.ui.base.BaseSideEffect
 import kg.timmitof.core.ui.base.BaseViewModel
 import kg.timmitof.feature_settings.domain.interactor.SettingsInteractor
+import kg.timmitof.feature_settings.domain.interactor.TipJarInteractor
 import kg.timmitof.feature_settings.presentation.studio.StudioTab
 import kg.timmitof.keyboard.domain.model.KeyColorTarget
 import kg.timmitof.keyboard.domain.model.KeyboardBackground
@@ -18,7 +19,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val settingsInteractor: SettingsInteractor
+    private val settingsInteractor: SettingsInteractor,
+    private val tipJarInteractor: TipJarInteractor,
 ) : BaseViewModel<SettingsState, SettingsSideEffect, SettingsEvent>(SettingsState()) {
 
     init {
@@ -29,6 +31,7 @@ class SettingsViewModel @Inject constructor(
         observeClipboard()
         observeFeatureAccess()
         observeTranslator()
+        observeSupporter()
     }
 
     override fun onEvent(event: SettingsEvent) {
@@ -55,11 +58,31 @@ class SettingsViewModel @Inject constructor(
             }
             is SettingsEvent.ScreenResumed -> loadSummary()
             is SettingsEvent.ConnectKeyboardClicked -> navigateTo(HomeGraph.OnboardingScreen(isFromSettings = true))
+            is SettingsEvent.TipJarClicked -> setTipJarOpen(true)
+            is SettingsEvent.TipJarDismissed -> setTipJarOpen(false)
         }
     }
 
     override suspend fun Syntax<SettingsState, BaseSideEffect>.onBootstrap() {
         loadSummary()
+        checkTipJar()
+    }
+
+    /** Висящие оплаты доводим сразу: деньги списаны — бейдж должен появиться. */
+    private fun checkTipJar() = intent {
+        val isAvailable = tipJarInteractor.isAvailable()
+        reduce { state.copy(support = state.support.copy(isAvailable = isAvailable)) }
+        if (isAvailable) tipJarInteractor.completePending()
+    }
+
+    private fun observeSupporter() = intent {
+        tipJarInteractor.observeSupporter().collect { isSupporter ->
+            reduce { state.copy(support = state.support.copy(isSupporter = isSupporter)) }
+        }
+    }
+
+    private fun setTipJarOpen(isOpen: Boolean) = intent {
+        reduce { state.copy(support = state.support.copy(isTipJarOpen = isOpen)) }
     }
 
     /** Настройки правит и этот экран, и клавиатура — состояние всегда идёт из хранилища. */

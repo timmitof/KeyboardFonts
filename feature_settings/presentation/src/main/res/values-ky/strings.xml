@@ -161,4 +161,35 @@
     <string name="translator_delete_text">Аны каалаган убакта кайра жүктөсө болот.</string>
     <string name="translator_delete_confirm">Өчүрүү</string>
     <string name="translator_delete_cancel">Жокко чыгаруу</string>
+
+    <!-- Банка для чаевых -->
+    <string name="support_row_title">Иштеп чыгуучуну колдоо</string>
+    <string name="support_row_subtitle">Баары акысыз — чайпул каалооңуз боюнча</string>
+    <string name="support_row_subtitle_done">Рахмат! Кайра колдосоңуз болот</string>
+    <string name="tipjar_title">Чайпул банкасы</string>
+    <string name="tipjar_body">Клавиатура акысыз жана жарнамасыз, бардык мүмкүнчүлүктөр баарына ачык. Жакса, иштеп чыгууну колдосоңуз болот.</string>
+    <string name="tipjar_pay">%1$s калтыруу</string>
+    <string name="tipjar_pay_loading">Калтыруу</string>
+    <string name="tipjar_note">Төлөм Google Play аркылуу. Каалаган убакта кайра колдосоңуз болот.</string>
+    <string name="tipjar_close">Жабуу</string>
+    <string name="tipjar_coffee">Иштеп чыгуучуга кофе</string>
+    <string name="tipjar_donut">Кофеге пончик</string>
+    <string name="tipjar_pizza">Пицца</string>
+    <string name="tipjar_boost">Иштеп чыгуу ылдамдаткычы</string>
+    <string name="tipjar_thanks">Чоң рахмат</string>
+    <string name="tipjar_thanks_coffee">Кофе үчүн рахмат!</string>
+    <string name="tipjar_thanks_donut">Пончик үчүн рахмат!</string>
+    <string name="tipjar_thanks_pizza">Пицца үчүн рахмат!</string>
+    <string name="tipjar_thanks_boost">Ылдамдаткыч үчүн рахмат!</string>
+    <string name="tipjar_thanks_thanks">Чын дилден рахмат!</string>
+    <string name="tipjar_thanks_body">Бул чындап жардам берет: ушундай чайпулга жаңы шрифттер жана тилдер чыгат.</string>
+    <string name="tipjar_badge_title">«Supporter» белгиси</string>
+    <string name="tipjar_badge_body">Студиядагы аталыштын жанында чыгат</string>
+    <string name="tipjar_done">Даяр</string>
+    <string name="tipjar_pending">Төлөм дагы эле өтүп жатат. Google Play ырастаары менен ыраазычылык айтабыз.</string>
+    <string name="tipjar_error_offline">Google Play менен байланыш жок. Интернетти текшерип, кайра аракет кылыңыз.</string>
+    <string name="tipjar_error_unavailable">Google Play аркылуу төлөм сиздин аймакта жеткиликсиз.</string>
+    <string name="tipjar_error_products">Чайпул азырынча жеткиликсиз. Кийинчерээк аракет кылыңыз.</string>
+    <string name="tipjar_error_generic">Google Play менен байланышуу мүмкүн болбоду.</string>
+    <string name="tipjar_retry">Кайталоо</string>
 </resources>

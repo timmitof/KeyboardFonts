@@ -24,16 +24,11 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.resume
 
-/** Ответ окна оплаты: код Play и покупки (пусто, если оплаты не было). */
 class PurchasesResponse(
     val result: BillingResult,
     val purchases: List<Purchase>,
 )
 
-/**
- * Тонкая обёртка над [BillingClient]: колбэки Play → suspend-функции и поток.
- * Логики тут нет — решения принимает [kg.timmitof.core.billing.data.repository.BillingRepositoryImpl].
- */
 @Singleton
 class PlayBillingClient @Inject constructor(
     @ApplicationContext context: Context,
@@ -41,23 +36,17 @@ class PlayBillingClient @Inject constructor(
 
     private val responses = MutableSharedFlow<PurchasesResponse>(extraBufferCapacity = BUFFER)
 
-    /** Единственная точка, куда Play сообщает об оплатах (PurchasesUpdatedListener). */
     val purchasesResponses: SharedFlow<PurchasesResponse> = responses.asSharedFlow()
 
     private val client = BillingClient.newBuilder(context)
         .setListener { result, purchases ->
             responses.tryEmit(PurchasesResponse(result, purchases.orEmpty()))
         }
-        // Отложенные оплаты (наличные в терминале и т. п.) — для разовых товаров.
         .enablePendingPurchases(PendingPurchasesParams.newBuilder().enableOneTimeProducts().build())
         .build()
 
     val isReady: Boolean get() = client.isReady
 
-    /**
-     * Подключение. Возвращает итог настройки; если связь оборвётся позже — зовёт [onDisconnected]
-     * (переподключение решает репозиторий).
-     */
     suspend fun startConnection(onDisconnected: () -> Unit): BillingResult =
         suspendCancellableCoroutine { continuation ->
             val settled = AtomicBoolean(false)
@@ -94,7 +83,6 @@ class PlayBillingClient @Inject constructor(
         }
     }
 
-    /** Покупки разовых товаров, которые ещё не употреблены (в том числе отложенные). */
     suspend fun queryPurchases(): Pair<BillingResult, List<Purchase>> {
         val params = QueryPurchasesParams.newBuilder()
             .setProductType(ProductType.INAPP)
@@ -106,7 +94,7 @@ class PlayBillingClient @Inject constructor(
         }
     }
 
-    /** Употребляет покупку; заодно это и подтверждение (acknowledge) для Play. */
+    /** Заодно подтверждает покупку (acknowledge). */
     suspend fun consume(purchaseToken: String): BillingResult {
         val params = ConsumeParams.newBuilder().setPurchaseToken(purchaseToken).build()
         return suspendCancellableCoroutine { continuation ->

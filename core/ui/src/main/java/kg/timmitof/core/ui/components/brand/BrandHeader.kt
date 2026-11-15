@@ -19,10 +19,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kg.timmitof.core.common.R as CommonR
 
+/** [titleBadge] — сразу за названием, [trailing] — справа. */
 @Composable
 fun BrandHeader(
     title: String,
     modifier: Modifier = Modifier,
+    titleBadge: @Composable RowScope.() -> Unit = {},
     trailing: @Composable RowScope.() -> Unit = {},
 ) {
     Row(
@@ -45,6 +47,7 @@ fun BrandHeader(
             color = MaterialTheme.colorScheme.onBackground,
             maxLines = 1,
         )
+        titleBadge()
         Spacer(modifier = Modifier.weight(1f))
         trailing()
     }

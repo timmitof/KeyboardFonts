@@ -18,7 +18,6 @@ abstract class BillingModule {
     @Singleton
     abstract fun bindBillingRepository(impl: BillingRepositoryImpl): BillingRepository
 
-    /** Каталог товаров собирается из фич (`@ElementsIntoSet` + [kg.timmitof.core.billing.domain.model.billingCatalog]); может быть пустым. */
     @Multibinds
     abstract fun billingCatalog(): Set<BillingProductSpec>
 }

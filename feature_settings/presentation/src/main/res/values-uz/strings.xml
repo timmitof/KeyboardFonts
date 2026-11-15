@@ -161,4 +161,35 @@
     <string name="translator_delete_text">Uni istalgan vaqtda qayta yuklab olish mumkin.</string>
     <string name="translator_delete_confirm">Oʻchirish</string>
     <string name="translator_delete_cancel">Bekor qilish</string>
+
+    <!-- Банка для чаевых -->
+    <string name="support_row_title">Dasturchini qoʻllab-quvvatlash</string>
+    <string name="support_row_subtitle">Hammasi bepul — choychaqa ixtiyoriy</string>
+    <string name="support_row_subtitle_done">Rahmat! Yana qoʻllab-quvvatlash mumkin</string>
+    <string name="tipjar_title">Choychaqa bankasi</string>
+    <string name="tipjar_body">Klaviatura bepul va reklamasiz, barcha imkoniyatlar hammaga ochiq. Yoqsa, ishlab chiqishni qoʻllab-quvvatlashingiz mumkin.</string>
+    <string name="tipjar_pay">%1$s qoldirish</string>
+    <string name="tipjar_pay_loading">Qoldirish</string>
+    <string name="tipjar_note">Toʻlov Google Play orqali. Istalgan vaqtda yana qoʻllab-quvvatlash mumkin.</string>
+    <string name="tipjar_close">Yopish</string>
+    <string name="tipjar_coffee">Dasturchiga qahva</string>
+    <string name="tipjar_donut">Qahvaga ponchik</string>
+    <string name="tipjar_pizza">Pitsa</string>
+    <string name="tipjar_boost">Ishlab chiqish tezlatkichi</string>
+    <string name="tipjar_thanks">Katta rahmat</string>
+    <string name="tipjar_thanks_coffee">Qahva uchun rahmat!</string>
+    <string name="tipjar_thanks_donut">Ponchik uchun rahmat!</string>
+    <string name="tipjar_thanks_pizza">Pitsa uchun rahmat!</string>
+    <string name="tipjar_thanks_boost">Tezlatkich uchun rahmat!</string>
+    <string name="tipjar_thanks_thanks">Chin dildan rahmat!</string>
+    <string name="tipjar_thanks_body">Bu haqiqatan yordam beradi: shunday choychaqalar bilan yangi shriftlar va tillar chiqadi.</string>
+    <string name="tipjar_badge_title">«Supporter» nishoni</string>
+    <string name="tipjar_badge_body">Studiyada nom yonida chiqadi</string>
+    <string name="tipjar_done">Tayyor</string>
+    <string name="tipjar_pending">Toʻlov hali oʻtmoqda. Google Play tasdiqlashi bilan minnatdorchilik bildiramiz.</string>
+    <string name="tipjar_error_offline">Google Play bilan aloqa yoʻq. Internetni tekshirib, qayta urinib koʻring.</string>
+    <string name="tipjar_error_unavailable">Google Play orqali toʻlov hududingizda mavjud emas.</string>
+    <string name="tipjar_error_products">Choychaqa hozircha mavjud emas. Keyinroq urinib koʻring.</string>
+    <string name="tipjar_error_generic">Google Play bilan bogʻlanib boʻlmadi.</string>
+    <string name="tipjar_retry">Qayta urinish</string>
 </resources>

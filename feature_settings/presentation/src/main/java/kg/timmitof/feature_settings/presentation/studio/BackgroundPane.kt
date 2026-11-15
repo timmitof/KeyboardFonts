@@ -23,6 +23,8 @@ import kg.timmitof.feature_settings.presentation.components.BackgroundActions
 import kg.timmitof.feature_settings.presentation.components.BackgroundColorSheet
 import kg.timmitof.feature_settings.presentation.components.BackgroundTile
 import kg.timmitof.feature_settings.presentation.components.BackgroundTiles
+import kg.timmitof.feature_settings.presentation.components.SupportRow
+import kg.timmitof.feature_settings.presentation.screens.SupportOverview
 import kg.timmitof.keyboard.domain.model.BackgroundPattern
 import kg.timmitof.keyboard.domain.model.BackgroundPhoto
 import kg.timmitof.keyboard.domain.model.KeyColorTarget
@@ -38,6 +40,8 @@ internal fun BackgroundPane(
     onEditPhoto: (Long) -> Unit,
     onDraftPreview: (KeyboardBackground.Solid?) -> Unit,
     onKeyColor: (KeyColorTarget, Long?) -> Unit,
+    support: SupportOverview,
+    onSupport: () -> Unit,
 ) {
     val photoPicker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         uri?.let { onPhotoPicked(it.toString()) }
@@ -85,6 +89,10 @@ internal fun BackgroundPane(
     val selectedPhotoId = (settings.background as? KeyboardBackground.Photo)?.photo?.id
 
     BackgroundActions(actions = actions)
+
+    if (support.isAvailable) {
+        SupportRow(isSupporter = support.isSupporter, onClick = onSupport)
+    }
 
     Column {
         SettingsSectionHeader(title = stringResource(R.string.background_presets_header))

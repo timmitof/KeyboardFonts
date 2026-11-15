@@ -161,4 +161,35 @@
     <string name="translator_delete_text">İstediğiniz zaman yeniden indirebilirsiniz.</string>
     <string name="translator_delete_confirm">Sil</string>
     <string name="translator_delete_cancel">İptal</string>
+
+    <!-- Банка для чаевых -->
+    <string name="support_row_title">Geliştiriciyi destekle</string>
+    <string name="support_row_subtitle">Her şey ücretsiz — bahşiş isteğe bağlı</string>
+    <string name="support_row_subtitle_done">Teşekkürler! Yeniden destekleyebilirsiniz</string>
+    <string name="tipjar_title">Bahşiş kavanozu</string>
+    <string name="tipjar_body">Klavye ücretsiz ve reklamsız, tüm özellikler herkese açık. Beğendiyseniz geliştirmeyi destekleyebilirsiniz.</string>
+    <string name="tipjar_pay">%1$s bırak</string>
+    <string name="tipjar_pay_loading">Bahşiş bırak</string>
+    <string name="tipjar_note">Ödeme Google Play üzerinden. İstediğiniz zaman yeniden destekleyebilirsiniz.</string>
+    <string name="tipjar_close">Kapat</string>
+    <string name="tipjar_coffee">Geliştiriciye kahve</string>
+    <string name="tipjar_donut">Kahvenin yanına donut</string>
+    <string name="tipjar_pizza">Pizza</string>
+    <string name="tipjar_boost">Geliştirme hızlandırıcı</string>
+    <string name="tipjar_thanks">Kocaman teşekkürler</string>
+    <string name="tipjar_thanks_coffee">Kahve için teşekkürler!</string>
+    <string name="tipjar_thanks_donut">Donut için teşekkürler!</string>
+    <string name="tipjar_thanks_pizza">Pizza için teşekkürler!</string>
+    <string name="tipjar_thanks_boost">Hızlandırıcı için teşekkürler!</string>
+    <string name="tipjar_thanks_thanks">Çok teşekkürler!</string>
+    <string name="tipjar_thanks_body">Gerçekten işe yarıyor: bu bahşişlerle yeni yazı tipleri ve diller geliyor.</string>
+    <string name="tipjar_badge_title">“Supporter” rozeti</string>
+    <string name="tipjar_badge_body">Stüdyo’da adın yanında görünür</string>
+    <string name="tipjar_done">Tamam</string>
+    <string name="tipjar_pending">Ödeme hâlâ işleniyor. Google Play onaylar onaylamaz teşekkür edeceğiz.</string>
+    <string name="tipjar_error_offline">Google Play ile bağlantı yok. İnternetinizi kontrol edip yeniden deneyin.</string>
+    <string name="tipjar_error_unavailable">Google Play ödemeleri bölgenizde kullanılamıyor.</string>
+    <string name="tipjar_error_products">Bahşişler şu an kullanılamıyor. Daha sonra deneyin.</string>
+    <string name="tipjar_error_generic">Google Play’e ulaşılamadı.</string>
+    <string name="tipjar_retry">Yeniden dene</string>
 </resources>

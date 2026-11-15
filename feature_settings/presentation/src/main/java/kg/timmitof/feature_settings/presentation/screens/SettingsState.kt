@@ -32,8 +32,17 @@ data class SettingsState(
     val photos: List<BackgroundPhoto> = emptyList(),
     val featureAccess: FeatureAccess = FeatureAccess(),
     val translator: TranslatorOverview = TranslatorOverview(),
+    val support: SupportOverview = SupportOverview(),
 ) : BaseState() {
 }
+
+/** [isAvailable] = false, пока не ясно, работает ли оплата, и там, где Play её не поддерживает. */
+@Immutable
+data class SupportOverview(
+    val isAvailable: Boolean = false,
+    val isSupporter: Boolean = false,
+    val isTipJarOpen: Boolean = false,
+)
 
 sealed class SettingsSideEffect : BaseSideEffect.UiSideEffect()
 
@@ -77,4 +86,8 @@ sealed class SettingsEvent : BaseEvent.UiEvent() {
     data object ScreenResumed : SettingsEvent()
 
     data object ConnectKeyboardClicked : SettingsEvent()
+
+    data object TipJarClicked : SettingsEvent()
+
+    data object TipJarDismissed : SettingsEvent()
 }

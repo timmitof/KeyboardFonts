@@ -1,12 +1,10 @@
 package kg.timmitof.core.billing.domain.model
 
-/** Как обращаться с покупкой после оплаты. */
 enum class BillingProductKind {
     /** Расходуемый (чаевые) */
     CONSUMABLE,
 }
 
-/** Товар, о котором знает приложение. Покупки чужих товаров репозиторий не трогает. */
 data class BillingProductSpec(
     val id: String,
     val kind: BillingProductKind,
@@ -16,7 +14,6 @@ data class BillingProductSpec(
 annotation class BillingCatalogDsl
 
 /**
- * Сборщик списка товаров:
  * ```
  * billingCatalog { consumable("tip_coffee_99") }
  * ```

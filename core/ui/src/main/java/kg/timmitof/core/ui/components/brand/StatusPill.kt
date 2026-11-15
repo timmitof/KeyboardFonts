@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -28,12 +29,16 @@ import kg.timmitof.core.ui.R
 import kg.timmitof.core.ui.theme.AccentRole
 import kg.timmitof.core.ui.theme.appColors
 
-/** Пилюля статуса в шапке; смена статуса перекрашивает её плавно, без перестройки разметки. */
+/**
+ * Пилюля статуса в шапке; смена статуса перекрашивает её плавно, без перестройки разметки.
+ * [icon] — своя иконка вместо галочки/точки.
+ */
 @Composable
 fun StatusPill(
     text: String,
     role: AccentRole,
     modifier: Modifier = Modifier,
+    icon: Painter? = null,
     onClick: (() -> Unit)? = null,
 ) {
     val tones = MaterialTheme.appColors[role]
@@ -50,9 +55,9 @@ fun StatusPill(
         horizontalArrangement = Arrangement.spacedBy(6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        if (role == AccentRole.SUCCESS) {
+        if (icon != null || role == AccentRole.SUCCESS) {
             Icon(
-                painter = painterResource(R.drawable.ic_check),
+                painter = icon ?: painterResource(R.drawable.ic_check),
                 contentDescription = null,
                 tint = content,
                 modifier = Modifier.size(13.dp),

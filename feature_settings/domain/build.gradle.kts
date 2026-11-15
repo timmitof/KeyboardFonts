@@ -10,6 +10,5 @@ dependencies {
 
     api(project(":keyboard:integration"))
 
-    // Чаевые: контракт магазина (BillingRepository и модели).
     api(project(":core:billing:domain"))
 }

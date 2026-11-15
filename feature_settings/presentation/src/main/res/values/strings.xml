@@ -194,4 +194,36 @@
     <string name="translator_delete_text">Скачать его снова можно в любой момент.</string>
     <string name="translator_delete_confirm">Удалить</string>
     <string name="translator_delete_cancel">Отмена</string>
+
+    <!-- Банка для чаевых -->
+    <string name="support_row_title">Поддержать разработчика</string>
+    <string name="support_row_subtitle">Всё бесплатно — чаевые по желанию</string>
+    <string name="support_row_subtitle_done">Спасибо! Можно поддержать ещё раз</string>
+    <string name="tipjar_title">Банка для чаевых</string>
+    <string name="tipjar_body">Клавиатура бесплатная и без рекламы, все функции открыты всем. Если она вам нравится — можно поддержать разработку.</string>
+    <string name="tipjar_pay">Оставить %1$s</string>
+    <string name="tipjar_pay_loading">Оставить</string>
+    <string name="tipjar_note">Оплата через Google Play. Можно поддержать ещё раз в любой момент.</string>
+    <string name="tipjar_close">Закрыть</string>
+    <string name="tipjar_coffee">Кофе разработчику</string>
+    <string name="tipjar_donut">Пончик к кофе</string>
+    <string name="tipjar_pizza">Пицца</string>
+    <string name="tipjar_boost">Ускоритель разработки</string>
+    <string name="tipjar_thanks">Большое спасибо</string>
+    <string name="tipjar_thanks_coffee">Спасибо за кофе!</string>
+    <string name="tipjar_thanks_donut">Спасибо за пончик!</string>
+    <string name="tipjar_thanks_pizza">Спасибо за пиццу!</string>
+    <string name="tipjar_thanks_boost">Спасибо за ускоритель!</string>
+    <string name="tipjar_thanks_thanks">Спасибо огромное!</string>
+    <string name="tipjar_thanks_body">Это правда помогает: на такие чаевые выходят новые шрифты и языки.</string>
+    <string name="tipjar_badge_title">Бейдж «Supporter»</string>
+    <string name="tipjar_badge_body">Появится рядом с названием в Студии</string>
+    <string name="tipjar_done">Готово</string>
+    <string name="tipjar_pending">Оплата ещё проходит. Поблагодарим, как только Google Play её подтвердит.</string>
+    <string name="tipjar_error_offline">Нет связи с Google Play. Проверьте интернет и попробуйте ещё раз.</string>
+    <string name="tipjar_error_unavailable">Оплата через Google Play недоступна в вашем регионе.</string>
+    <string name="tipjar_error_products">Чаевые пока недоступны. Попробуйте позже.</string>
+    <string name="tipjar_error_generic">Не получилось связаться с Google Play.</string>
+    <string name="tipjar_retry">Повторить</string>
+    <string name="supporter_badge" translatable="false">Supporter</string>
 </resources>
