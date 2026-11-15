@@ -38,10 +38,12 @@ class TipJarViewModel @Inject constructor(
     }
 
     private fun onShown() = intent {
+        // Отложенная оплата могла отмениться — если она ещё висит, completePending снова пришлёт Pending.
+        reduce { state.copy(isPaying = false, isPending = false, paymentFailure = null) }
         when (state.phase) {
-            is TipJarPhase.Thanks -> reduce { state.copy(phase = TipJarPhase.Picking, paymentFailure = null) }
+            is TipJarPhase.Thanks -> reduce { state.copy(phase = TipJarPhase.Picking) }
             is TipJarPhase.Failed -> loadTips()
-            TipJarPhase.Loading, TipJarPhase.Picking -> reduce { state.copy(paymentFailure = null) }
+            TipJarPhase.Loading, TipJarPhase.Picking -> Unit
         }
         tipJarInteractor.completePending()
     }
